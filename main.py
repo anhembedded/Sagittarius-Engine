@@ -1,11 +1,10 @@
 import os
 from src.infrastructure.logger.Loguru_Logger_infra import LoguruLogger
-from src.adapters.logger.Loguru_Logger_adapter import LoguruLoggerAdapter
-from src.adapters.logger.Silent_Logger_adapter import SilentLoggerAdapter
+from src.adapters.logger.Logger_adapter import LoguruLoggerAdapter
+from src.infrastructure.logger.Silent_Logger__infra import SilentLoggerAdapter
 from src.infrastructure.configuration.Json_File_Infra import JsonFileInfra
 from src.adapters.configuration.Local_Config_Adapter import LocalConfigAdapter
 from src.domain.configuration.Configuration_api import AppConfig
-
 
 def main() -> None:
     # 1. Initialize Configuration Infra & Adapter

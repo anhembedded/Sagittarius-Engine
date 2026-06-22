@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import MagicMock, patch
 from src.infrastructure.logger.Loguru_Logger_infra import LoguruLogger
-from src.adapters.logger.Loguru_Logger_adapter import LoguruLoggerAdapter
-from src.adapters.logger.Silent_Logger_adapter import SilentLoggerAdapter
+from src.adapters.logger.Logger_adapter import LoguruLoggerAdapter
+from src.infrastructure.logger.Silent_Logger__infra import SilentLoggerAdapter
 
 class TestLogger(unittest.TestCase):
     def test_silent_logger_adapter(self) -> None:

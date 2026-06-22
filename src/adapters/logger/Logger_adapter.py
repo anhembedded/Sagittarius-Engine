@@ -2,6 +2,8 @@ from typing import Any
 from src.domain.logger import Logger
 from src.infrastructure.logger.Loguru_Logger_infra import LoguruLogger
 
+
+
 class LoguruLoggerAdapter(Logger):
     """
     Adapter pattern to translate Logger domain interface to Loguru infrastructure.
