@@ -16,7 +16,7 @@ import asyncio
 import logging
 import signal
 
-from crypto_api import BinanceManager, TickerData
+from src.infrastructure.crpto_api import BinanceManager, TickerData
 
 # ── Logging setup ────────────────────────────────────────────────────────────
 logging.basicConfig(
