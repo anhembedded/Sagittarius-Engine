@@ -14,8 +14,8 @@ class TestConfiguration(unittest.TestCase):
             "invalid_key": "ignored"
         }
         
-        adapter = LocalConfigAdapter(json_infra, "dummy.json")
-        config = adapter.load()
+        adapter = LocalConfigAdapter(json_infra)
+        config = adapter.load("dummy.json")
         
         json_infra.read_json.assert_called_once_with("dummy.json")
         self.assertEqual(config.mode, "production")
@@ -25,8 +25,8 @@ class TestConfiguration(unittest.TestCase):
         json_infra = MagicMock(spec=JsonFileInfra)
         json_infra.read_json.return_value = {}
         
-        adapter = LocalConfigAdapter(json_infra, "dummy.json")
-        config = adapter.load()
+        adapter = LocalConfigAdapter(json_infra)
+        config = adapter.load("dummy.json")
         
         self.assertEqual(config.mode, CONFIG_VALUE.APP_MODE_DEBUG.value)
         self.assertEqual(config.client_name, None)
@@ -35,18 +35,18 @@ class TestConfiguration(unittest.TestCase):
         json_infra = MagicMock(spec=JsonFileInfra)
         json_infra.read_json.side_effect = FileNotFoundError()
         
-        adapter = LocalConfigAdapter(json_infra, "dummy.json")
-        config = adapter.load()
+        adapter = LocalConfigAdapter(json_infra)
+        config = adapter.load("dummy.json")
         
         self.assertEqual(config.mode, CONFIG_VALUE.APP_MODE_DEBUG.value)
         self.assertEqual(config.client_name, None)
 
     def test_local_config_adapter_save(self) -> None:
         json_infra = MagicMock(spec=JsonFileInfra)
-        adapter = LocalConfigAdapter(json_infra, "dummy.json")
+        adapter = LocalConfigAdapter(json_infra)
         
         config = AppConfig(mode="production", client_name="test_client")
-        adapter.save(config)
+        adapter.save(config, "dummy.json")
         
         json_infra.write_json.assert_called_once_with(
             "dummy.json",
@@ -57,7 +57,7 @@ class TestConfiguration(unittest.TestCase):
         # Verify ConfigManager works and loads configuration using the injected adapter
         json_infra = MagicMock(spec=JsonFileInfra)
         json_infra.read_json.return_value = {"mode": "production"}
-        adapter = LocalConfigAdapter(json_infra, "test_config.json")
+        adapter = LocalConfigAdapter(json_infra)
         config_manager = ConfigManager(adapter)
         config = config_manager.load_config("test_config.json")
         self.assertEqual(config.mode, "production")
