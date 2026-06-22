@@ -27,5 +27,5 @@ You are a Senior Architect. Enforce Clean Architecture.
 #5 COMPOSITION: `main.py` wires all layers. Adapters can utilize Infrastructure resources.
 
 #6 CODING RULE:
- . NOT using funtion call side effect
+ . NOT using function call side effect
  . NOT magic number
