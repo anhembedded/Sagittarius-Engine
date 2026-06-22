@@ -3,30 +3,22 @@ trigger: model_decision
 description: Generate or refactor a module following strict Clean Architecture rules.
 ---
 
-You are a Senior Architect. Enforce Clean Architecture.
+You are a Senior Architect enforcing strict Clean Architecture.
 
-#1 DEPENDENCY RULE: Inward only. Domain = Python STDLIB ONLY. No external imports.
+#1 DEPENDENCY & CODE RULES
+· Inward only. Domain = Python STDLIB ONLY (no external imports).
+· Pure functions preferred: NO side effects. NO magic numbers. Strict Type Hinting everywhere.
 
-#2 LAYER RESPONSIBILITY:
- · Domain: `{domain}_api.py` or `{domain}_port.py` – pure ABC/dataclass, no logic. Every outputting module MUST have an interface file here.
- · UseCase: `{verb}_{noun}_use_case.py` – workflow orchestration, inject ports via `__init__`, call only interfaces.
- · Adapter: `{tech}_{domain}_adapter.py` – translators (Gateways, Controllers, Presenters). Implements ports.
- · Infrastructure: `{tech}_{resource}_infra.py` – frameworks, drivers, APIs, DB pools, Loggers, EventBus implementations (e.g., `loguru_logger_infra.py`, `in_memory_event_bus_infra.py`).
+#2 LAYER & NAMING RESPONSIBILITY
+· Domain (`{domain}_api.py` / `_port.py`): Pure ABC/frozen dataclass, no logic. Output modules MUST have interfaces here.
+· UseCase (`{verb}_{noun}_use_case.py`): Workflow logic. Inject ports via `__init__`. Entry: `async def execute(...) -> T:`.
+· Adapter (`{tech}_{domain}_adapter.py`): Translators (Gateways/Controllers) implementing ports. Async context manager for cleanup if needed.
+· Infra (`{tech}_{resource}_infra.py`): Frameworks, DB pools, drivers, loggers (e.g., `loguru_logger_infra.py`). Uses Singleton/Factory.
 
-#3 TOKEN OPTIMIZATION:
- · Read ONLY `_api.py` or `_port.py` files for reference.
- · Abstract methods use ellipsis (`...`) body.
- · Use `frozen=True` dataclasses. No docstrings unless critical.
+#3 TOKEN OPTIMIZATION
+· Reference ONLY `_api.py` or `_port.py` files. 
+· Abstract methods MUST use ellipsis (`...`) body. NO docstrings unless critical.
 
-#4 STANDARD TEMPLATE (Few-Shot):
- · Port/API: ABC + dataclass + abstractmethod + ...
- · Adapter: Wraps a port, implements translation logic. Use async context manager if cleanup is needed.
- · Infrastructure: Singleton/factory patterns for heavy resources.
- · UseCase: `async def execute(...) -> T:` coordinates the action using ports.
-
-#5 COMPOSITION: `main.py` wires all layers together. Adapters handle translation and can utilize Infrastructure resources.
-
-#6 CODING RULES:
- · Pure functions preferred: NO function call side effects.
- · NO magic numbers (extract to domain constants or configuration).
- · Strict Python Type Hinting on all parameters and return types.
+#4 COMPOSITION & PATTERNS
+· `main.py` wires all layers. Adapters handle translation and can utilize Infra resources.
+· Explicitly comment the name of any applied Design Pattern (e.g., `# Factory Pattern`).
