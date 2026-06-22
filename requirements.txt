@@ -3,3 +3,4 @@ requests
 aiohttp
 python-binance
 python-dotenv
+loguru
