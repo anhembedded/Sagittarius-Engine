@@ -2,7 +2,7 @@ import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Type, TypeVar, Callable, Awaitable, Union
+from typing import Type, TypeVar, Callable, Union
 
 @dataclass(frozen=True)
 class Event:
@@ -11,10 +11,7 @@ class Event:
 
 T = TypeVar("T", bound=Event)
 
-EventHandler = Union[
-    Callable[[T], None],
-    Callable[[T], Awaitable[None]],
-]
+EventHandler = Callable[[T], None]
 
 class EventBus(ABC):
     @abstractmethod
@@ -26,5 +23,5 @@ class EventBus(ABC):
         ...
 
     @abstractmethod
-    async def publish(self, event: Event) -> None:
+    def publish(self, event: Event) -> None:
         ...
