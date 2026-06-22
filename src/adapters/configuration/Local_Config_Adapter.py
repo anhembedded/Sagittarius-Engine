@@ -1,4 +1,4 @@
-from src.domain.configuration.Configuration_api import ConfigPort, AppConfig
+from src.domain.configuration.Configuration_api import ConfigPort, AppConfig, CONFIG_KEY
 from src.infrastructure.configuration.Json_File_Infra import JsonFileInfra
 from dataclasses import asdict
 
@@ -10,11 +10,17 @@ class LocalConfigAdapter(ConfigPort):
     def load(self) -> AppConfig:
         try:
             data = self._json_infra.read_json(self._filepath)
-            return AppConfig(mode=data.get("mode", "debug"))
-        except FileNotFoundError:
-            # Fallback handled by Composition Root or here if preferred.
-            # Domain dictates default in dataclass.
-            return AppConfig()
+            if not isinstance(data, dict):
+                return AppConfig()
+            
+            config_dict = {}
+            for k, v in data.items():
+                try:
+                    config_key = CONFIG_KEY[k]
+                    config_dict[config_key.value] = v
+                except KeyError:
+                    pass
+            return AppConfig(**config_dict)
         except Exception:
             return AppConfig()
 

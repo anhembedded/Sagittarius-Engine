@@ -1,18 +1,22 @@
 from typing import Any
-from infrastructure.logger.Silent_Logger__infra import SilentLoggerAdapter
-from src.domain.logger import Logger
+
+from cryptography.utils import Enum
+from src.infrastructure.logger.Silent_Logger__infra import SilentLoggerAdapter
 from src.infrastructure.logger.Loguru_Logger_infra import LoguruLogger
-from domain.configuration.Configuration_api import AppConfig, CONFIG_TYPE
-from src.infrastructure.logger.Logger_abstract import LoggerAbstract
+from src.domain.configuration.Configuration_api import AppConfig, CONFIG_VALUE
+from src.infrastructure.logger.Logger_abstract import LoggerAbstract_infr
 
+class Logger_Infra_Type(Enum):
+    LOGURU = "loguru"
+    SILENT = "silent"
 
-class Logger_Adapter(LoggerAbstract):
+class Logger_Adapter:
     """
     Adapter pattern to translate Logger domain interface to Loguru infrastructure.
     # Adapter Pattern
     """
 
-    def __init__(self, infra_logger: LoggerAbstract) -> None:
+    def __init__(self, infra_logger: LoggerAbstract_infr) -> None:
         self._infra = infra_logger
 
     def debug(self, message: str, *args: Any, **kwargs: Any) -> None:
@@ -35,14 +39,17 @@ class Logger_Adapter(LoggerAbstract):
 
 class LoggerAdapter_Factory:
     """
-    Factory to create Logger instances based on AppConfig.
+    Factory to create Logger instances based on Logger_Infra_Type.
     # Factory Pattern
     """
     @staticmethod
-    def create_logger(config: AppConfig) -> LoggerAbstract:
-        if config.mode == CONFIG_TYPE.APP_MODE_DEBUG:
-            infra_logger = LoguruLogger()
+    def create(config: Logger_Infra_Type) -> Logger_Adapter:
+
+        if config == Logger_Infra_Type.LOGURU:
+            infra_logger : LoggerAbstract_infr = LoguruLogger()
+            return Logger_Adapter(infra_logger)
+        elif config == Logger_Infra_Type.SILENT:
+            infra_logger : LoggerAbstract_infr = SilentLoggerAdapter()
             return Logger_Adapter(infra_logger)
         else:
-            infra_logger = SilentLoggerAdapter()
-            return Logger_Adapter(infra_logger)
+            raise ValueError(f"Unsupported logger type: {config}")

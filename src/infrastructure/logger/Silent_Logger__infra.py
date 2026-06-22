@@ -1,7 +1,7 @@
 from typing import Any
-from src.infrastructure.logger.Logger_abstract import LoggerAbstract
+from src.infrastructure.logger.Logger_abstract import LoggerAbstract_infr
 
-class SilentLoggerAdapter(LoggerAbstract):
+class SilentLoggerAdapter(LoggerAbstract_infr):
     """
     Adapter pattern implementing Logger domain interface as a no-op silent logger.
     # Adapter Pattern

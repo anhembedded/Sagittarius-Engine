@@ -4,7 +4,7 @@ from typing import Optional, List, Dict
 from enum import Enum
 
 
-class CONFIG_TYPE(Enum):
+class CONFIG_VALUE(Enum):
     """Canonical configuration values used across the domain.
     Used by other modules (e.g. logger factory) to compare against values
     coming from AppConfig.
@@ -29,8 +29,8 @@ class AppConfig:
 
     Default values are domain-safe fallbacks.
     """
-    mode: str = CONFIG_TYPE.APP_MODE_DEBUG.value
-    client_name: Optional[str] = None
+    mode: str = CONFIG_VALUE.APP_MODE_DEBUG.value
+    client_name: str | None = None
 
 
 class ConfigPort(ABC):
@@ -50,23 +50,14 @@ class ConfigPort(ABC):
 
 class ConfigManager:
     """High-level manager to load configuration from a file-backed adapter.
-
-    This class avoids importing the concrete file adapter at module import
-    time to prevent circular imports. The FileConfigManager (infra/adapter)
-    is imported when an instance is created.
     """
 
-    def __init__(self, config_path: str):
-        self.config_path = config_path
-        # Local import to avoid circular import (Adapter imports this module)
-        from src.domain.configuration.Adapter import FileConfigManager
+    def __init__(self, config_adapter: ConfigPort):
+        self.__file_manager = config_adapter
 
-        # FileConfigManager is an adapter around JsonFileInfra and exposes
-        # `load_config_from_file(filepath)` returning list[dict[CONFIG_KEY, str]]
-        self.__file_manager = FileConfigManager()
-
-    def load_config(self) -> List[Dict[CONFIG_KEY, str]]:
-        """Load raw key/value pairs from the configured JSON file and return
-        them as a list of single-entry dicts keyed by CONFIG_KEY.
+    def load_config(self, config_path: str) -> AppConfig:
+        """Load configuration using the adapter.
         """
-        return self.__file_manager.load_config_from_file(self.config_path)
+        if hasattr(self.__file_manager, "_filepath"):
+            self.__file_manager._filepath = config_path
+        return self.__file_manager.load()

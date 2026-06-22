@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-class LoggerAbstract(ABC):
+class LoggerAbstract_infr(ABC):
     """
     Abstract base class for Logger. Defines the interface for logging methods.
     # Abstract Base Class
