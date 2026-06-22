@@ -1,4 +1,4 @@
-from cryptography.utils import Enum
+from enum import Enum
 from src.domain.configuration.Configuration_api import AppConfig, CONFIG_VALUE
 from src.domain.logger.Logger_api import Logger
 from src.adapters.logger.Logger_adapter import Logger_Adapter
