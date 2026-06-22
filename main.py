@@ -1,7 +1,7 @@
 import asyncio
 import os
-from src.infrastructure.Loguru_Logger_infra import LoguruLogger
-from src.infrastructure.Silent_Logger_infra import SilentLogger
+from infrastructure.logger.Loguru_Logger_infra import LoguruLogger
+from infrastructure.logger.Silent_Logger_infra import SilentLogger
 from src.infrastructure.configuration.Json_File_Infra import JsonFileInfra
 from src.adapters.configuration.Local_Config_Adapter import LocalConfigAdapter
 from src.domain.configuration.Configuration_api import AppConfig
