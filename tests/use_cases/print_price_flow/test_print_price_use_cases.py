@@ -14,9 +14,16 @@ def mock_crypto_stream() -> Mock:
 def mock_logger() -> Mock:
     return Mock(spec=Logger)
 
-def test_start_print_price_use_case(mock_crypto_stream: Mock, mock_logger: Mock) -> None:
+from src.domain.event_bus.EventBus_api import EventBus
+from src.domain.app_events.app_events import PriceUpdatedEvent
+
+@pytest.fixture
+def mock_event_bus() -> Mock:
+    return Mock(spec=EventBus)
+
+def test_start_print_price_use_case(mock_crypto_stream: Mock, mock_logger: Mock, mock_event_bus: Mock) -> None:
     # Arrange
-    use_case = StartPrintPriceUseCase(crypto_stream=mock_crypto_stream, logger=mock_logger)
+    use_case = StartPrintPriceUseCase(crypto_stream=mock_crypto_stream, logger=mock_logger, event_bus=mock_event_bus)
     symbol = "ETHUSDT"
 
     # Act
@@ -35,11 +42,13 @@ def test_start_print_price_use_case(mock_crypto_stream: Mock, mock_logger: Mock)
     test_ticker = Ticker(symbol=symbol, price=3000.5, volume=10.0)
     on_tick_callback(test_ticker)
 
-    # Verify logger received the callback output
-    mock_logger.info.assert_has_calls([
-        call(f"Starting price stream for {symbol}..."),
-        call(f"[{symbol}] Price: 3000.5000 | Vol: 10.00")
-    ])
+    # Verify event bus received the domain event
+    mock_event_bus.publish.assert_called_once()
+    event = mock_event_bus.publish.call_args[0][0]
+    assert isinstance(event, PriceUpdatedEvent)
+    assert event.symbol == symbol
+    assert event.price == 3000.5
+    assert event.volume == 10.0
 
 def test_stop_print_price_use_case(mock_crypto_stream: Mock, mock_logger: Mock) -> None:
     # Arrange
