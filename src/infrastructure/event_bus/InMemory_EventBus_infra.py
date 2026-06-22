@@ -1,7 +1,7 @@
 import asyncio
 from typing import Type, TypeVar, Callable, Awaitable, Dict, Any, List, Optional
 
-from src.domain.event_bus.event_bus_api import Event, EventBus, EventHandler
+from domain.event_bus.EventBus_api import Event, EventBus, EventHandler
 from src.domain.logger import Logger
 
 T = TypeVar("T", bound=Event)

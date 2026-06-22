@@ -1,3 +1,3 @@
-from .in_memory_event_bus_infra import InMemoryEventBusInfra
+from .InMemory_EventBus_infra import InMemoryEventBusInfra
 
 __all__ = ["InMemoryEventBusInfra"]

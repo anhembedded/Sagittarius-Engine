@@ -29,25 +29,6 @@ TickCallback = Union[
 # ---------------------------------------------------------------------------
 
 class TickerData:
-    """
-    Parsed 24-hour rolling ticker snapshot received from Binance WebSocket.
-
-    Field mapping (from Binance `24hrTicker` event):
-        c  → last_price          The most recent matched price
-        o  → open_price          Opening price of the 24-h window
-        h  → high_price          Highest price in the 24-h window
-        l  → low_price           Lowest  price in the 24-h window
-        p  → price_change        Absolute price change (USDT)
-        P  → price_change_pct    Percentage price change
-        w  → weighted_avg_price  Volume-weighted average price
-        v  → volume              Base-asset volume traded in 24 h
-        q  → quote_volume        Quote-asset volume traded in 24 h
-        b  → best_bid            Best current bid price
-        a  → best_ask            Best current ask price
-        n  → trade_count         Number of trades in the 24-h window
-        E  → event_time          Event timestamp (converted to configured TZ)
-    """
-
     __slots__ = (
         "symbol", "last_price", "open_price", "high_price", "low_price",
         "price_change", "price_change_pct", "weighted_avg_price",
@@ -89,35 +70,6 @@ class TickerData:
 # ---------------------------------------------------------------------------
 
 class BinanceManager:
-    """
-    Manages a Binance WebSocket stream for real-time 24-hr ticker data.
-
-    Args:
-        symbol     : Trading pair symbol, e.g. ``"ETHUSDT"``, ``"BTCUSDT"``.
-        timezone   : IANA timezone string for timestamp display.
-                     Defaults to ``"UTC"``.
-                     Example Vietnam time: ``"Asia/Ho_Chi_Minh"``
-        api_key    : Binance API key.  Optional for public (unauthenticated)
-                     streams such as the ticker socket.
-        api_secret : Binance API secret.  Same note as ``api_key``.
-        on_tick    : Callback invoked on every price update.
-                     Signature: ``(ticker: TickerData) -> None``
-                     May be a regular function **or** an ``async`` coroutine.
-                     If ``None``, each tick is printed to stdout.
-
-    Example::
-
-        async def handle(ticker: TickerData) -> None:
-            print(ticker)
-
-        manager = BinanceManager(
-            symbol="ETHUSDT",
-            timezone="Asia/Ho_Chi_Minh",
-            on_tick=handle,
-        )
-        asyncio.run(manager.start())
-    """
-
     def __init__(
         self,
         symbol: str = "ETHUSDT",
@@ -135,12 +87,7 @@ class BinanceManager:
         self._client:  Optional[AsyncClient] = None
         self._running: bool = False
 
-    # ------------------------------------------------------------------
-    # Public interface
-    # ------------------------------------------------------------------
-
     async def start(self) -> None:
-        """Connect to Binance and begin streaming ticker data indefinitely."""
         self._client  = await AsyncClient.create(
             api_key=self._api_key,
             api_secret=self._api_secret,
@@ -165,26 +112,19 @@ class BinanceManager:
             await self._close()
 
     async def stop(self) -> None:
-        """Signal the stream loop to exit gracefully."""
         self._running = False
 
-    # ------------------------------------------------------------------
-    # Internal helpers
-    # ------------------------------------------------------------------
-
     async def _dispatch(self, ticker: TickerData) -> None:
-        """Route each tick to the user-supplied callback or print it."""
         if self._on_tick is None:
             print(ticker)
             return
 
         if asyncio.iscoroutinefunction(self._on_tick):
-            await self._on_tick(ticker)          # async callback
+            await self._on_tick(ticker)
         else:
-            self._on_tick(ticker)                # sync callback
+            self._on_tick(ticker)
 
     async def _close(self) -> None:
-        """Release the underlying HTTP session."""
         if self._client is not None:
             await self._client.close_connection()
             self._client = None

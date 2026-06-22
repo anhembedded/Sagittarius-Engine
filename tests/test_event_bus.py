@@ -3,8 +3,8 @@ import unittest
 from dataclasses import dataclass, field
 from unittest.mock import MagicMock
 
-from src.domain.event_bus.event_bus_api import Event
-from src.infrastructure.event_bus.in_memory_event_bus_infra import InMemoryEventBusInfra
+from domain.event_bus.EventBus_api import Event
+from infrastructure.event_bus.InMemory_EventBus_infra import InMemoryEventBusInfra
 
 @dataclass(frozen=True)
 class TestEvent(Event):

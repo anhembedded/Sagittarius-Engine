@@ -2,7 +2,6 @@ import asyncio
 from binance import AsyncClient, BinanceSocketManager
 
 
-
 async def main():
     client = await AsyncClient.create()
     bsm = BinanceSocketManager(client)
@@ -11,4 +10,6 @@ async def main():
             msg = await stream.recv()
             print(f"{msg}")
 
+
 if __name__ == "__main__":
+    asyncio.run(main())
