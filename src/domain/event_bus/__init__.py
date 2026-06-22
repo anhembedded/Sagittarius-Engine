@@ -1,4 +1,3 @@
-from .event import Event
-from .bus import EventBus, EventHandler
+from .event_bus_api import Event, EventBus, EventHandler
 
 __all__ = ["Event", "EventBus", "EventHandler"]
