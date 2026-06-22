@@ -1,5 +1,5 @@
 ---
-trigger: model_decision
+trigger: always_on
 description: Generate or refactor a module following strict Clean Architecture rules.
 ---
 
