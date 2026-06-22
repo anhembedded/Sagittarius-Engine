@@ -1,28 +1,33 @@
-import argparse
 import asyncio
+import os
 from src.infrastructure.Loguru_Logger_infra import LoguruLogger
 from src.infrastructure.Silent_Logger_infra import SilentLogger
+from src.infrastructure.configuration.Json_File_Infra import JsonFileInfra
+from src.adapters.configuration.Local_Config_Adapter import LocalConfigAdapter
+from src.domain.configuration.Configuration_api import AppConfig
 
 async def main() -> None:
-    # 1. Parse mode
-    parser = argparse.ArgumentParser(description="Application Composition Root")
-    parser.add_argument(
-        "--mode",
-        choices=["debug", "release"],
-        default="debug",
-        help="Environment mode (default: debug)"
-    )
-    args = parser.parse_args()
+    # 1. Initialize Configuration Infra & Adapter
+    config_path = "config.json"
+    json_infra = JsonFileInfra()
+    config_adapter = LocalConfigAdapter(json_infra, config_path)
 
-    # 2. Init Logger
-    if args.mode == "debug":
+    # 2. Load or Initialize Config
+    if not os.path.exists(config_path):
+        config = AppConfig() # Default
+        config_adapter.save(config)
+    else:
+        config = config_adapter.load()
+
+    # 3. Init Logger based on config mode
+    if config.mode == "debug":
         logger = LoguruLogger()
     else:
         logger = SilentLogger()
 
-    logger.info(f"Application started in {args.mode} mode")
+    logger.info(f"Application started in {config.mode} mode (loaded from {config_path})")
 
-    # 3. Future steps: Adapters, Use Cases, etc.
+    # 4. Future steps: Other Adapters, Use Cases, etc.
     # ...
 
 if __name__ == "__main__":
