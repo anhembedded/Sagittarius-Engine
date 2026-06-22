@@ -45,12 +45,3 @@ class CryptoTradingBotCLI(cmd2.Cmd):
         except:
             pass
         return True
-
-
-class CLIThread(threading.Thread):
-    def __init__(self, presenter: CLIPresenter):
-        super().__init__(daemon=True) # Run as daemon so it dies if main thread dies
-        self._cli = CryptoTradingBotCLI(presenter)
-
-    def run(self):
-        self._cli.cmdloop()

@@ -13,7 +13,7 @@ from src.use_cases.print_price_flow.print_price_use_cases import StartPrintPrice
 from src.use_cases.app_controller.AppControllerImpl import AppControllerImpl
 
 from src.adapters.cli_adapter.cli_presenter import CLIPresenter
-from src.adapters.cli_adapter.cli_view import CLIThread
+from src.adapters.cli_adapter.cli_view import CryptoTradingBotCLI
 
 def main() -> None:
     # 1. Initialize Configuration Infra & Adapter
@@ -48,15 +48,11 @@ def main() -> None:
 
     # 6. Initialize CLI (Adapters Layer)
     cli_presenter = CLIPresenter(event_bus)
-    cli_thread = CLIThread(cli_presenter)
+    cli = CryptoTradingBotCLI(cli_presenter)
 
-    # 7. Start CLI Thread and wait
-    cli_thread.start()
-
+    # 7. Start CLI loop in the main thread
     try:
-        # Keep main thread alive while the daemon CLI thread runs
-        while cli_thread.is_alive():
-            time.sleep(0.5)
+        cli.cmdloop()
     except KeyboardInterrupt:
         logger.info("Application interrupted by user.")
     finally:
