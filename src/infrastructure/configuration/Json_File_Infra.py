@@ -1,8 +1,9 @@
 import json
 import os
 from typing import Any
+from src.adapters.configuration.Local_Config_Adapter import JsonStoragePort
 
-class JsonFileInfra:
+class JsonFileInfra(JsonStoragePort):
     """
     Handles low-level reading and writing of JSON files.
     # Singleton Pattern

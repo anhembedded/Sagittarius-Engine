@@ -40,11 +40,11 @@ class ConfigPort(ABC):
     AppConfig objects.
     """
     @abstractmethod
-    def load(self) -> AppConfig:
+    def load(self, config_path: str) -> AppConfig:
         raise NotImplementedError()
 
     @abstractmethod
-    def save(self, config: AppConfig) -> None:
+    def save(self, config: AppConfig, config_path: str) -> None:
         raise NotImplementedError()
 
 
@@ -58,6 +58,4 @@ class ConfigManager:
     def load_config(self, config_path: str) -> AppConfig:
         """Load configuration using the adapter.
         """
-        if hasattr(self.__file_manager, "_filepath"):
-            self.__file_manager._filepath = config_path
-        return self.__file_manager.load()
+        return self.__file_manager.load(config_path)
