@@ -1,10 +1,12 @@
 import asyncio
 import os
 from src.infrastructure.logger.Loguru_Logger_infra import LoguruLogger
-from src.infrastructure.logger.Silent_Logger_infra import SilentLogger
+from src.adapters.logger.Loguru_Logger_adapter import LoguruLoggerAdapter
+from src.adapters.logger.Silent_Logger_adapter import SilentLoggerAdapter
 from src.infrastructure.configuration.Json_File_Infra import JsonFileInfra
 from src.adapters.configuration.Local_Config_Adapter import LocalConfigAdapter
 from src.domain.configuration.Configuration_api import AppConfig
+
 
 async def main() -> None:
     # 1. Initialize Configuration Infra & Adapter
@@ -21,9 +23,10 @@ async def main() -> None:
 
     # 3. Init Logger based on config mode
     if config.mode == "debug":
-        logger = LoguruLogger()
+        infra_logger = LoguruLogger()
+        logger = LoguruLoggerAdapter(infra_logger)
     else:
-        logger = SilentLogger()
+        logger = SilentLoggerAdapter()
 
     logger.info(f"Application started in {config.mode} mode (loaded from {config_path})")
 
