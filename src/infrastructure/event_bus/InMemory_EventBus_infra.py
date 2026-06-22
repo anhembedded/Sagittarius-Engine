@@ -1,5 +1,4 @@
-import asyncio
-from typing import Type, TypeVar, Callable, Awaitable, Dict, Any, List, Optional
+from typing import Type, TypeVar, Callable, Dict, Any, List, Optional
 
 from domain.event_bus.EventBus_api import Event, EventBus, EventHandler
 from src.domain.logger import Logger
@@ -32,34 +31,17 @@ class InMemoryEventBusInfra(EventBus):
                     f"Unsubscribed {getattr(handler, '__name__', str(handler))} from {event_type.__name__}"
                 )
 
-    async def publish(self, event: Event) -> None:
-        tasks: List[Awaitable[None]] = []
+    def publish(self, event: Event) -> None:
         for event_type, handlers in list(self._handlers.items()):
             if isinstance(event, event_type):
                 for handler in handlers:
-                    if asyncio.iscoroutinefunction(handler):
-                        tasks.append(self._run_async_handler(handler, event))
-                    else:
-                        self._run_sync_handler(handler, event)
-        if tasks:
-            await asyncio.gather(*tasks, return_exceptions=True)
+                    self._run_handler(handler, event)
 
-    async def _run_async_handler(
-        self, handler: Callable[[Any], Awaitable[None]], event: Event
-    ) -> None:
-        try:
-            await handler(event)
-        except Exception as e:
-            if self._logger:
-                self._logger.exception(
-                    f"Error executing async handler {getattr(handler, '__name__', str(handler))} for event {event.__class__.__name__}: {e}"
-                )
-
-    def _run_sync_handler(self, handler: Callable[[Any], None], event: Event) -> None:
+    def _run_handler(self, handler: Callable[[Any], None], event: Event) -> None:
         try:
             handler(event)
         except Exception as e:
             if self._logger:
                 self._logger.exception(
-                    f"Error executing sync handler {getattr(handler, '__name__', str(handler))} for event {event.__class__.__name__}: {e}"
+                    f"Error executing handler {getattr(handler, '__name__', str(handler))} for event {event.__class__.__name__}: {e}"
                 )

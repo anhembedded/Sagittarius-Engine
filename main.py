@@ -1,4 +1,3 @@
-import asyncio
 import os
 from src.infrastructure.logger.Loguru_Logger_infra import LoguruLogger
 from src.adapters.logger.Loguru_Logger_adapter import LoguruLoggerAdapter
@@ -8,7 +7,7 @@ from src.adapters.configuration.Local_Config_Adapter import LocalConfigAdapter
 from src.domain.configuration.Configuration_api import AppConfig
 
 
-async def main() -> None:
+def main() -> None:
     # 1. Initialize Configuration Infra & Adapter
     config_path = "config.json"
     json_infra = JsonFileInfra()
@@ -35,6 +34,6 @@ async def main() -> None:
 
 if __name__ == "__main__":
     try:
-        asyncio.run(main())
+        main()
     except KeyboardInterrupt:
         pass

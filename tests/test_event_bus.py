@@ -1,7 +1,5 @@
-import asyncio
 import unittest
 from dataclasses import dataclass, field
-from unittest.mock import MagicMock
 
 from domain.event_bus.EventBus_api import Event
 from infrastructure.event_bus.InMemory_EventBus_infra import InMemoryEventBusInfra
@@ -14,11 +12,11 @@ class TestEvent(Event):
 class SubTestEvent(TestEvent):
     extra: str = field(default="")
 
-class TestInMemoryEventBus(unittest.IsolatedAsyncioTestCase):
+class TestInMemoryEventBus(unittest.TestCase):
     def setUp(self):
         self.bus = InMemoryEventBusInfra()
 
-    async def test_publish_subscribe_sync(self):
+    def test_publish_subscribe_sync(self):
         received_events = []
         def handler(event: TestEvent):
             received_events.append(event)
@@ -26,25 +24,12 @@ class TestInMemoryEventBus(unittest.IsolatedAsyncioTestCase):
         self.bus.subscribe(TestEvent, handler)
         event = TestEvent(data="test")
 
-        await self.bus.publish(event)
+        self.bus.publish(event)
 
         self.assertEqual(len(received_events), 1)
         self.assertEqual(received_events[0], event)
 
-    async def test_publish_subscribe_async(self):
-        received_events = []
-        async def handler(event: TestEvent):
-            received_events.append(event)
-
-        self.bus.subscribe(TestEvent, handler)
-        event = TestEvent(data="test")
-
-        await self.bus.publish(event)
-
-        self.assertEqual(len(received_events), 1)
-        self.assertEqual(received_events[0], event)
-
-    async def test_unsubscribe(self):
+    def test_unsubscribe(self):
         received_events = []
         def handler(event: TestEvent):
             received_events.append(event)
@@ -53,11 +38,11 @@ class TestInMemoryEventBus(unittest.IsolatedAsyncioTestCase):
         self.bus.unsubscribe(TestEvent, handler)
         event = TestEvent(data="test")
 
-        await self.bus.publish(event)
+        self.bus.publish(event)
 
         self.assertEqual(len(received_events), 0)
 
-    async def test_inheritance_subscription(self):
+    def test_inheritance_subscription(self):
         received_events = []
         def handler(event: TestEvent):
             received_events.append(event)
@@ -65,12 +50,12 @@ class TestInMemoryEventBus(unittest.IsolatedAsyncioTestCase):
         self.bus.subscribe(TestEvent, handler)
         event = SubTestEvent(data="test", extra="extra")
 
-        await self.bus.publish(event)
+        self.bus.publish(event)
 
         self.assertEqual(len(received_events), 1)
         self.assertEqual(received_events[0], event)
 
-    async def test_handler_error_does_not_stop_others(self):
+    def test_handler_error_does_not_stop_others(self):
         received_events = []
         def failing_handler(event: TestEvent):
             raise Exception("Boom")
@@ -82,7 +67,7 @@ class TestInMemoryEventBus(unittest.IsolatedAsyncioTestCase):
         self.bus.subscribe(TestEvent, success_handler)
         event = TestEvent(data="test")
 
-        await self.bus.publish(event)
+        self.bus.publish(event)
 
         self.assertEqual(len(received_events), 1)
         self.assertEqual(received_events[0], event)
