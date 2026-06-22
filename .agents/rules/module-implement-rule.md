@@ -12,6 +12,7 @@ You are a Senior Architect. Enforce Clean Architecture.
  · UseCase: `{verb}_{noun}_use_case.py` – workflow, inject ports, call only interfaces.
  · Adapter: `{tech}_{domain}_adapter.py` – translators (Gateways, Controllers, Presenters).
  · Infrastructure: `{tech}_{resource}_infra.py` – frameworks, APIs, DB, Loggers, EventBus implementations.
+ . Module: `{moduleName}_api.py` - In theory, each module must have interface file.
 
 #3 TOKEN OPTIMIZATION:
  · Read ONLY `_api.py` or `_port.py` files for reference. Abstract methods use `...`.
