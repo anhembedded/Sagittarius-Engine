@@ -14,38 +14,30 @@ EventHandler = Union[
 
 class EventBus(ABC):
     """
-    Abstract interface for the Domain Event Bus.
-    Decouples the generation of domain events from their consumers.
+    Interface for the domain event bus to decouple event publishers from subscribers.
+    Provides a mechanism to subscribe to, unsubscribe from, and publish domain events.
     """
 
     @abstractmethod
     def subscribe(self, event_type: Type[T], handler: EventHandler[T]) -> None:
         """
-        Subscribe a handler to a specific event type.
-
-        Args:
-            event_type: The class of the event to subscribe to.
-            handler: A callable (sync function or async coroutine) to execute on event.
+        Registers a handler for a specific event type to receive future publications.
+        Why: Allows components to react to domain events without direct coupling to publishers.
         """
         pass
 
     @abstractmethod
     def unsubscribe(self, event_type: Type[T], handler: EventHandler[T]) -> None:
         """
-        Unsubscribe a handler from a specific event type.
-
-        Args:
-            event_type: The class of the event to unsubscribe from.
-            handler: The previously subscribed callable.
+        Removes a previously registered handler for an event type.
+        Why: Enables dynamic management of event subscriptions and prevents memory leaks.
         """
         pass
 
     @abstractmethod
     async def publish(self, event: Event) -> None:
         """
-        Publish an event to all interested handlers.
-
-        Args:
-            event: The event instance to publish.
+        Distributes a domain event to all its registered handlers.
+        Why: Propagates state changes or significant occurrences across the system.
         """
         pass
