@@ -24,4 +24,4 @@ class Logger(ABC):
 
     @abstractmethod
     def critical(self, message: str, *args: Any, **kwargs: Any) -> None: ...
-    
+

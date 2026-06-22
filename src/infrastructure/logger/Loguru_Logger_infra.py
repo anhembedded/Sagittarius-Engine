@@ -2,7 +2,9 @@ import sys
 from typing import Any
 from loguru import logger as loguru_logger
 
-class LoguruLogger:
+from src.infrastructure.logger.Logger_abstract import LoggerAbstract
+
+class LoguruLogger(LoggerAbstract):
     """
     Infrastructure class for Loguru. Handles initialization and raw logging calls.
     # Factory Pattern

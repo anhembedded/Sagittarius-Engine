@@ -1,16 +1,18 @@
 from typing import Any
+from infrastructure.logger.Silent_Logger__infra import SilentLoggerAdapter
 from src.domain.logger import Logger
 from src.infrastructure.logger.Loguru_Logger_infra import LoguruLogger
+from domain.configuration.Configuration_api import AppConfig, CONFIG_TYPE
+from src.infrastructure.logger.Logger_abstract import LoggerAbstract
 
 
-
-class LoguruLoggerAdapter(Logger):
+class Logger_Adapter(LoggerAbstract):
     """
     Adapter pattern to translate Logger domain interface to Loguru infrastructure.
     # Adapter Pattern
     """
 
-    def __init__(self, infra_logger: LoguruLogger) -> None:
+    def __init__(self, infra_logger: LoggerAbstract) -> None:
         self._infra = infra_logger
 
     def debug(self, message: str, *args: Any, **kwargs: Any) -> None:
@@ -30,3 +32,17 @@ class LoguruLoggerAdapter(Logger):
 
     def critical(self, message: str, *args: Any, **kwargs: Any) -> None:
         self._infra.critical(message, *args, depth=2, **kwargs)
+
+class LoggerAdapter_Factory:
+    """
+    Factory to create Logger instances based on AppConfig.
+    # Factory Pattern
+    """
+    @staticmethod
+    def create_logger(config: AppConfig) -> LoggerAbstract:
+        if config.mode == CONFIG_TYPE.APP_MODE_DEBUG:
+            infra_logger = LoguruLogger()
+            return Logger_Adapter(infra_logger)
+        else:
+            infra_logger = SilentLoggerAdapter()
+            return Logger_Adapter(infra_logger)

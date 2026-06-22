@@ -1,6 +1,6 @@
 import os
 from src.infrastructure.logger.Loguru_Logger_infra import LoguruLogger
-from src.adapters.logger.Logger_adapter import LoguruLoggerAdapter
+from src.adapters.logger.Logger_adapter import Logger_Adapter
 from src.infrastructure.logger.Silent_Logger__infra import SilentLoggerAdapter
 from src.infrastructure.configuration.Json_File_Infra import JsonFileInfra
 from src.adapters.configuration.Local_Config_Adapter import LocalConfigAdapter
@@ -22,7 +22,7 @@ def main() -> None:
     # 3. Init Logger based on config mode
     if config.mode == "debug":
         infra_logger = LoguruLogger()
-        logger = LoguruLoggerAdapter(infra_logger)
+        logger = Logger_Adapter(infra_logger)
     else:
         logger = SilentLoggerAdapter()
 

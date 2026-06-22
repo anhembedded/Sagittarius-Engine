@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 from src.infrastructure.logger.Loguru_Logger_infra import LoguruLogger
-from src.adapters.logger.Logger_adapter import LoguruLoggerAdapter
+from src.adapters.logger.Logger_adapter import Logger_Adapter
 from src.infrastructure.logger.Silent_Logger__infra import SilentLoggerAdapter
 
 class TestLogger(unittest.TestCase):
@@ -19,7 +19,7 @@ class TestLogger(unittest.TestCase):
     def test_loguru_logger_adapter_delegation(self, mock_loguru: MagicMock) -> None:
         # Verify that LoguruLoggerAdapter passes calls down to LoguruLogger with correct stack depth
         infra = LoguruLogger()
-        adapter = LoguruLoggerAdapter(infra)
+        adapter = Logger_Adapter(infra)
         
         # Test info
         adapter.info("hello info")
