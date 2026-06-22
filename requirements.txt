@@ -4,3 +4,4 @@ aiohttp
 python-binance
 python-dotenv
 loguru
+pytest
