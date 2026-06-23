@@ -5,11 +5,11 @@ from src.domain.event_bus.EventBus_api import Event
 from src.infrastructure.event_bus.InMemory_EventBus_infra import InMemoryEventBusInfra
 
 @dataclass(frozen=True)
-class MockEvent(Event):
+class TestEvent(Event):
     data: str = field(default="")
 
 @dataclass(frozen=True)
-class SubTestEvent(MockEvent):
+class SubTestEvent(TestEvent):
     extra: str = field(default="")
 
 class TestInMemoryEventBus(unittest.TestCase):
@@ -18,11 +18,11 @@ class TestInMemoryEventBus(unittest.TestCase):
 
     def test_publish_subscribe_sync(self):
         received_events = []
-        def handler(event: MockEvent):
+        def handler(event: TestEvent):
             received_events.append(event)
 
-        self.bus.subscribe(MockEvent, handler)
-        event = MockEvent(data="test")
+        self.bus.subscribe(TestEvent, handler)
+        event = TestEvent(data="test")
 
         self.bus.publish(event)
 
@@ -31,12 +31,12 @@ class TestInMemoryEventBus(unittest.TestCase):
 
     def test_unsubscribe(self):
         received_events = []
-        def handler(event: MockEvent):
+        def handler(event: TestEvent):
             received_events.append(event)
 
-        self.bus.subscribe(MockEvent, handler)
-        self.bus.unsubscribe(MockEvent, handler)
-        event = MockEvent(data="test")
+        self.bus.subscribe(TestEvent, handler)
+        self.bus.unsubscribe(TestEvent, handler)
+        event = TestEvent(data="test")
 
         self.bus.publish(event)
 
@@ -44,10 +44,10 @@ class TestInMemoryEventBus(unittest.TestCase):
 
     def test_inheritance_subscription(self):
         received_events = []
-        def handler(event: MockEvent):
+        def handler(event: TestEvent):
             received_events.append(event)
 
-        self.bus.subscribe(MockEvent, handler)
+        self.bus.subscribe(TestEvent, handler)
         event = SubTestEvent(data="test", extra="extra")
 
         self.bus.publish(event)
@@ -57,15 +57,15 @@ class TestInMemoryEventBus(unittest.TestCase):
 
     def test_handler_error_does_not_stop_others(self):
         received_events = []
-        def failing_handler(event: MockEvent):
+        def failing_handler(event: TestEvent):
             raise Exception("Boom")
 
-        def success_handler(event: MockEvent):
+        def success_handler(event: TestEvent):
             received_events.append(event)
 
-        self.bus.subscribe(MockEvent, failing_handler)
-        self.bus.subscribe(MockEvent, success_handler)
-        event = MockEvent(data="test")
+        self.bus.subscribe(TestEvent, failing_handler)
+        self.bus.subscribe(TestEvent, success_handler)
+        event = TestEvent(data="test")
 
         self.bus.publish(event)
 

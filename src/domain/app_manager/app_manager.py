@@ -1,5 +1,6 @@
+from typing import Any, Callable
+
 from attr import dataclass
-from typing import Callable, Dict, Any, Optional
 
 from src.domain.configuration.Configuration_api import AppConfig, ConfigManager, CONFIG_VALUE, ConfigPort
 from src.domain.logger.Logger_api import Logger
@@ -10,12 +11,10 @@ class APP_DEFINITIONS:
 
 class AppManager:
 
-    def __init__(self, config_adapter: ConfigPort, logger_factory: Callable[[AppConfig], Logger]):
+    def __init__(self, config_adapter: ConfigPort):
         self.__config_adapter = config_adapter
-        self.__logger_factory = logger_factory
-        self.__AppConfig: Optional[AppConfig] = None
-        self.__logger: Optional[Logger] = None
-        self.__commands: Dict[str, Callable[..., Any]] = {}
+        self.__AppConfig : AppConfig  # Placeholder for configuration instance
+        self.__logger : Logger  # Placeholder for logger instance
 
     def __load_config(self) -> AppConfig:
         """
@@ -35,9 +34,8 @@ class AppManager:
         """
         Create and configure the logger based on the application mode.
         """
-        if self.__AppConfig is None:
-            raise RuntimeError("AppConfig is not loaded")
-        return self.__logger_factory(self.__AppConfig)
+        logger : Logger = Logger(config= self.__AppConfig)
+        return logger
 
     def Bootstrap(self) -> None:
         """

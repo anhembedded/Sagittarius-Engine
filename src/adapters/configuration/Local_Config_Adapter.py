@@ -1,25 +1,15 @@
-from abc import ABC, abstractmethod
-from typing import Any
 from src.domain.configuration.Configuration_api import ConfigPort, AppConfig, CONFIG_KEY
+from src.infrastructure.configuration.Json_File_Infra import JsonFileInfra
 from dataclasses import asdict
 
-class JsonStoragePort(ABC):
-    @abstractmethod
-    def read_json(self, filepath: str) -> dict[str, Any]:
-        pass
-
-    @abstractmethod
-    def write_json(self, filepath: str, data: dict[str, Any]) -> None:
-        pass
-
-
 class LocalConfigAdapter(ConfigPort):
-    def __init__(self, json_infra: JsonStoragePort) -> None:
+    def __init__(self, json_infra: JsonFileInfra, filepath: str = "config.json") -> None:
         self._json_infra = json_infra
+        self._filepath = filepath
 
-    def load(self, config_path: str) -> AppConfig:
+    def load(self) -> AppConfig:
         try:
-            data = self._json_infra.read_json(config_path)
+            data = self._json_infra.read_json(self._filepath)
             if not isinstance(data, dict):
                 return AppConfig()
             
@@ -34,6 +24,6 @@ class LocalConfigAdapter(ConfigPort):
         except Exception:
             return AppConfig()
 
-    def save(self, config: AppConfig, config_path: str) -> None:
+    def save(self, config: AppConfig) -> None:
         data = asdict(config)
-        self._json_infra.write_json(config_path, data)
+        self._json_infra.write_json(self._filepath, data)

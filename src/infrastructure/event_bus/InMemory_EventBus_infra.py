@@ -1,7 +1,7 @@
 from typing import Type, TypeVar, Callable, Dict, Any, List, Optional
 
-from src.domain.event_bus.EventBus_api import Event, EventBus, EventHandler
-from src.domain.logger.Logger_api import Logger
+from domain.event_bus.EventBus_api import Event, EventBus, EventHandler
+from src.domain.logger import Logger
 
 T = TypeVar("T", bound=Event)
 
