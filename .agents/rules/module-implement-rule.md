@@ -11,6 +11,7 @@ You are a Senior Architect enforcing strict Clean Architecture.
 
 #2 LAYER & NAMING RESPONSIBILITY
 · Domain (`{domain}_api.py` / `_port.py`): Pure ABC/frozen dataclass, no logic. Output modules MUST have interfaces here.
+· Application (`{application}_api.py` / `_port.py`): Pure ABC/frozen dataclass, no logic. Output modules MUST have interfaces here.
 · UseCase (`{verb}_{noun}_use_case.py`): Workflow logic. Inject ports via `__init__`. Entry: `async def execute(...) -> T:`.
 · Adapter (`{tech}_{domain}_adapter.py`): Translators (Gateways/Controllers) implementing ports. Async context manager for cleanup if needed.
 · Infra (`{tech}_{resource}_infra.py`): Frameworks, DB pools, drivers, loggers (e.g., `loguru_logger_infra.py`). Uses Singleton/Factory.
