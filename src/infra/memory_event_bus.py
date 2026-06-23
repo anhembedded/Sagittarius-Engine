@@ -1,7 +1,7 @@
 from typing import Any, Callable
-from src.application.event_bus_port import IEventBus
+from src.core import IEventBus
 
-class EventBus(IEventBus):
+class MemoryEventBus(IEventBus):
     def __init__(self) -> None:
         self._handlers: dict[str, list[Callable]] = {}
 

@@ -1,33 +1,52 @@
-import cmd2
+import sys
 import argparse
-from typing import Any
-
 from src.core import App
-from example.CLI_smallApp.application.commands import CreateUserCommand, CreateUserDto
+from example.CLI_smallApp.application.commands import CreateUserCommand
 from example.CLI_smallApp.application.queries import ListUsersQuery
 
-class UserCLI(cmd2.Cmd):
-    def __init__(self, app: App):
-        super().__init__()
-        self.app = app
-        self.prompt = 'App> '
+def run_cli(app: App):
+    parser = argparse.ArgumentParser(description="CLI Small App")
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
-    create_user_parser = cmd2.Cmd2ArgumentParser()
-    create_user_parser.add_argument('id', type=str, help='User ID')
-    create_user_parser.add_argument('name', type=str, help='User Name')
+    # create-user command
+    parser_create = subparsers.add_parser("create-user", help="Create a new user")
+    parser_create.add_argument("id", help="User ID")
+    parser_create.add_argument("name", help="User Name")
 
-    @cmd2.with_argparser(create_user_parser)
-    def do_create_user(self, args: argparse.Namespace) -> None:
-        """Create a new user"""
-        dto = CreateUserDto(user_id=args.id, name=args.name)
-        self.app.execute(CreateUserCommand, dto)
-        self.poutput(f"Sent CreateUserCommand for {args.name}")
+    # list-users command
+    subparsers.add_parser("list-users", help="List all users")
 
-    def do_list_users(self, _: Any) -> None:
-        """List all users"""
-        users = self.app.query(ListUsersQuery)
-        if not users:
-            self.poutput("No users found.")
-        else:
-            for user in users:
-                self.poutput(repr(user))
+    # To handle interactive mode or single command
+    if len(sys.argv) > 1:
+        args = parser.parse_args()
+        _handle_args(app, args)
+    else:
+        print("Starting interactive CLI... (Type 'exit' to quit)")
+        while True:
+            try:
+                cmd_line = input("cli> ")
+                if not cmd_line.strip():
+                    continue
+                if cmd_line.strip() == "exit":
+                    break
+                # Parse input as args
+                args = parser.parse_args(cmd_line.split())
+                _handle_args(app, args)
+            except SystemExit:
+                # argparse calls sys.exit on error/help in interactive mode
+                pass
+            except EOFError:
+                break
+            except Exception as e:
+                print(f"Error: {e}")
+
+def _handle_args(app: App, args):
+    if args.command == "create-user":
+        dto = {"id": args.id, "name": args.name}
+        user = app.execute(CreateUserCommand, dto)
+        print(f"User created: ID={user.id}, Name={user.name}")
+    elif args.command == "list-users":
+        users = app.query(ListUsersQuery)
+        print("Users list:")
+        for u in users:
+            print(f"  - {u.id}: {u.name}")
