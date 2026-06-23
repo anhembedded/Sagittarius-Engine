@@ -3,13 +3,12 @@ from src.infrastructure.configuration.Json_File_Infra import JsonFileInfra
 from dataclasses import asdict
 
 class LocalConfigAdapter(ConfigPort):
-    def __init__(self, json_infra: JsonFileInfra, filepath: str = "config.json") -> None:
+    def __init__(self, json_infra: JsonFileInfra) -> None:
         self._json_infra = json_infra
-        self._filepath = filepath
 
-    def load(self) -> AppConfig:
+    def load(self, filepath: str) -> AppConfig:
         try:
-            data = self._json_infra.read_json(self._filepath)
+            data = self._json_infra.read_json(filepath)
             if not isinstance(data, dict):
                 return AppConfig()
             
@@ -24,6 +23,6 @@ class LocalConfigAdapter(ConfigPort):
         except Exception:
             return AppConfig()
 
-    def save(self, config: AppConfig) -> None:
+    def save(self, config: AppConfig, filepath: str) -> None:
         data = asdict(config)
-        self._json_infra.write_json(self._filepath, data)
+        self._json_infra.write_json(filepath, data)
