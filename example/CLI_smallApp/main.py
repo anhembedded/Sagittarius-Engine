@@ -1,32 +1,40 @@
 import sys
-import os
+from pathlib import Path
 
-# Add root directory to path to allow absolute imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+# Add project root to path so we can import src
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(project_root))
 
-from src.infra.std_container import StdLibContainer
-from src.infra.memory_event_bus import MemoryEventBus
-from src.core import App, IContainer, IEventBus
-from src.middleware.logging_middleware import LoggingMiddleware
-from example.CLI_smallApp.adapters.cli import run_cli
+from src.core import App
+from src.application.container_port import IContainer
+from src.application.event_bus_port import IEventBus
+from src.infra.stdlib_container_infra import Container
+from src.infra.memory_event_bus_infra import EventBus
+from example.CLI_smallApp.modules.user_module import UserModule
+from example.CLI_smallApp.adapters.cli import UserCLI
 
-def main():
-    container = StdLibContainer()
-    event_bus = MemoryEventBus()
-    app = App(container, event_bus)
+def main() -> None:
+    print("Initializing Infrastructure...")
+    container = Container()
+    event_bus = EventBus()
 
-    # Register core ports
+    print("Registering Core Ports to Container in Composition Root...")
     container.singleton(IContainer, container)
     container.singleton(IEventBus, event_bus)
 
-    # Add optional middleware
-    app.use_middleware(LoggingMiddleware())
+    print("Initializing Application...")
+    app = App(container=container, event_bus=event_bus)
+    container.singleton(App, app)
 
-    # Auto-discover modules in the current package structure
-    app.boot(auto_discover="example.CLI_smallApp.modules")
+    print("Registering Modules...")
+    app.use(UserModule())
 
-    # Run CLI loop or single command
-    run_cli(app)
+    print("Booting Application...")
+    app.boot()
+
+    print("Starting CLI Adapter...")
+    cli = UserCLI(app)
+    cli.cmdloop()
 
 if __name__ == "__main__":
     main()

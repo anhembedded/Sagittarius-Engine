@@ -1,9 +1,10 @@
-from src.core import IQuery
-from example.CLI_smallApp.infrastructure.user_repo import InMemoryUserRepository
+from typing import List
+from src.application.query_port import IQuery
+from example.CLI_smallApp.domain.user import User, UserRepositoryPort
 
 class ListUsersQuery(IQuery):
-    def __init__(self, repo: InMemoryUserRepository):
+    def __init__(self, repo: UserRepositoryPort):
         self.repo = repo
 
-    def execute(self, input_dto: dict = None) -> list:
-        return self.repo.get_all()
+    def execute(self, _=None) -> List[User]:
+        return self.repo.list_all()
