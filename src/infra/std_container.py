@@ -3,12 +3,11 @@ from typing import Any, Callable, TypeVar, Union
 
 T = TypeVar('T')
 
-class DependencyResolutionError(Exception):
-    pass
+from src.core import DependencyResolutionError
 
-from src.application.container_port import IContainer
+from src.core import IContainer
 
-class Container(IContainer):
+class StdLibContainer(IContainer):
     def __init__(self) -> None:
         self._bindings: dict[type, type] = {}
         self._instances: dict[type, Any] = {}
