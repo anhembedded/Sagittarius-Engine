@@ -68,7 +68,9 @@ def test_container_missing_typehint_fails():
         container.resolve(BadService)
 
 def test_app_use_module():
-    app = App()
+    container = Container()
+    event_bus = EventBus()
+    app = App(container=container, event_bus=event_bus)
 
     class MyModule(BaseModule):
         def register(self, a: App):
@@ -83,12 +85,16 @@ def test_app_use_module():
     assert app.container.resolve("custom") == "registered"
 
 def test_app_use_invalid_module():
-    app = App()
+    container = Container()
+    event_bus = EventBus()
+    app = App(container=container, event_bus=event_bus)
     with pytest.raises(ModuleRegistrationError):
         app.use(object())  # Not an IModule
 
 def test_app_boot():
-    app = App()
+    container = Container()
+    event_bus = EventBus()
+    app = App(container=container, event_bus=event_bus)
     handler = Mock()
     app.event_bus.on('app.booted', handler)
 
@@ -104,7 +110,9 @@ def test_app_boot():
     handler.assert_called_once_with(app)
 
 def test_app_execute_command():
-    app = App()
+    container = Container()
+    event_bus = EventBus()
+    app = App(container=container, event_bus=event_bus)
 
     class DummyCommand(ICommand):
         def __init__(self, event_bus: IEventBus):
@@ -113,11 +121,16 @@ def test_app_execute_command():
         def execute(self, input_dto: dict):
             return "executed"
 
+    container.bind(DummyCommand, DummyCommand)
+    container.singleton(IEventBus, event_bus)
+
     result = app.execute(DummyCommand, {})
     assert result == "executed"
 
 def test_app_execute_query():
-    app = App()
+    container = Container()
+    event_bus = EventBus()
+    app = App(container=container, event_bus=event_bus)
 
     class DummyQuery(IQuery):
         def __init__(self, event_bus: IEventBus):
@@ -125,6 +138,9 @@ def test_app_execute_query():
 
         def execute(self, input_dto: dict):
             return "queried"
+
+    container.bind(DummyQuery, DummyQuery)
+    container.singleton(IEventBus, event_bus)
 
     result = app.query(DummyQuery, {})
     assert result == "queried"

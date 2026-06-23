@@ -6,7 +6,9 @@ T = TypeVar('T')
 class DependencyResolutionError(Exception):
     pass
 
-class Container:
+from src.application.container_port import IContainer
+
+class Container(IContainer):
     def __init__(self) -> None:
         self._bindings: dict[type, type] = {}
         self._instances: dict[type, Any] = {}
