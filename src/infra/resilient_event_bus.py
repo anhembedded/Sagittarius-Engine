@@ -1,17 +1,21 @@
-from typing import Any, Callable, List, Tuple
-from src.core import IEventBus
+from typing import Any, Callable, List, Tuple, Optional
+from src.core import IEventBus, ILogger
 
 class ResilientEventBus(IEventBus):
-    def __init__(self, inner_bus: IEventBus, max_retries: int = 3) -> None:
+    def __init__(self, inner_bus: IEventBus, max_retries: int = 3, logger: Optional[ILogger] = None) -> None:
         self.inner_bus = inner_bus
         self.max_retries = max_retries
         self._dlq: List[Tuple[str, Any, Callable, Exception]] = []
+        self.logger = logger
 
         # We need to hook into the inner bus emit logic, but since IEventBus
         # doesn't expose handlers directly, we intercept registration.
         self._handlers: dict[str, list[Callable]] = {}
 
     def emit(self, event_name: str, data: Any = None) -> None:
+        if self.logger:
+            self.logger.info(f"Emitting resilient event: {event_name} with data: {data}")
+
         for handler in self._handlers.get(event_name, []):
             success = False
             for attempt in range(self.max_retries + 1):

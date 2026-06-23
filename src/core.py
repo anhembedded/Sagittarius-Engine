@@ -56,6 +56,23 @@ class IMiddleware(ABC):
     def process(self, cmd_or_query: Any, dto: Any, next_handler: Callable[[], Any]) -> Any:
         ...
 
+class ILogger(ABC):
+    @abstractmethod
+    def info(self, message: str) -> None:
+        ...
+
+    @abstractmethod
+    def warning(self, message: str) -> None:
+        ...
+
+    @abstractmethod
+    def error(self, message: str) -> None:
+        ...
+
+    @abstractmethod
+    def debug(self, message: str) -> None:
+        ...
+
 class IConfig(ABC):
     @abstractmethod
     def get(self, key: str, default: Any = None) -> Any:
@@ -134,20 +151,42 @@ class App:
     def use_middleware(self, middleware: IMiddleware) -> None:
         self.pipeline.add(middleware)
 
+    def _get_logger(self) -> Optional['ILogger']:
+        try:
+            return self.container.resolve(ILogger)
+        except DependencyResolutionError:
+            return None
+
     def boot(self, auto_discover: Optional[str] = None) -> None:
+        logger = self._get_logger()
+        if logger:
+            logger.info("App is booting...")
+
         if auto_discover:
             ModuleAutoDiscovery.discover(auto_discover, self)
         for module in self.modules:
             module.boot(self)
+
+        if logger:
+            logger.info(f"App booted successfully with {len(self.modules)} modules.")
+
         self.event_bus.emit('app.booted', self)
 
     def execute(self, command_class: type[ICommand], input_dto: Any = None) -> Any:
+        logger = self._get_logger()
+        if logger:
+            logger.info(f"Executing command: {command_class.__name__}")
+
         command = self.container.resolve(command_class)
         def final() -> Any:
             return command.execute(input_dto)
         return self.pipeline.execute(command, input_dto, final)
 
     def query(self, query_class: type[IQuery], input_dto: Any = None) -> Any:
+        logger = self._get_logger()
+        if logger:
+            logger.info(f"Executing query: {query_class.__name__}")
+
         query = self.container.resolve(query_class)
         def final() -> Any:
             return query.execute(input_dto)
