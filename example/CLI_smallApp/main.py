@@ -20,7 +20,7 @@ def main():
     container.singleton(IEventBus, event_bus)
 
     # Add optional middleware
-    app.use_middleware(LoggingMiddleware())
+    app.use_middleware(LoggingMiddleware(container))
 
     # Auto-discover modules in the current package structure
     app.boot(auto_discover="example.CLI_smallApp.modules")
