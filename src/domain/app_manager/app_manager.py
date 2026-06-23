@@ -37,6 +37,7 @@ class AppManager:
         logger : Logger = Logger(config= self.__AppConfig)
         return logger
 
+
     def Bootstrap(self) -> None:
         """
         Bootstrap the application by loading configuration and initializing components.
