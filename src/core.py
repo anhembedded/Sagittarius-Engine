@@ -4,8 +4,7 @@ from src.application.event_bus_port import IEventBus
 from src.application.command_port import ICommand
 from src.application.query_port import IQuery
 from src.application.module_port import IModule
-from src.infra.stdlib_container_infra import Container, DependencyResolutionError
-from src.infra.memory_event_bus_infra import EventBus
+from src.application.container_port import IContainer
 
 class ModuleRegistrationError(Exception):
     pass
@@ -18,14 +17,10 @@ class BaseModule(IModule):
         pass
 
 class App:
-    def __init__(self) -> None:
-        self.container = Container()
-        self.event_bus = EventBus()
+    def __init__(self, container: IContainer, event_bus: IEventBus) -> None:
+        self.container = container
+        self.event_bus = event_bus
         self.modules: list[IModule] = []
-
-        self.container.singleton(IEventBus, self.event_bus)
-        self.container.singleton(Container, self.container)
-        self.container.singleton(App, self)
 
     def use(self, module: IModule) -> None:
         if not isinstance(module, IModule):
