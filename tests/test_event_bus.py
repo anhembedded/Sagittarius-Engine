@@ -1,7 +1,7 @@
 import unittest
 from dataclasses import dataclass, field
 
-from src.domain.event_bus.EventBus_api import Event
+from application.event_bus.EventBus_api import Event
 from src.infrastructure.event_bus.InMemory_EventBus_infra import InMemoryEventBusInfra
 
 @dataclass(frozen=True)

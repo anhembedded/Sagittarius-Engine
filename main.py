@@ -6,7 +6,7 @@ from src.adapters.configuration.Local_Config_Adapter import LocalConfigAdapter
 from src.infrastructure.logger.logger_factory import LoggerFactory
 from src.infrastructure.event_bus.InMemory_EventBus_infra import InMemoryEventBusInfra
 
-from src.domain.app_manager.app_manager import AppManager
+from application.app_manager.app_manager import AppManager
 from src.adapters.crypto_stream.binance_crypto_stream_adapter import BinanceCryptoStreamAdapter
 
 from src.use_cases.print_price_flow.print_price_use_cases import StartPrintPriceUseCase, StopPrintPriceUseCase

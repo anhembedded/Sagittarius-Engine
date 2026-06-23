@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import Mock, call
 
 from src.domain.crypto_stream.crypto_stream_port import CryptoStreamPort, Ticker
-from src.domain.logger.Logger_api import Logger
+from application.logger.Logger_api import Logger
 from src.use_cases.print_price_flow.print_price_use_cases import StartPrintPriceUseCase, StopPrintPriceUseCase
 
 
@@ -14,8 +14,8 @@ def mock_crypto_stream() -> Mock:
 def mock_logger() -> Mock:
     return Mock(spec=Logger)
 
-from src.domain.event_bus.EventBus_api import EventBus
-from src.domain.app_events.app_events import PriceUpdatedEvent
+from application.event_bus.EventBus_api import EventBus
+from application.app_events.app_events import PriceUpdatedEvent
 
 @pytest.fixture
 def mock_event_bus() -> Mock:

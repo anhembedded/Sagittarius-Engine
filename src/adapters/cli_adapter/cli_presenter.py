@@ -1,5 +1,5 @@
-from src.domain.event_bus.EventBus_api import EventBus
-from src.domain.app_events.app_events import StartPriceCommandEvent, StopPriceCommandEvent, QuitCommandEvent
+from application.event_bus.EventBus_api import EventBus
+from application.app_events.app_events import StartPriceCommandEvent, StopPriceCommandEvent, QuitCommandEvent
 
 class CLIPresenter:
     """

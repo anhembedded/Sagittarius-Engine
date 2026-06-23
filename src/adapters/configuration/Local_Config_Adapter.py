@@ -1,4 +1,4 @@
-from src.domain.configuration.Configuration_api import ConfigPort, AppConfig, CONFIG_KEY
+from application.configuration.Configuration_api import ConfigPort, AppConfig, CONFIG_KEY
 from src.infrastructure.configuration.Json_File_Infra import JsonFileInfra
 from dataclasses import asdict
 

@@ -2,8 +2,8 @@ from typing import Any, Callable
 
 from attr import dataclass
 
-from src.domain.configuration.Configuration_api import AppConfig, ConfigManager, CONFIG_VALUE, ConfigPort
-from src.domain.logger.Logger_api import Logger
+from application.configuration.Configuration_api import AppConfig, ConfigManager, CONFIG_VALUE, ConfigPort
+from application.logger.Logger_api import Logger
 
 @dataclass(frozen=True)
 class APP_DEFINITIONS:

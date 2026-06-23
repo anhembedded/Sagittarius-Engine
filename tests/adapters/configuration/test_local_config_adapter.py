@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock
 from src.adapters.configuration.Local_Config_Adapter import LocalConfigAdapter
-from src.domain.configuration.Configuration_api import AppConfig, CONFIG_VALUE
+from application.configuration.Configuration_api import AppConfig, CONFIG_VALUE
 
 def test_local_config_adapter_load_valid():
     mock_infra = MagicMock()

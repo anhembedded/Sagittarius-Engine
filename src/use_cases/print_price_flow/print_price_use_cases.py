@@ -1,7 +1,7 @@
 from src.domain.crypto_stream.crypto_stream_port import CryptoStreamPort, Ticker
-from src.domain.logger.Logger_api import Logger
-from src.domain.event_bus.EventBus_api import EventBus
-from src.domain.app_events.app_events import PriceUpdatedEvent
+from application.logger.Logger_api import Logger
+from application.event_bus.EventBus_api import EventBus
+from application.app_events.app_events import PriceUpdatedEvent
 
 class StartPrintPriceUseCase:
     def __init__(self, crypto_stream: CryptoStreamPort, logger: Logger, event_bus: EventBus):

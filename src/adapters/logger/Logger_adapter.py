@@ -3,7 +3,7 @@ from typing import Any
 from cryptography.utils import Enum
 from src.infrastructure.logger.Silent_Logger__infra import SilentLoggerAdapter
 from src.infrastructure.logger.Loguru_Logger_infra import LoguruLogger
-from src.domain.configuration.Configuration_api import AppConfig, CONFIG_VALUE
+from application.configuration.Configuration_api import AppConfig, CONFIG_VALUE
 from src.infrastructure.logger.Logger_abstract import LoggerAbstract_infr
 
 class Logger_Infra_Type(Enum):

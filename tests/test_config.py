@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 from src.adapters.configuration.Local_Config_Adapter import LocalConfigAdapter
-from src.domain.configuration.Configuration_api import ConfigManager, AppConfig, CONFIG_VALUE
+from application.configuration.Configuration_api import ConfigManager, AppConfig, CONFIG_VALUE
 from src.infrastructure.configuration.Json_File_Infra import JsonFileInfra
 
 

@@ -1,9 +1,9 @@
-from src.domain.app_controller.AppController_api import IAppController
-from src.domain.event_bus.EventBus_api import EventBus
-from src.domain.app_events.app_events import (
+from application.app_controller.AppController_api import IAppController
+from application.event_bus.EventBus_api import EventBus
+from application.app_events.app_events import (
     StartPriceCommandEvent, StopPriceCommandEvent, PriceUpdatedEvent, QuitCommandEvent
 )
-from src.domain.logger.Logger_api import Logger
+from application.logger.Logger_api import Logger
 
 class AppControllerImpl(IAppController):
     """

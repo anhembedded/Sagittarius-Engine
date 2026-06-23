@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from src.domain.event_bus.EventBus_api import Event
+from application.event_bus.EventBus_api import Event
 
 @dataclass(frozen=True)
 class StartPriceCommandEvent(Event):

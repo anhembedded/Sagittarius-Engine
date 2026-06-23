@@ -1,5 +1,5 @@
 import pytest
-from src.domain.configuration.Configuration_api import ConfigPort, AppConfig, ConfigManager, CONFIG_VALUE, CONFIG_KEY
+from application.configuration.Configuration_api import ConfigPort, AppConfig, ConfigManager, CONFIG_VALUE, CONFIG_KEY
 
 class MockConfigAdapter(ConfigPort):
     def __init__(self):

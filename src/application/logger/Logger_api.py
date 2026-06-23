@@ -1,5 +1,5 @@
 from src.adapters.logger.Logger_adapter import Logger_Adapter, LoggerAdapter_Factory, Logger_Infra_Type
-from src.domain.configuration.Configuration_api import AppConfig, CONFIG_VALUE
+from application.configuration.Configuration_api import AppConfig, CONFIG_VALUE
 from typing import Any
 
 class Logger:

@@ -1,6 +1,6 @@
 import pytest
 from src.infrastructure.event_bus.InMemory_EventBus_infra import InMemoryEventBusInfra
-from src.domain.event_bus.EventBus_api import Event
+from application.event_bus.EventBus_api import Event
 from unittest.mock import MagicMock
 
 class MockEvent(Event):
