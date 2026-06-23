@@ -1,9 +1,11 @@
 import pytest
 from unittest.mock import Mock
-from src.core import (
-    App, Container, EventBus, BaseModule, ICommand, IQuery, IEventBus,
-    DependencyResolutionError, ModuleRegistrationError
-)
+from src.core import App, BaseModule, ModuleRegistrationError
+from src.infra.stdlib_container_infra import Container, DependencyResolutionError
+from src.infra.memory_event_bus_infra import EventBus
+from src.application.command_port import ICommand
+from src.application.query_port import IQuery
+from src.application.event_bus_port import IEventBus
 
 def test_event_bus_emit_on_off():
     bus = EventBus()
