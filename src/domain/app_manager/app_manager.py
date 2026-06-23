@@ -58,17 +58,3 @@ class AppManager:
             raise RuntimeError("Config is not initialized. Call Bootstrap() first.")
         return self.__AppConfig
 
-    def register_command(self, name: str, command_func: Callable[..., Any]) -> None:
-        """
-        Register a command (e.g. a Use Case execution) so that any UI/CLI
-        can invoke it by name without tight coupling.
-        """
-        self.__commands[name] = command_func
-
-    def execute_command(self, name: str, *args: Any, **kwargs: Any) -> Any:
-        """
-        Execute a registered command by name.
-        """
-        if name not in self.__commands:
-            raise ValueError(f"Command '{name}' not found.")
-        return self.__commands[name](*args, **kwargs)
