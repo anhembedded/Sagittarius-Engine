@@ -1,0 +1,41 @@
+sequenceDiagram
+    actor User
+    participant App
+    participant Container
+    participant AutoDiscovery
+    participant Module
+    participant MiddlewarePipeline
+    participant Command
+    participant EventBus
+
+    %% Bootstrap Flow
+    Note over App, EventBus: Application Bootstrap Flow
+    User->>App: create App(container, event_bus)
+    App->>App: initialize pipeline & modules
+    User->>App: boot(auto_discover="modules")
+
+    App->>AutoDiscovery: discover("modules", self)
+    AutoDiscovery-->>App: use(Module)
+    App->>Module: register(self)
+
+    App->>Module: boot(self)
+    App->>EventBus: emit('app.booted', self)
+
+    %% Execute Command Flow
+    Note over App, EventBus: Command Execution Flow
+    User->>App: execute(CommandClass, input_dto)
+    App->>Container: resolve(CommandClass)
+    Container-->>App: command_instance
+
+    App->>MiddlewarePipeline: execute(command, input_dto, final_handler)
+
+    %% Note: using a loop here is a simplified way to represent the recursive middleware chain
+    loop Middleware Chain
+        MiddlewarePipeline->>MiddlewarePipeline: process(command, dto, next)
+    end
+
+    MiddlewarePipeline->>Command: execute(input_dto)
+    Command->>EventBus: emit('domain.event', data)
+    Command-->>MiddlewarePipeline: result
+    MiddlewarePipeline-->>App: result
+    App-->>User: result
