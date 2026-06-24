@@ -29,13 +29,22 @@ class FakeModule2(BaseModule):
     pass
 """)
 
+    # Create a single .py module (is_pkg=False)
+    mod3 = pkg_dir / "mod3.py"
+    mod3.write_text("""
+from src.core import BaseModule
+class FakeModule3(BaseModule):
+    pass
+""")
+
     # Add the temporary directory to sys.path
     monkeypatch.syspath_prepend(str(tmp_path))
 
     app_mock = Mock(spec=App)
     ModuleAutoDiscovery.discover("fake_modules", app_mock)
 
-    assert app_mock.use.call_count == 2
+    # Now it should discover 3 modules (2 packages, 1 single file)
+    assert app_mock.use.call_count == 3
 
 def test_module_auto_discovery_invalid_package():
     app_mock = Mock(spec=App)

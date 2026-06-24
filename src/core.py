@@ -115,6 +115,16 @@ class MiddlewarePipeline:
         return chain()
 
 class ModuleAutoDiscovery:
+    """
+    Auto-discovers modules within a given package.
+    Supports both single-file modules (e.g. `modules/user_module.py`)
+    and multi-file package modules (e.g. `modules/order_module/__init__.py`).
+
+    Rules:
+    - For multi-file modules, the __init__.py acts as the entry point and must contain
+      (or import) a class inheriting from IModule.
+    - For single-file modules, the .py file itself must contain a class inheriting from IModule.
+    """
     @staticmethod
     def discover(modules_package: str, app: 'App') -> None:
         try:
@@ -126,13 +136,13 @@ class ModuleAutoDiscovery:
             return
 
         for _, name, is_pkg in pkgutil.iter_modules(package.__path__):
-            if is_pkg:
-                full_module_name = f"{modules_package}.{name}"
-                sub_package = importlib.import_module(full_module_name)
+            # We process both packages (is_pkg=True) and single files (is_pkg=False)
+            full_module_name = f"{modules_package}.{name}"
+            sub_package = importlib.import_module(full_module_name)
 
-                for _, obj in inspect.getmembers(sub_package, inspect.isclass):
-                    if issubclass(obj, IModule) and obj is not IModule and obj is not BaseModule:
-                        app.use(obj())
+            for _, obj in inspect.getmembers(sub_package, inspect.isclass):
+                if issubclass(obj, IModule) and obj is not IModule and obj is not BaseModule:
+                    app.use(obj())
 
 
 class App:
