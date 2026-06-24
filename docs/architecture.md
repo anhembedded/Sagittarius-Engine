@@ -1,8 +1,8 @@
-# Kiến trúc Tổng thể (Architecture)
+# Overall Architecture
 
-Framework ứng dụng nguyên lý Clean Architecture kết hợp Event-Driven (Headless-first).
+Framework applying Clean Architecture principles combined with an Event-Driven (Headless-first) approach.
 
-## 1. Biểu đồ tổng thể
+## 1. Overall Diagram
 
 ```mermaid
 graph TD
@@ -50,13 +50,13 @@ graph TD
     Queries -->|Calls| DB
 ```
 
-## 2. Quy tắc hướng luồng
-- **Hướng vào trong**: Tất cả mọi layer bên ngoài (Adapters, Infrastructure) phải phụ thuộc vào layer bên trong (Application, Domain).
-- **Core.py**: Chứa toàn bộ giao diện (`ICommand`, `IEventBus`, `IContainer`...) và class trung tâm `App`. Nó độc lập và không chứa code cụ thể liên quan tới Infra (ví dụ: `print`, `logging`, `requests`).
-- **Composition Root**: File `main.py` của ứng dụng đóng vai trò làm điểm lắp ráp (Composition Root). Ở đó ta gắn kết `MemoryEventBus`, `StdLibContainer` với `App`, rồi boot các `Module`.
+## 2. Flow Rules
+- **Inward Dependency Rule**: All outer layers (Adapters, Infrastructure) must depend on the inner layers (Application, Domain).
+- **Core.py**: Contains all central interfaces (`ICommand`, `IEventBus`, `IContainer`, etc.) and the core `App` class. It is completely decoupled and does not contain infrastructure-specific code (e.g., `print`, `logging`, `requests`).
+- **Composition Root**: The application's `main.py` file acts as the assembly point (Composition Root). It is here that we wire up the `MemoryEventBus`, `StdLibContainer` with the `App`, and then boot the `Modules`.
 
 ## 3. Class Diagram (Core & Infrastructure)
-Mô tả quan hệ giữa các Interfaces trong `core.py` và các Implementations trong `infra/`, `middleware/`.
+Describes the relationships between Interfaces in `core.py` and Implementations in `infra/` and `middleware/`.
 ```mermaid
 classDiagram
     %% Interfaces
@@ -240,8 +240,8 @@ classDiagram
     IMiddleware <|.. ValidationMiddleware
 ```
 
-## 4. Component Diagram (Phân chia package)
-Mô tả sự chia cắt module/package bên trong thư mục `src`.
+## 4. Component Diagram (Package Division)
+Describes the package boundaries and dependencies within the `src` directory.
 ```mermaid
 flowchart TB
     subgraph Core ["src/core.py (Core Abstractions)"]
@@ -305,7 +305,7 @@ flowchart TB
 ```
 
 ## 5. Use Case Diagram
-Mô tả các chức năng và cách tương tác chính với Framework.
+Describes the main functionalities and interactions with the Framework.
 ```mermaid
 ---
 title: Application Framework Use Cases
@@ -351,7 +351,7 @@ flowchart LR
 ```
 
 ## 6. Sequence Diagram: Application Bootstrap & Command Execution
-Luồng khởi động (bootstrap) tự động nhận diện module, và luồng thực thi (execute command) thông qua Middleware Pipeline.
+The bootstrap flow detailing auto-discovery of modules, and the execution flow of a command through the Middleware Pipeline.
 ```mermaid
 sequenceDiagram
     actor User
@@ -397,9 +397,9 @@ sequenceDiagram
 ```
 
 ## 7. State Diagrams: App Lifecycle & Middleware Pipeline
-Các trạng thái vòng đời của `App` và Pipeline Middleware khi xử lý luồng sự kiện.
+The lifecycle states of the `App` instance and the state transitions of the Middleware Pipeline when processing commands.
 
-**Vòng đời `App`:**
+**`App` Lifecycle:**
 ```mermaid
 stateDiagram-v2
     [*] --> Initialized: App(container, event_bus)
@@ -434,7 +434,7 @@ stateDiagram-v2
     Running --> [*]: shutdown
 ```
 
-**Trạng thái Middleware Pipeline:**
+**Middleware Pipeline States:**
 ```mermaid
 stateDiagram-v2
     [*] --> BuildingChain: App.execute()

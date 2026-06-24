@@ -2,11 +2,43 @@ from typing import Any, Callable, Optional
 from src.core import IEventBus, ILogger
 
 class MemoryEventBus(IEventBus):
+    """
+    @brief Synchronous In-memory implementation of IEventBus.
+
+    @details Suitable for single-process applications or in test environments.
+    When an event is emitted, all registered handlers are invoked immediately
+    in the same thread.
+
+    @par Tutorial / Usage Example:
+    @code
+    bus = MemoryEventBus(logger)
+
+    # Handler function
+    def send_email(data):
+        print(f"Sending email to {data['email']}")
+
+    # Subscription
+    bus.on('user.registered', send_email)
+
+    # Emit event
+    bus.emit('user.registered', {'email': 'test@example.com'})
+    @endcode
+    """
     def __init__(self, logger: Optional[ILogger] = None) -> None:
+        """
+        @brief Constructor.
+        @param logger Optional logger instance.
+        """
         self._handlers: dict[str, list[Callable]] = {}
         self.logger = logger
 
     def emit(self, event_name: str, data: Any = None) -> None:
+        """
+        @brief Synchronously emits an event to all listening handlers.
+
+        @param event_name The name of the event.
+        @param data The data payload.
+        """
         if self.logger:
             self.logger.info(f"Emitting event: {event_name} with data: {data}")
 
@@ -14,11 +46,23 @@ class MemoryEventBus(IEventBus):
             handler(data)
 
     def on(self, event_name: str, handler: Callable) -> None:
+        """
+        @brief Registers a handler.
+
+        @param event_name The name of the event.
+        @param handler The callback function.
+        """
         if event_name not in self._handlers:
             self._handlers[event_name] = []
         if handler not in self._handlers[event_name]:
             self._handlers[event_name].append(handler)
 
     def off(self, event_name: str, handler: Callable) -> None:
+        """
+        @brief Unregisters a handler.
+
+        @param event_name The name of the event.
+        @param handler The callback function to remove.
+        """
         if event_name in self._handlers and handler in self._handlers[event_name]:
             self._handlers[event_name].remove(handler)
