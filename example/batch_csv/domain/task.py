@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 @dataclass
-class CSVRow:
+class Task:
     id: str
     name: str
-    score: int
