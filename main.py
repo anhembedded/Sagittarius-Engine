@@ -1,9 +1,13 @@
+import json
+import os
 from typing import Any
-from src.core import App, BaseModule
-from src.application.command_port import ICommand
-from src.application.query_port import IQuery
-from src.application.event_bus_port import IEventBus
-from src.infra.stdlib_container_infra import Container
+
+from src.core import App, BaseModule, ICommand, IQuery, IEventBus, IContainer, IConfig
+from src.infra.std_container import StdLibContainer
+from src.infra.memory_event_bus import MemoryEventBus
+from src.infra.dict_config import DictConfig
+from src.modules.logger_module import LoggerModule
+from src.middleware.logging_middleware import LoggingMiddleware
 
 # ========== DOMAIN ==========
 class User:
@@ -56,9 +60,34 @@ class ListUsersQuery(IQuery):
 
 # ========== MAIN ==========
 if __name__ == "__main__":
-    app = App()
+    container = StdLibContainer()
+    event_bus = MemoryEventBus()
+    app = App(container, event_bus)
+
+    container.singleton(IContainer, container)
+    container.singleton(IEventBus, event_bus)
+
+    # Load configuration
+    config = DictConfig()
+    if os.path.exists('config.json'):
+        with open('config.json', 'r') as f:
+            config_data = json.load(f)
+            for k, v in config_data.items():
+                config.set(k, v)
+    container.singleton(IConfig, config)
+
+    # Register logger module
+    app.use(LoggerModule())
+
+    # Register logging middleware
+    app.use_middleware(LoggingMiddleware(container))
+
+    # Register user module
     app.use(UserModule())
-    app.boot()
+
+    # Boot app
+    app.boot(auto_discover="src.modules")
+    print("Application booted successfully.")
 
     # Execute command
     user = app.execute(CreateUserCommand, {'id': 1, 'name': 'Alice'})
