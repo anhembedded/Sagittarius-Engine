@@ -1,4 +1,6 @@
-from src.core import BaseModule, App, ILogger, IConfig
+from src.base_module import BaseModule
+from src.app_kernel import App
+from src.interfaces import ILogger, IConfig
 from src.infra.std_logger import StdLogger
 
 class LoggerModule(BaseModule):

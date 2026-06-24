@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import Mock, call
-from src.core import App, IEventBus
+from src.app_kernel import App
+from src.interfaces import IEventBus
 from src.infra.std_container import StdLibContainer
 from src.infra.memory_event_bus import MemoryEventBus
 

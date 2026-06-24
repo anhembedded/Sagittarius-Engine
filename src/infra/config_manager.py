@@ -2,7 +2,7 @@ import os
 import json
 from abc import ABC, abstractmethod
 from typing import Any
-from src.core import IConfig
+from src.interfaces import IConfig
 
 class ConfigSource(ABC):
     """

@@ -1,4 +1,4 @@
-from src.core import IQuery
+from src.interfaces import IQuery
 from example.CLI_smallApp.infrastructure.user_repo import InMemoryUserRepository
 
 class ListUsersQuery(IQuery):

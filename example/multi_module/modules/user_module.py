@@ -1,4 +1,5 @@
-from src.core import BaseModule, App
+from src.base_module import BaseModule
+from src.app_kernel import App
 from example.multi_module.application.create_user_command import CreateUserCommand
 
 class UserModule(BaseModule):

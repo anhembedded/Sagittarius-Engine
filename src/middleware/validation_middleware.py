@@ -1,5 +1,5 @@
 from typing import Any, Callable
-from src.core import IMiddleware
+from src.interfaces import IMiddleware
 
 class ValidationMiddleware(IMiddleware):
     """

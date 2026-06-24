@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import Mock
-from src.core import MiddlewarePipeline, IMiddleware
+from src.app_kernel import MiddlewarePipeline
+from src.interfaces import IMiddleware
 
 class DummyMiddleware(IMiddleware):
     def __init__(self, name: str, tracer: list):

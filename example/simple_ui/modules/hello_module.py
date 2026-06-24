@@ -1,4 +1,5 @@
-from src.core import BaseModule, App
+from src.base_module import BaseModule
+from src.app_kernel import App
 from example.simple_ui.application.get_hello_query import GetHelloQuery
 
 class HelloModule(BaseModule):

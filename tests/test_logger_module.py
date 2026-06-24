@@ -1,5 +1,6 @@
 import pytest
-from src.core import App, ILogger, IConfig
+from src.app_kernel import App
+from src.interfaces import ILogger, IConfig
 from src.modules.logger_module import LoggerModule
 from src.infra.std_container import StdLibContainer
 from src.infra.memory_event_bus import MemoryEventBus

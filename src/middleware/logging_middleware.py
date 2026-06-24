@@ -1,5 +1,5 @@
 from typing import Any, Callable
-from src.core import IMiddleware, ILogger, IContainer
+from src.interfaces import IMiddleware, ILogger, IContainer
 
 class LoggingMiddleware(IMiddleware):
     """
