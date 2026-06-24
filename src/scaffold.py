@@ -24,31 +24,53 @@ def create_project(project_name: str, base_path: str = ".") -> None:
     """
     project_dir = os.path.join(base_path, project_name)
 
-    # Initialize directory
-    os.makedirs(os.path.join(project_dir, "modules"), exist_ok=True)
+    # Initialize directories
+    for dir_name in ["domain", "application", "infrastructure", "adapters", "modules"]:
+        os.makedirs(os.path.join(project_dir, dir_name), exist_ok=True)
+        # Mark as python package
+        with open(os.path.join(project_dir, dir_name, "__init__.py"), "w") as f:
+            pass
 
     # Initialize basic config file
     config_path = os.path.join(project_dir, "config.json")
     with open(config_path, "w") as f:
         json.dump({"app_name": project_name, "version": "1.0.0"}, f, indent=4)
 
-    # Mark the modules directory as a Python package
-    with open(os.path.join(project_dir, "modules", "__init__.py"), "w") as f:
-        pass
+
 
     # Create the sample Composition Root (main.py)
-    main_py_content = """from src.infra.std_container import StdLibContainer
+    main_py_content = """import sys
+from src.infra.std_container import StdLibContainer
 from src.infra.memory_event_bus import MemoryEventBus
+from src.infra.config_manager import ConfigManager
 from src.app_kernel import App
-from src.interfaces import IContainer, IEventBus
+from src.interfaces import IContainer, IEventBus, IConfig
+
+# Framework Modules
+from src.modules.logger_module import LoggerModule
+from src.modules.database_module import DatabaseModule
+from src.modules.health_module import HealthModule
+
+from src.hot_reloader import HotReloader
 
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
 
+    # Register core ports
     container.singleton(IContainer, container)
     container.singleton(IEventBus, event_bus)
+
+    # Setup basic configuration
+    config = ConfigManager()
+    # Add your configuration sources here (e.g. DotenvSource)
+    container.singleton(IConfig, config)
+
+    # Register Built-in Modules
+    app.use(LoggerModule())
+    app.use(DatabaseModule())
+    app.use(HealthModule())
 
     # Automatically scan and load IModules present in the 'modules' package
     try:
@@ -58,6 +80,9 @@ def main():
         print(f"Error booting application: {e}")
 
 if __name__ == "__main__":
+    if "--watch" in sys.argv:
+        reloader = HotReloader(["domain", "application", "infrastructure", "adapters", "modules", "main.py"])
+        reloader.start()
     main()
 """
     main_path = os.path.join(project_dir, "main.py")

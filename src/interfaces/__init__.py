@@ -1,3 +1,6 @@
+from .i_metrics import IMetrics
+from .i_file_storage import IFileStorage
+from .i_session import ISession
 from .i_command import ICommand
 from .i_query import IQuery
 from .i_module import IModule
@@ -8,4 +11,4 @@ from .i_middleware import IMiddleware
 from .i_logger import ILogger
 from .i_config import IConfig
 
-__all__ = ['ICommand', 'IQuery', 'IModule', 'IEventBus', 'IContainer', 'IMiddleware', 'ILogger', 'IConfig']
+__all__ = ['ICommand', 'IQuery', 'IModule', 'IEventBus', 'IContainer', 'IMiddleware', 'ILogger', 'IConfig', 'ISession', 'IFileStorage', 'IMetrics']
