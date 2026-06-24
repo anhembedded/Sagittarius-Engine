@@ -6,3 +6,8 @@ python-dotenv
 loguru
 pytest
 cmd2>=4.0.0
+pydantic
+sqlalchemy
+alembic
+boto3
+azure-storage-blob
