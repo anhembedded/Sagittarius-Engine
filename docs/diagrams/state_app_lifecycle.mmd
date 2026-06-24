@@ -1,0 +1,31 @@
+stateDiagram-v2
+    [*] --> Initialized: App(container, event_bus)
+
+    state Initialized {
+        [*] --> Configuring
+        Configuring --> ModulesRegistered: use(module)
+        Configuring --> MiddlewareAdded: use_middleware()
+        ModulesRegistered --> Configuring
+        MiddlewareAdded --> Configuring
+    }
+
+    Initialized --> Booting: boot(auto_discover)
+
+    state Booting {
+        [*] --> AutoDiscovering
+        AutoDiscovering --> ModulesBooting: discover()
+        ModulesBooting --> EventEmitting: module.boot(app)
+        EventEmitting --> [*]: emit('app.booted')
+    }
+
+    Booting --> Running
+
+    state Running {
+        [*] --> Idle
+        Idle --> ExecutingCommand: execute()
+        Idle --> ExecutingQuery: query()
+        ExecutingCommand --> Idle: return result
+        ExecutingQuery --> Idle: return result
+    }
+
+    Running --> [*]: shutdown

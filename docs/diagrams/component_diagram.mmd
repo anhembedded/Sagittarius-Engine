@@ -1,0 +1,59 @@
+flowchart TB
+    subgraph Core ["src/core.py (Core Abstractions)"]
+        Interfaces["Interfaces (ICommand, IQuery, IModule, IContainer, IEventBus, IMiddleware, ILogger, IConfig)"]
+        App["App (Facade & Orchestrator)"]
+        MiddlewarePipeline["MiddlewarePipeline"]
+        AutoDiscovery["ModuleAutoDiscovery"]
+        BaseModule["BaseModule"]
+        Exceptions["Exceptions (DependencyResolutionError, ModuleRegistrationError)"]
+
+        App --> Interfaces
+        App --> MiddlewarePipeline
+        App --> AutoDiscovery
+    end
+
+    subgraph Infra ["src/infra/ (Infrastructure Impl)"]
+        StdLibContainer["StdLibContainer"]
+        MemoryEventBus["MemoryEventBus"]
+        ResilientEventBus["ResilientEventBus"]
+        StdLogger["StdLogger"]
+        ConfigManager["ConfigManager & DictConfig"]
+        ConfigSources["ConfigSources (Dict, Env, Json)"]
+
+        StdLibContainer -.->|implements| Interfaces
+        MemoryEventBus -.->|implements| Interfaces
+        ResilientEventBus -.->|implements| Interfaces
+        StdLogger -.->|implements| Interfaces
+        ConfigManager -.->|implements| Interfaces
+        ConfigManager --> ConfigSources
+    end
+
+    subgraph Middleware ["src/middleware/ (Application Middleware)"]
+        LoggingMiddleware["LoggingMiddleware"]
+        TimingMiddleware["TimingMiddleware"]
+        ValidationMiddleware["ValidationMiddleware"]
+
+        LoggingMiddleware -.->|implements| Interfaces
+        TimingMiddleware -.->|implements| Interfaces
+        ValidationMiddleware -.->|implements| Interfaces
+    end
+
+    subgraph Scaffold ["src/scaffold.py"]
+        ProjectCreator["create_project()"]
+    end
+
+    %% Dependencies
+    Infra --> Core
+    Middleware --> Core
+    Scaffold --> Core
+    Scaffold --> Infra
+
+    classDef core fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef infra fill:#bbf,stroke:#333,stroke-width:2px;
+    classDef mid fill:#bfb,stroke:#333,stroke-width:2px;
+    classDef scaffold fill:#fbf,stroke:#333,stroke-width:2px;
+
+    class Core core;
+    class Infra infra;
+    class Middleware mid;
+    class Scaffold scaffold;
