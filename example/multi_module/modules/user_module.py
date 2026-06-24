@@ -1,10 +1,8 @@
-from src.base_module import BaseModule
-from src.app_kernel import App
-from example.multi_module.application.create_user_command import CreateUserCommand
+from src.interfaces import IModule, IContainer
 
-class UserModule(BaseModule):
-    def register(self, app: App) -> None:
-        app.container.bind(CreateUserCommand, CreateUserCommand)
+class UserModule(IModule):
+    def register(self, app) -> None:
+        pass
 
-    def boot(self, app: App) -> None:
+    def boot(self, app) -> None:
         pass
