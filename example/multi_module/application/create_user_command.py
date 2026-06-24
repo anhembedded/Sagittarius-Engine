@@ -1,4 +1,4 @@
-from src.core import ICommand, IEventBus
+from src.interfaces import ICommand, IEventBus
 
 class CreateUserCommand(ICommand):
     def __init__(self, event_bus: IEventBus):

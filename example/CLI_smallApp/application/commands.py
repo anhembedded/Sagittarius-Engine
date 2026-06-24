@@ -1,4 +1,4 @@
-from src.core import ICommand, IEventBus
+from src.interfaces import ICommand, IEventBus
 from example.CLI_smallApp.infrastructure.user_repo import InMemoryUserRepository
 from example.CLI_smallApp.domain.user import User
 

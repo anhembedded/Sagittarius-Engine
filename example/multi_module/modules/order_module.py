@@ -1,4 +1,5 @@
-from src.core import BaseModule, App
+from src.base_module import BaseModule
+from src.app_kernel import App
 
 class OrderModule(BaseModule):
     def register(self, app: App) -> None:

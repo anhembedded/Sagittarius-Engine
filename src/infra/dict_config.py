@@ -1,5 +1,5 @@
 from typing import Any
-from src.core import IConfig
+from src.interfaces import IConfig
 
 class DictConfig(IConfig):
     """

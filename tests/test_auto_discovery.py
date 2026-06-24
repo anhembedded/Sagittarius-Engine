@@ -2,7 +2,8 @@ import pytest
 import os
 import sys
 from unittest.mock import Mock
-from src.core import App, ModuleAutoDiscovery, BaseModule
+from src.app_kernel import App, ModuleAutoDiscovery
+from src.base_module import BaseModule
 
 def test_module_auto_discovery_discover(tmp_path, monkeypatch):
     # Create a temporary directory structure for our fake modules package
@@ -16,7 +17,7 @@ def test_module_auto_discovery_discover(tmp_path, monkeypatch):
     sub_pkg1 = pkg_dir / "mod1"
     sub_pkg1.mkdir()
     (sub_pkg1 / "__init__.py").write_text("""
-from src.core import BaseModule
+from src.base_module import BaseModule
 class FakeModule1(BaseModule):
     pass
 """)
@@ -24,7 +25,7 @@ class FakeModule1(BaseModule):
     sub_pkg2 = pkg_dir / "mod2"
     sub_pkg2.mkdir()
     (sub_pkg2 / "__init__.py").write_text("""
-from src.core import BaseModule
+from src.base_module import BaseModule
 class FakeModule2(BaseModule):
     pass
 """)
@@ -32,7 +33,7 @@ class FakeModule2(BaseModule):
     # Create a single .py module (is_pkg=False)
     mod3 = pkg_dir / "mod3.py"
     mod3.write_text("""
-from src.core import BaseModule
+from src.base_module import BaseModule
 class FakeModule3(BaseModule):
     pass
 """)

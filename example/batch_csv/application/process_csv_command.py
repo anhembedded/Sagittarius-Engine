@@ -1,6 +1,6 @@
 import os
 import csv
-from src.core import ICommand, IEventBus
+from src.interfaces import ICommand, IEventBus
 
 class ProcessCSVCommand(ICommand):
     def __init__(self, event_bus: IEventBus):

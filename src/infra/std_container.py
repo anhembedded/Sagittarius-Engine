@@ -3,7 +3,8 @@ from typing import Any, Callable, TypeVar, Union
 
 T = TypeVar('T')
 
-from src.core import DependencyResolutionError, IContainer
+from src.exceptions import DependencyResolutionError
+from src.interfaces import IContainer
 
 class StdLibContainer(IContainer):
     """

@@ -1,6 +1,6 @@
 import sys
 import argparse
-from src.core import App
+from src.app_kernel import App
 from example.CLI_smallApp.application.commands import CreateUserCommand
 from example.CLI_smallApp.application.queries import ListUsersQuery
 

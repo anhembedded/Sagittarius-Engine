@@ -1,4 +1,5 @@
-from src.core import BaseModule, App
+from src.base_module import BaseModule
+from src.app_kernel import App
 from src.application.command_port import ICommand
 from src.application.query_port import IQuery
 from example.CLI_smallApp.domain.user import UserRepositoryPort

@@ -1,4 +1,4 @@
-from src.core import IQuery
+from src.interfaces import IQuery
 
 class GetHelloQuery(IQuery):
     def execute(self, name: str) -> str:

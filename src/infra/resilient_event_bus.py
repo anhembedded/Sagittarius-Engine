@@ -1,5 +1,5 @@
 from typing import Any, Callable, List, Tuple, Optional
-from src.core import IEventBus, ILogger
+from src.interfaces import IEventBus, ILogger
 
 class ResilientEventBus(IEventBus):
     """

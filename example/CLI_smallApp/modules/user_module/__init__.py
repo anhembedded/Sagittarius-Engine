@@ -1,4 +1,5 @@
-from src.core import IModule, App
+from src.interfaces import IModule
+from src.app_kernel import App
 from example.CLI_smallApp.application.commands import CreateUserCommand
 from example.CLI_smallApp.application.queries import ListUsersQuery
 from example.CLI_smallApp.infrastructure.user_repo import InMemoryUserRepository

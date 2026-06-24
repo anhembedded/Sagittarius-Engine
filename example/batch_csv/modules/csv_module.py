@@ -1,4 +1,5 @@
-from src.core import BaseModule, App
+from src.base_module import BaseModule
+from src.app_kernel import App
 from example.batch_csv.application.process_csv_command import ProcessCSVCommand
 
 class CSVModule(BaseModule):

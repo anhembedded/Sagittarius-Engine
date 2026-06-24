@@ -39,7 +39,8 @@ def create_project(project_name: str, base_path: str = ".") -> None:
     # Create the sample Composition Root (main.py)
     main_py_content = """from src.infra.std_container import StdLibContainer
 from src.infra.memory_event_bus import MemoryEventBus
-from src.core import App, IContainer, IEventBus
+from src.app_kernel import App
+from src.interfaces import IContainer, IEventBus
 
 def main():
     container = StdLibContainer()

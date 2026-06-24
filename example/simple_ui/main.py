@@ -4,7 +4,8 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 from flask import Flask, jsonify, request
-from src.core import App, IEventBus
+from src.app_kernel import App
+from src.interfaces import IEventBus
 from src.infra.std_container import StdLibContainer
 from src.infra.memory_event_bus import MemoryEventBus
 from src.modules.logger_module import LoggerModule

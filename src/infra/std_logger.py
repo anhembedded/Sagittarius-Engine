@@ -1,7 +1,7 @@
 import logging
 import sys
 from typing import Optional
-from src.core import ILogger, IConfig
+from src.interfaces import ILogger, IConfig
 
 class StdLogger(ILogger):
     """
