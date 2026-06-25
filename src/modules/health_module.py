@@ -60,8 +60,8 @@ class HealthCheckQuery(IQuery):
             except Exception as e:
                 status["components"]["database"] = f"error executing query: {str(e)}"
                 status["status"] = "unhealthy"
-        except Exception as e:
-            status["components"]["database"] = f"not configured or resolving failed: {str(e)}"
+        except Exception:
+            status["components"]["database"] = "not configured or resolving failed"
 
         return status
 
