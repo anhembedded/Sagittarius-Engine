@@ -54,11 +54,14 @@ class HealthCheckQuery(IQuery):
                 from sqlalchemy import text
                 session.execute(text("SELECT 1"))
                 status["components"]["database"] = "ok"
+            except ImportError as e:
+                status["components"]["database"] = f"sqlalchemy not installed"
+                status["status"] = "unhealthy"
             except Exception as e:
                 status["components"]["database"] = f"error executing query: {str(e)}"
                 status["status"] = "unhealthy"
-        except Exception:
-            status["components"]["database"] = "not configured or resolving failed"
+        except Exception as e:
+            status["components"]["database"] = f"not configured or resolving failed: {str(e)}"
 
         return status
 

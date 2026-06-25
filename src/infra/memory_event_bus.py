@@ -48,7 +48,11 @@ class MemoryEventBus(IEventBus):
             handlers_snapshot = list(self._handlers.get(event_name, []))
 
         for handler in handlers_snapshot:
-            handler(data)
+            try:
+                handler(data)
+            except Exception as e:
+                if self.logger:
+                    self.logger.error(f"Error in handler {handler}: {e}")
 
     def on(self, event_name: str, handler: Callable) -> None:
         """

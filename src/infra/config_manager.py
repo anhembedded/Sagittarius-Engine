@@ -114,8 +114,11 @@ class ConfigManager(IConfig):
             return
         self._cache = {}
         for source in self._sources:
-            data = source.read()
-            self._cache.update(data)
+            try:
+                data = source.read()
+                self._cache.update(data)
+            except Exception:
+                pass
         self._loaded = True
 
     def get(self, key: str, default: Any = None) -> Any:

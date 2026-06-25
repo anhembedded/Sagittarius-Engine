@@ -48,18 +48,19 @@ class PydanticValidationMiddleware(IMiddleware):
         @return The result of the operation.
         @exception ValueError if validation fails.
         """
-        if dto is not None:
-            try:
-                if isinstance(dto, dict):
-                    validated_dto = self.model_class(**dto)
-                elif isinstance(dto, self.model_class):
-                    validated_dto = dto
-                else:
-                    # Try to convert object attributes to dict if possible
-                    dto_dict = dto.__dict__ if hasattr(dto, '__dict__') else {}
-                    validated_dto = self.model_class(**dto_dict)
-                dto = validated_dto
-            except ValidationError as e:
-                raise ValueError(f"Validation failed for {cmd_or_query.__class__.__name__}: {e}")
+        try:
+            if dto is None:
+                validated_dto = self.model_class()
+            elif isinstance(dto, dict):
+                validated_dto = self.model_class(**dto)
+            elif isinstance(dto, self.model_class):
+                validated_dto = dto
+            else:
+                # Try to convert object attributes to dict if possible
+                dto_dict = dto.__dict__ if hasattr(dto, '__dict__') else {}
+                validated_dto = self.model_class(**dto_dict)
+            dto = validated_dto
+        except ValidationError as e:
+            raise ValueError(f"Validation failed for {cmd_or_query.__class__.__name__}: {e}")
 
         return next_handler()
