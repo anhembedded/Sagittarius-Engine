@@ -73,16 +73,22 @@ class ModuleAutoDiscovery:
         """
         try:
             package = importlib.import_module(modules_package)
-        except ImportError:
+        except ImportError as e:
+            logger = app._get_logger()
+            if logger:
+                logger.warning(f"Could not discover package {modules_package}: {e}")
             return
         if not hasattr(package, '__path__'):
             return
         for _, name, is_pkg in pkgutil.iter_modules(package.__path__):
             full_module_name = f'{modules_package}.{name}'
-            sub_package = importlib.import_module(full_module_name)
-            for _, obj in inspect.getmembers(sub_package, inspect.isclass):
-                if issubclass(obj, IModule) and obj is not IModule and (obj is not BaseModule):
-                    app.use(obj())
+            try:
+                sub_package = importlib.import_module(full_module_name)
+                for _, obj in inspect.getmembers(sub_package, inspect.isclass):
+                    if issubclass(obj, IModule) and obj is not IModule and (obj is not BaseModule):
+                        app.use(obj())
+            except Exception:
+                pass
 
 class App:
     """

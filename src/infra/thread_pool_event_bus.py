@@ -38,12 +38,14 @@ class ThreadPoolEventBus(IEventBus):
         for handler in handlers_snapshot:
             futures.append(self._executor.submit(handler, data))
 
-        for future in concurrent.futures.as_completed(futures):
-            try:
-                future.result()
-            except Exception as e:
-                if self.logger:
-                    self.logger.error(f"Error executing handler for event {event_name}: {e}")
+        for future in futures:
+            def _log_error(f, event=event_name):
+                try:
+                    f.result()
+                except Exception as exc:
+                    if self.logger:
+                        self.logger.error(f"Error executing handler for event {event}: {exc}")
+            future.add_done_callback(_log_error)
 
     def on(self, event_name: str, handler: Callable) -> None:
         """

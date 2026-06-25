@@ -103,7 +103,10 @@ class StdLibContainer(IContainer):
             try:
                 dependencies[name] = self.resolve(param.annotation)
             except Exception as e:
-                raise DependencyResolutionError(f"Failed to resolve '{name}' for {concrete.__name__}: {str(e)}")
+                if param.default is not inspect.Parameter.empty:
+                    dependencies[name] = param.default
+                else:
+                    raise DependencyResolutionError(f"Failed to resolve \x27{name}\x27 for {concrete.__name__}: {str(e)}")
 
         instance = concrete(**dependencies)
         return instance

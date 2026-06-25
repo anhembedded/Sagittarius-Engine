@@ -18,7 +18,9 @@ def test_thread_pool_event_bus_execution():
 
     bus.emit('test.event', 'payload')
 
-    # Wait for the futures to complete as emit blocks until they do via as_completed
+    # Wait for the async tasks to complete
+    time.sleep(0.2)
+
     assert "handler1: payload" in results
     assert "handler2: payload" in results
     assert len(results) == 2
@@ -41,6 +43,9 @@ def test_thread_pool_event_bus_exception_handling():
     # This should not raise an exception
     bus.emit('test.event', 'payload')
 
+    # Wait for the async tasks to complete
+    time.sleep(0.1)
+
     assert "success: payload" in results
     assert len(results) == 1
 
@@ -55,11 +60,14 @@ def test_thread_pool_event_bus_on_off():
 
     bus.on('test.event', handler)
     bus.emit('test.event', 'data1')
+
+    time.sleep(0.1)
     assert results == ['data1']
 
     bus.off('test.event', handler)
     bus.emit('test.event', 'data2')
     # Shouldn't receive data2
+    time.sleep(0.1)
     assert results == ['data1']
 
     bus.shutdown()

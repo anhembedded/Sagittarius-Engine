@@ -38,6 +38,9 @@ class AsyncioEventBus(IAsyncEventBus):
                     await handler(data)
                 else:
                     handler(data)
+            except asyncio.CancelledError as e:
+                if self.logger:
+                    self.logger.error(f"Async handler cancelled for event {event_name}: {e}")
             except Exception as e:
                 if self.logger:
                     self.logger.error(f"Error executing async handler for event {event_name}: {e}")
