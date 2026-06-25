@@ -11,3 +11,5 @@ sqlalchemy
 alembic
 boto3
 azure-storage-blob
+anyio
+pytest-asyncio
