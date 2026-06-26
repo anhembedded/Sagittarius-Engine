@@ -31,7 +31,7 @@ sequenceDiagram
 
     %% Note: using a loop here is a simplified way to represent the recursive middleware chain
     loop Middleware Chain
-        MiddlewarePipeline->>MiddlewarePipeline: process(command, dto, next)
+        MiddlewarePipeline->>MiddlewarePipeline: process(command, data_transfer_obj, next)
     end
 
     MiddlewarePipeline->>Command: execute(input_dto)

@@ -8,7 +8,7 @@ stateDiagram-v2
         Middleware2 --> MiddlewareN: next_handler()
         MiddlewareN --> FinalHandler: next_handler()
 
-        FinalHandler --> CommandExecuted: command.execute(dto)
+        FinalHandler --> CommandExecuted: command.execute(data_transfer_obj)
 
         CommandExecuted --> MiddlewareN_Return: return result
         MiddlewareN_Return --> Middleware2_Return: return result
