@@ -64,7 +64,7 @@ class ModuleAutoDiscovery:
     """
 
     @staticmethod
-    def discover(modules_package_str_path: str, app: App) -> None:
+    def discover(modules_package_str_path: str, app: 'App') -> None:
         """
         @brief Scans the specified package and loads the IModules.
 
