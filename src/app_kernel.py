@@ -10,41 +10,74 @@ from src.base_module import BaseModule
 
 class MiddlewarePipeline:
     """
-    @brief Manages a chain of Middlewares.
-
-    @details Follows the Onion execution pattern: requests go from the outside into
-    the core (Command/Query), and the result returns from the inside out.
+    Manages a chain of Middlewares using the Onion execution pattern:
+    - Requests flow inward through each middleware until they reach the core handler.
+    - Results flow outward back through the middleware chain.
     """
 
     def __init__(self) -> None:
-        self.middlewares: list[IMiddleware] = []
+        # Holds the list of middleware instances in execution order
+        self.middlewares: List[IMiddleware] = []
 
     def add(self, middleware: IMiddleware) -> None:
-        """
-        @brief Appends a Middleware to the end of the chain.
-        @param middleware The middleware instance to add.
-        """
+        """Append a middleware to the end of the chain."""
         self.middlewares.append(middleware)
 
-    def execute(self, cmd_or_query: Any, data_transfer_obj: Any, final_handler: Callable[[], Any]) -> Any:
+    def execute(
+        self,
+        cmd_or_query: Any,
+        dto: Any,
+        final_handler: Callable[[], Any]
+    ) -> Any:
         """
-        @brief Executes the entire Middleware chain.
+        Execute the entire middleware chain.
 
-        @param cmd_or_query The Command or Query instance.
-        @param data_transfer_obj The Data Transfer Object input.
-        @param final_handler The final execution handler for the Command/Query.
-        @return The final execution result.
+        Args:
+            cmd_or_query: The Command or Query instance.
+            dto: The Data Transfer Object input.
+            final_handler: The final execution handler for the Command/Query.
+
+        Returns:
+            The final execution result after passing through the pipeline.
         """
+        return self.__build_chain(cmd_or_query, dto, final_handler, 0)()
 
-        def build_chain(index: int) -> Callable[[], Any]:
-            if index < len(self.middlewares):
-                middleware = self.middlewares[index]
-                next_handler = build_chain(index + 1)
-                return lambda: middleware.process(cmd_or_query, data_transfer_obj, next_handler)
-            else:
-                return final_handler
-        chain = build_chain(0)
-        return chain()
+    def __build_chain(
+        self,
+        cmd_or_query: Any,
+        dto: Any,
+        final_handler: Callable[[], Any],
+        index: int
+    ) -> Callable[[], Any]:
+        """
+        Private helper method to recursively build the middleware chain.
+        Each middleware wraps around the next one until the final handler.
+        """
+        if index >= len(self.middlewares):
+            return final_handler
+
+        middleware = self.middlewares[index]
+        # Instead of defining a nested handler, delegate to another private method
+        return lambda: self.__invoke_middleware(
+            middleware, cmd_or_query, dto, final_handler, index
+        )
+
+    def __invoke_middleware(
+        self,
+        middleware: IMiddleware,
+        cmd_or_query: Any,
+        dto: Any,
+        final_handler: Callable[[], Any],
+        index: int
+    ) -> Any:
+        """
+        Invoke a single middleware and pass control to the next one.
+        """
+        return middleware.process(
+            cmd_or_query,
+            dto,
+            self.__build_chain(cmd_or_query, dto, final_handler, index + 1)
+        )
 
 class ModuleAutoDiscovery:
     """
@@ -136,12 +169,12 @@ class App:
         self.modules.append(module)
         module.register(self)
 
-    def use_middleware(self, middleware: IMiddleware) -> None:
+    def use_middleware(self, middleware_instance: IMiddleware) -> None:
         """
         @brief Registers a Middleware for the application.
         @param middleware The middleware instance.
         """
-        self.pipeline.add(middleware)
+        self.pipeline.add(middleware_instance)
 
     def _get_logger(self) -> Optional['ILogger']:
         try:
