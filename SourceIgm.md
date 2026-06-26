@@ -2,8 +2,8 @@
 
 **Root:** `/home/hoanganh/Documents/Sagittarius_ForkBoy/src/`
 **Pattern:** `*py`
-**Files:** 29
-**Generated:** 2026-06-24 17:03:26
+**Files:** 43
+**Generated:** 2026-06-26 10:35:42
 
 ## Directory Tree
 
@@ -13,13 +13,22 @@ src
 ├── app_kernel.py
 ├── base_event.py
 ├── base_module.py
+├── base_repository.py
 ├── exceptions.py
+├── hot_reloader.py
 ├── infra
 │   ├── asyncio_event_bus.py
+│   ├── azure_blob_storage.py
 │   ├── config_manager.py
+│   ├── config_source
+│   │   ├── __init__.py
+│   │   └── dotenv_source.py
 │   ├── dict_config.py
+│   ├── local_file_storage.py
+│   ├── log_metrics.py
 │   ├── memory_event_bus.py
 │   ├── resilient_event_bus.py
+│   ├── s3_file_storage.py
 │   ├── std_container.py
 │   ├── std_logger.py
 │   └── thread_pool_event_bus.py
@@ -30,16 +39,22 @@ src
 │   ├── i_config.py
 │   ├── i_container.py
 │   ├── i_event_bus.py
+│   ├── i_file_storage.py
 │   ├── i_logger.py
+│   ├── i_metrics.py
 │   ├── i_middleware.py
 │   ├── i_module.py
-│   └── i_query.py
+│   ├── i_query.py
+│   └── i_session.py
 ├── middleware
 │   ├── logging_middleware.py
+│   ├── pydantic_validation_middleware.py
 │   ├── timing_middleware.py
 │   └── validation_middleware.py
 ├── modules
 │   ├── __init__.py
+│   ├── database_module.py
+│   ├── health_module.py
 │   └── logger_module.py
 └── scaffold.py
 ```
@@ -130,16 +145,22 @@ class ModuleAutoDiscovery:
         """
         try:
             package = importlib.import_module(modules_package)
-        except ImportError:
+        except ImportError as e:
+            logger = app._get_logger()
+            if logger:
+                logger.warning(f"Could not discover package {modules_package}: {e}")
             return
         if not hasattr(package, '__path__'):
             return
         for _, name, is_pkg in pkgutil.iter_modules(package.__path__):
             full_module_name = f'{modules_package}.{name}'
-            sub_package = importlib.import_module(full_module_name)
-            for _, obj in inspect.getmembers(sub_package, inspect.isclass):
-                if issubclass(obj, IModule) and obj is not IModule and (obj is not BaseModule):
-                    app.use(obj())
+            try:
+                sub_package = importlib.import_module(full_module_name)
+                for _, obj in inspect.getmembers(sub_package, inspect.isclass):
+                    if issubclass(obj, IModule) and obj is not IModule and (obj is not BaseModule):
+                        app.use(obj())
+            except Exception:
+                pass
 
 class App:
     """
@@ -314,6 +335,105 @@ class BaseModule(IModule):
         pass
 ``````
 
+# FILE: base_repository.py
+
+```python
+from typing import Generic, TypeVar, Any, List, Optional
+from src.interfaces import ISession
+
+T = TypeVar('T')
+
+class BaseRepository(Generic[T]):
+    """
+    @brief Base generic Repository for entity CRUD operations.
+
+    @details Provides standard add, get_by_id, list_all, update, and delete methods.
+    Requires an ISession instance to perform database operations.
+
+    @par Tutorial / Usage Example:
+    @code
+    class UserRepository(BaseRepository[User]):
+        def __init__(self, session: ISession):
+            super().__init__(session, User)
+
+    # Usage:
+    # user_repo = UserRepository(session)
+    # user_repo.add(User(name="Alice"))
+    # user = user_repo.get_by_id(1)
+    @endcode
+    """
+
+    def __init__(self, session: ISession, entity_class: type[T]) -> None:
+        """
+        @brief Constructor.
+
+        @param session The database session.
+        @param entity_class The class of the entity this repository manages.
+        """
+        self.session = session
+        self.entity_class = entity_class
+
+    def add(self, entity: T) -> None:
+        """
+        @brief Adds a new entity to the database.
+        @param entity The entity to add.
+        """
+        # Note: Depending on the underlying session type (e.g. SQLAlchemy),
+        # we might need to access the underlying session object if ISession doesn't expose add.
+        # Here we assume the adapter or session has an `add` method, or we use `execute`.
+        if hasattr(self.session, 'session') and hasattr(self.session.session, 'add'):
+            self.session.session.add(entity)
+        else:
+            raise NotImplementedError("Session does not support 'add' operation.")
+
+    def get_by_id(self, entity_id: Any) -> Optional[T]:
+        """
+        @brief Retrieves an entity by its ID.
+
+        @param entity_id The ID of the entity.
+        @return The entity if found, otherwise None.
+        """
+        if hasattr(self.session, 'session') and hasattr(self.session.session, 'get'):
+            return self.session.session.get(self.entity_class, entity_id)
+        elif hasattr(self.session, 'query'):
+            # Fallback for older SQLAlchemy versions
+            return self.session.query(self.entity_class).get(entity_id)
+        else:
+            raise NotImplementedError("Session does not support 'get' operation.")
+
+    def list_all(self) -> List[T]:
+        """
+        @brief Lists all entities of this type.
+        @return A list of entities.
+        """
+        if hasattr(self.session, 'query'):
+            return self.session.query(self.entity_class).all()
+        else:
+            raise NotImplementedError("Session does not support 'query' operation.")
+
+    def update(self, entity: T) -> None:
+        """
+        @brief Updates an existing entity.
+        @param entity The entity to update.
+        """
+        # In many ORMs like SQLAlchemy, objects attached to the session are automatically updated on commit.
+        # If explicit merge/update is needed:
+        if hasattr(self.session, 'session') and hasattr(self.session.session, 'merge'):
+            self.session.session.merge(entity)
+        else:
+            pass # Trust session tracking
+
+    def delete(self, entity: T) -> None:
+        """
+        @brief Deletes an entity.
+        @param entity The entity to delete.
+        """
+        if hasattr(self.session, 'session') and hasattr(self.session.session, 'delete'):
+            self.session.session.delete(entity)
+        else:
+            raise NotImplementedError("Session does not support 'delete' operation.")
+``````
+
 # FILE: exceptions.py
 
 ```python
@@ -327,6 +447,106 @@ class ModuleRegistrationError(Exception):
 class DependencyResolutionError(Exception):
     """@brief Error raised when the Container fails to resolve a dependency."""
     pass
+``````
+
+# FILE: hot_reloader.py
+
+```python
+import os
+import sys
+import time
+import threading
+from typing import List
+
+class HotReloader:
+    """
+    @brief Developer Experience tool to automatically restart the application when code changes.
+
+    @details Uses a background thread to poll `os.stat` on all python files in the watched directories.
+    When a modification is detected, it uses `os.execv` to restart the entire process.
+    This provides a clean state restart, avoiding module caching issues.
+
+    @par Tutorial / Usage Example:
+    @code
+    from src.hot_reloader import HotReloader
+
+    if __name__ == "__main__":
+        if "--watch" in sys.argv:
+            reloader = HotReloader(["src", "modules", "main.py"])
+            reloader.start()
+        main()
+    @endcode
+    """
+    def __init__(self, watch_paths: List[str], interval: float = 1.0) -> None:
+        """
+        @brief Constructor.
+
+        @param watch_paths A list of directories or files to watch.
+        @param interval The polling interval in seconds.
+        """
+        self.watch_paths = watch_paths
+        self.interval = interval
+        self._mtimes = {}
+        self._running = False
+        self._thread = None
+
+    def _get_mtime(self, path: str) -> float:
+        return os.stat(path).st_mtime
+
+    def _scan_files(self) -> dict:
+        mtimes = {}
+        for path in self.watch_paths:
+            if not os.path.exists(path):
+                continue
+            if os.path.isfile(path):
+                if path.endswith('.py'):
+                    mtimes[path] = self._get_mtime(path)
+            elif os.path.isdir(path):
+                for root, _, files in os.walk(path):
+                    for file in files:
+                        if file.endswith('.py'):
+                            full_path = os.path.join(root, file)
+                            mtimes[full_path] = self._get_mtime(full_path)
+        return mtimes
+
+    def _poll(self) -> None:
+        self._mtimes = self._scan_files()
+        while self._running:
+            time.sleep(self.interval)
+            current_mtimes = self._scan_files()
+            for path, mtime in current_mtimes.items():
+                if path not in self._mtimes or self._mtimes[path] != mtime:
+                    print(f"\n[HotReloader] Detected change in '{path}'. Restarting...\n")
+                    self._restart()
+
+            # Check for deleted files
+            for path in self._mtimes:
+                if path not in current_mtimes:
+                    print(f"\n[HotReloader] Detected deleted file '{path}'. Restarting...\n")
+                    self._restart()
+
+            self._mtimes = current_mtimes
+
+    def _restart(self) -> None:
+        """@brief Restarts the current process."""
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os.execv(sys.executable, [sys.executable] + sys.argv)
+
+    def start(self) -> None:
+        """@brief Starts the hot reloader background thread."""
+        if self._running:
+            return
+        self._running = True
+        self._thread = threading.Thread(target=self._poll, daemon=True)
+        self._thread.start()
+        print(f"[HotReloader] Watching directories: {', '.join(self.watch_paths)} for changes...")
+
+    def stop(self) -> None:
+        """@brief Stops the hot reloader."""
+        self._running = False
+        if self._thread:
+            self._thread.join()
 ``````
 
 # FILE: infra/asyncio_event_bus.py
@@ -372,6 +592,9 @@ class AsyncioEventBus(IAsyncEventBus):
                     await handler(data)
                 else:
                     handler(data)
+            except asyncio.CancelledError as e:
+                if self.logger:
+                    self.logger.error(f"Async handler cancelled for event {event_name}: {e}")
             except Exception as e:
                 if self.logger:
                     self.logger.error(f"Error executing async handler for event {event_name}: {e}")
@@ -399,6 +622,65 @@ class AsyncioEventBus(IAsyncEventBus):
         with self._lock:
             if event_name in self._handlers and handler in self._handlers[event_name]:
                 self._handlers[event_name].remove(handler)
+``````
+
+# FILE: infra/azure_blob_storage.py
+
+```python
+from typing import Union
+from src.interfaces import IFileStorage
+
+try:
+    from azure.storage.blob import BlobServiceClient
+    from azure.core.exceptions import ResourceNotFoundError
+    AZURE_INSTALLED = True
+except ImportError:
+    AZURE_INSTALLED = False
+
+class AzureBlobStorage(IFileStorage):
+    """
+    @brief File Storage implementation for Azure Blob Storage.
+
+    @par Requirement:
+    Requires the `azure-storage-blob` package to be installed.
+    """
+
+    def __init__(self, connection_string: str, container_name: str) -> None:
+        """
+        @brief Constructor.
+        @param connection_string The Azure Storage connection string.
+        @param container_name The name of the Blob container.
+        """
+        if not AZURE_INSTALLED:
+            raise ImportError("azure-storage-blob is not installed. Please install it using `pip install azure-storage-blob`.")
+
+        self.blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+        self.container_client = self.blob_service_client.get_container_client(container_name)
+
+    def read(self, path: str) -> bytes:
+        """@brief Reads a blob from Azure Blob Storage."""
+        blob_client = self.container_client.get_blob_client(path)
+        return blob_client.download_blob().readall()
+
+    def write(self, path: str, data: Union[bytes, str]) -> None:
+        """@brief Writes data to Azure Blob Storage."""
+        blob_client = self.container_client.get_blob_client(path)
+        body = data.encode('utf-8') if isinstance(data, str) else data
+        blob_client.upload_blob(body, overwrite=True)
+
+    def delete(self, path: str) -> None:
+        """@brief Deletes a blob from Azure Blob Storage."""
+        blob_client = self.container_client.get_blob_client(path)
+        blob_client.delete_blob()
+
+    def exists(self, path: str) -> bool:
+        """@brief Checks if a blob exists in Azure Blob Storage."""
+        blob_client = self.container_client.get_blob_client(path)
+        try:
+            blob_client.get_blob_properties()
+            return True
+        except ResourceNotFoundError:
+            return False
 ``````
 
 # FILE: infra/config_manager.py
@@ -520,8 +802,11 @@ class ConfigManager(IConfig):
             return
         self._cache = {}
         for source in self._sources:
-            data = source.read()
-            self._cache.update(data)
+            try:
+                data = source.read()
+                self._cache.update(data)
+            except Exception:
+                pass
         self._loaded = True
 
     def get(self, key: str, default: Any = None) -> Any:
@@ -544,6 +829,85 @@ class ConfigManager(IConfig):
         """
         self._load()
         self._cache[key] = value
+``````
+
+# FILE: infra/config_source/__init__.py
+
+```python
+from .dotenv_source import DotenvSource
+__all__ = ['DotenvSource']
+``````
+
+# FILE: infra/config_source/dotenv_source.py
+
+```python
+import os
+from typing import Any
+from src.infra.config_manager import ConfigSource
+
+try:
+    from dotenv import load_dotenv
+    DOTENV_INSTALLED = True
+except ImportError:
+    DOTENV_INSTALLED = False
+
+class DotenvSource(ConfigSource):
+    """
+    @brief Configuration source from a .env file.
+
+    @details Uses the `python-dotenv` package to load the .env file into os.environ.
+    If `python-dotenv` is not installed, it falls back to parsing the file manually.
+
+    @par Requirement:
+    It is recommended to install `python-dotenv`.
+
+    @par Tutorial / Usage Example:
+    @code
+    config = ConfigManager()
+    config.add_source(DotenvSource(".env"))
+
+    db_host = config.get("DB_HOST")
+    @endcode
+    """
+    def __init__(self, filepath: str = ".env") -> None:
+        """
+        @brief Constructor.
+        @param filepath The path to the .env file.
+        """
+        self.filepath = filepath
+
+    def read(self) -> dict[str, Any]:
+        """@brief Reads the configuration from the .env file."""
+        if not os.path.exists(self.filepath):
+            return {}
+
+        result = {}
+        if DOTENV_INSTALLED:
+            load_dotenv(dotenv_path=self.filepath)
+            # After load_dotenv, the vars are in os.environ.
+            # We don't want to return all of os.environ, only what we read,
+            # but load_dotenv doesn't return a dict directly.
+            # We can use dotenv_values for a dict.
+            from dotenv import dotenv_values
+            return dotenv_values(dotenv_path=self.filepath)
+        else:
+            # Fallback manual parsing
+            with open(self.filepath, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith('#'):
+                        continue
+                    if '=' in line:
+                        k, v = line.split('=', 1)
+                        k = k.strip()
+                        v = v.strip()
+                        # Remove quotes if present
+                        if (v.startswith('"') and v.endswith('"')) or (v.startswith("'") and v.endswith("'")):
+                            v = v[1:-1]
+                        result[k] = v
+                        # Also set in os.environ for consistency
+                        os.environ[k] = v
+        return result
 ``````
 
 # FILE: infra/dict_config.py
@@ -587,6 +951,90 @@ class DictConfig(IConfig):
         @param value The configuration value to store.
         """
         self._config[key] = value
+``````
+
+# FILE: infra/local_file_storage.py
+
+```python
+import os
+import shutil
+from typing import Union
+from src.interfaces import IFileStorage
+
+class LocalFileStorage(IFileStorage):
+    """
+    @brief File Storage implementation for the Local File System.
+    """
+
+    def __init__(self, base_path: str = "") -> None:
+        """
+        @brief Constructor.
+        @param base_path The base directory for file operations. Defaults to current directory.
+        """
+        self.base_path = base_path
+
+    def _get_full_path(self, path: str) -> str:
+        return os.path.join(self.base_path, path)
+
+    def read(self, path: str) -> bytes:
+        """@brief Reads a file from local storage."""
+        full_path = self._get_full_path(path)
+        with open(full_path, 'rb') as f:
+            return f.read()
+
+    def write(self, path: str, data: Union[bytes, str]) -> None:
+        """@brief Writes data to local storage. Creates directories if necessary."""
+        full_path = self._get_full_path(path)
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        mode = 'wb' if isinstance(data, bytes) else 'w'
+        with open(full_path, mode) as f:
+            f.write(data)
+
+    def delete(self, path: str) -> None:
+        """@brief Deletes a file from local storage."""
+        full_path = self._get_full_path(path)
+        if os.path.exists(full_path):
+            os.remove(full_path)
+
+    def exists(self, path: str) -> bool:
+        """@brief Checks if a file exists in local storage."""
+        return os.path.exists(self._get_full_path(path))
+``````
+
+# FILE: infra/log_metrics.py
+
+```python
+import json
+from typing import Optional, Dict
+from src.interfaces import IMetrics, ILogger
+
+class LogMetrics(IMetrics):
+    """
+    @brief Basic implementation of IMetrics that outputs metrics to the ILogger.
+    """
+    def __init__(self, logger: ILogger) -> None:
+        """
+        @brief Constructor.
+        @param logger The logger instance to use for writing metrics.
+        """
+        self.logger = logger
+
+    def _format_tags(self, tags: Optional[Dict[str, str]]) -> str:
+        if not tags:
+            return ""
+        return " " + json.dumps(tags)
+
+    def increment_counter(self, name: str, value: int = 1, tags: Optional[Dict[str, str]] = None) -> None:
+        tag_str = self._format_tags(tags)
+        self.logger.info(f"[METRIC] type=counter name={name} value={value}{tag_str}")
+
+    def record_timing(self, name: str, duration_ms: float, tags: Optional[Dict[str, str]] = None) -> None:
+        tag_str = self._format_tags(tags)
+        self.logger.info(f"[METRIC] type=timing name={name} duration_ms={duration_ms}{tag_str}")
+
+    def set_gauge(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
+        tag_str = self._format_tags(tags)
+        self.logger.info(f"[METRIC] type=gauge name={name} value={value}{tag_str}")
 ``````
 
 # FILE: infra/memory_event_bus.py
@@ -642,7 +1090,11 @@ class MemoryEventBus(IEventBus):
             handlers_snapshot = list(self._handlers.get(event_name, []))
 
         for handler in handlers_snapshot:
-            handler(data)
+            try:
+                handler(data)
+            except Exception as e:
+                if self.logger:
+                    self.logger.error(f"Error in handler {handler}: {e}")
 
     def on(self, event_name: str, handler: Callable) -> None:
         """
@@ -784,6 +1236,62 @@ class ResilientEventBus(IEventBus):
                         self._dlq.append((event_name, data, handler, e))
 ``````
 
+# FILE: infra/s3_file_storage.py
+
+```python
+from typing import Union
+from src.interfaces import IFileStorage
+
+try:
+    import boto3
+    from botocore.exceptions import ClientError
+    BOTO3_INSTALLED = True
+except ImportError:
+    BOTO3_INSTALLED = False
+
+class S3FileStorage(IFileStorage):
+    """
+    @brief File Storage implementation for AWS S3.
+
+    @par Requirement:
+    Requires the `boto3` package to be installed.
+    """
+
+    def __init__(self, bucket_name: str) -> None:
+        """
+        @brief Constructor.
+        @param bucket_name The name of the S3 bucket.
+        """
+        if not BOTO3_INSTALLED:
+            raise ImportError("boto3 is not installed. Please install it using `pip install boto3`.")
+        self.bucket_name = bucket_name
+        self.s3_client = boto3.client('s3')
+
+    def read(self, path: str) -> bytes:
+        """@brief Reads a file from S3."""
+        response = self.s3_client.get_object(Bucket=self.bucket_name, Key=path)
+        return response['Body'].read()
+
+    def write(self, path: str, data: Union[bytes, str]) -> None:
+        """@brief Writes data to S3."""
+        body = data.encode('utf-8') if isinstance(data, str) else data
+        self.s3_client.put_object(Bucket=self.bucket_name, Key=path, Body=body)
+
+    def delete(self, path: str) -> None:
+        """@brief Deletes a file from S3."""
+        self.s3_client.delete_object(Bucket=self.bucket_name, Key=path)
+
+    def exists(self, path: str) -> bool:
+        """@brief Checks if a file exists in S3."""
+        try:
+            self.s3_client.head_object(Bucket=self.bucket_name, Key=path)
+            return True
+        except ClientError as e:
+            if e.response['Error']['Code'] == "404":
+                return False
+            raise
+``````
+
 # FILE: infra/std_container.py
 
 ```python
@@ -892,7 +1400,10 @@ class StdLibContainer(IContainer):
             try:
                 dependencies[name] = self.resolve(param.annotation)
             except Exception as e:
-                raise DependencyResolutionError(f"Failed to resolve '{name}' for {concrete.__name__}: {str(e)}")
+                if param.default is not inspect.Parameter.empty:
+                    dependencies[name] = param.default
+                else:
+                    raise DependencyResolutionError(f"Failed to resolve \x27{name}\x27 for {concrete.__name__}: {str(e)}")
 
         instance = concrete(**dependencies)
         return instance
@@ -1025,12 +1536,14 @@ class ThreadPoolEventBus(IEventBus):
         for handler in handlers_snapshot:
             futures.append(self._executor.submit(handler, data))
 
-        for future in concurrent.futures.as_completed(futures):
-            try:
-                future.result()
-            except Exception as e:
-                if self.logger:
-                    self.logger.error(f"Error executing handler for event {event_name}: {e}")
+        for future in futures:
+            def _log_error(f, event=event_name):
+                try:
+                    f.result()
+                except Exception as exc:
+                    if self.logger:
+                        self.logger.error(f"Error executing handler for event {event}: {exc}")
+            future.add_done_callback(_log_error)
 
     def on(self, event_name: str, handler: Callable) -> None:
         """
@@ -1062,6 +1575,9 @@ class ThreadPoolEventBus(IEventBus):
 # FILE: interfaces/__init__.py
 
 ```python
+from .i_metrics import IMetrics
+from .i_file_storage import IFileStorage
+from .i_session import ISession
 from .i_command import ICommand
 from .i_query import IQuery
 from .i_module import IModule
@@ -1072,7 +1588,7 @@ from .i_middleware import IMiddleware
 from .i_logger import ILogger
 from .i_config import IConfig
 
-__all__ = ['ICommand', 'IQuery', 'IModule', 'IEventBus', 'IContainer', 'IMiddleware', 'ILogger', 'IConfig']
+__all__ = ['ICommand', 'IQuery', 'IModule', 'IEventBus', 'IContainer', 'IMiddleware', 'ILogger', 'IConfig', 'ISession', 'IFileStorage', 'IMetrics']
 ``````
 
 # FILE: interfaces/i_async_event_bus.py
@@ -1282,6 +1798,60 @@ class IEventBus(ABC):
         ...
 ``````
 
+# FILE: interfaces/i_file_storage.py
+
+```python
+from abc import ABC, abstractmethod
+from typing import Union
+
+class IFileStorage(ABC):
+    """
+    @brief Interface for File Storage operations.
+
+    @details Provides an abstraction over different storage mechanisms
+    (e.g., Local File System, AWS S3, Azure Blob Storage).
+    """
+
+    @abstractmethod
+    def read(self, path: str) -> bytes:
+        """
+        @brief Reads a file from storage.
+
+        @param path The path or key of the file.
+        @return The file content as bytes.
+        """
+        ...
+
+    @abstractmethod
+    def write(self, path: str, data: Union[bytes, str]) -> None:
+        """
+        @brief Writes data to a file in storage.
+
+        @param path The path or key of the file.
+        @param data The data to write.
+        """
+        ...
+
+    @abstractmethod
+    def delete(self, path: str) -> None:
+        """
+        @brief Deletes a file from storage.
+
+        @param path The path or key of the file to delete.
+        """
+        ...
+
+    @abstractmethod
+    def exists(self, path: str) -> bool:
+        """
+        @brief Checks if a file exists in storage.
+
+        @param path The path or key of the file.
+        @return True if the file exists, False otherwise.
+        """
+        ...
+``````
+
 # FILE: interfaces/i_logger.py
 
 ```python
@@ -1311,6 +1881,53 @@ class ILogger(ABC):
     @abstractmethod
     def debug(self, message: str) -> None:
         """@brief Logs a debug message."""
+        ...
+``````
+
+# FILE: interfaces/i_metrics.py
+
+```python
+from abc import ABC, abstractmethod
+from typing import Optional, Dict
+
+class IMetrics(ABC):
+    """
+    @brief Interface for Application Metrics.
+
+    @details Provides methods to record metrics such as counters, timings, and gauges.
+    """
+
+    @abstractmethod
+    def increment_counter(self, name: str, value: int = 1, tags: Optional[Dict[str, str]] = None) -> None:
+        """
+        @brief Increments a counter metric.
+
+        @param name The name of the metric.
+        @param value The value to increment by.
+        @param tags Optional tags/labels for the metric.
+        """
+        ...
+
+    @abstractmethod
+    def record_timing(self, name: str, duration_ms: float, tags: Optional[Dict[str, str]] = None) -> None:
+        """
+        @brief Records a timing/duration metric.
+
+        @param name The name of the metric.
+        @param duration_ms The duration in milliseconds.
+        @param tags Optional tags/labels for the metric.
+        """
+        ...
+
+    @abstractmethod
+    def set_gauge(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
+        """
+        @brief Sets a gauge metric to a specific value.
+
+        @param name The name of the metric.
+        @param value The value to set.
+        @param tags Optional tags/labels for the metric.
+        """
         ...
 ``````
 
@@ -1426,6 +2043,51 @@ class IQuery(ABC):
         ...
 ``````
 
+# FILE: interfaces/i_session.py
+
+```python
+from abc import ABC, abstractmethod
+from typing import Any
+
+class ISession(ABC):
+    """
+    @brief Interface for Database Session.
+
+    @details Provides an abstraction over database ORMs or connections.
+    """
+
+    @abstractmethod
+    def commit(self) -> None:
+        """@brief Commits the current transaction."""
+        ...
+
+    @abstractmethod
+    def rollback(self) -> None:
+        """@brief Rolls back the current transaction."""
+        ...
+
+    @abstractmethod
+    def execute(self, statement: Any, params: Any = None) -> Any:
+        """
+        @brief Executes a raw statement or query.
+
+        @param statement The query or statement to execute.
+        @param params Optional parameters for the query.
+        @return The result of the execution.
+        """
+        ...
+
+    @abstractmethod
+    def query(self, *entities: Any) -> Any:
+        """
+        @brief Queries the database for the given entities.
+
+        @param entities The entities (e.g. models or columns) to query.
+        @return A query object.
+        """
+        ...
+``````
+
 # FILE: middleware/logging_middleware.py
 
 ```python
@@ -1482,6 +2144,77 @@ class LoggingMiddleware(IMiddleware):
             print(f"[LoggingMiddleware] Finished {name}")
 
         return result
+``````
+
+# FILE: middleware/pydantic_validation_middleware.py
+
+```python
+from typing import Any, Callable, Type, Optional
+from src.interfaces import IMiddleware
+
+try:
+    from pydantic import BaseModel, ValidationError
+except ImportError:
+    BaseModel = None
+    ValidationError = None
+
+class PydanticValidationMiddleware(IMiddleware):
+    """
+    @brief Middleware used to validate input DTOs using Pydantic models.
+
+    @details Validates the provided DTO against the given Pydantic model class.
+    If the DTO is a dictionary, it will be unpacked. If validation fails,
+    an exception is raised or logged.
+
+    @par Requirement:
+    Requires the `pydantic` package to be installed.
+
+    @par Tutorial / Usage Example:
+    @code
+    from pydantic import BaseModel
+
+    class MyDTO(BaseModel):
+        name: str
+        age: int
+
+    app.use_middleware(PydanticValidationMiddleware(MyDTO))
+    @endcode
+    """
+    def __init__(self, model_class: Any) -> None:
+        """
+        @brief Constructor.
+        @param model_class The Pydantic BaseModel class used for validation.
+        """
+        if BaseModel is None:
+            raise ImportError("pydantic is not installed. Please install it using `pip install pydantic`.")
+        self.model_class = model_class
+
+    def process(self, cmd_or_query: Any, dto: Any, next_handler: Callable[[], Any]) -> Any:
+        """
+        @brief Validates the DTO using the provided Pydantic model.
+
+        @param cmd_or_query The Command or Query instance being executed.
+        @param dto The Data Transfer Object input to validate.
+        @param next_handler The next middleware or the final execution function.
+        @return The result of the operation.
+        @exception ValueError if validation fails.
+        """
+        try:
+            if dto is None:
+                validated_dto = self.model_class()
+            elif isinstance(dto, dict):
+                validated_dto = self.model_class(**dto)
+            elif isinstance(dto, self.model_class):
+                validated_dto = dto
+            else:
+                # Try to convert object attributes to dict if possible
+                dto_dict = dto.__dict__ if hasattr(dto, '__dict__') else {}
+                validated_dto = self.model_class(**dto_dict)
+            dto = validated_dto
+        except ValidationError as e:
+            raise ValueError(f"Validation failed for {cmd_or_query.__class__.__name__}: {e}")
+
+        return next_handler()
 ``````
 
 # FILE: middleware/timing_middleware.py
@@ -1562,6 +2295,187 @@ class ValidationMiddleware(IMiddleware):
 
 ``````
 
+# FILE: modules/database_module.py
+
+```python
+from typing import Optional, Any
+from src.base_module import BaseModule
+from src.app_kernel import App
+from src.interfaces import IConfig, ILogger, ISession
+
+try:
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker, scoped_session
+    SQLALCHEMY_INSTALLED = True
+except ImportError:
+    SQLALCHEMY_INSTALLED = False
+
+class SQLAlchemySessionAdapter(ISession):
+    """
+    @brief Adapter for SQLAlchemy Session.
+    """
+    def __init__(self, session: Any):
+        self.session = session
+
+    def commit(self) -> None:
+        self.session.commit()
+
+    def rollback(self) -> None:
+        self.session.rollback()
+
+    def execute(self, statement: Any, params: Any = None) -> Any:
+        return self.session.execute(statement, params)
+
+    def query(self, *entities: Any) -> Any:
+        return self.session.query(*entities)
+
+class DatabaseModule(BaseModule):
+    """
+    @brief Module for setting up the Database connection and Session.
+
+    @details This module reads the `database.url` from the configuration.
+    If SQLAlchemy is installed, it creates an engine and registers an `ISession`
+    singleton in the container using `scoped_session`.
+
+    @par Requirement:
+    Requires the `sqlalchemy` package to be installed.
+
+    @par Alembic Tutorial:
+    To use Alembic for database migrations:
+    1. Run `alembic init alembic` to create a new alembic directory.
+    2. Edit `alembic.ini` and set `sqlalchemy.url` to your database URL.
+    3. Edit `alembic/env.py` to import your declarative base and set `target_metadata = Base.metadata`.
+    4. Run `alembic revision --autogenerate -m "Initial"` to create a migration.
+    5. Run `alembic upgrade head` to apply migrations.
+    """
+
+    def register(self, app: App) -> None:
+        logger = self._get_logger(app)
+
+        if not SQLALCHEMY_INSTALLED:
+            if logger:
+                logger.warning("DatabaseModule: sqlalchemy is not installed. Database setup skipped.")
+            return
+
+        try:
+            config = app.container.resolve(IConfig)
+            db_url = config.get("database.url", "sqlite:///:memory:")
+        except Exception:
+            db_url = "sqlite:///:memory:"
+            if logger:
+                logger.info("DatabaseModule: IConfig not found or failed to resolve. Using default in-memory SQLite.")
+
+        try:
+            engine = create_engine(db_url)
+            session_factory = sessionmaker(bind=engine)
+            Session = scoped_session(session_factory)
+
+            # Create a singleton adapter for the session
+            session_adapter = SQLAlchemySessionAdapter(Session)
+            app.container.singleton(ISession, session_adapter)
+
+            if logger:
+                logger.info(f"DatabaseModule: SQLAlchemy engine created for {db_url} and ISession registered.")
+        except Exception as e:
+            if logger:
+                logger.error(f"DatabaseModule: Failed to initialize database - {e}")
+
+    def boot(self, app: App) -> None:
+        pass
+
+    def _get_logger(self, app: App) -> Optional[ILogger]:
+        try:
+            return app.container.resolve(ILogger)
+        except Exception:
+            return None
+``````
+
+# FILE: modules/health_module.py
+
+```python
+from typing import Any, Dict
+from src.base_module import BaseModule
+from src.app_kernel import App
+from src.interfaces import IQuery, IContainer, IEventBus, ISession
+
+class HealthCheckQuery(IQuery):
+    """
+    @brief Query to perform a health check on the application components.
+    """
+    def __init__(self, container: IContainer, event_bus: IEventBus):
+        self.container = container
+        self.event_bus = event_bus
+
+    def execute(self, input_dto: Any = None) -> Dict[str, Any]:
+        """
+        @brief Executes the health check.
+        @return A dictionary containing the health status of various components.
+        """
+        status = {
+            "status": "healthy",
+            "components": {
+                "container": "ok",
+                "event_bus": "ok",
+                "database": "unknown"
+            }
+        }
+
+        # Check Container
+        try:
+            self.container.resolve(IContainer)
+        except Exception as e:
+            status["components"]["container"] = f"error: {str(e)}"
+            status["status"] = "unhealthy"
+
+        # Check EventBus
+        try:
+            # We don't necessarily want to emit a real event if it has side effects,
+            # but testing if emit is callable is a basic check.
+            # Alternatively, test event_bus exists.
+            if not hasattr(self.event_bus, 'emit'):
+                raise ValueError("event_bus has no emit method")
+        except Exception as e:
+            status["components"]["event_bus"] = f"error: {str(e)}"
+            status["status"] = "unhealthy"
+
+        # Check Database
+        try:
+            session = self.container.resolve(ISession)
+            # Try a simple query
+            try:
+                # E.g., for SQLAlchemy: execute("SELECT 1")
+                # Using the adapter's execute method. The exact string depends on DB.
+                # "SELECT 1" is fairly universal.
+                from sqlalchemy import text
+                session.execute(text("SELECT 1"))
+                status["components"]["database"] = "ok"
+            except ImportError as e:
+                status["components"]["database"] = f"sqlalchemy not installed"
+                status["status"] = "unhealthy"
+            except Exception as e:
+                status["components"]["database"] = f"error executing query: {str(e)}"
+                status["status"] = "unhealthy"
+        except Exception:
+            status["components"]["database"] = "not configured or resolving failed"
+
+        return status
+
+class HealthModule(BaseModule):
+    """
+    @brief Module for Application Health Checks.
+
+    @details Registers a HealthCheckQuery to allow monitoring systems to check application health.
+    """
+
+    def register(self, app: App) -> None:
+        """@brief Registers the HealthCheckQuery in the container."""
+        app.container.bind('health.check', HealthCheckQuery)
+
+    def boot(self, app: App) -> None:
+        """@brief Boots the Health Module."""
+        pass
+``````
+
 # FILE: modules/logger_module.py
 
 ```python
@@ -1614,31 +2528,51 @@ def create_project(project_name: str, base_path: str = ".") -> None:
     """
     project_dir = os.path.join(base_path, project_name)
 
-    # Initialize directory
-    os.makedirs(os.path.join(project_dir, "modules"), exist_ok=True)
+    # Initialize directories
+    for dir_name in ["domain", "application", "infrastructure", "adapters", "modules"]:
+        os.makedirs(os.path.join(project_dir, dir_name), exist_ok=True)
+        # Mark as python package
+        with open(os.path.join(project_dir, dir_name, "__init__.py"), "w") as f:
+            pass
 
     # Initialize basic config file
     config_path = os.path.join(project_dir, "config.json")
     with open(config_path, "w") as f:
         json.dump({"app_name": project_name, "version": "1.0.0"}, f, indent=4)
 
-    # Mark the modules directory as a Python package
-    with open(os.path.join(project_dir, "modules", "__init__.py"), "w") as f:
-        pass
-
-    # Create the sample Composition Root (main.py)
-    main_py_content = """from src.infra.std_container import StdLibContainer
+# Create the sample Composition Root (main.py)
+    main_py_content = """import sys
+from src.infra.std_container import StdLibContainer
 from src.infra.memory_event_bus import MemoryEventBus
+from src.infra.config_manager import ConfigManager
 from src.app_kernel import App
-from src.interfaces import IContainer, IEventBus
+from src.interfaces import IContainer, IEventBus, IConfig
+
+# Framework Modules
+from src.modules.logger_module import LoggerModule
+from src.modules.database_module import DatabaseModule
+from src.modules.health_module import HealthModule
+
+from src.hot_reloader import HotReloader
 
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
 
+    # Register core ports
     container.singleton(IContainer, container)
     container.singleton(IEventBus, event_bus)
+
+    # Setup basic configuration
+    config = ConfigManager()
+    # Add your configuration sources here (e.g. DotenvSource)
+    container.singleton(IConfig, config)
+
+    # Register Built-in Modules
+    app.use(LoggerModule())
+    app.use(DatabaseModule())
+    app.use(HealthModule())
 
     # Automatically scan and load IModules present in the 'modules' package
     try:
@@ -1648,6 +2582,9 @@ def main():
         print(f"Error booting application: {e}")
 
 if __name__ == "__main__":
+    if "--watch" in sys.argv:
+        reloader = HotReloader(["domain", "application", "infrastructure", "adapters", "modules", "main.py"])
+        reloader.start()
     main()
 """
     main_path = os.path.join(project_dir, "main.py")
