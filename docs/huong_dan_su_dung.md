@@ -80,11 +80,11 @@ class CreateUserCommand(ICommand):
         # Dựa theo type hint, container sẽ tự truyền IEventBus vào
         self.event_bus = event_bus
 
-    def execute(self, dto: CreateUserDto):
-        print(f"Creating user {dto.username}...")
+    def execute(self, data_transfer_obj: CreateUserDto):
+        print(f"Creating user {data_transfer_obj.username}...")
         # Phát sự kiện
-        self.event_bus.emit("user.created", dto.username)
-        return {"status": "success", "user": dto.username}
+        self.event_bus.emit("user.created", data_transfer_obj.username)
+        return {"status": "success", "user": data_transfer_obj.username}
 ```
 
 **Thực thi Command qua App**:

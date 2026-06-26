@@ -98,12 +98,12 @@ class MiddlewarePipeline:
         """
         self.middlewares.append(middleware)
 
-    def execute(self, cmd_or_query: Any, dto: Any, final_handler: Callable[[], Any]) -> Any:
+    def execute(self, cmd_or_query: Any, data_transfer_obj: Any, final_handler: Callable[[], Any]) -> Any:
         """
         @brief Executes the entire Middleware chain.
 
         @param cmd_or_query The Command or Query instance.
-        @param dto The Data Transfer Object input.
+        @param data_transfer_obj The Data Transfer Object input.
         @param final_handler The final execution handler for the Command/Query.
         @return The final execution result.
         """
@@ -112,7 +112,7 @@ class MiddlewarePipeline:
             if index < len(self.middlewares):
                 middleware = self.middlewares[index]
                 next_handler = build_chain(index + 1)
-                return lambda: middleware.process(cmd_or_query, dto, next_handler)
+                return lambda: middleware.process(cmd_or_query, data_transfer_obj, next_handler)
             else:
                 return final_handler
         chain = build_chain(0)
@@ -1947,7 +1947,7 @@ class IMiddleware(ABC):
     @par Tutorial / Usage Example:
     @code
     class MyMiddleware(IMiddleware):
-        def process(self, cmd_or_query, dto, next_handler):
+        def process(self, cmd_or_query, data_transfer_obj, next_handler):
             print("Before executing the command")
             result = next_handler()  # Calls the next handler or the main command
             print("After executing the command")
@@ -1956,12 +1956,12 @@ class IMiddleware(ABC):
     """
 
     @abstractmethod
-    def process(self, cmd_or_query: Any, dto: Any, next_handler: Callable[[], Any]) -> Any:
+    def process(self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]) -> Any:
         """
         @brief Processes the command or query.
 
         @param cmd_or_query The Command or Query instance being executed.
-        @param dto The Data Transfer Object input.
+        @param data_transfer_obj The Data Transfer Object input.
         @param next_handler The next middleware or the final execution function.
         @return The result of the operation.
         """
@@ -2118,12 +2118,12 @@ class LoggingMiddleware(IMiddleware):
         """
         self.container = container
 
-    def process(self, cmd_or_query: Any, dto: Any, next_handler: Callable[[], Any]) -> Any:
+    def process(self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]) -> Any:
         """
         @brief Processes the command or query, adding logging before and after.
 
         @param cmd_or_query The Command or Query instance being executed.
-        @param dto The input data.
+        @param data_transfer_obj The input data.
         @param next_handler The next middleware or the final execution function.
         @return The result of the operation.
         """
@@ -2189,28 +2189,28 @@ class PydanticValidationMiddleware(IMiddleware):
             raise ImportError("pydantic is not installed. Please install it using `pip install pydantic`.")
         self.model_class = model_class
 
-    def process(self, cmd_or_query: Any, dto: Any, next_handler: Callable[[], Any]) -> Any:
+    def process(self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]) -> Any:
         """
         @brief Validates the DTO using the provided Pydantic model.
 
         @param cmd_or_query The Command or Query instance being executed.
-        @param dto The Data Transfer Object input to validate.
+        @param data_transfer_obj The Data Transfer Object input to validate.
         @param next_handler The next middleware or the final execution function.
         @return The result of the operation.
         @exception ValueError if validation fails.
         """
         try:
-            if dto is None:
+            if data_transfer_obj is None:
                 validated_dto = self.model_class()
-            elif isinstance(dto, dict):
-                validated_dto = self.model_class(**dto)
-            elif isinstance(dto, self.model_class):
-                validated_dto = dto
+            elif isinstance(data_transfer_obj, dict):
+                validated_dto = self.model_class(**data_transfer_obj)
+            elif isinstance(data_transfer_obj, self.model_class):
+                validated_dto = data_transfer_obj
             else:
                 # Try to convert object attributes to dict if possible
-                dto_dict = dto.__dict__ if hasattr(dto, '__dict__') else {}
+                dto_dict = data_transfer_obj.__dict__ if hasattr(data_transfer_obj, '__dict__') else {}
                 validated_dto = self.model_class(**dto_dict)
-            dto = validated_dto
+            data_transfer_obj = validated_dto
         except ValidationError as e:
             raise ValueError(f"Validation failed for {cmd_or_query.__class__.__name__}: {e}")
 
@@ -2236,12 +2236,12 @@ class TimingMiddleware(IMiddleware):
     # [TimingMiddleware] ProcessOrderCommand executed in 12.50 ms
     @endcode
     """
-    def process(self, cmd_or_query: Any, dto: Any, next_handler: Callable[[], Any]) -> Any:
+    def process(self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]) -> Any:
         """
         @brief Processes the command or query, measuring and printing the execution time.
 
         @param cmd_or_query The Command or Query instance being executed.
-        @param dto The input data.
+        @param data_transfer_obj The input data.
         @param next_handler The next middleware or the final execution function.
         @return The result of the operation.
         """
@@ -2274,17 +2274,17 @@ class ValidationMiddleware(IMiddleware):
     # If app.execute(MyCommand, input_dto=None) is called, the Middleware will issue a warning.
     @endcode
     """
-    def process(self, cmd_or_query: Any, dto: Any, next_handler: Callable[[], Any]) -> Any:
+    def process(self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]) -> Any:
         """
         @brief Processes the command or query, validating the input DTO.
 
         @param cmd_or_query The Command or Query instance being executed.
-        @param dto The input data to validate.
+        @param data_transfer_obj The input data to validate.
         @param next_handler The next middleware or the final execution function.
         @return The result of the operation.
         """
         print(f"[ValidationMiddleware] Validating DTO for {cmd_or_query.__class__.__name__}")
-        if dto is None:
+        if data_transfer_obj is None:
             print("[ValidationMiddleware] Warning: DTO is None!")
         return next_handler()
 ``````

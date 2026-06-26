@@ -87,7 +87,7 @@ classDiagram
     }
     class IMiddleware {
         <<interface>>
-        +process(cmd_or_query: Any, dto: Any, next_handler: Callable) Any
+        +process(cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable) Any
     }
     class ILogger {
         <<interface>>
@@ -112,7 +112,7 @@ classDiagram
     class MiddlewarePipeline {
         -middlewares: list~IMiddleware~
         +add(middleware: IMiddleware) None
-        +execute(cmd_or_query: Any, dto: Any, final_handler: Callable) Any
+        +execute(cmd_or_query: Any, data_transfer_obj: Any, final_handler: Callable) Any
     }
 
     class App {
@@ -225,17 +225,17 @@ classDiagram
     %% Middleware Implementations
     class LoggingMiddleware {
         -container: IContainer
-        +process(cmd_or_query: Any, dto: Any, next_handler: Callable) Any
+        +process(cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable) Any
     }
     IMiddleware <|.. LoggingMiddleware
 
     class TimingMiddleware {
-        +process(cmd_or_query: Any, dto: Any, next_handler: Callable) Any
+        +process(cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable) Any
     }
     IMiddleware <|.. TimingMiddleware
 
     class ValidationMiddleware {
-        +process(cmd_or_query: Any, dto: Any, next_handler: Callable) Any
+        +process(cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable) Any
     }
     IMiddleware <|.. ValidationMiddleware
 ```
@@ -386,7 +386,7 @@ sequenceDiagram
 
     %% Note: using a loop here is a simplified way to represent the recursive middleware chain
     loop Middleware Chain
-        MiddlewarePipeline->>MiddlewarePipeline: process(command, dto, next)
+        MiddlewarePipeline->>MiddlewarePipeline: process(command, data_transfer_obj, next)
     end
 
     MiddlewarePipeline->>Command: execute(input_dto)
@@ -446,7 +446,7 @@ stateDiagram-v2
         Middleware2 --> MiddlewareN: next_handler()
         MiddlewareN --> FinalHandler: next_handler()
 
-        FinalHandler --> CommandExecuted: command.execute(dto)
+        FinalHandler --> CommandExecuted: command.execute(data_transfer_obj)
 
         CommandExecuted --> MiddlewareN_Return: return result
         MiddlewareN_Return --> Middleware2_Return: return result

@@ -94,7 +94,7 @@ container.singleton(IEventBus, event_bus)
 Key methods:
 - `use(module)`: registers a module.
 - `boot(auto_discover="modules")`: boots the app, auto-discovers if a package name is provided.
-- `execute(CommandClass, dto)`, `query(QueryClass, dto)`: runs a use case through the middleware pipeline.
+- `execute(CommandClass, data_transfer_obj)`, `query(QueryClass, data_transfer_obj)`: runs a use case through the middleware pipeline.
 
 ### 3.3 Container (Dependency Injection)
 `StdLibContainer` (implements `IContainer`) automatically resolves constructor dependencies based on type hints.
@@ -214,8 +214,8 @@ class CreateUserCommand(ICommand):
         self.repo = repo
         self.event_bus = event_bus
 
-    def execute(self, dto: dict) -> User:
-        user = User(user_id=dto['id'], name=dto['name'])
+    def execute(self, data_transfer_obj: dict) -> User:
+        user = User(user_id=data_transfer_obj['id'], name=data_transfer_obj['name'])
         self.repo.add(user)
         self.event_bus.emit('user.created', UserCreated(user))
         return user
