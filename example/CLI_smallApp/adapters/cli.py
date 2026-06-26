@@ -42,8 +42,8 @@ def run_cli(app: App):
 
 def _handle_args(app: App, args):
     if args.command == "create-user":
-        dto = {"id": args.id, "name": args.name}
-        user = app.execute(CreateUserCommand, dto)
+        data_transfer_obj = {"id": args.id, "name": args.name}
+        user = app.execute(CreateUserCommand, data_transfer_obj)
         print(f"User created: ID={user.id}, Name={user.name}")
     elif args.command == "list-users":
         users = app.query(ListUsersQuery)

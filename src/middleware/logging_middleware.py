@@ -25,12 +25,12 @@ class LoggingMiddleware(IMiddleware):
         """
         self.container = container
 
-    def process(self, cmd_or_query: Any, dto: Any, next_handler: Callable[[], Any]) -> Any:
+    def process(self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]) -> Any:
         """
         @brief Processes the command or query, adding logging before and after.
 
         @param cmd_or_query The Command or Query instance being executed.
-        @param dto The input data.
+        @param data_transfer_obj The input data.
         @param next_handler The next middleware or the final execution function.
         @return The result of the operation.
         """

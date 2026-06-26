@@ -16,16 +16,16 @@ class ValidationMiddleware(IMiddleware):
     # If app.execute(MyCommand, input_dto=None) is called, the Middleware will issue a warning.
     @endcode
     """
-    def process(self, cmd_or_query: Any, dto: Any, next_handler: Callable[[], Any]) -> Any:
+    def process(self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]) -> Any:
         """
         @brief Processes the command or query, validating the input DTO.
 
         @param cmd_or_query The Command or Query instance being executed.
-        @param dto The input data to validate.
+        @param data_transfer_obj The input data to validate.
         @param next_handler The next middleware or the final execution function.
         @return The result of the operation.
         """
         print(f"[ValidationMiddleware] Validating DTO for {cmd_or_query.__class__.__name__}")
-        if dto is None:
+        if data_transfer_obj is None:
             print("[ValidationMiddleware] Warning: DTO is None!")
         return next_handler()

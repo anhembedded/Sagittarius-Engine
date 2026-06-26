@@ -26,12 +26,12 @@ class MiddlewarePipeline:
         """
         self.middlewares.append(middleware)
 
-    def execute(self, cmd_or_query: Any, dto: Any, final_handler: Callable[[], Any]) -> Any:
+    def execute(self, cmd_or_query: Any, data_transfer_obj: Any, final_handler: Callable[[], Any]) -> Any:
         """
         @brief Executes the entire Middleware chain.
 
         @param cmd_or_query The Command or Query instance.
-        @param dto The Data Transfer Object input.
+        @param data_transfer_obj The Data Transfer Object input.
         @param final_handler The final execution handler for the Command/Query.
         @return The final execution result.
         """
@@ -40,7 +40,7 @@ class MiddlewarePipeline:
             if index < len(self.middlewares):
                 middleware = self.middlewares[index]
                 next_handler = build_chain(index + 1)
-                return lambda: middleware.process(cmd_or_query, dto, next_handler)
+                return lambda: middleware.process(cmd_or_query, data_transfer_obj, next_handler)
             else:
                 return final_handler
         chain = build_chain(0)

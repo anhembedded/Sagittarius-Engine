@@ -38,28 +38,28 @@ class PydanticValidationMiddleware(IMiddleware):
             raise ImportError("pydantic is not installed. Please install it using `pip install pydantic`.")
         self.model_class = model_class
 
-    def process(self, cmd_or_query: Any, dto: Any, next_handler: Callable[[], Any]) -> Any:
+    def process(self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]) -> Any:
         """
         @brief Validates the DTO using the provided Pydantic model.
 
         @param cmd_or_query The Command or Query instance being executed.
-        @param dto The Data Transfer Object input to validate.
+        @param data_transfer_obj The Data Transfer Object input to validate.
         @param next_handler The next middleware or the final execution function.
         @return The result of the operation.
         @exception ValueError if validation fails.
         """
         try:
-            if dto is None:
+            if data_transfer_obj is None:
                 validated_dto = self.model_class()
-            elif isinstance(dto, dict):
-                validated_dto = self.model_class(**dto)
-            elif isinstance(dto, self.model_class):
-                validated_dto = dto
+            elif isinstance(data_transfer_obj, dict):
+                validated_dto = self.model_class(**data_transfer_obj)
+            elif isinstance(data_transfer_obj, self.model_class):
+                validated_dto = data_transfer_obj
             else:
                 # Try to convert object attributes to dict if possible
-                dto_dict = dto.__dict__ if hasattr(dto, '__dict__') else {}
+                dto_dict = data_transfer_obj.__dict__ if hasattr(data_transfer_obj, '__dict__') else {}
                 validated_dto = self.model_class(**dto_dict)
-            dto = validated_dto
+            data_transfer_obj = validated_dto
         except ValidationError as e:
             raise ValueError(f"Validation failed for {cmd_or_query.__class__.__name__}: {e}")
 

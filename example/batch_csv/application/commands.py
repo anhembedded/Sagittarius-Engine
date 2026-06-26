@@ -13,7 +13,7 @@ class CreateTaskCommand(ICommand):
         self.repo = repo
         self.event_bus = event_bus
 
-    def execute(self, dto: CreateTaskDto) -> None:
-        task = Task(id=dto.id, name=dto.name)
+    def execute(self, data_transfer_obj: CreateTaskDto) -> None:
+        task = Task(id=data_transfer_obj.id, name=data_transfer_obj.name)
         self.repo.save(task)
         self.event_bus.emit('task.created', task)

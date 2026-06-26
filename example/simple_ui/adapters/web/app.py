@@ -12,8 +12,8 @@ def create_app(framework_app: App) -> Flask:
         if not data or 'username' not in data:
             return jsonify({'error': 'username is required'}), 400
 
-        dto = CreateUserDto(username=data['username'])
-        user = framework_app.execute(CreateUserCommand, dto)
+        data_transfer_obj = CreateUserDto(username=data['username'])
+        user = framework_app.execute(CreateUserCommand, data_transfer_obj)
         return jsonify({'id': user.id, 'username': user.username}), 201
 
     @app.route('/users', methods=['GET'])

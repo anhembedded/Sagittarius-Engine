@@ -27,8 +27,8 @@ def main():
     app.boot()
 
     print("\n--- Executing CreateUserCommand ---")
-    dto = CreateUserDto(username="jules", email="jules@example.com")
-    app.execute(CreateUserCommand, dto)
+    data_transfer_obj = CreateUserDto(username="jules", email="jules@example.com")
+    app.execute(CreateUserCommand, data_transfer_obj)
 
 if __name__ == "__main__":
     main()

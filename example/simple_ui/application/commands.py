@@ -12,7 +12,7 @@ class CreateUserCommand(ICommand):
     def __init__(self, repo: IUserRepository):
         self.repo = repo
 
-    def execute(self, dto: CreateUserDto) -> User:
-        user = User(id=str(uuid.uuid4()), username=dto.username)
+    def execute(self, data_transfer_obj: CreateUserDto) -> User:
+        user = User(id=str(uuid.uuid4()), username=data_transfer_obj.username)
         self.repo.save(user)
         return user

@@ -380,20 +380,20 @@ class DummyMiddleware(IMiddleware):
         self.name = name
         self.calls = []
 
-    def process(self, cmd_or_query, dto, next_handler):
+    def process(self, cmd_or_query, data_transfer_obj, next_handler):
         self.calls.append(f"{self.name}_before")
         response = next_handler()
         self.calls.append(f"{self.name}_after")
         return response
 
 class MutatingMiddleware(IMiddleware):
-    def process(self, cmd_or_query, dto, next_handler):
-        if isinstance(dto, dict):
-            dto["mutated"] = True
+    def process(self, cmd_or_query, data_transfer_obj, next_handler):
+        if isinstance(data_transfer_obj, dict):
+            data_transfer_obj["mutated"] = True
         return next_handler()
 
 class BlockingMiddleware(IMiddleware):
-    def process(self, cmd_or_query, dto, next_handler):
+    def process(self, cmd_or_query, data_transfer_obj, next_handler):
         return "blocked"
 
 def test_middleware_pipeline__single_middleware__called_before_and_after():
@@ -466,14 +466,14 @@ def test_middleware_pipeline__blocks_execution():
 class DummyCommand(ICommand):
     def __init__(self):
         pass
-    def execute(self, dto):
-        return f"Executed cmd with {dto}"
+    def execute(self, data_transfer_obj):
+        return f"Executed cmd with {data_transfer_obj}"
 
 class DummyQuery(IQuery):
     def __init__(self):
         pass
-    def execute(self, dto):
-        return f"Executed query with {dto}"
+    def execute(self, data_transfer_obj):
+        return f"Executed query with {data_transfer_obj}"
 
 class DummyModule(IModule):
     def register(self, app):
@@ -842,10 +842,10 @@ def test_pydantic_validation_middleware__validate_success():
         handler_called = True
         return "ok"
 
-    # valid input dto
-    dto = {"name": "Test", "age": 20}
+    # valid input data_transfer_obj
+    data_transfer_obj = {"name": "Test", "age": 20}
 
-    result = middleware.process("dummy_cmd", dto, final_handler)
+    result = middleware.process("dummy_cmd", data_transfer_obj, final_handler)
 
     assert result == "ok"
     assert handler_called
@@ -866,11 +866,11 @@ def test_pydantic_validation_middleware__validate_failure_blocks_execution():
         handler_called = True
         return "ok"
 
-    # invalid input dto
-    dto = {"name": "Test"} # missing age
+    # invalid input data_transfer_obj
+    data_transfer_obj = {"name": "Test"} # missing age
 
     with pytest.raises(ValueError, match="Validation failed"):
-        middleware.process(DummyCommand(), dto, final_handler)
+        middleware.process(DummyCommand(), data_transfer_obj, final_handler)
 
     assert not handler_called
 
@@ -918,20 +918,20 @@ def test_integration__end_to_end_flow():
         def __init__(self, event_bus: IEventBus):
             self.event_bus = event_bus
 
-        def execute(self, dto):
-            self.event_bus.emit("mini.event", dto)
+        def execute(self, data_transfer_obj):
+            self.event_bus.emit("mini.event", data_transfer_obj)
             return "mini_command_done"
 
     class MiniQuery(IQuery):
-        def execute(self, dto):
-            return f"mini_query_{dto}"
+        def execute(self, data_transfer_obj):
+            return f"mini_query_{data_transfer_obj}"
 
     # Setup Custom Middleware
     class MiniMiddleware(IMiddleware):
         def __init__(self, logger: ILogger):
             self.logger = logger
 
-        def process(self, cmd_or_query, dto, next_handler):
+        def process(self, cmd_or_query, data_transfer_obj, next_handler):
             self.logger.info(f"Middleware Before {type(cmd_or_query).__name__}")
             result = next_handler()
             self.logger.info(f"Middleware After {type(cmd_or_query).__name__}")

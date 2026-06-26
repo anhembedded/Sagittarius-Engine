@@ -174,7 +174,7 @@ async def test_asyncio_event_bus__handler_cancelled__does_not_crash(logger):
 
 def test_middleware__raises_before_next__propagates_and_handler_not_called(app):
     class ThrowBeforeMiddleware(IMiddleware):
-        def process(self, command: Any, dto: Any, next_handler: Any) -> Any:
+        def process(self, command: Any, data_transfer_obj: Any, next_handler: Any) -> Any:
             raise ValueError("Failed before next")
 
     pipeline = MiddlewarePipeline()
@@ -193,7 +193,7 @@ def test_middleware__raises_before_next__propagates_and_handler_not_called(app):
 
 def test_middleware__raises_after_next__propagates_and_handler_called(app):
     class ThrowAfterMiddleware(IMiddleware):
-        def process(self, command: Any, dto: Any, next_handler: Any) -> Any:
+        def process(self, command: Any, data_transfer_obj: Any, next_handler: Any) -> Any:
             result = next_handler()
             raise ValueError("Failed after next")
 
@@ -400,8 +400,8 @@ def test_pydantic_middleware__dto_is_none__raises_exception():
     class DummyCommand: pass
 
     with pytest.raises(ValueError):
-        # Current logic checks `if dto is not None`. If it is None and the model requires it, it doesn't fail unless changed
-        # We need to make sure `dto=None` raises error if the DTO is required.
+        # Current logic checks `if data_transfer_obj is not None`. If it is None and the model requires it, it doesn't fail unless changed
+        # We need to make sure `data_transfer_obj=None` raises error if the DTO is required.
         # But wait, wait. The requirement says:
         # "DTO là None → raise ValidationError hoặc exception rõ ràng."
         middleware.process(DummyCommand(), None, lambda: "ok")
@@ -465,6 +465,6 @@ def test_integration__command_emits_event_without_handlers__does_not_crash(app, 
 # 3. EventBus (test_thread_pool_event_bus__handler_timeout__does_not_block): `ThreadPoolEventBus` used `concurrent.futures.as_completed(futures)` directly during `.emit()` which blocked the calling thread. Fixed by switching to `future.add_done_callback` for async error handling.
 # 4. EventBus (test_asyncio_event_bus__handler_cancelled__does_not_crash): `AsyncioEventBus` wasn't catching `asyncio.CancelledError` properly, crashing the event loop. Fixed by adding a specific try-except catch block for it.
 # 5. Config (test_config__config_manager_failing_source__returns_default): `ConfigManager` was crashing the entire application if any `ConfigSource` raised an exception during `.read()`. Fixed by gracefully catching exceptions in `.read()` calls.
-# 6. MiddlewarePipeline (test_pydantic_middleware__dto_is_none__raises_exception): `PydanticValidationMiddleware` was skipping validation and letting invalid input through if `dto` was None. Fixed by enforcing the model class initialization even for `None` DTOs, triggering proper `ValidationError`s.
+# 6. MiddlewarePipeline (test_pydantic_middleware__dto_is_none__raises_exception): `PydanticValidationMiddleware` was skipping validation and letting invalid input through if `data_transfer_obj` was None. Fixed by enforcing the model class initialization even for `None` DTOs, triggering proper `ValidationError`s.
 # 7. ModuleAutoDiscovery (test_module_autodiscovery__syntax_error__ignores_and_does_not_crash): Missing robust try-except around `importlib.import_module` in `AppKernel` allowing malformed modules to crash boot sequence.
 # 8. HealthModule (test_health_module__db_session_raises__returns_unhealthy): Handled `import sqlalchemy` missing gracefully but incorrectly set the status to "healthy" despite the DB check failing. Fixed by handling `ImportError` explicitly.

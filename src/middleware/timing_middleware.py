@@ -14,12 +14,12 @@ class TimingMiddleware(IMiddleware):
     # [TimingMiddleware] ProcessOrderCommand executed in 12.50 ms
     @endcode
     """
-    def process(self, cmd_or_query: Any, dto: Any, next_handler: Callable[[], Any]) -> Any:
+    def process(self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]) -> Any:
         """
         @brief Processes the command or query, measuring and printing the execution time.
 
         @param cmd_or_query The Command or Query instance being executed.
-        @param dto The input data.
+        @param data_transfer_obj The input data.
         @param next_handler The next middleware or the final execution function.
         @return The result of the operation.
         """

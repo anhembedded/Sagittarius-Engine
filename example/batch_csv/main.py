@@ -46,8 +46,8 @@ def main():
     with open(input_file, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            dto = CreateTaskDto(id=row['id'], name=row['name'])
-            app.execute(CreateTaskCommand, dto)
+            data_transfer_obj = CreateTaskDto(id=row['id'], name=row['name'])
+            app.execute(CreateTaskCommand, data_transfer_obj)
 
     # Output results
     tasks = app.execute(ListTasksQuery, None)

@@ -8,7 +8,7 @@ class DummyMiddleware(IMiddleware):
         self.name = name
         self.tracer = tracer
 
-    def process(self, cmd_or_query, dto, next_handler):
+    def process(self, cmd_or_query, data_transfer_obj, next_handler):
         self.tracer.append(f"{self.name}_start")
         result = next_handler()
         self.tracer.append(f"{self.name}_end")
@@ -25,7 +25,7 @@ def test_middleware_pipeline_execution_order():
         tracer.append("final")
         return "result"
 
-    result = pipeline.execute("cmd", "dto", final_handler)
+    result = pipeline.execute("cmd", "data_transfer_obj", final_handler)
 
     assert result == "result"
     assert tracer == ["mw1_start", "mw2_start", "final", "mw2_end", "mw1_end"]
