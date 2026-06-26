@@ -64,7 +64,7 @@ class ModuleAutoDiscovery:
     """
 
     @staticmethod
-    def discover(modules_package: str, app: 'App') -> None:
+    def discover(modules_package_str_path: str, app: App) -> None:
         """
         @brief Scans the specified package and loads the IModules.
 
@@ -72,16 +72,16 @@ class ModuleAutoDiscovery:
         @param app The current application instance.
         """
         try:
-            package = importlib.import_module(modules_package)
+            package = importlib.import_module(modules_package_str_path)
         except ImportError as e:
             logger = app._get_logger()
             if logger:
-                logger.warning(f"Could not discover package {modules_package}: {e}")
+                logger.warning(f"Could not discover package {modules_package_str_path}: {e}")
             return
         if not hasattr(package, '__path__'):
             return
         for _, name, is_pkg in pkgutil.iter_modules(package.__path__):
-            full_module_name = f'{modules_package}.{name}'
+            full_module_name = f'{modules_package_str_path}.{name}'
             try:
                 sub_package = importlib.import_module(full_module_name)
                 for _, obj in inspect.getmembers(sub_package, inspect.isclass):
