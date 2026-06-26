@@ -36,6 +36,11 @@ class StdLogger(ILogger):
             log_file = config.get("log.file")
 
         self._logger.setLevel(log_level)
+
+        for handler in list(self._logger.handlers):
+            handler.close()
+            self._logger.removeHandler(handler)
+
         self._logger.handlers.clear()
         self._logger.propagate = False
 
