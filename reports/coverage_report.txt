@@ -32,7 +32,7 @@ src/base_module.py                                    11      1    91%   20
 src/base_repository.py                                29     19    34%   33-34, 44-47, 56-62, 69-72, 81-84, 91-94
 src/exceptions.py                                      6      0   100%
 src/hot_reloader.py                                   58     58     0%   1-95
-src/infra/asyncio_event_bus.py                        36      1    97%   47
+src/infra/asyncio_event_bus.py                        35      1    97%   46
 src/infra/config_manager.py                           59      1    98%   70
 src/infra/config_source/__init__.py                    2      0   100%
 src/infra/config_source/dotenv_source.py              33     17    48%   8-9, 39, 52-67
@@ -67,6 +67,6 @@ src/modules/health_module.py                          41      9    78%   31-33, 
 src/modules/logger_module.py                          14      1    93%   18
 src/scaffold.py                                       21      4    81%   95-99
 --------------------------------------------------------------------------------
-TOTAL                                                875    209    76%
+TOTAL                                                874    209    76%
 Coverage HTML written to dir reports/htmlcov
-============================= 117 passed in 4.87s ==============================
+============================= 117 passed in 4.76s ==============================

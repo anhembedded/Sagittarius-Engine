@@ -1,5 +1,4 @@
 import asyncio
-import inspect
 import threading
 from typing import Any, Callable, Optional
 from src.interfaces import IAsyncEventBus, ILogger
@@ -35,7 +34,7 @@ class AsyncioEventBus(IAsyncEventBus):
 
         for handler in handlers_snapshot:
             try:
-                if inspect.iscoroutinefunction(handler):
+                if asyncio.iscoroutinefunction(handler):
                     await handler(data)
                 else:
                     handler(data)
