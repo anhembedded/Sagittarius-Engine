@@ -4,7 +4,8 @@ aiohttp
 python-binance
 python-dotenv
 loguru
-pytest
+pytest>=7.0
+pytest-cov>=4.0
 cmd2>=4.0.0
 pydantic
 sqlalchemy
