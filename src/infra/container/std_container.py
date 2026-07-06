@@ -1,4 +1,5 @@
 import inspect
+import threading
 from collections.abc import Callable
 from typing import Any, TypeVar
 
@@ -39,6 +40,7 @@ class StdLibContainer(IContainer):
     """
 
     def __init__(self) -> None:
+        self._lock = threading.RLock()
         self._bindings: dict[type, type] = {}
         self._instances: dict[type, Any] = {}
         self._factories: dict[type, Callable] = {}
@@ -50,7 +52,8 @@ class StdLibContainer(IContainer):
         @param abstract The abstract interface or class.
         @param concrete The concrete class to bind.
         """
-        self._bindings[abstract] = concrete
+        with self._lock:
+            self._bindings[abstract] = concrete
 
     def singleton(self, abstract: type, instance_or_factory: Any | Callable) -> None:
         """
@@ -59,10 +62,11 @@ class StdLibContainer(IContainer):
         @param abstract The abstract interface or class.
         @param instance_or_factory The existing instance or factory function.
         """
-        if callable(instance_or_factory) and not isinstance(instance_or_factory, type):
-            self._factories[abstract] = instance_or_factory
-        else:
-            self._instances[abstract] = instance_or_factory
+        with self._lock:
+            if callable(instance_or_factory) and not isinstance(instance_or_factory, type):
+                self._factories[abstract] = instance_or_factory
+            else:
+                self._instances[abstract] = instance_or_factory
 
     def resolve(self, abstract: type[T] | Any) -> T:  # noqa: C901
         """
@@ -76,12 +80,16 @@ class StdLibContainer(IContainer):
         if abstract in self._instances:
             return self._instances[abstract]
 
-        if abstract in self._factories:
-            instance = self._factories[abstract](self)
-            self._instances[abstract] = instance
-            return instance
+        with self._lock:
+            if abstract in self._instances:
+                return self._instances[abstract]
 
-        concrete = self._bindings.get(abstract, abstract)
+            if abstract in self._factories:
+                instance = self._factories[abstract](self)
+                self._instances[abstract] = instance
+                return instance
+
+            concrete = self._bindings.get(abstract, abstract)
 
         if not inspect.isclass(concrete):
             raise DependencyResolutionError(f"Cannot resolve {abstract}")
@@ -99,22 +107,35 @@ class StdLibContainer(IContainer):
         except ValueError:
             return concrete()
 
+        import typing
+        try:
+            type_hints = typing.get_type_hints(concrete.__init__)
+        except Exception:
+            type_hints = None
+
         dependencies = {}
         for name, param in signature.parameters.items():
-            if name == "self" or name == "args" or name == "kwargs":
+            if name in ("self", "args", "kwargs"):
                 continue
-            if param.annotation == inspect.Parameter.empty:
+
+            annotation = inspect.Parameter.empty
+            if type_hints is not None and name in type_hints:
+                annotation = type_hints[name]
+            else:
+                annotation = param.annotation
+
+            if annotation == inspect.Parameter.empty:
                 raise DependencyResolutionError(
                     f"Missing type hint for parameter '{name}' in {concrete.__name__}"
                 )
             try:
-                dependencies[name] = self.resolve(param.annotation)
+                dependencies[name] = self.resolve(annotation)
             except Exception as e:
                 if param.default is not inspect.Parameter.empty:
                     dependencies[name] = param.default
                 else:
                     raise DependencyResolutionError(
-                        f"Failed to resolve \x27{name}\x27 for {concrete.__name__}: {str(e)}"
+                        f"Failed to resolve '{name}' for {concrete.__name__}: {str(e)}"
                     )
 
         return concrete(**dependencies)

@@ -129,8 +129,12 @@ class ModuleAutoDiscovery:
                         and (obj is not BaseModule)
                     ):
                         app.use(obj())
-            except Exception:
-                pass
+            except Exception as e:
+                logger = app._get_logger()
+                if logger:
+                    logger.error(
+                        f"Failed to load module {full_module_name}: {e}"
+                    )
 
 
 class App:
