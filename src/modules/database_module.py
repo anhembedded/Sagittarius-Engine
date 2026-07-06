@@ -33,6 +33,24 @@ class SQLAlchemySessionAdapter(ISession):
     def query(self, *entities: Any) -> Any:
         return self.session.query(*entities)
 
+    def add(self, entity: Any) -> None:
+        self.session.add(entity)
+
+    def get(self, entity_class: type, entity_id: Any) -> Any | None:
+        return self.session.get(entity_class, entity_id)
+
+    def merge(self, entity: Any) -> Any:
+        return self.session.merge(entity)
+
+    def delete(self, entity: Any) -> None:
+        self.session.delete(entity)
+
+    def close(self) -> None:
+        if hasattr(self.session, "remove"):
+            self.session.remove()
+        elif hasattr(self.session, "close"):
+            self.session.close()
+
 
 class DatabaseModule(BaseModule):
     """
@@ -66,8 +84,39 @@ class DatabaseModule(BaseModule):
 
         try:
             config: IConfig = app.container.resolve(IConfig)
-            db_url = config.get("database.url", "sqlite:///:memory:")
-        except Exception:
+            import os
+            env = str(
+                config.get("env")
+                or config.get("app.env")
+                or os.environ.get("ENV")
+                or os.environ.get("APP_ENV")
+                or "development"
+            ).lower()
+            db_url = config.get("database.url")
+            if not db_url:
+                if env == "production":
+                    raise ValueError(
+                        "Database configuration 'database.url' is missing in production environment."
+                    )
+                else:
+                    db_url = "sqlite:///:memory:"
+                    if logger:
+                        logger.info(
+                            "DatabaseModule: 'database.url' not found. Using default in-memory SQLite."
+                        )
+        except Exception as e:
+            if isinstance(e, ValueError) and "production environment" in str(e):
+                raise
+            import os
+            env = str(
+                os.environ.get("ENV")
+                or os.environ.get("APP_ENV")
+                or "development"
+            ).lower()
+            if env == "production":
+                raise ValueError(
+                    f"Failed to resolve database configuration in production: {e}"
+                ) from e
             db_url = "sqlite:///:memory:"
             if logger:
                 logger.info(

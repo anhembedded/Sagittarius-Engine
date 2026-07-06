@@ -69,7 +69,12 @@ def test_local_file_storage__symlink_escape__raises_error(storage, base_dir, tmp
 
     # Create a symlink inside the base directory pointing to the external file
     symlink_path = os.path.join(base_dir, "symlink.txt")
-    os.symlink(str(target_file), symlink_path)
+    try:
+        os.symlink(str(target_file), symlink_path)
+    except OSError as e:
+        if getattr(e, "winerror", None) == 1314:
+            pytest.skip("Developer privilege for creating symlinks is not held on Windows.")
+        raise
 
     # Attempt to read through the symlink (the path 'symlink.txt' is relative to base_dir)
     with pytest.raises(PathTraversalError):

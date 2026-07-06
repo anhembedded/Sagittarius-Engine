@@ -1,8 +1,17 @@
+from dataclasses import dataclass
 from typing import Any
 
 from src.app_kernel import App
 from src.base_module import BaseModule
 from src.interfaces import IContainer, IEventBus, IQuery, ISession
+
+
+@dataclass
+class HealthCheckDTO:
+    """
+    @brief DTO for HealthCheckQuery.
+    """
+    pass
 
 
 class HealthCheckQuery(IQuery):
@@ -14,7 +23,7 @@ class HealthCheckQuery(IQuery):
         self.container = container
         self.event_bus = event_bus
 
-    def execute(self, input_dto: Any = None) -> dict[str, Any]:
+    def execute(self, input_dto: HealthCheckDTO | None = None) -> dict[str, Any]:
         """
         @brief Executes the health check.
         @return A dictionary containing the health status of various components.
