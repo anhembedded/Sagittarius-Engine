@@ -1,6 +1,5 @@
 from unittest.mock import MagicMock
 
-import pytest
 
 from src.base_repository import BaseRepository
 
@@ -20,6 +19,7 @@ def test_base_repository__init__sets_attributes():
 def test_base_repository__add__success():
     mock_session = MagicMock()
     repo = BaseRepository(session=mock_session, entity_class=MyEntity)
+    # Test CRUD operations
     entity = MyEntity(1)
     repo.add(entity)
     mock_session.session.add.assert_called_with(entity)
@@ -85,8 +85,23 @@ def test_base_repository__update__using_session_merge__success():
     mock_session = MagicMock()
     repo = BaseRepository(session=mock_session, entity_class=MyEntity)
     entity = MyEntity(1)
+    # test add
+    repo.add(entity)
+    mock_session.add.assert_called_with(entity)
+
+    # test get_by_id
+    mock_session.get.return_value = entity
+    assert repo.get_by_id(1) == entity
+    mock_session.get.assert_called_with(MyEntity, 1)
+
+    # test list_all
+    mock_session.query.return_value.all.return_value = [entity]
+    assert repo.list_all() == [entity]
+    mock_session.query.assert_called_with(MyEntity)
+
+    # test update
     repo.update(entity)
-    mock_session.session.merge.assert_called_with(entity)
+    mock_session.merge.assert_called_with(entity)
 
 
 def test_base_repository__update__missing_merge_method__does_nothing():
@@ -122,3 +137,6 @@ def test_base_repository__delete__missing_delete_method__raises_error():
     entity = MyEntity(1)
     with pytest.raises(NotImplementedError, match="Session does not support 'delete' operation."):
         repo.delete(entity)
+    # test delete
+    repo.delete(entity)
+    mock_session.delete.assert_called_with(entity)
