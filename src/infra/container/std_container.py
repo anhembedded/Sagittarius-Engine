@@ -44,6 +44,8 @@ class StdLibContainer(IContainer):
         self._bindings: dict[type, type] = {}
         self._instances: dict[type, Any] = {}
         self._factories: dict[type, Callable] = {}
+        # Cache for parsed __init__ dependencies to speed up resolution
+        self._resolution_cache: dict[type, dict[str, dict[str, Any]]] = {}
 
     def bind(self, abstract: type, concrete: type) -> None:
         """
@@ -63,7 +65,9 @@ class StdLibContainer(IContainer):
         @param instance_or_factory The existing instance or factory function.
         """
         with self._lock:
-            if callable(instance_or_factory) and not isinstance(instance_or_factory, type):
+            if callable(instance_or_factory) and not isinstance(
+                instance_or_factory, type
+            ):
                 self._factories[abstract] = instance_or_factory
             else:
                 self._instances[abstract] = instance_or_factory
@@ -102,37 +106,57 @@ class StdLibContainer(IContainer):
         if getattr(concrete, "__init__", None) is object.__init__:
             return concrete()
 
-        try:
-            signature = inspect.signature(concrete.__init__)
-        except ValueError:
-            return concrete()
+        # Check cache first to avoid slow inspect.signature and get_type_hints calls
+        with self._lock:
+            cached_deps = self._resolution_cache.get(concrete)
 
-        import typing
-        try:
-            type_hints = typing.get_type_hints(concrete.__init__)
-        except Exception:
-            type_hints = None
+        if cached_deps is None:
+            try:
+                signature = inspect.signature(concrete.__init__)
+            except ValueError:
+                with self._lock:
+                    self._resolution_cache[concrete] = {}
+                return concrete()
+
+            import typing
+
+            try:
+                type_hints = typing.get_type_hints(concrete.__init__)
+            except Exception:
+                type_hints = None
+
+            cached_deps = {}
+            for name, param in signature.parameters.items():
+                if name in ("self", "args", "kwargs"):
+                    continue
+
+                annotation = inspect.Parameter.empty
+                if type_hints is not None and name in type_hints:
+                    annotation = type_hints[name]
+                else:
+                    annotation = param.annotation
+
+                if annotation == inspect.Parameter.empty:
+                    raise DependencyResolutionError(
+                        f"Missing type hint for parameter '{name}' in {concrete.__name__}"
+                    )
+
+                cached_deps[name] = {
+                    "annotation": annotation,
+                    "has_default": param.default is not inspect.Parameter.empty,
+                    "default": param.default,
+                }
+
+            with self._lock:
+                self._resolution_cache[concrete] = cached_deps
 
         dependencies = {}
-        for name, param in signature.parameters.items():
-            if name in ("self", "args", "kwargs"):
-                continue
-
-            annotation = inspect.Parameter.empty
-            if type_hints is not None and name in type_hints:
-                annotation = type_hints[name]
-            else:
-                annotation = param.annotation
-
-            if annotation == inspect.Parameter.empty:
-                raise DependencyResolutionError(
-                    f"Missing type hint for parameter '{name}' in {concrete.__name__}"
-                )
+        for name, param_info in cached_deps.items():
             try:
-                dependencies[name] = self.resolve(annotation)
+                dependencies[name] = self.resolve(param_info["annotation"])
             except Exception as e:
-                if param.default is not inspect.Parameter.empty:
-                    dependencies[name] = param.default
+                if param_info["has_default"]:
+                    dependencies[name] = param_info["default"]
                 else:
                     raise DependencyResolutionError(
                         f"Failed to resolve '{name}' for {concrete.__name__}: {str(e)}"
