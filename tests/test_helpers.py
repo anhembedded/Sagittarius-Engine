@@ -1,5 +1,4 @@
 import pytest
-
 from tests.helpers import assert_event_emitted
 
 

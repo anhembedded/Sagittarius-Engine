@@ -2,10 +2,7 @@ import importlib
 import inspect
 import pkgutil
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any
-
-if TYPE_CHECKING:
-    from src.app_kernel import App
+from typing import Any
 
 from src.base_module import BaseModule
 from src.exceptions import DependencyResolutionError, ModuleRegistrationError

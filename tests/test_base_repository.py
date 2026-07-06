@@ -9,6 +9,7 @@ class MyEntity:
     def __init__(self, id):
         self.id = id
 
+
 def test_base_repository():
     mock_session = MagicMock()
     repo = BaseRepository(session=mock_session, entity_class=MyEntity)
@@ -46,6 +47,7 @@ def test_base_repository():
     # delete branch 1
     repo.delete(entity)
     mock_session.session.delete.assert_called_with(entity)
+
 
 def test_base_repository_exceptions():
     mock_session = MagicMock()
