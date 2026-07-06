@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from src.infra.asyncio_event_bus import AsyncioEventBus
+from src.infra.event_bus.asyncio_event_bus import AsyncioEventBus
 
 
 @pytest.mark.asyncio

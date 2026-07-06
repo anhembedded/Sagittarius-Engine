@@ -2,7 +2,7 @@ import concurrent.futures
 from collections.abc import Callable
 from typing import Any
 
-from src.infra.memory_event_bus import MemoryEventBus
+from src.infra.event_bus.memory_event_bus import MemoryEventBus
 from src.interfaces import IEventBus, ILogger
 
 

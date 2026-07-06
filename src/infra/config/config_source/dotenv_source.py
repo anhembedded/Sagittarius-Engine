@@ -1,7 +1,7 @@
 import os
 from typing import Any
 
-from src.infra.config_manager import ConfigSource
+from src.infra.config.config_manager import ConfigSource
 
 try:
     from dotenv import load_dotenv

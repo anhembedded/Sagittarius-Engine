@@ -8,12 +8,12 @@ import pytest
 
 from src.app_kernel import App, MiddlewarePipeline
 from src.exceptions import DependencyResolutionError
-from src.infra.asyncio_event_bus import AsyncioEventBus
-from src.infra.config_manager import ConfigManager, JsonSource
-from src.infra.memory_event_bus import MemoryEventBus
-from src.infra.resilient_event_bus import ResilientEventBus
-from src.infra.std_container import StdLibContainer
-from src.infra.thread_pool_event_bus import ThreadPoolEventBus
+from src.infra.event_bus.asyncio_event_bus import AsyncioEventBus
+from src.infra.config.config_manager import ConfigManager, JsonSource
+from src.infra.event_bus.memory_event_bus import MemoryEventBus
+from src.infra.event_bus.resilient_event_bus import ResilientEventBus
+from src.infra.container.std_container import StdLibContainer
+from src.infra.event_bus.thread_pool_event_bus import ThreadPoolEventBus
 from src.interfaces import (
     ICommand,
     IContainer,

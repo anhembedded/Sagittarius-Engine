@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 
-from src.infra.memory_event_bus import MemoryEventBus
-from src.infra.resilient_event_bus import ResilientEventBus
+from src.infra.event_bus.memory_event_bus import MemoryEventBus
+from src.infra.event_bus.resilient_event_bus import ResilientEventBus
 
 
 def test_resilient_event_bus_success():

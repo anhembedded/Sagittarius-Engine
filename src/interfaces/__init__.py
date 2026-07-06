@@ -11,6 +11,7 @@ from .i_middleware import IMiddleware
 from .i_module import IModule
 from .i_query import IQuery
 from .i_session import ISession
+from .i_thread_manager import IThreadManager
 
 __all__ = [
     "IAsyncEventBus",
@@ -26,4 +27,5 @@ __all__ = [
     "IFileStorage",
     "IMetrics",
     "IDomainEvent",
+    "IThreadManager",
 ]
