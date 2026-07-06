@@ -18,56 +18,27 @@ def test_base_repository():
     assert repo.session == mock_session
     assert repo.entity_class == MyEntity
 
-    # Test some basic stuff
+    # Test CRUD operations
     entity = MyEntity(1)
 
-    # get_by_id branch 1
-    mock_session.session.get.return_value = entity
-    assert repo.get_by_id(1) == entity
-
-    # get_by_id branch 2
-    del mock_session.session
-    mock_session.query.return_value.get.return_value = entity
-    assert repo.get_by_id(1) == entity
-
-    # add branch 1
-    mock_session = MagicMock()
-    repo = BaseRepository(session=mock_session, entity_class=MyEntity)
+    # test add
     repo.add(entity)
-    mock_session.session.add.assert_called_with(entity)
+    mock_session.add.assert_called_with(entity)
 
-    # list_all
+    # test get_by_id
+    mock_session.get.return_value = entity
+    assert repo.get_by_id(1) == entity
+    mock_session.get.assert_called_with(MyEntity, 1)
+
+    # test list_all
     mock_session.query.return_value.all.return_value = [entity]
     assert repo.list_all() == [entity]
+    mock_session.query.assert_called_with(MyEntity)
 
-    # update branch 1
+    # test update
     repo.update(entity)
-    mock_session.session.merge.assert_called_with(entity)
+    mock_session.merge.assert_called_with(entity)
 
-    # delete branch 1
+    # test delete
     repo.delete(entity)
-    mock_session.session.delete.assert_called_with(entity)
-
-
-def test_base_repository_exceptions():
-    mock_session = MagicMock()
-    del mock_session.session
-    del mock_session.query
-    repo = BaseRepository(session=mock_session, entity_class=MyEntity)
-
-    entity = MyEntity(1)
-
-    with pytest.raises(NotImplementedError):
-        repo.add(entity)
-
-    with pytest.raises(NotImplementedError):
-        repo.get_by_id(1)
-
-    with pytest.raises(NotImplementedError):
-        repo.list_all()
-
-    # update branch 2 (does nothing)
-    repo.update(entity)
-
-    with pytest.raises(NotImplementedError):
-        repo.delete(entity)
+    mock_session.delete.assert_called_with(entity)

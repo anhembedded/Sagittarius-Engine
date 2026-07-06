@@ -394,6 +394,18 @@ def test_health_module__db_session_raises__returns_unhealthy(app, container, eve
         def execute(self, statement, params=None):
             raise Exception("DB Connection Lost")
 
+        def add(self, entity):
+            pass
+
+        def get(self, entity_class, entity_id):
+            pass
+
+        def merge(self, entity):
+            pass
+
+        def delete(self, entity):
+            pass
+
     container.singleton(ISession, ThrowingSession())
 
     container.singleton(IEventBus, event_bus)
@@ -544,6 +556,159 @@ def test_integration__command_emits_event_without_handlers__does_not_crash(
 
     result = app.execute(EventEmittingCommand, "dummy_data")
     assert result == "success"
+
+
+def test_container_thread_safety():
+    import threading
+    import time
+
+    container = StdLibContainer()
+
+    class Dependency:
+        instances_count = 0
+
+        def __init__(self):
+            time.sleep(0.05)
+            Dependency.instances_count += 1
+
+    container.singleton(Dependency, lambda c: Dependency())
+
+    results = []
+
+    def worker():
+        dep = container.resolve(Dependency)
+        results.append(dep)
+
+    threads = [threading.Thread(target=worker) for _ in range(10)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    assert len(results) == 10
+    assert all(r is results[0] for r in results)
+    assert Dependency.instances_count == 1
+
+
+def test_module_autodiscovery_logging(app, logger, tmp_path):
+    module_dir = tmp_path / "logging_error_modules"
+    module_dir.mkdir()
+    (module_dir / "__init__.py").touch()
+
+    with open(module_dir / "bad_module.py", "w") as f:
+        f.write("raise ValueError('Intentional error during import')\n")
+
+    import sys
+    sys.path.insert(0, str(tmp_path))
+
+    try:
+        app.boot(auto_discover="logging_error_modules")
+        assert any("Failed to load module" in str(call) for call in logger.mock_calls)
+    finally:
+        sys.path.pop(0)
+
+
+def test_session_context_manager():
+    class DummySession(ISession):
+        def __init__(self):
+            self.committed = False
+            self.rolled_back = False
+            self.closed = False
+
+        def commit(self):
+            self.committed = True
+
+        def rollback(self):
+            self.rolled_back = True
+
+        def execute(self, statement, params=None):
+            pass
+
+        def query(self, *entities):
+            pass
+
+        def add(self, entity):
+            pass
+
+        def get(self, entity_class, entity_id):
+            pass
+
+        def merge(self, entity):
+            pass
+
+        def delete(self, entity):
+            pass
+
+        def close(self):
+            self.closed = True
+
+    # Test normal exit
+    session = DummySession()
+    with session as s:
+        assert s is session
+    assert session.closed is True
+    assert session.rolled_back is False
+
+    # Test exit with exception
+    session2 = DummySession()
+    try:
+        with session2:
+            raise RuntimeError("Database error")
+    except RuntimeError:
+        pass
+    assert session2.closed is True
+    assert session2.rolled_back is True
+
+
+def test_database_module_production_failure(app, monkeypatch):
+    from src.interfaces import IConfig
+    from src.modules.database_module import DatabaseModule
+
+    monkeypatch.setenv("ENV", "production")
+
+    mock_config = MagicMock()
+    mock_config.get.return_value = None  # No database url
+    app.container.singleton(IConfig, lambda c: mock_config)
+
+    module = DatabaseModule()
+    with pytest.raises(ValueError) as excinfo:
+        module.register(app)
+
+    assert "production environment" in str(excinfo.value)
+
+
+def test_health_check_query_dto(app, container, event_bus):
+    from src.modules.health_module import HealthCheckDTO, HealthCheckQuery
+
+    container.singleton(IContainer, container)
+    container.singleton(IEventBus, event_bus)
+
+    query = HealthCheckQuery(container, event_bus)
+    dto = HealthCheckDTO()
+    result = query.execute(dto)
+    assert result["status"] == "healthy"
+
+
+def test_pydantic_validation_middleware_v2():
+    pydantic = pytest.importorskip("pydantic")
+    from src.middleware.pydantic_validation_middleware import PydanticValidationMiddleware
+
+    class TestDTO(pydantic.BaseModel):
+        name: str
+        age: int
+
+    middleware = PydanticValidationMiddleware(TestDTO)
+
+    class DummyCommand:
+        pass
+
+    called = []
+
+    def next_handler():
+        called.append(True)
+
+    middleware.process(DummyCommand(), {"name": "Bob", "age": 30}, next_handler)
+    assert called == [True]
 
 
 # BUG REPORT
