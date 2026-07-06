@@ -5,7 +5,7 @@ from multiprocessing.queues import Queue as MQueue
 from src.infra.event_bus.ipc_queue_event_bus import IPCBroker, IPCQueueEventBus
 
 
-def test_single_process_ipc_queue_event_bus():
+def test_single_process_ipc_queue_event_bus(ipc_bus_factory):
     """Test standard EventBus pub/sub in a single process without a broker"""
     import queue
 
@@ -13,7 +13,7 @@ def test_single_process_ipc_queue_event_bus():
     sub_q = queue.Queue()
     pub_q = queue.Queue()
 
-    bus = IPCQueueEventBus(subscriber_queue=sub_q, publish_queue=pub_q)  # type: ignore
+    bus = ipc_bus_factory(subscriber_queue=sub_q, publish_queue=pub_q)  # type: ignore
 
     received = []
 
@@ -31,13 +31,12 @@ def test_single_process_ipc_queue_event_bus():
 
     # Wait for processing
     time.sleep(0.2)
-    bus.stop()
 
     assert len(received) == 1
     assert received[0] == {"hello": "world"}
 
 
-def test_ipc_broker_forwarding():
+def test_ipc_broker_forwarding(ipc_broker_factory):
     """Test broker forwards messages to subscriber queues"""
     import queue
 
@@ -45,7 +44,7 @@ def test_ipc_broker_forwarding():
     sub_q1 = queue.Queue()
     sub_q2 = queue.Queue()
 
-    broker = IPCBroker(publish_queue=pub_q)  # type: ignore
+    broker = ipc_broker_factory(publish_queue=pub_q)  # type: ignore
     broker.add_subscriber(sub_q1)  # type: ignore
     broker.add_subscriber(sub_q2)  # type: ignore
 
@@ -55,8 +54,6 @@ def test_ipc_broker_forwarding():
 
     msg1 = sub_q1.get(timeout=1.0)
     msg2 = sub_q2.get(timeout=1.0)
-
-    broker.stop()
 
     assert msg1 == ("test.event", "data")
     assert msg2 == ("test.event", "data")
@@ -84,7 +81,38 @@ def child_process_worker(sub_q: MQueue, pub_q: MQueue, ready_event, done_event):
     bus.stop()
 
 
-def test_inter_process_communication():
+def test_ipc_broker_unpicklable_data(ipc_broker_factory, ipc_bus_factory, caplog):
+    """Test broker and bus handle unpicklable data without crashing"""
+    import logging
+    import multiprocessing
+
+    caplog.set_level(logging.ERROR)
+
+    manager = multiprocessing.Manager()
+    pub_q = manager.Queue()
+    sub_q = manager.Queue()
+
+    broker = ipc_broker_factory(publish_queue=pub_q)
+    broker.add_subscriber(sub_q)
+    broker.start()
+
+    bus = ipc_bus_factory(subscriber_queue=sub_q, publish_queue=pub_q)
+
+    # Emitting an unpicklable object (lambda function)
+    unpicklable_data = lambda x: x
+    bus.emit("unpicklable.event", unpicklable_data)
+
+    # Allow time for processing
+    import time
+    time.sleep(0.2)
+
+    # Assert that an error was logged instead of a crash
+    assert any("Failed to emit event 'unpicklable.event' to publish_queue" in record.message for record in caplog.records)
+
+    manager.shutdown()
+
+
+def test_inter_process_communication(ipc_broker_factory, ipc_bus_factory):
     """Test full cross-process communication with broker"""
     # Use multiprocessing manager for queues across processes
     manager = multiprocessing.Manager()
@@ -96,13 +124,13 @@ def test_inter_process_communication():
     done_event = manager.Event()
 
     # Setup Broker
-    broker = IPCBroker(publish_queue=pub_q)
+    broker = ipc_broker_factory(publish_queue=pub_q)
     broker.add_subscriber(parent_sub_q)
     broker.add_subscriber(child_sub_q)
     broker.start()
 
     # Setup Parent Bus
-    parent_bus = IPCQueueEventBus(subscriber_queue=parent_sub_q, publish_queue=pub_q)
+    parent_bus = ipc_bus_factory(subscriber_queue=parent_sub_q, publish_queue=pub_q)
 
     child_responses = []
 
@@ -134,6 +162,4 @@ def test_inter_process_communication():
     # Cleanup
     done_event.set()
     child_p.join(timeout=2.0)
-    parent_bus.stop()
-    broker.stop()
     manager.shutdown()

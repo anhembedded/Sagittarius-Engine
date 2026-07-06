@@ -865,14 +865,12 @@ def test_health_module__with_database(event_bus):
     # The mock session needs to have an execute method that does not raise error
     mock_session.execute.return_value = None
 
-    original_sa = sys.modules.get("sqlalchemy")
     mock_sa = MagicMock()
     mock_sa.text.return_value = "SELECT 1"
-    sys.modules["sqlalchemy"] = mock_sa
 
     app.container.singleton(ISession, mock_session)
 
-    try:
+    with patch.dict("sys.modules", {"sqlalchemy": mock_sa}):
         app.use(HealthModule())
         app.boot()
 
@@ -880,11 +878,6 @@ def test_health_module__with_database(event_bus):
 
         assert result["status"] == "healthy"
         assert result["components"]["database"] == "ok"
-    finally:
-        if original_sa is None:
-            del sys.modules["sqlalchemy"]
-        else:
-            sys.modules["sqlalchemy"] = original_sa
 
 
 # ==========================================

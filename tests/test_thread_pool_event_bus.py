@@ -3,8 +3,8 @@ import time
 from src.infra.event_bus.thread_pool_event_bus import ThreadPoolEventBus
 
 
-def test_thread_pool_event_bus_execution():
-    bus = ThreadPoolEventBus(max_workers=2)
+def test_thread_pool_event_bus_execution(thread_pool_bus_factory):
+    bus = thread_pool_bus_factory(max_workers=2)
     results = []
 
     def handler1(data):
@@ -26,11 +26,9 @@ def test_thread_pool_event_bus_execution():
     assert "handler2: payload" in results
     assert len(results) == 2
 
-    bus.shutdown()
 
-
-def test_thread_pool_event_bus_exception_handling():
-    bus = ThreadPoolEventBus(max_workers=2)
+def test_thread_pool_event_bus_exception_handling(thread_pool_bus_factory):
+    bus = thread_pool_bus_factory(max_workers=2)
     results = []
 
     def failing_handler(data):
@@ -51,11 +49,9 @@ def test_thread_pool_event_bus_exception_handling():
     assert "success: payload" in results
     assert len(results) == 1
 
-    bus.shutdown()
 
-
-def test_thread_pool_event_bus_on_off():
-    bus = ThreadPoolEventBus()
+def test_thread_pool_event_bus_on_off(thread_pool_bus_factory):
+    bus = thread_pool_bus_factory()
     results = []
 
     def handler(data):
@@ -72,5 +68,3 @@ def test_thread_pool_event_bus_on_off():
     # Shouldn't receive data2
     time.sleep(0.1)
     assert results == ["data1"]
-
-    bus.shutdown()

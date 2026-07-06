@@ -42,3 +42,6 @@ follow_imports = "skip"
 show_error_codes = true
 pretty = true
 files = ["src"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
