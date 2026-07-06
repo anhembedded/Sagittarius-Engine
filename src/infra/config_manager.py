@@ -1,13 +1,16 @@
-import os
 import json
+import os
 from abc import ABC, abstractmethod
 from typing import Any
+
 from src.interfaces import IConfig
+
 
 class ConfigSource(ABC):
     """
     @brief Configuration Source (Dict, Env, Json).
     """
+
     @abstractmethod
     def read(self) -> dict[str, Any]:
         """
@@ -16,10 +19,12 @@ class ConfigSource(ABC):
         """
         ...
 
+
 class DictSource(ConfigSource):
     """
     @brief Configuration source from a provided Python Dictionary.
     """
+
     def __init__(self, data: dict[str, Any]) -> None:
         """
         @brief Constructor.
@@ -31,12 +36,14 @@ class DictSource(ConfigSource):
         """@brief Reads the configuration from the dictionary."""
         return self.data
 
+
 class EnvSource(ConfigSource):
     """
     @brief Configuration source from Environment Variables.
 
     @details Example: EnvSource(prefix="APP_") will read the `APP_HOST` variable and store it with the key `HOST`.
     """
+
     def __init__(self, prefix: str = "") -> None:
         """
         @brief Constructor.
@@ -49,14 +56,16 @@ class EnvSource(ConfigSource):
         result = {}
         for k, v in os.environ.items():
             if k.startswith(self.prefix):
-                key = k[len(self.prefix):]
+                key = k[len(self.prefix) :]
                 result[key] = v
         return result
+
 
 class JsonSource(ConfigSource):
     """
     @brief Configuration source from a JSON file.
     """
+
     def __init__(self, filepath: str) -> None:
         """
         @brief Constructor.
@@ -69,10 +78,11 @@ class JsonSource(ConfigSource):
         if not os.path.exists(self.filepath):
             return {}
         try:
-            with open(self.filepath, 'r') as f:
+            with open(self.filepath) as f:
                 return json.load(f)
         except json.JSONDecodeError:
             return {}
+
 
 class ConfigManager(IConfig):
     """
@@ -94,6 +104,7 @@ class ConfigManager(IConfig):
     db_host = config.get("DB_HOST", "localhost")
     @endcode
     """
+
     def __init__(self) -> None:
         """@brief Constructor."""
         self._sources: list[ConfigSource] = []

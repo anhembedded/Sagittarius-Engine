@@ -1,41 +1,45 @@
-from tests.helpers import assert_event_emitted
+import asyncio
 import os
 import sys
-import json
-import pytest
-import asyncio
+import threading
+import time
+from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
 
-from src.interfaces import (
-    ICommand, IQuery, IModule, IEventBus, IContainer,
-    IMiddleware, ILogger, IConfig, IAsyncEventBus, IFileStorage, IMetrics, ISession
-)
-from src.app_kernel import App, MiddlewarePipeline, ModuleAutoDiscovery
-from src.base_module import BaseModule
+import pytest
+
+from src.app_kernel import App, MiddlewarePipeline
 from src.base_event import BaseEvent
-from src.base_repository import BaseRepository
 from src.exceptions import DependencyResolutionError, ModuleRegistrationError
-from src.infra.memory_event_bus import MemoryEventBus
-from src.infra.thread_pool_event_bus import ThreadPoolEventBus
 from src.infra.asyncio_event_bus import AsyncioEventBus
+from src.infra.config_manager import ConfigManager, DictSource, EnvSource, JsonSource
+from src.infra.config_source.dotenv_source import DotenvSource
+from src.infra.dict_config import DictConfig
+from src.infra.memory_event_bus import MemoryEventBus
 from src.infra.resilient_event_bus import ResilientEventBus
 from src.infra.std_container import StdLibContainer
 from src.infra.std_logger import StdLogger
-from src.infra.config_manager import ConfigManager, EnvSource, JsonSource, DictSource
-from src.infra.config_source.dotenv_source import DotenvSource
-from src.infra.dict_config import DictConfig
-from src.infra.local_file_storage import LocalFileStorage
-from src.infra.log_metrics import LogMetrics
-from src.middleware.logging_middleware import LoggingMiddleware
-from src.middleware.timing_middleware import TimingMiddleware
-from src.middleware.validation_middleware import ValidationMiddleware
-from src.modules.logger_module import LoggerModule
-from src.modules.database_module import DatabaseModule
-from src.modules.health_module import HealthModule, HealthCheckQuery
+from src.infra.thread_pool_event_bus import ThreadPoolEventBus
+from src.interfaces import (
+    ICommand,
+    IContainer,
+    IEventBus,
+    ILogger,
+    IMiddleware,
+    IModule,
+    IQuery,
+    ISession,
+)
+from src.modules.health_module import HealthCheckQuery, HealthModule
+from tests.helpers import assert_event_emitted
 
 try:
-    from src.middleware.pydantic_validation_middleware import PydanticValidationMiddleware
-    import pydantic
+    import importlib.util
+    has_pydantic = importlib.util.find_spec("pydantic") is not None
+
+    from src.middleware.pydantic_validation_middleware import (
+        PydanticValidationMiddleware,
+    )
     HAS_PYDANTIC = True
 except ImportError:
     HAS_PYDANTIC = False
@@ -142,8 +146,7 @@ def test_container__resolve_missing_dependency__raises_error():
 # 2. IEventBus contract
 # ==========================================
 
-import threading
-import time
+
 
 @pytest.fixture(params=["memory", "threadpool", "resilient", "asyncio"])
 def event_bus_instance(request):
@@ -506,7 +509,6 @@ class MyAutoModule(IModule):
     app = App(container=StdLibContainer(), event_bus=event_bus)
 
     # Temporarily add tmp_path to sys.path
-    import sys
     sys.path.insert(0, str(tmp_path))
 
     try:
@@ -627,7 +629,6 @@ def test_std_logger__with_config__respects_level_and_file(tmp_path):
 # 6. IConfig contract
 # ==========================================
 
-import os
 
 def test_config__dict_config__get_set():
     config = DictConfig()
@@ -652,7 +653,7 @@ def test_config__manager__loads_sources_and_overrides():
 def test_config__env_source():
     with patch.dict(os.environ, {"MY_APP_ENV_VAR": "test_value"}):
         source = EnvSource(prefix="MY_APP_")
-        data = source.read()
+        source.read()
         # the prefix is usually stripped or lowercased depending on implementation
         # Let's check how EnvSource works
         manager = ConfigManager()
@@ -688,7 +689,7 @@ def test_config__dotenv_source(tmp_path):
 # 7. BaseEvent contract
 # ==========================================
 
-from datetime import datetime, timezone
+
 
 class MyEvent(BaseEvent):
     def __init__(self, data: str):
@@ -702,7 +703,7 @@ def test_base_event__unique_id_and_recent_timestamp():
     assert event1.event_id != event2.event_id
 
     # Check timestamp is close to now
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     diff = now - event1.occurred_on
     assert diff.total_seconds() < 1  # Should be created within 1 second
 
@@ -753,7 +754,6 @@ class JustAClass:
 ''')
 
     # Temporarily insert root parent to sys.path
-    import sys
     sys.path.insert(0, str(tmp_path))
 
     try:
@@ -799,7 +799,6 @@ def test_health_module__with_database(event_bus):
     # The mock session needs to have an execute method that does not raise error
     mock_session.execute.return_value = None
 
-    import sys
     original_sa = sys.modules.get('sqlalchemy')
     mock_sa = MagicMock()
     mock_sa.text.return_value = "SELECT 1"

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, TypeVar, Union, Optional
+from typing import Any
+
 
 class IConfig(ABC):
     """
@@ -7,7 +8,7 @@ class IConfig(ABC):
     """
 
     @abstractmethod
-    def get(self, key: str, default: Any=None) -> Any:
+    def get(self, key: str, default: Any = None) -> Any:
         """
         @brief Gets a configuration value.
 

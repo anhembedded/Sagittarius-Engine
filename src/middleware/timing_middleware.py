@@ -1,6 +1,9 @@
-from typing import Any, Callable
-from src.interfaces import IMiddleware
 import time
+from collections.abc import Callable
+from typing import Any
+
+from src.interfaces import IMiddleware
+
 
 class TimingMiddleware(IMiddleware):
     """
@@ -14,7 +17,10 @@ class TimingMiddleware(IMiddleware):
     # [TimingMiddleware] ProcessOrderCommand executed in 12.50 ms
     @endcode
     """
-    def process(self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]) -> Any:
+
+    def process(
+        self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]
+    ) -> Any:
         """
         @brief Processes the command or query, measuring and printing the execution time.
 
@@ -27,5 +33,7 @@ class TimingMiddleware(IMiddleware):
         result = next_handler()
         end_time = time.time()
         duration = (end_time - start_time) * 1000
-        print(f"[TimingMiddleware] {cmd_or_query.__class__.__name__} executed in {duration:.2f} ms")
+        print(
+            f"[TimingMiddleware] {cmd_or_query.__class__.__name__} executed in {duration:.2f} ms"
+        )
         return result

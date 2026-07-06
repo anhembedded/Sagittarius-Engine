@@ -1,7 +1,6 @@
-import pytest
-from unittest.mock import Mock
 from src.app_kernel import MiddlewarePipeline
 from src.interfaces import IMiddleware
+
 
 class DummyMiddleware(IMiddleware):
     def __init__(self, name: str, tracer: list):
@@ -13,6 +12,7 @@ class DummyMiddleware(IMiddleware):
         result = next_handler()
         self.tracer.append(f"{self.name}_end")
         return result
+
 
 def test_middleware_pipeline_execution_order():
     pipeline = MiddlewarePipeline()

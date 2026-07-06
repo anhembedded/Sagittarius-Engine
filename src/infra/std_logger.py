@@ -1,7 +1,8 @@
 import logging
 import sys
-from typing import Optional
-from src.interfaces import ILogger, IConfig
+
+from src.interfaces import IConfig, ILogger
+
 
 class StdLogger(ILogger):
     """
@@ -20,7 +21,8 @@ class StdLogger(ILogger):
     logger.error("DB connection error")
     @endcode
     """
-    def __init__(self, config: Optional[IConfig] = None):
+
+    def __init__(self, config: IConfig | None = None):
         """
         @brief Constructor.
         @param config Optional configuration instance.
@@ -44,7 +46,9 @@ class StdLogger(ILogger):
         self._logger.handlers.clear()
         self._logger.propagate = False
 
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
 
         ch = logging.StreamHandler(sys.stdout)
         ch.setFormatter(formatter)

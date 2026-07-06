@@ -1,18 +1,19 @@
-import time
 import multiprocessing
+import time
 from multiprocessing.queues import Queue as MQueue
+
 from src.infra.ipc_queue_event_bus import IPCBroker, IPCQueueEventBus
 
 
 def test_single_process_ipc_queue_event_bus():
     """Test standard EventBus pub/sub in a single process without a broker"""
     import queue
+
     # Use standard queue for single process testing, type hinted correctly
     sub_q = queue.Queue()
     pub_q = queue.Queue()
 
-    bus = IPCQueueEventBus(subscriber_queue=sub_q,
-                           publish_queue=pub_q)  # type: ignore
+    bus = IPCQueueEventBus(subscriber_queue=sub_q, publish_queue=pub_q)  # type: ignore
 
     received = []
 
@@ -39,6 +40,7 @@ def test_single_process_ipc_queue_event_bus():
 def test_ipc_broker_forwarding():
     """Test broker forwards messages to subscriber queues"""
     import queue
+
     pub_q = queue.Queue()
     sub_q1 = queue.Queue()
     sub_q2 = queue.Queue()
@@ -60,9 +62,7 @@ def test_ipc_broker_forwarding():
     assert msg2 == ("test.event", "data")
 
 
-def child_process_worker(
-    sub_q: MQueue, pub_q: MQueue, ready_event, done_event
-):
+def child_process_worker(sub_q: MQueue, pub_q: MQueue, ready_event, done_event):
     bus = IPCQueueEventBus(subscriber_queue=sub_q, publish_queue=pub_q)
 
     received_in_child = []
@@ -102,8 +102,7 @@ def test_inter_process_communication():
     broker.start()
 
     # Setup Parent Bus
-    parent_bus = IPCQueueEventBus(
-        subscriber_queue=parent_sub_q, publish_queue=pub_q)
+    parent_bus = IPCQueueEventBus(subscriber_queue=parent_sub_q, publish_queue=pub_q)
 
     child_responses = []
 
@@ -115,8 +114,7 @@ def test_inter_process_communication():
 
     # Start Child Process
     child_p = multiprocessing.Process(
-        target=child_process_worker,
-        args=(child_sub_q, pub_q, ready_event, done_event)
+        target=child_process_worker, args=(child_sub_q, pub_q, ready_event, done_event)
     )
     child_p.start()
 

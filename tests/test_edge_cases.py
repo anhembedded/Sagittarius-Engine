@@ -1,25 +1,30 @@
-import pytest
+import abc
 import asyncio
 import time
-import os
-import abc
+from typing import Any
 from unittest.mock import MagicMock, patch
-from typing import Optional, Dict, Any
 
-from src.interfaces import (
-    ICommand, IQuery, IModule, IContainer, IEventBus, IMiddleware,
-    IConfig, ILogger, ISession
-)
-from src.base_event import BaseEvent
-from src.app_kernel import App, MiddlewarePipeline, ModuleAutoDiscovery
-from src.infra.std_container import StdLibContainer
-from src.infra.memory_event_bus import MemoryEventBus
-from src.infra.thread_pool_event_bus import ThreadPoolEventBus
+import pytest
+
+from src.app_kernel import App, MiddlewarePipeline
+from src.exceptions import DependencyResolutionError
 from src.infra.asyncio_event_bus import AsyncioEventBus
-from src.infra.resilient_event_bus import ResilientEventBus
 from src.infra.config_manager import ConfigManager, JsonSource
-from src.modules.health_module import HealthModule, HealthCheckQuery
-from src.exceptions import DependencyResolutionError, ModuleRegistrationError
+from src.infra.memory_event_bus import MemoryEventBus
+from src.infra.resilient_event_bus import ResilientEventBus
+from src.infra.std_container import StdLibContainer
+from src.infra.thread_pool_event_bus import ThreadPoolEventBus
+from src.interfaces import (
+    ICommand,
+    IContainer,
+    IEventBus,
+    ILogger,
+    IMiddleware,
+    IModule,
+    ISession,
+)
+from src.modules.health_module import HealthCheckQuery, HealthModule
+
 
 # --- Fixtures ---
 @pytest.fixture
@@ -53,7 +58,8 @@ def test_container__resolve_unbound_interface__raises_dependency_resolution_erro
         container.resolve(IUnboundInterface)
 
 def test_container__factory_raises_exception__raises_dependency_resolution_error(container):
-    class MyClass: pass
+    class MyClass:
+        pass
 
     def bad_factory(c):
         raise ValueError("Factory failed")
@@ -67,7 +73,7 @@ def test_container__factory_raises_exception__raises_dependency_resolution_error
 
 def test_container__resolve_optional_parameter__uses_default(container):
     class ClassWithOptionalParam:
-        def __init__(self, param: Optional[str] = None):
+        def __init__(self, param: str | None = None):
             self.param = param
 
     container.bind("test", ClassWithOptionalParam)
@@ -119,7 +125,8 @@ def test_resilient_event_bus__max_retries_0__goes_to_dlq(logger):
     handler.assert_called_once_with(event)
     assert len(bus.get_dlq()) == 1
     assert bus.get_dlq()[0][0] == event
-    assert bus.get_dlq()[0][1] == event; assert isinstance(bus.get_dlq()[0][3], ValueError)
+    assert bus.get_dlq()[0][1] == event
+    assert isinstance(bus.get_dlq()[0][3], ValueError)
 
 def test_thread_pool_event_bus__handler_timeout__does_not_block(logger):
     bus = ThreadPoolEventBus(max_workers=2)
@@ -194,7 +201,7 @@ def test_middleware__raises_before_next__propagates_and_handler_not_called(app):
 def test_middleware__raises_after_next__propagates_and_handler_called(app):
     class ThrowAfterMiddleware(IMiddleware):
         def process(self, command: Any, data_transfer_obj: Any, next_handler: Any) -> Any:
-            result = next_handler()
+            next_handler()
             raise ValueError("Failed after next")
 
     pipeline = MiddlewarePipeline()
@@ -336,7 +343,6 @@ def test_health_module__db_session_raises__returns_unhealthy(app, container, eve
 
     query = container.resolve(HealthCheckQuery)
 
-    import sys
     mock_sqlalchemy = MagicMock()
     mock_sqlalchemy.text.return_value = "SELECT 1"
     with patch.dict("sys.modules", {"sqlalchemy": mock_sqlalchemy}):
@@ -375,7 +381,7 @@ def test_config__json_source_invalid_json__returns_empty_dict(tmp_path):
 
 def test_config__config_manager_failing_source__returns_default():
     class FailingSource:
-        def read(self) -> Dict[str, Any]:
+        def read(self) -> dict[str, Any]:
             raise Exception("Source failed to read")
 
     manager = ConfigManager()
@@ -390,14 +396,17 @@ def test_config__config_manager_failing_source__returns_default():
 
 def test_pydantic_middleware__dto_is_none__raises_exception():
     pydantic = pytest.importorskip("pydantic")
-    from src.middleware.pydantic_validation_middleware import PydanticValidationMiddleware
+    from src.middleware.pydantic_validation_middleware import (
+        PydanticValidationMiddleware,
+    )
 
     class MyDTO(pydantic.BaseModel):
         name: str
 
     middleware = PydanticValidationMiddleware(MyDTO)
 
-    class DummyCommand: pass
+    class DummyCommand:
+        pass
 
     with pytest.raises(ValueError):
         # Current logic checks `if data_transfer_obj is not None`. If it is None and the model requires it, it doesn't fail unless changed
@@ -408,13 +417,16 @@ def test_pydantic_middleware__dto_is_none__raises_exception():
 
 def test_pydantic_middleware__dto_missing_required_field__raises_exception():
     pydantic = pytest.importorskip("pydantic")
-    from src.middleware.pydantic_validation_middleware import PydanticValidationMiddleware
+    from src.middleware.pydantic_validation_middleware import (
+        PydanticValidationMiddleware,
+    )
 
     class MyDTO(pydantic.BaseModel):
         name: str
 
     middleware = PydanticValidationMiddleware(MyDTO)
-    class DummyCommand: pass
+    class DummyCommand:
+        pass
 
     with pytest.raises(ValueError, match="Validation failed"):
         middleware.process(DummyCommand(), {}, lambda: "ok")

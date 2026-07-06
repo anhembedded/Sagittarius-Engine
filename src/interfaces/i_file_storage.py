@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Union
+
 
 class IFileStorage(ABC):
     """
@@ -20,7 +20,7 @@ class IFileStorage(ABC):
         ...
 
     @abstractmethod
-    def write(self, path: str, data: Union[bytes, str]) -> None:
+    def write(self, path: str, data: bytes | str) -> None:
         """
         @brief Writes data to a file in storage.
 

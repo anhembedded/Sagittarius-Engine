@@ -1,6 +1,8 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from .interfaces import IDomainEvent
+
 
 class BaseEvent(IDomainEvent):
     """
@@ -10,9 +12,10 @@ class BaseEvent(IDomainEvent):
     a standard set of metadata. However, there's no strict requirement to inherit from
     it; it serves as a utility.
     """
+
     def __init__(self) -> None:
         self._event_id: str = str(uuid.uuid4())
-        self._occurred_on: datetime = datetime.now(timezone.utc)
+        self._occurred_on: datetime = datetime.now(UTC)
 
     @property
     def event_id(self) -> str:
@@ -27,10 +30,10 @@ class BaseEvent(IDomainEvent):
         @brief Returns a dictionary representation of the event.
         """
         data = self.__dict__.copy()
-        if '_event_id' in data:
-            data['event_id'] = data.pop('_event_id')
-        if '_occurred_on' in data:
-            data['occurred_on'] = data.pop('_occurred_on')
+        if "_event_id" in data:
+            data["event_id"] = data.pop("_event_id")
+        if "_occurred_on" in data:
+            data["occurred_on"] = data.pop("_occurred_on")
 
-        data['occurred_on'] = self.occurred_on.isoformat()
+        data["occurred_on"] = self.occurred_on.isoformat()
         return data

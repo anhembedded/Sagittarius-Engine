@@ -1,19 +1,23 @@
-from typing import Optional, Any
-from src.base_module import BaseModule
+from typing import Any
+
 from src.app_kernel import App
+from src.base_module import BaseModule
 from src.interfaces import IConfig, ILogger, ISession
 
 try:
     from sqlalchemy import create_engine
-    from sqlalchemy.orm import sessionmaker, scoped_session
+    from sqlalchemy.orm import scoped_session, sessionmaker
+
     SQLALCHEMY_INSTALLED = True
 except ImportError:
     SQLALCHEMY_INSTALLED = False
+
 
 class SQLAlchemySessionAdapter(ISession):
     """
     @brief Adapter for SQLAlchemy Session.
     """
+
     def __init__(self, session: Any):
         self.session = session
 
@@ -28,6 +32,7 @@ class SQLAlchemySessionAdapter(ISession):
 
     def query(self, *entities: Any) -> Any:
         return self.session.query(*entities)
+
 
 class DatabaseModule(BaseModule):
     """
@@ -54,7 +59,9 @@ class DatabaseModule(BaseModule):
 
         if not SQLALCHEMY_INSTALLED:
             if logger:
-                logger.warning("DatabaseModule: sqlalchemy is not installed. Database setup skipped.")
+                logger.warning(
+                    "DatabaseModule: sqlalchemy is not installed. Database setup skipped."
+                )
             return
 
         try:
@@ -63,7 +70,9 @@ class DatabaseModule(BaseModule):
         except Exception:
             db_url = "sqlite:///:memory:"
             if logger:
-                logger.info("DatabaseModule: IConfig not found or failed to resolve. Using default in-memory SQLite.")
+                logger.info(
+                    "DatabaseModule: IConfig not found or failed to resolve. Using default in-memory SQLite."
+                )
 
         try:
             engine = create_engine(db_url)
@@ -75,7 +84,9 @@ class DatabaseModule(BaseModule):
             app.container.singleton(ISession, session_adapter)
 
             if logger:
-                logger.info(f"DatabaseModule: SQLAlchemy engine created for {db_url} and ISession registered.")
+                logger.info(
+                    f"DatabaseModule: SQLAlchemy engine created for {db_url} and ISession registered."
+                )
         except Exception as e:
             if logger:
                 logger.error(f"DatabaseModule: Failed to initialize database - {e}")
@@ -83,7 +94,7 @@ class DatabaseModule(BaseModule):
     def boot(self, app: App) -> None:
         pass
 
-    def _get_logger(self, app: App) -> Optional[ILogger]:
+    def _get_logger(self, app: App) -> ILogger | None:
         try:
             return app.container.resolve(ILogger)
         except Exception:

@@ -1,12 +1,24 @@
-from abc import ABC, abstractmethod
-from typing import Any, Callable, TypeVar, Union, Optional, List
+import importlib
 import inspect
 import pkgutil
-import importlib
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
-from src.interfaces import IModule, IContainer, IEventBus, IMiddleware, ICommand, IQuery, ILogger
-from src.exceptions import ModuleRegistrationError, DependencyResolutionError
+if TYPE_CHECKING:
+    from src.app_kernel import App
+
 from src.base_module import BaseModule
+from src.exceptions import DependencyResolutionError, ModuleRegistrationError
+from src.interfaces import (
+    ICommand,
+    IContainer,
+    IEventBus,
+    ILogger,
+    IMiddleware,
+    IModule,
+    IQuery,
+)
+
 
 class MiddlewarePipeline:
     """
@@ -17,17 +29,14 @@ class MiddlewarePipeline:
 
     def __init__(self) -> None:
         # Holds the list of middleware instances in execution order
-        self.middlewares: List[IMiddleware] = []
+        self.middlewares: list[IMiddleware] = []
 
     def add(self, middleware: IMiddleware) -> None:
         """Append a middleware to the end of the chain."""
         self.middlewares.append(middleware)
 
     def execute(
-        self,
-        cmd_or_query: Any,
-        dto: Any,
-        final_handler: Callable[[], Any]
+        self, cmd_or_query: Any, dto: Any, final_handler: Callable[[], Any]
     ) -> Any:
         """
         Execute the entire middleware chain.
@@ -43,11 +52,7 @@ class MiddlewarePipeline:
         return self.__build_chain(cmd_or_query, dto, final_handler, 0)()
 
     def __build_chain(
-        self,
-        cmd_or_query: Any,
-        dto: Any,
-        final_handler: Callable[[], Any],
-        index: int
+        self, cmd_or_query: Any, dto: Any, final_handler: Callable[[], Any], index: int
     ) -> Callable[[], Any]:
         """
         Private helper method to recursively build the middleware chain.
@@ -68,7 +73,7 @@ class MiddlewarePipeline:
         cmd_or_query: Any,
         dto: Any,
         final_handler: Callable[[], Any],
-        index: int
+        index: int,
     ) -> Any:
         """
         Invoke a single middleware and pass control to the next one.
@@ -76,8 +81,9 @@ class MiddlewarePipeline:
         return middleware.process(
             cmd_or_query,
             dto,
-            self.__build_chain(cmd_or_query, dto, final_handler, index + 1)
+            self.__build_chain(cmd_or_query, dto, final_handler, index + 1),
         )
+
 
 class ModuleAutoDiscovery:
     """
@@ -97,7 +103,7 @@ class ModuleAutoDiscovery:
     """
 
     @staticmethod
-    def discover(modules_package_str_path: str, app: 'App') -> None:
+    def discover(modules_package_str_path: str, app: "App") -> None:
         """
         @brief Scans the specified package and loads the IModules.
 
@@ -109,19 +115,26 @@ class ModuleAutoDiscovery:
         except ImportError as e:
             logger = app._get_logger()
             if logger:
-                logger.warning(f"Could not discover package {modules_package_str_path}: {e}")
+                logger.warning(
+                    f"Could not discover package {modules_package_str_path}: {e}"
+                )
             return
-        if not hasattr(package, '__path__'):
+        if not hasattr(package, "__path__"):
             return
         for _, name, is_pkg in pkgutil.iter_modules(package.__path__):
-            full_module_name = f'{modules_package_str_path}.{name}'
+            full_module_name = f"{modules_package_str_path}.{name}"
             try:
                 sub_package = importlib.import_module(full_module_name)
                 for _, obj in inspect.getmembers(sub_package, inspect.isclass):
-                    if issubclass(obj, IModule) and obj is not IModule and (obj is not BaseModule):
+                    if (
+                        issubclass(obj, IModule)
+                        and obj is not IModule
+                        and (obj is not BaseModule)
+                    ):
                         app.use(obj())
             except Exception:
                 pass
+
 
 class App:
     """
@@ -165,7 +178,7 @@ class App:
         @exception ModuleRegistrationError If the module does not implement IModule.
         """
         if not isinstance(module, IModule):
-            raise ModuleRegistrationError('Module must implement IModule')
+            raise ModuleRegistrationError("Module must implement IModule")
         self.modules.append(module)
         module.register(self)
 
@@ -176,13 +189,13 @@ class App:
         """
         self.pipeline.add(middleware_instance)
 
-    def _get_logger(self) -> Optional['ILogger']:
+    def _get_logger(self) -> ILogger | None:
         try:
             return self.container.resolve(ILogger)
         except DependencyResolutionError:
             return None
 
-    def boot(self, auto_discover: Optional[str]=None) -> None:
+    def boot(self, auto_discover: str | None = None) -> None:
         """
         @brief Boots the application.
 
@@ -195,16 +208,16 @@ class App:
         """
         logger = self._get_logger()
         if logger:
-            logger.info('App is booting...')
+            logger.info("App is booting...")
         if auto_discover:
             ModuleAutoDiscovery.discover(auto_discover, self)
         for module in self.modules:
             module.boot(self)
         if logger:
-            logger.info(f'App booted successfully with {len(self.modules)} modules.')
-        self.event_bus.emit('app.booted', self)
+            logger.info(f"App booted successfully with {len(self.modules)} modules.")
+        self.event_bus.emit("app.booted", self)
 
-    def execute(self, command_class: type[ICommand], input_dto: Any=None) -> Any:
+    def execute(self, command_class: type[ICommand], input_dto: Any = None) -> Any:
         """
         @brief Executes a Command through the Middleware Pipeline.
 
@@ -217,14 +230,15 @@ class App:
         """
         logger = self._get_logger()
         if logger:
-            logger.info(f'Executing command: {command_class.__name__}')
-        command = self.container.resolve(command_class) # type: ignore[var-annotated]
+            logger.info(f"Executing command: {command_class.__name__}")
+        command = self.container.resolve(command_class)  # type: ignore[var-annotated]
 
         def final() -> Any:
             return command.execute(input_dto)
+
         return self.pipeline.execute(command, input_dto, final)
 
-    def query(self, query_class: type[IQuery], input_dto: Any=None) -> Any:
+    def query(self, query_class: type[IQuery], input_dto: Any = None) -> Any:
         """
         @brief Executes a Query through the Middleware Pipeline.
 
@@ -236,9 +250,10 @@ class App:
         """
         logger = self._get_logger()
         if logger:
-            logger.info(f'Executing query: {query_class.__name__}')
-        query = self.container.resolve(query_class) # type: ignore[var-annotated]
+            logger.info(f"Executing query: {query_class.__name__}")
+        query = self.container.resolve(query_class)  # type: ignore[var-annotated]
 
         def final() -> Any:
             return query.execute(input_dto)
+
         return self.pipeline.execute(query, input_dto, final)

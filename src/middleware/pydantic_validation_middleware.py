@@ -1,4 +1,6 @@
-from typing import Any, Callable, Type, Optional
+from collections.abc import Callable
+from typing import Any
+
 from src.interfaces import IMiddleware
 
 try:
@@ -6,6 +8,7 @@ try:
 except ImportError:
     BaseModel = None
     ValidationError = None
+
 
 class PydanticValidationMiddleware(IMiddleware):
     """
@@ -29,16 +32,21 @@ class PydanticValidationMiddleware(IMiddleware):
     app.use_middleware(PydanticValidationMiddleware(MyDTO))
     @endcode
     """
+
     def __init__(self, model_class: Any) -> None:
         """
         @brief Constructor.
         @param model_class The Pydantic BaseModel class used for validation.
         """
         if BaseModel is None:
-            raise ImportError("pydantic is not installed. Please install it using `pip install pydantic`.")
+            raise ImportError(
+                "pydantic is not installed. Please install it using `pip install pydantic`."
+            )
         self.model_class = model_class
 
-    def process(self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]) -> Any:
+    def process(
+        self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]
+    ) -> Any:
         """
         @brief Validates the DTO using the provided Pydantic model.
 
@@ -57,10 +65,16 @@ class PydanticValidationMiddleware(IMiddleware):
                 validated_dto = data_transfer_obj
             else:
                 # Try to convert object attributes to dict if possible
-                dto_dict = data_transfer_obj.__dict__ if hasattr(data_transfer_obj, '__dict__') else {}
+                dto_dict = (
+                    data_transfer_obj.__dict__
+                    if hasattr(data_transfer_obj, "__dict__")
+                    else {}
+                )
                 validated_dto = self.model_class(**dto_dict)
             data_transfer_obj = validated_dto
         except ValidationError as e:
-            raise ValueError(f"Validation failed for {cmd_or_query.__class__.__name__}: {e}")
+            raise ValueError(
+                f"Validation failed for {cmd_or_query.__class__.__name__}: {e}"
+            )
 
         return next_handler()

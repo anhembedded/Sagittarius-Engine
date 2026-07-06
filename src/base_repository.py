@@ -1,9 +1,11 @@
-from typing import Generic, TypeVar, Any, List, Optional
+from typing import Any, TypeVar
+
 from src.interfaces import ISession
 
-T = TypeVar('T')
+T = TypeVar("T")
 
-class BaseRepository(Generic[T]):
+
+class BaseRepository[T]:
     """
     @brief Base generic Repository for entity CRUD operations.
 
@@ -41,35 +43,33 @@ class BaseRepository(Generic[T]):
         # Note: Depending on the underlying session type (e.g. SQLAlchemy),
         # we might need to access the underlying session object if ISession doesn't expose add.
         # Here we assume the adapter or session has an `add` method, or we use `execute`.
-        if hasattr(self.session, 'session') and hasattr(self.session.session, 'add'):
+        if hasattr(self.session, "session") and hasattr(self.session.session, "add"):
             self.session.session.add(entity)
         else:
             raise NotImplementedError("Session does not support 'add' operation.")
 
-    def get_by_id(self, entity_id: Any) -> Optional[T]:
+    def get_by_id(self, entity_id: Any) -> T | None:
         """
         @brief Retrieves an entity by its ID.
 
         @param entity_id The ID of the entity.
         @return The entity if found, otherwise None.
         """
-        if hasattr(self.session, 'session') and hasattr(self.session.session, 'get'):
+        if hasattr(self.session, "session") and hasattr(self.session.session, "get"):
             return self.session.session.get(self.entity_class, entity_id)
-        elif hasattr(self.session, 'query'):
+        if hasattr(self.session, "query"):
             # Fallback for older SQLAlchemy versions
             return self.session.query(self.entity_class).get(entity_id)
-        else:
-            raise NotImplementedError("Session does not support 'get' operation.")
+        raise NotImplementedError("Session does not support 'get' operation.")
 
-    def list_all(self) -> List[T]:
+    def list_all(self) -> list[T]:
         """
         @brief Lists all entities of this type.
         @return A list of entities.
         """
-        if hasattr(self.session, 'query'):
+        if hasattr(self.session, "query"):
             return self.session.query(self.entity_class).all()
-        else:
-            raise NotImplementedError("Session does not support 'query' operation.")
+        raise NotImplementedError("Session does not support 'query' operation.")
 
     def update(self, entity: T) -> None:
         """
@@ -78,17 +78,17 @@ class BaseRepository(Generic[T]):
         """
         # In many ORMs like SQLAlchemy, objects attached to the session are automatically updated on commit.
         # If explicit merge/update is needed:
-        if hasattr(self.session, 'session') and hasattr(self.session.session, 'merge'):
+        if hasattr(self.session, "session") and hasattr(self.session.session, "merge"):
             self.session.session.merge(entity)
         else:
-            pass # Trust session tracking
+            pass  # Trust session tracking
 
     def delete(self, entity: T) -> None:
         """
         @brief Deletes an entity.
         @param entity The entity to delete.
         """
-        if hasattr(self.session, 'session') and hasattr(self.session.session, 'delete'):
+        if hasattr(self.session, "session") and hasattr(self.session.session, "delete"):
             self.session.session.delete(entity)
         else:
             raise NotImplementedError("Session does not support 'delete' operation.")

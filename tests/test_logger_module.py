@@ -1,9 +1,9 @@
-import pytest
 from src.app_kernel import App
-from src.interfaces import ILogger, IConfig
-from src.modules.logger_module import LoggerModule
-from src.infra.std_container import StdLibContainer
 from src.infra.memory_event_bus import MemoryEventBus
+from src.infra.std_container import StdLibContainer
+from src.interfaces import IConfig, ILogger
+from src.modules.logger_module import LoggerModule
+
 
 def test_logger_module_registers_logger():
     container = StdLibContainer()
@@ -17,6 +17,7 @@ def test_logger_module_registers_logger():
     assert logger is not None
     assert hasattr(logger, "info")
 
+
 def test_logger_module_with_config():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -25,6 +26,7 @@ def test_logger_module_with_config():
     class FakeConfig(IConfig):
         def get(self, key, default=None):
             return "DEBUG" if key == "log.level" else default
+
         def set(self, key, value):
             pass
 

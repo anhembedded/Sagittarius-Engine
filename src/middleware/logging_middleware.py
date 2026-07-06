@@ -1,5 +1,8 @@
-from typing import Any, Callable
-from src.interfaces import IMiddleware, ILogger, IContainer
+from collections.abc import Callable
+from typing import Any
+
+from src.interfaces import IContainer, ILogger, IMiddleware
+
 
 class LoggingMiddleware(IMiddleware):
     """
@@ -18,6 +21,7 @@ class LoggingMiddleware(IMiddleware):
     # [LoggingMiddleware] Finished MyCommand
     @endcode
     """
+
     def __init__(self, container: IContainer):
         """
         @brief Constructor.
@@ -25,7 +29,9 @@ class LoggingMiddleware(IMiddleware):
         """
         self.container = container
 
-    def process(self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]) -> Any:
+    def process(
+        self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]
+    ) -> Any:
         """
         @brief Processes the command or query, adding logging before and after.
 
@@ -40,7 +46,7 @@ class LoggingMiddleware(IMiddleware):
             logger: ILogger = self.container.resolve(ILogger)
             logger.info(f"[LoggingMiddleware] Starting {name}")
         except Exception:
-            logger = None # type: ignore[assignment]
+            logger = None  # type: ignore[assignment]
             print(f"[LoggingMiddleware] Starting {name}")
 
         result = next_handler()

@@ -1,9 +1,7 @@
-import pytest
-import os
-import sys
 from unittest.mock import Mock
+
 from src.app_kernel import App, ModuleAutoDiscovery
-from src.base_module import BaseModule
+
 
 def test_module_auto_discovery_discover(tmp_path, monkeypatch):
     # Create a temporary directory structure for our fake modules package
@@ -46,6 +44,7 @@ class FakeModule3(BaseModule):
 
     # Now it should discover 3 modules (2 packages, 1 single file)
     assert app_mock.use.call_count == 3
+
 
 def test_module_auto_discovery_invalid_package():
     app_mock = Mock(spec=App)

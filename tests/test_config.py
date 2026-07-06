@@ -1,7 +1,7 @@
-import pytest
-import os
 import json
+
 from src.infra.config_manager import ConfigManager, DictSource, EnvSource, JsonSource
+
 
 def test_config_manager_dict_source():
     manager = ConfigManager()
@@ -11,12 +11,14 @@ def test_config_manager_dict_source():
     assert manager.get("key2") == 2
     assert manager.get("key3", "default") == "default"
 
+
 def test_config_manager_env_source(monkeypatch):
     monkeypatch.setenv("APP_CONFIG_KEY", "env_value")
     manager = ConfigManager()
     manager.add_source(EnvSource(prefix="APP_CONFIG_"))
 
     assert manager.get("KEY") == "env_value"
+
 
 def test_config_manager_json_source(tmp_path):
     config_file = tmp_path / "config.json"
@@ -27,13 +29,17 @@ def test_config_manager_json_source(tmp_path):
 
     assert manager.get("json_key") == "json_value"
 
+
 def test_config_manager_source_override():
     manager = ConfigManager()
     manager.add_source(DictSource({"shared_key": "from_dict"}))
-    manager.add_source(DictSource({"shared_key": "from_second_dict", "other_key": "other"}))
+    manager.add_source(
+        DictSource({"shared_key": "from_second_dict", "other_key": "other"})
+    )
 
     assert manager.get("shared_key") == "from_second_dict"
     assert manager.get("other_key") == "other"
+
 
 def test_config_manager_set():
     manager = ConfigManager()

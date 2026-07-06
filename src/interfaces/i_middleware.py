@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, TypeVar, Union, Optional
+from collections.abc import Callable
+from typing import Any
+
 
 class IMiddleware(ABC):
     """
@@ -20,7 +22,9 @@ class IMiddleware(ABC):
     """
 
     @abstractmethod
-    def process(self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]) -> Any:
+    def process(
+        self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]
+    ) -> Any:
         """
         @brief Processes the command or query.
 

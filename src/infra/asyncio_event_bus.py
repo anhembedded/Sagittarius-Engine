@@ -1,7 +1,10 @@
 import asyncio
 import threading
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
+
 from src.interfaces import IAsyncEventBus, ILogger
+
 
 class AsyncioEventBus(IAsyncEventBus):
     """
@@ -10,7 +13,8 @@ class AsyncioEventBus(IAsyncEventBus):
     @details Allows handlers to be standard sync functions or async coroutines.
     Handlers are awaited sequentially within the asyncio event loop.
     """
-    def __init__(self, logger: Optional[ILogger] = None) -> None:
+
+    def __init__(self, logger: ILogger | None = None) -> None:
         """
         @brief Constructor.
         @param logger Optional logger instance.
@@ -40,10 +44,14 @@ class AsyncioEventBus(IAsyncEventBus):
                     handler(data)
             except asyncio.CancelledError as e:
                 if self.logger:
-                    self.logger.error(f"Async handler cancelled for event {event_name}: {e}")
+                    self.logger.error(
+                        f"Async handler cancelled for event {event_name}: {e}"
+                    )
             except Exception as e:
                 if self.logger:
-                    self.logger.error(f"Error executing async handler for event {event_name}: {e}")
+                    self.logger.error(
+                        f"Error executing async handler for event {event_name}: {e}"
+                    )
 
     def on(self, event_name: str, handler: Callable) -> None:
         """
