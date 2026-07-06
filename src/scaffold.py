@@ -1,5 +1,6 @@
-import os
 import json
+import os
+
 
 def create_project(project_name: str, base_path: str = ".") -> None:
     """
@@ -35,8 +36,6 @@ def create_project(project_name: str, base_path: str = ".") -> None:
     config_path = os.path.join(project_dir, "config.json")
     with open(config_path, "w") as f:
         json.dump({"app_name": project_name, "version": "1.0.0"}, f, indent=4)
-
-
 
     # Create the sample Composition Root (main.py)
     main_py_content = """import sys
@@ -86,8 +85,10 @@ if __name__ == "__main__":
 
     print(f"Project '{project_name}' scaffolded successfully at '{project_dir}'.")
 
+
 if __name__ == "__main__":
     import sys
+
     if len(sys.argv) > 1:
         create_project(sys.argv[1])
     else:

@@ -1,10 +1,12 @@
 import inspect
-from typing import Any, Callable, TypeVar, Union
-
-T = TypeVar('T')
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 from src.exceptions import DependencyResolutionError
 from src.interfaces import IContainer
+
+T = TypeVar("T")
+
 
 class StdLibContainer(IContainer):
     """
@@ -35,6 +37,7 @@ class StdLibContainer(IContainer):
     command = container.resolve(CommandA)
     @endcode
     """
+
     def __init__(self) -> None:
         self._bindings: dict[type, type] = {}
         self._instances: dict[type, Any] = {}
@@ -49,7 +52,7 @@ class StdLibContainer(IContainer):
         """
         self._bindings[abstract] = concrete
 
-    def singleton(self, abstract: type, instance_or_factory: Union[Any, Callable]) -> None:
+    def singleton(self, abstract: type, instance_or_factory: Any | Callable) -> None:
         """
         @brief Registers an existing instance or a Factory function (executed once).
 
@@ -61,7 +64,7 @@ class StdLibContainer(IContainer):
         else:
             self._instances[abstract] = instance_or_factory
 
-    def resolve(self, abstract: Union[type[T], Any]) -> T:
+    def resolve(self, abstract: type[T] | Any) -> T:  # noqa: C901
         """
         @brief Resolves and retrieves an instance of the requested type.
         @details This function recursively resolves the entire dependency tree.
@@ -84,7 +87,9 @@ class StdLibContainer(IContainer):
             raise DependencyResolutionError(f"Cannot resolve {abstract}")
 
         if getattr(concrete, "__abstractmethods__", None):
-            raise DependencyResolutionError(f"Cannot instantiate abstract class {concrete}")
+            raise DependencyResolutionError(
+                f"Cannot instantiate abstract class {concrete}"
+            )
 
         if getattr(concrete, "__init__", None) is object.__init__:
             return concrete()
@@ -96,17 +101,20 @@ class StdLibContainer(IContainer):
 
         dependencies = {}
         for name, param in signature.parameters.items():
-            if name == 'self' or name == 'args' or name == 'kwargs':
+            if name == "self" or name == "args" or name == "kwargs":
                 continue
             if param.annotation == inspect.Parameter.empty:
-                raise DependencyResolutionError(f"Missing type hint for parameter '{name}' in {concrete.__name__}")
+                raise DependencyResolutionError(
+                    f"Missing type hint for parameter '{name}' in {concrete.__name__}"
+                )
             try:
                 dependencies[name] = self.resolve(param.annotation)
             except Exception as e:
                 if param.default is not inspect.Parameter.empty:
                     dependencies[name] = param.default
                 else:
-                    raise DependencyResolutionError(f"Failed to resolve \x27{name}\x27 for {concrete.__name__}: {str(e)}")
+                    raise DependencyResolutionError(
+                        f"Failed to resolve \x27{name}\x27 for {concrete.__name__}: {str(e)}"
+                    )
 
-        instance = concrete(**dependencies)
-        return instance
+        return concrete(**dependencies)

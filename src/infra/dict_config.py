@@ -1,5 +1,7 @@
 from typing import Any
+
 from src.interfaces import IConfig
+
 
 class DictConfig(IConfig):
     """
@@ -14,6 +16,7 @@ class DictConfig(IConfig):
     print(config.get("db.host"))
     @endcode
     """
+
     def __init__(self) -> None:
         """@brief Constructor."""
         self._config: dict[str, Any] = {}

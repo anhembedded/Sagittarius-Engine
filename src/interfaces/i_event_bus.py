@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, TypeVar, Union, Optional
+from collections.abc import Callable
+from typing import Any
+
 
 class IEventBus(ABC):
     """
@@ -18,7 +20,7 @@ class IEventBus(ABC):
     """
 
     @abstractmethod
-    def emit(self, event_name: str, data: Any=None) -> None:
+    def emit(self, event_name: str, data: Any = None) -> None:
         """
         @brief Publishes an event along with optional data.
 

@@ -1,28 +1,27 @@
-from typing import Any, Dict
-from src.base_module import BaseModule
+from typing import Any
+
 from src.app_kernel import App
-from src.interfaces import IQuery, IContainer, IEventBus, ISession
+from src.base_module import BaseModule
+from src.interfaces import IContainer, IEventBus, IQuery, ISession
+
 
 class HealthCheckQuery(IQuery):
     """
     @brief Query to perform a health check on the application components.
     """
+
     def __init__(self, container: IContainer, event_bus: IEventBus):
         self.container = container
         self.event_bus = event_bus
 
-    def execute(self, input_dto: Any = None) -> Dict[str, Any]:
+    def execute(self, input_dto: Any = None) -> dict[str, Any]:
         """
         @brief Executes the health check.
         @return A dictionary containing the health status of various components.
         """
-        status: Dict[str, Any] = {
+        status: dict[str, Any] = {
             "status": "healthy",
-            "components": {
-                "container": "ok",
-                "event_bus": "ok",
-                "database": "unknown"
-            }
+            "components": {"container": "ok", "event_bus": "ok", "database": "unknown"},
         }
 
         # Check Container
@@ -37,7 +36,7 @@ class HealthCheckQuery(IQuery):
             # We don't necessarily want to emit a real event if it has side effects,
             # but testing if emit is callable is a basic check.
             # Alternatively, test event_bus exists.
-            if not hasattr(self.event_bus, 'emit'):
+            if not hasattr(self.event_bus, "emit"):
                 raise ValueError("event_bus has no emit method")
         except Exception as e:
             status["components"]["event_bus"] = f"error: {str(e)}"
@@ -52,10 +51,11 @@ class HealthCheckQuery(IQuery):
                 # Using the adapter's execute method. The exact string depends on DB.
                 # "SELECT 1" is fairly universal.
                 from sqlalchemy import text
+
                 session.execute(text("SELECT 1"))
                 status["components"]["database"] = "ok"
-            except ImportError as e:
-                status["components"]["database"] = f"sqlalchemy not installed"
+            except ImportError:
+                status["components"]["database"] = "sqlalchemy not installed"
                 status["status"] = "unhealthy"
             except Exception as e:
                 status["components"]["database"] = f"error executing query: {str(e)}"
@@ -64,6 +64,7 @@ class HealthCheckQuery(IQuery):
             status["components"]["database"] = "not configured or resolving failed"
 
         return status
+
 
 class HealthModule(BaseModule):
     """
@@ -74,7 +75,9 @@ class HealthModule(BaseModule):
 
     def register(self, app: App) -> None:
         """@brief Registers the HealthCheckQuery in the container."""
-        app.container.bind(HealthCheckQuery, HealthCheckQuery)  # Use type instead of string for the key
+        app.container.bind(
+            HealthCheckQuery, HealthCheckQuery
+        )  # Use type instead of string for the key
 
     def boot(self, app: App) -> None:
         """@brief Boots the Health Module."""

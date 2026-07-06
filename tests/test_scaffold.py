@@ -1,7 +1,8 @@
-import os
 import json
-import pytest
+import os
+
 from src.scaffold import create_project
+
 
 def test_scaffold_create_project(tmp_path):
     project_name = "test_project"
@@ -15,13 +16,13 @@ def test_scaffold_create_project(tmp_path):
 
     config_path = os.path.join(project_dir, "config.json")
     assert os.path.exists(config_path)
-    with open(config_path, "r") as f:
+    with open(config_path) as f:
         config_data = json.load(f)
         assert config_data["app_name"] == project_name
         assert config_data["version"] == "1.0.0"
 
     main_path = os.path.join(project_dir, "main.py")
     assert os.path.exists(main_path)
-    with open(main_path, "r") as f:
+    with open(main_path) as f:
         content = f.read()
-        assert "app.boot(auto_discover=\"modules\")" in content
+        assert 'app.boot(auto_discover="modules")' in content

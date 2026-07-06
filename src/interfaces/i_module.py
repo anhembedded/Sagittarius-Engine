@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, TypeVar, Union, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.app_kernel import App
+
 
 class IModule(ABC):
     """
@@ -20,7 +21,7 @@ class IModule(ABC):
     """
 
     @abstractmethod
-    def register(self, app: 'App') -> None:
+    def register(self, app: "App") -> None:
         """
         @brief Called first when the module is added to the App.
         @details Used to register components (services, repositories) into the DI Container.
@@ -30,7 +31,7 @@ class IModule(ABC):
         ...
 
     @abstractmethod
-    def boot(self, app: 'App') -> None:
+    def boot(self, app: "App") -> None:
         """
         @brief Called after all modules have been registered.
         @details Used to initialize connections, register event listeners, etc.

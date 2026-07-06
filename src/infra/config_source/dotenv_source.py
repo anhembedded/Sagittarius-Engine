@@ -1,12 +1,15 @@
 import os
 from typing import Any
+
 from src.infra.config_manager import ConfigSource
 
 try:
     from dotenv import load_dotenv
+
     DOTENV_INSTALLED = True
 except ImportError:
     DOTENV_INSTALLED = False
+
 
 class DotenvSource(ConfigSource):
     """
@@ -26,6 +29,7 @@ class DotenvSource(ConfigSource):
     db_host = config.get("DB_HOST")
     @endcode
     """
+
     def __init__(self, filepath: str = ".env") -> None:
         """
         @brief Constructor.
@@ -46,22 +50,24 @@ class DotenvSource(ConfigSource):
             # but load_dotenv doesn't return a dict directly.
             # We can use dotenv_values for a dict.
             from dotenv import dotenv_values
+
             return dotenv_values(dotenv_path=self.filepath)
-        else:
-            # Fallback manual parsing
-            with open(self.filepath, 'r') as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith('#'):
-                        continue
-                    if '=' in line:
-                        k, v = line.split('=', 1)
-                        k = k.strip()
-                        v = v.strip()
-                        # Remove quotes if present
-                        if (v.startswith('"') and v.endswith('"')) or (v.startswith("'") and v.endswith("'")):
-                            v = v[1:-1]
-                        result[k] = v
-                        # Also set in os.environ for consistency
-                        os.environ[k] = v
+        # Fallback manual parsing
+        with open(self.filepath) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" in line:
+                    k, v = line.split("=", 1)
+                    k = k.strip()
+                    v = v.strip()
+                    # Remove quotes if present
+                    if (v.startswith('"') and v.endswith('"')) or (
+                        v.startswith("'") and v.endswith("'")
+                    ):
+                        v = v[1:-1]
+                    result[k] = v
+                    # Also set in os.environ for consistency
+                    os.environ[k] = v
         return result

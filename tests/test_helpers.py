@@ -1,6 +1,7 @@
 import pytest
 from tests.helpers import assert_event_emitted
 
+
 def test_helpers_assert_event_emitted(event_bus):
     event_bus.emit("test_event_1", {"data": 1})
     event_bus.emit("test_event_2", {"data": 2})

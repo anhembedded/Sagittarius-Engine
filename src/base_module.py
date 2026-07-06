@@ -1,13 +1,10 @@
-from abc import ABC, abstractmethod
-from typing import Any, Callable, TypeVar, Union, Optional, TYPE_CHECKING
-import inspect
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.app_kernel import App
-import pkgutil
-import importlib
 
 from src.interfaces.i_module import IModule
+
 
 class BaseModule(IModule):
     """
@@ -16,8 +13,8 @@ class BaseModule(IModule):
     This allows child modules to skip defining both methods if they are not needed.
     """
 
-    def register(self, app: 'App') -> None:
+    def register(self, app: "App") -> None:
         pass
 
-    def boot(self, app: 'App') -> None:
+    def boot(self, app: "App") -> None:
         pass

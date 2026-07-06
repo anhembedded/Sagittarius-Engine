@@ -1,7 +1,8 @@
-import pytest
 from unittest.mock import Mock
-from src.infra.resilient_event_bus import ResilientEventBus
+
 from src.infra.memory_event_bus import MemoryEventBus
+from src.infra.resilient_event_bus import ResilientEventBus
+
 
 def test_resilient_event_bus_success():
     inner_bus = MemoryEventBus()
@@ -14,11 +15,13 @@ def test_resilient_event_bus_success():
     handler.assert_called_once_with("data")
     assert len(bus.get_dlq()) == 0
 
+
 def test_resilient_event_bus_retry_success():
     inner_bus = MemoryEventBus()
     bus = ResilientEventBus(inner_bus, max_retries=2)
 
     attempts = 0
+
     def flaky_handler(data):
         nonlocal attempts
         attempts += 1
@@ -31,11 +34,13 @@ def test_resilient_event_bus_retry_success():
     assert attempts == 2
     assert len(bus.get_dlq()) == 0
 
+
 def test_resilient_event_bus_fails_to_dlq():
     inner_bus = MemoryEventBus()
     bus = ResilientEventBus(inner_bus, max_retries=2)
 
     attempts = 0
+
     def failing_handler(data):
         nonlocal attempts
         attempts += 1
@@ -53,11 +58,13 @@ def test_resilient_event_bus_fails_to_dlq():
     assert dlq[0][2] == failing_handler
     assert isinstance(dlq[0][3], ValueError)
 
+
 def test_resilient_event_bus_reprocess():
     inner_bus = MemoryEventBus()
     bus = ResilientEventBus(inner_bus, max_retries=1)
 
     fail = True
+
     def conditional_handler(data):
         if fail:
             raise ValueError("Error")

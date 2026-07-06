@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 
+
 class IDomainEvent(ABC):
     """
     @brief Interface for domain events in the application.

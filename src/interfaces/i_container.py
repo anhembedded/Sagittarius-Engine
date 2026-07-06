@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, TypeVar, Union, Optional
+from collections.abc import Callable
+from typing import Any, TypeVar
 
-T = TypeVar('T', bound=Any)
+T = TypeVar("T", bound=Any)
+
 
 class IContainer(ABC):
     """
@@ -33,7 +35,7 @@ class IContainer(ABC):
         ...
 
     @abstractmethod
-    def singleton(self, abstract: type, instance_or_factory: Union[Any, Callable]) -> None:
+    def singleton(self, abstract: type, instance_or_factory: Any | Callable) -> None:
         """
         @brief Registers a Singleton.
         @details The instance is created once and reused for all subsequent resolve requests.
@@ -44,7 +46,7 @@ class IContainer(ABC):
         ...
 
     @abstractmethod
-    def resolve(self, abstract: Union[type[T], Any]) -> T:
+    def resolve(self, abstract: type[T] | Any) -> T:
         """
         @brief Resolves and returns an instance of the requested type.
 

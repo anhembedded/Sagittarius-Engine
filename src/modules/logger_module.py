@@ -1,7 +1,8 @@
-from src.base_module import BaseModule
 from src.app_kernel import App
-from src.interfaces import ILogger, IConfig
+from src.base_module import BaseModule
 from src.infra.std_logger import StdLogger
+from src.interfaces import IConfig, ILogger
+
 
 class LoggerModule(BaseModule):
     def register(self, app: App) -> None:
@@ -9,7 +10,7 @@ class LoggerModule(BaseModule):
         try:
             config: IConfig = app.container.resolve(IConfig)
         except Exception:
-            config = None # type: ignore[assignment]
+            config = None  # type: ignore[assignment]
 
         logger_instance = StdLogger(config)
         app.container.singleton(ILogger, logger_instance)

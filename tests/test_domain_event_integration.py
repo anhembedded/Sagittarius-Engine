@@ -1,12 +1,13 @@
-import pytest
-from src.interfaces import IDomainEvent, IEventBus
 from src.base_event import BaseEvent
 from src.infra.memory_event_bus import MemoryEventBus
+from src.interfaces import IDomainEvent
+
 
 class CustomDomainEvent(BaseEvent):
     def __init__(self, payload: str):
         super().__init__()
         self.payload = payload
+
 
 def test_event_bus_routes_domain_event():
     event_bus = MemoryEventBus()
@@ -23,8 +24,8 @@ def test_event_bus_routes_domain_event():
 
     # Assert event implements interface
     assert isinstance(event, IDomainEvent)
-    assert hasattr(event, 'event_id')
-    assert hasattr(event, 'occurred_on')
+    assert hasattr(event, "event_id")
+    assert hasattr(event, "occurred_on")
 
     # Emit event through bus passing event object as data payload
     event_bus.emit("custom.domain.event", event)

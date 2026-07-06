@@ -1,12 +1,13 @@
-from typing import Union
 from src.interfaces import IFileStorage
 
 try:
-    from azure.storage.blob import BlobServiceClient
     from azure.core.exceptions import ResourceNotFoundError
+    from azure.storage.blob import BlobServiceClient
+
     AZURE_INSTALLED = True
 except ImportError:
     AZURE_INSTALLED = False
+
 
 class AzureBlobStorage(IFileStorage):
     """
@@ -23,20 +24,26 @@ class AzureBlobStorage(IFileStorage):
         @param container_name The name of the Blob container.
         """
         if not AZURE_INSTALLED:
-            raise ImportError("azure-storage-blob is not installed. Please install it using `pip install azure-storage-blob`.")
+            raise ImportError(
+                "azure-storage-blob is not installed. Please install it using `pip install azure-storage-blob`."
+            )
 
-        self.blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-        self.container_client = self.blob_service_client.get_container_client(container_name)
+        self.blob_service_client = BlobServiceClient.from_connection_string(
+            connection_string
+        )
+        self.container_client = self.blob_service_client.get_container_client(
+            container_name
+        )
 
     def read(self, path: str) -> bytes:
         """@brief Reads a blob from Azure Blob Storage."""
         blob_client = self.container_client.get_blob_client(path)
         return blob_client.download_blob().readall()
 
-    def write(self, path: str, data: Union[bytes, str]) -> None:
+    def write(self, path: str, data: bytes | str) -> None:
         """@brief Writes data to Azure Blob Storage."""
         blob_client = self.container_client.get_blob_client(path)
-        body = data.encode('utf-8') if isinstance(data, str) else data
+        body = data.encode("utf-8") if isinstance(data, str) else data
         blob_client.upload_blob(body, overwrite=True)
 
     def delete(self, path: str) -> None:

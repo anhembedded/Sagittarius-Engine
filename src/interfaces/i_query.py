@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, TypeVar, Union, Optional
+from typing import Any
+
 
 class IQuery(ABC):
     """

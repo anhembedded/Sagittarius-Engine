@@ -1,5 +1,8 @@
-from typing import Any, Callable, List, Tuple, Optional
+from collections.abc import Callable
+from typing import Any
+
 from src.interfaces import IEventBus, ILogger
+
 
 class ResilientEventBus(IEventBus):
     """
@@ -25,7 +28,10 @@ class ResilientEventBus(IEventBus):
     safe_bus.reprocess()
     @endcode
     """
-    def __init__(self, inner_bus: IEventBus, max_retries: int = 3, logger: Optional[ILogger] = None) -> None:
+
+    def __init__(
+        self, inner_bus: IEventBus, max_retries: int = 3, logger: ILogger | None = None
+    ) -> None:
         """
         @brief Constructor.
 
@@ -35,7 +41,7 @@ class ResilientEventBus(IEventBus):
         """
         self.inner_bus = inner_bus
         self.max_retries = max_retries
-        self._dlq: List[Tuple[str, Any, Callable, Exception]] = []
+        self._dlq: list[tuple[str, Any, Callable, Exception]] = []
         self.logger = logger
 
         self._handlers: dict[str, list[Callable]] = {}
@@ -48,14 +54,14 @@ class ResilientEventBus(IEventBus):
         @param data The data payload.
         """
         if self.logger:
-            self.logger.info(f"Emitting resilient event: {event_name} with data: {data}")
+            self.logger.info(
+                f"Emitting resilient event: {event_name} with data: {data}"
+            )
 
         for handler in self._handlers.get(event_name, []):
-            success = False
             for attempt in range(self.max_retries + 1):
                 try:
                     handler(data)
-                    success = True
                     break
                 except Exception as e:
                     if attempt == self.max_retries:
@@ -85,7 +91,7 @@ class ResilientEventBus(IEventBus):
             self._handlers[event_name].remove(handler)
         self.inner_bus.off(event_name, handler)
 
-    def get_dlq(self) -> List[Tuple[str, Any, Callable, Exception]]:
+    def get_dlq(self) -> list[tuple[str, Any, Callable, Exception]]:
         """
         @brief Retrieves the Dead Letter Queue.
         @return A list of failed events stored in the DLQ.
@@ -99,11 +105,9 @@ class ResilientEventBus(IEventBus):
         current_dlq = self._dlq
         self._dlq = []
         for event_name, data, handler, _ in current_dlq:
-            success = False
             for attempt in range(self.max_retries + 1):
                 try:
                     handler(data)
-                    success = True
                     break
                 except Exception as e:
                     if attempt == self.max_retries:

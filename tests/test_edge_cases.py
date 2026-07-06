@@ -1,38 +1,46 @@
-import pytest
+import abc
 import asyncio
 import time
-import os
-import abc
+from typing import Any
 from unittest.mock import MagicMock, patch
-from typing import Optional, Dict, Any
 
-from src.interfaces import (
-    ICommand, IQuery, IModule, IContainer, IEventBus, IMiddleware,
-    IConfig, ILogger, ISession
-)
-from src.base_event import BaseEvent
-from src.app_kernel import App, MiddlewarePipeline, ModuleAutoDiscovery
-from src.infra.std_container import StdLibContainer
-from src.infra.memory_event_bus import MemoryEventBus
-from src.infra.thread_pool_event_bus import ThreadPoolEventBus
+import pytest
+
+from src.app_kernel import App, MiddlewarePipeline
+from src.exceptions import DependencyResolutionError
 from src.infra.asyncio_event_bus import AsyncioEventBus
-from src.infra.resilient_event_bus import ResilientEventBus
 from src.infra.config_manager import ConfigManager, JsonSource
-from src.modules.health_module import HealthModule, HealthCheckQuery
-from src.exceptions import DependencyResolutionError, ModuleRegistrationError
+from src.infra.memory_event_bus import MemoryEventBus
+from src.infra.resilient_event_bus import ResilientEventBus
+from src.infra.std_container import StdLibContainer
+from src.infra.thread_pool_event_bus import ThreadPoolEventBus
+from src.interfaces import (
+    ICommand,
+    IContainer,
+    IEventBus,
+    ILogger,
+    IMiddleware,
+    IModule,
+    ISession,
+)
+from src.modules.health_module import HealthCheckQuery, HealthModule
+
 
 # --- Fixtures ---
 @pytest.fixture
 def container():
     return StdLibContainer()
 
+
 @pytest.fixture
 def event_bus():
     return MemoryEventBus()
 
+
 @pytest.fixture
 def logger():
     return MagicMock(spec=ILogger)
+
 
 @pytest.fixture
 def app(container, event_bus, logger):
@@ -43,7 +51,10 @@ def app(container, event_bus, logger):
 
 # --- 1. Container Edge Cases ---
 
-def test_container__resolve_unbound_interface__raises_dependency_resolution_error(container):
+
+def test_container__resolve_unbound_interface__raises_dependency_resolution_error(
+    container,
+):
     class IUnboundInterface(abc.ABC):
         @abc.abstractmethod
         def do_something(self):
@@ -52,8 +63,12 @@ def test_container__resolve_unbound_interface__raises_dependency_resolution_erro
     with pytest.raises(DependencyResolutionError):
         container.resolve(IUnboundInterface)
 
-def test_container__factory_raises_exception__raises_dependency_resolution_error(container):
-    class MyClass: pass
+
+def test_container__factory_raises_exception__raises_dependency_resolution_error(
+    container,
+):
+    class MyClass:
+        pass
 
     def bad_factory(c):
         raise ValueError("Factory failed")
@@ -63,11 +78,14 @@ def test_container__factory_raises_exception__raises_dependency_resolution_error
     with pytest.raises((DependencyResolutionError, ValueError)) as excinfo:
         container.resolve(MyClass)
 
-    assert "Factory failed" in str(excinfo.value) or "DependencyResolutionError" in str(excinfo.type)
+    assert "Factory failed" in str(excinfo.value) or "DependencyResolutionError" in str(
+        excinfo.type
+    )
+
 
 def test_container__resolve_optional_parameter__uses_default(container):
     class ClassWithOptionalParam:
-        def __init__(self, param: Optional[str] = None):
+        def __init__(self, param: str | None = None):
             self.param = param
 
     container.bind("test", ClassWithOptionalParam)
@@ -78,7 +96,9 @@ def test_container__resolve_optional_parameter__uses_default(container):
     except DependencyResolutionError as e:
         pytest.fail(f"Container failed to resolve Optional parameter with default: {e}")
 
+
 # --- 2. EventBus Edge Cases ---
+
 
 def test_memory_event_bus__handler_raises_exception__others_called_and_logged(logger):
     bus = MemoryEventBus()
@@ -100,7 +120,11 @@ def test_memory_event_bus__handler_raises_exception__others_called_and_logged(lo
     handler1.assert_called_once_with(event)
     handler2.assert_called_once_with(event)
     logger.error.assert_called_once()
-    assert "Handler 1 failed" in logger.error.call_args[0][0] or "Error in handler" in logger.error.call_args[0][0]
+    assert (
+        "Handler 1 failed" in logger.error.call_args[0][0]
+        or "Error in handler" in logger.error.call_args[0][0]
+    )
+
 
 def test_resilient_event_bus__max_retries_0__goes_to_dlq(logger):
     memory_bus = MemoryEventBus()
@@ -119,7 +143,9 @@ def test_resilient_event_bus__max_retries_0__goes_to_dlq(logger):
     handler.assert_called_once_with(event)
     assert len(bus.get_dlq()) == 1
     assert bus.get_dlq()[0][0] == event
-    assert bus.get_dlq()[0][1] == event; assert isinstance(bus.get_dlq()[0][3], ValueError)
+    assert bus.get_dlq()[0][1] == event
+    assert isinstance(bus.get_dlq()[0][3], ValueError)
+
 
 def test_thread_pool_event_bus__handler_timeout__does_not_block(logger):
     bus = ThreadPoolEventBus(max_workers=2)
@@ -144,6 +170,7 @@ def test_thread_pool_event_bus__handler_timeout__does_not_block(logger):
     time.sleep(0.1)
     fast_handler.assert_called_once_with(event)
 
+
 @pytest.mark.asyncio
 async def test_asyncio_event_bus__handler_cancelled__does_not_crash(logger):
     bus = AsyncioEventBus()
@@ -156,6 +183,7 @@ async def test_asyncio_event_bus__handler_cancelled__does_not_crash(logger):
 
     async def good_handler(e):
         good_handler.called = True
+
     good_handler.called = False
 
     bus.on("test.event", cancelled_handler)
@@ -172,15 +200,19 @@ async def test_asyncio_event_bus__handler_cancelled__does_not_crash(logger):
 
 # --- 3. MiddlewarePipeline Edge Cases ---
 
+
 def test_middleware__raises_before_next__propagates_and_handler_not_called(app):
     class ThrowBeforeMiddleware(IMiddleware):
-        def process(self, command: Any, data_transfer_obj: Any, next_handler: Any) -> Any:
+        def process(
+            self, command: Any, data_transfer_obj: Any, next_handler: Any
+        ) -> Any:
             raise ValueError("Failed before next")
 
     pipeline = MiddlewarePipeline()
     pipeline.add(ThrowBeforeMiddleware())
 
     handler_called = False
+
     def final_handler():
         nonlocal handler_called
         handler_called = True
@@ -191,16 +223,20 @@ def test_middleware__raises_before_next__propagates_and_handler_not_called(app):
 
     assert not handler_called
 
+
 def test_middleware__raises_after_next__propagates_and_handler_called(app):
     class ThrowAfterMiddleware(IMiddleware):
-        def process(self, command: Any, data_transfer_obj: Any, next_handler: Any) -> Any:
-            result = next_handler()
+        def process(
+            self, command: Any, data_transfer_obj: Any, next_handler: Any
+        ) -> Any:
+            next_handler()
             raise ValueError("Failed after next")
 
     pipeline = MiddlewarePipeline()
     pipeline.add(ThrowAfterMiddleware())
 
     handler_called = False
+
     def final_handler():
         nonlocal handler_called
         handler_called = True
@@ -211,23 +247,36 @@ def test_middleware__raises_after_next__propagates_and_handler_called(app):
 
     assert handler_called
 
+
 # --- 4. App Edge Cases ---
+
 
 def test_app__execute_command_not_in_container__raises_dependency_resolution_error(app):
     class DepForUnregisteredCommand:
-        def __init__(self, not_resolvable_arg): pass
+        def __init__(self, not_resolvable_arg):
+            pass
 
     class CmdWithUnresolvedDep(ICommand):
-        def __init__(self, dep: DepForUnregisteredCommand): pass
-        def execute(self, data): pass
+        def __init__(self, dep: DepForUnregisteredCommand):
+            pass
+
+        def execute(self, data):
+            pass
 
     with pytest.raises(DependencyResolutionError):
         app.execute(CmdWithUnresolvedDep)
 
-def test_app__boot_with_nonexistent_package__does_not_crash_but_logs_warning(app, logger, capsys):
+
+def test_app__boot_with_nonexistent_package__does_not_crash_but_logs_warning(
+    app, logger, capsys
+):
     app.boot(auto_discover="non_existent_package_12345")
-    pass # the mock resolves slightly differently due to factory/singleton caching but warning is called
-    assert any("Could not discover package non_existent_package_12345" in str(call) for call in logger.mock_calls)
+    pass  # the mock resolves slightly differently due to factory/singleton caching but warning is called
+    assert any(
+        "Could not discover package non_existent_package_12345" in str(call)
+        for call in logger.mock_calls
+    )
+
 
 def test_app__boot_with_empty_module_directory__does_not_crash(app, tmp_path):
     module_dir = tmp_path / "empty_modules"
@@ -235,6 +284,7 @@ def test_app__boot_with_empty_module_directory__does_not_crash(app, tmp_path):
     (module_dir / "__init__.py").touch()
 
     import sys
+
     sys.path.insert(0, str(tmp_path))
 
     try:
@@ -243,7 +293,9 @@ def test_app__boot_with_empty_module_directory__does_not_crash(app, tmp_path):
     finally:
         sys.path.pop(0)
 
+
 # --- 5. ModuleAutoDiscovery Edge Cases ---
+
 
 def test_module_autodiscovery__syntax_error__ignores_and_does_not_crash(app, tmp_path):
     module_dir = tmp_path / "syntax_error_modules"
@@ -261,6 +313,7 @@ def test_module_autodiscovery__syntax_error__ignores_and_does_not_crash(app, tmp
         f.write("    def register(self, app): pass\n")
 
     import sys
+
     sys.path.insert(0, str(tmp_path))
 
     try:
@@ -269,6 +322,7 @@ def test_module_autodiscovery__syntax_error__ignores_and_does_not_crash(app, tmp
         assert app.modules[0].__class__.__name__ == "ValidModule"
     finally:
         sys.path.pop(0)
+
 
 def test_module_autodiscovery__import_error__ignores_and_does_not_crash(app, tmp_path):
     module_dir = tmp_path / "import_error_modules"
@@ -289,6 +343,7 @@ def test_module_autodiscovery__import_error__ignores_and_does_not_crash(app, tmp
         f.write("    def boot(self, app): pass\n")
 
     import sys
+
     sys.path.insert(0, str(tmp_path))
 
     try:
@@ -297,6 +352,7 @@ def test_module_autodiscovery__import_error__ignores_and_does_not_crash(app, tmp
         assert app.modules[0].__class__.__name__ == "ValidModule"
     finally:
         sys.path.pop(0)
+
 
 def test_module_autodiscovery__no_imodule_class__does_not_crash(app, tmp_path):
     module_dir = tmp_path / "no_module_class_modules"
@@ -308,6 +364,7 @@ def test_module_autodiscovery__no_imodule_class__does_not_crash(app, tmp_path):
         f.write("    pass\n")
 
     import sys
+
     sys.path.insert(0, str(tmp_path))
 
     try:
@@ -316,16 +373,24 @@ def test_module_autodiscovery__no_imodule_class__does_not_crash(app, tmp_path):
     finally:
         sys.path.pop(0)
 
+
 # --- 6. HealthModule Edge Cases ---
+
 
 def test_health_module__db_session_raises__returns_unhealthy(app, container, event_bus):
     module = HealthModule()
     module.register(app)
 
     class ThrowingSession(ISession):
-        def commit(self): pass
-        def rollback(self): pass
-        def query(self, *e): pass
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def query(self, *e):
+            pass
+
         def execute(self, statement, params=None):
             raise Exception("DB Connection Lost")
 
@@ -336,7 +401,6 @@ def test_health_module__db_session_raises__returns_unhealthy(app, container, eve
 
     query = container.resolve(HealthCheckQuery)
 
-    import sys
     mock_sqlalchemy = MagicMock()
     mock_sqlalchemy.text.return_value = "SELECT 1"
     with patch.dict("sys.modules", {"sqlalchemy": mock_sqlalchemy}):
@@ -346,7 +410,10 @@ def test_health_module__db_session_raises__returns_unhealthy(app, container, eve
     assert "error executing query" in status["components"]["database"]
     assert "DB Connection Lost" in status["components"]["database"]
 
-def test_health_module__no_isession_configured__returns_not_configured(app, container, event_bus):
+
+def test_health_module__no_isession_configured__returns_not_configured(
+    app, container, event_bus
+):
     module = HealthModule()
     module.register(app)
 
@@ -363,6 +430,7 @@ def test_health_module__no_isession_configured__returns_not_configured(app, cont
 
 # --- 7. Config Edge Cases ---
 
+
 def test_config__json_source_invalid_json__returns_empty_dict(tmp_path):
     invalid_json_file = tmp_path / "config.json"
     invalid_json_file.write_text("{invalid_json: 123,}")
@@ -373,9 +441,10 @@ def test_config__json_source_invalid_json__returns_empty_dict(tmp_path):
     # Requirement: `read()` trả về dict rỗng, không crash.
     assert result == {}
 
+
 def test_config__config_manager_failing_source__returns_default():
     class FailingSource:
-        def read(self) -> Dict[str, Any]:
+        def read(self) -> dict[str, Any]:
             raise Exception("Source failed to read")
 
     manager = ConfigManager()
@@ -388,16 +457,20 @@ def test_config__config_manager_failing_source__returns_default():
 
 # --- 8. PydanticValidationMiddleware Edge Cases ---
 
+
 def test_pydantic_middleware__dto_is_none__raises_exception():
     pydantic = pytest.importorskip("pydantic")
-    from src.middleware.pydantic_validation_middleware import PydanticValidationMiddleware
+    from src.middleware.pydantic_validation_middleware import (
+        PydanticValidationMiddleware,
+    )
 
     class MyDTO(pydantic.BaseModel):
         name: str
 
     middleware = PydanticValidationMiddleware(MyDTO)
 
-    class DummyCommand: pass
+    class DummyCommand:
+        pass
 
     with pytest.raises(ValueError):
         # Current logic checks `if data_transfer_obj is not None`. If it is None and the model requires it, it doesn't fail unless changed
@@ -406,15 +479,20 @@ def test_pydantic_middleware__dto_is_none__raises_exception():
         # "DTO là None → raise ValidationError hoặc exception rõ ràng."
         middleware.process(DummyCommand(), None, lambda: "ok")
 
+
 def test_pydantic_middleware__dto_missing_required_field__raises_exception():
     pydantic = pytest.importorskip("pydantic")
-    from src.middleware.pydantic_validation_middleware import PydanticValidationMiddleware
+    from src.middleware.pydantic_validation_middleware import (
+        PydanticValidationMiddleware,
+    )
 
     class MyDTO(pydantic.BaseModel):
         name: str
 
     middleware = PydanticValidationMiddleware(MyDTO)
-    class DummyCommand: pass
+
+    class DummyCommand:
+        pass
 
     with pytest.raises(ValueError, match="Validation failed"):
         middleware.process(DummyCommand(), {}, lambda: "ok")
@@ -422,9 +500,14 @@ def test_pydantic_middleware__dto_missing_required_field__raises_exception():
 
 # --- 9. Integration End-to-End Edge ---
 
-def test_integration__module_event_handler_raises__app_does_not_crash(app, container, event_bus):
+
+def test_integration__module_event_handler_raises__app_does_not_crash(
+    app, container, event_bus
+):
     class ThrowingEventHandlerModule(IModule):
-        def register(self, app): pass
+        def register(self, app):
+            pass
+
         def boot(self, app):
             app.event_bus.on("some.event", self.bad_handler)
             app.event_bus.on("some.event", self.good_handler)
@@ -444,7 +527,10 @@ def test_integration__module_event_handler_raises__app_does_not_crash(app, conta
 
     assert module.good_handler_called is True
 
-def test_integration__command_emits_event_without_handlers__does_not_crash(app, container, event_bus):
+
+def test_integration__command_emits_event_without_handlers__does_not_crash(
+    app, container, event_bus
+):
     class EventEmittingCommand(ICommand):
         def __init__(self, event_bus: IEventBus):
             self.event_bus = event_bus
@@ -458,6 +544,7 @@ def test_integration__command_emits_event_without_handlers__does_not_crash(app, 
 
     result = app.execute(EventEmittingCommand, "dummy_data")
     assert result == "success"
+
 
 # BUG REPORT
 # 1. Container (test_container__resolve_optional_parameter__uses_default): StdLibContainer did not correctly use `param.default` for unresolvable Optional type hints, leading to DependencyResolutionError instead of using the provided default value `None`. Fixed by patching `src/infra/std_container.py`.

@@ -1,13 +1,14 @@
-import pytest
 from unittest.mock import Mock
+
+import pytest
+
 from src.app_kernel import App
 from src.base_module import BaseModule
 from src.exceptions import ModuleRegistrationError
-from src.infra.std_container import StdLibContainer, DependencyResolutionError
 from src.infra.memory_event_bus import MemoryEventBus
-from src.interfaces import ICommand
-from src.interfaces import IQuery
-from src.interfaces import IEventBus
+from src.infra.std_container import DependencyResolutionError, StdLibContainer
+from src.interfaces import ICommand, IEventBus, IQuery
+
 
 def test_event_bus_emit_on_off():
     bus = MemoryEventBus()
@@ -21,6 +22,7 @@ def test_event_bus_emit_on_off():
     bus.emit("test_event", {"data": "value_2"})
     assert handler.call_count == 1  # Should not be called again
 
+
 def test_container_singleton():
     container = StdLibContainer()
 
@@ -31,6 +33,7 @@ def test_container_singleton():
     container.singleton(MyDependency, dep)
     resolved = container.resolve(MyDependency)
     assert resolved is dep
+
 
 def test_container_binding_resolution():
     container = StdLibContainer()
@@ -44,6 +47,7 @@ def test_container_binding_resolution():
     container.bind(IService, ServiceImpl)
     resolved = container.resolve(IService)
     assert isinstance(resolved, ServiceImpl)
+
 
 def test_container_auto_resolution():
     container = StdLibContainer()
@@ -59,6 +63,7 @@ def test_container_auto_resolution():
     assert isinstance(resolved, Service)
     assert isinstance(resolved.dep, Dependency)
 
+
 def test_container_missing_typehint_fails():
     container = StdLibContainer()
 
@@ -68,6 +73,7 @@ def test_container_missing_typehint_fails():
 
     with pytest.raises(DependencyResolutionError, match="Missing type hint"):
         container.resolve(BadService)
+
 
 def test_app_use_module():
     container = StdLibContainer()
@@ -86,6 +92,7 @@ def test_app_use_module():
     assert "custom" in app.container._instances
     assert app.container.resolve("custom") == "registered"
 
+
 def test_app_use_invalid_module():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -93,14 +100,16 @@ def test_app_use_invalid_module():
     with pytest.raises(ModuleRegistrationError):
         app.use(object())  # Not an IModule
 
+
 def test_app_boot():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container=container, event_bus=event_bus)
     handler = Mock()
-    app.event_bus.on('app.booted', handler)
+    app.event_bus.on("app.booted", handler)
 
     boot_mock = Mock()
+
     class MyModule(BaseModule):
         def boot(self, a: App):
             boot_mock()
@@ -110,6 +119,7 @@ def test_app_boot():
 
     boot_mock.assert_called_once()
     handler.assert_called_once_with(app)
+
 
 def test_app_execute_command():
     container = StdLibContainer()
@@ -128,6 +138,7 @@ def test_app_execute_command():
 
     result = app.execute(DummyCommand, {})
     assert result == "executed"
+
 
 def test_app_execute_query():
     container = StdLibContainer()

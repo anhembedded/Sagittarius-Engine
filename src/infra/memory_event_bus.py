@@ -1,6 +1,9 @@
 import threading
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
+
 from src.interfaces import IEventBus, ILogger
+
 
 class MemoryEventBus(IEventBus):
     """
@@ -25,7 +28,8 @@ class MemoryEventBus(IEventBus):
     bus.emit('user.registered', {'email': 'test@example.com'})
     @endcode
     """
-    def __init__(self, logger: Optional[ILogger] = None) -> None:
+
+    def __init__(self, logger: ILogger | None = None) -> None:
         """
         @brief Constructor.
         @param logger Optional logger instance.

@@ -1,41 +1,47 @@
-from tests.helpers import assert_event_emitted
+import asyncio
 import os
 import sys
-import json
-import pytest
-import asyncio
+import threading
+import time
+from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
 
-from src.interfaces import (
-    ICommand, IQuery, IModule, IEventBus, IContainer,
-    IMiddleware, ILogger, IConfig, IAsyncEventBus, IFileStorage, IMetrics, ISession
-)
-from src.app_kernel import App, MiddlewarePipeline, ModuleAutoDiscovery
-from src.base_module import BaseModule
+import pytest
+from tests.helpers import assert_event_emitted
+
+from src.app_kernel import App, MiddlewarePipeline
 from src.base_event import BaseEvent
-from src.base_repository import BaseRepository
 from src.exceptions import DependencyResolutionError, ModuleRegistrationError
-from src.infra.memory_event_bus import MemoryEventBus
-from src.infra.thread_pool_event_bus import ThreadPoolEventBus
 from src.infra.asyncio_event_bus import AsyncioEventBus
+from src.infra.config_manager import ConfigManager, DictSource, EnvSource, JsonSource
+from src.infra.config_source.dotenv_source import DotenvSource
+from src.infra.dict_config import DictConfig
+from src.infra.memory_event_bus import MemoryEventBus
 from src.infra.resilient_event_bus import ResilientEventBus
 from src.infra.std_container import StdLibContainer
 from src.infra.std_logger import StdLogger
-from src.infra.config_manager import ConfigManager, EnvSource, JsonSource, DictSource
-from src.infra.config_source.dotenv_source import DotenvSource
-from src.infra.dict_config import DictConfig
-from src.infra.local_file_storage import LocalFileStorage
-from src.infra.log_metrics import LogMetrics
-from src.middleware.logging_middleware import LoggingMiddleware
-from src.middleware.timing_middleware import TimingMiddleware
-from src.middleware.validation_middleware import ValidationMiddleware
-from src.modules.logger_module import LoggerModule
-from src.modules.database_module import DatabaseModule
-from src.modules.health_module import HealthModule, HealthCheckQuery
+from src.infra.thread_pool_event_bus import ThreadPoolEventBus
+from src.interfaces import (
+    ICommand,
+    IContainer,
+    IEventBus,
+    ILogger,
+    IMiddleware,
+    IModule,
+    IQuery,
+    ISession,
+)
+from src.modules.health_module import HealthCheckQuery, HealthModule
 
 try:
-    from src.middleware.pydantic_validation_middleware import PydanticValidationMiddleware
-    import pydantic
+    import importlib.util
+
+    has_pydantic = importlib.util.find_spec("pydantic") is not None
+
+    from src.middleware.pydantic_validation_middleware import (
+        PydanticValidationMiddleware,
+    )
+
     HAS_PYDANTIC = True
 except ImportError:
     HAS_PYDANTIC = False
@@ -44,29 +50,37 @@ except ImportError:
 # 1. Container (IContainer contract)
 # ==========================================
 
+
 class DummyInterface:
     pass
+
 
 class DummyImplementation(DummyInterface):
     pass
 
+
 class NoDependencyClass:
     pass
+
 
 class SingleDependencyClass:
     def __init__(self, dep: DummyInterface):
         self.dep = dep
 
+
 class NestedDependencyClass:
     def __init__(self, single: SingleDependencyClass):
         self.single = single
 
+
 class AbstractClass(ICommand):
     pass
+
 
 class MissingTypeHintClass:
     def __init__(self, dep):
         self.dep = dep
+
 
 def test_container__bind_and_resolve__success():
     container = StdLibContainer()
@@ -77,6 +91,7 @@ def test_container__bind_and_resolve__success():
     assert isinstance(instance2, DummyImplementation)
     assert instance1 is not instance2  # Transient binding
 
+
 def test_container__singleton_instance__returns_same_object():
     container = StdLibContainer()
     instance = DummyImplementation()
@@ -85,6 +100,7 @@ def test_container__singleton_instance__returns_same_object():
     resolved2 = container.resolve(DummyInterface)
     assert resolved1 is instance
     assert resolved2 is instance
+
 
 def test_container__singleton_factory__called_once():
     container = StdLibContainer()
@@ -103,10 +119,12 @@ def test_container__singleton_factory__called_once():
     assert resolved1 is resolved2
     assert call_count == 1
 
+
 def test_container__resolve_class_no_dependency__success():
     container = StdLibContainer()
     instance = container.resolve(NoDependencyClass)
     assert isinstance(instance, NoDependencyClass)
+
 
 def test_container__resolve_nested_dependencies__success():
     container = StdLibContainer()
@@ -117,15 +135,18 @@ def test_container__resolve_nested_dependencies__success():
     assert isinstance(instance.single, SingleDependencyClass)
     assert isinstance(instance.single.dep, DummyImplementation)
 
+
 def test_container__resolve_abstract_class__raises_error():
     container = StdLibContainer()
     with pytest.raises(DependencyResolutionError):
         container.resolve(AbstractClass)
 
+
 def test_container__resolve_missing_type_hint__raises_error():
     container = StdLibContainer()
     with pytest.raises(DependencyResolutionError):
         container.resolve(MissingTypeHintClass)
+
 
 def test_container__resolve_missing_dependency__raises_error():
     container = StdLibContainer()
@@ -142,8 +163,6 @@ def test_container__resolve_missing_dependency__raises_error():
 # 2. IEventBus contract
 # ==========================================
 
-import threading
-import time
 
 @pytest.fixture(params=["memory", "threadpool", "resilient", "asyncio"])
 def event_bus_instance(request):
@@ -156,8 +175,9 @@ def event_bus_instance(request):
     elif request.param == "asyncio":
         bus = AsyncioEventBus()
     yield bus
-    if hasattr(bus, 'shutdown'):
+    if hasattr(bus, "shutdown"):
         bus.shutdown()
+
 
 def test_event_bus__on_and_emit__handler_receives_data(event_bus_instance):
     received_data = []
@@ -176,6 +196,7 @@ def test_event_bus__on_and_emit__handler_receives_data(event_bus_instance):
     assert len(received_data) == 1
     assert received_data[0] == {"key": "value"}
 
+
 def test_event_bus__off__handler_not_called(event_bus_instance):
     received_data = []
 
@@ -192,6 +213,7 @@ def test_event_bus__off__handler_not_called(event_bus_instance):
 
     time.sleep(0.1)
     assert len(received_data) == 0
+
 
 def test_event_bus__multiple_handlers__all_called(event_bus_instance):
     received1 = []
@@ -215,11 +237,13 @@ def test_event_bus__multiple_handlers__all_called(event_bus_instance):
     assert len(received1) == 1
     assert len(received2) == 1
 
+
 def test_event_bus__emit_no_handler__no_error(event_bus_instance):
     if isinstance(event_bus_instance, AsyncioEventBus):
         asyncio.run(event_bus_instance.emit("nonexistent.event", {"data": 1}))
     else:
         event_bus_instance.emit("nonexistent.event", {"data": 1})
+
 
 def test_event_bus__emit_none_and_complex__handled(event_bus_instance):
     received = []
@@ -247,6 +271,7 @@ def test_event_bus__emit_none_and_complex__handled(event_bus_instance):
     assert received[0] is None
     assert received[1] == complex_obj
 
+
 def test_resilient_event_bus__retry_success():
     bus = ResilientEventBus(inner_bus=MemoryEventBus(), max_retries=3)
     attempts = 0
@@ -265,6 +290,7 @@ def test_resilient_event_bus__retry_success():
     assert attempts == 3
     assert success
     assert len(bus.get_dlq()) == 0
+
 
 def test_resilient_event_bus__retry_failure_to_dlq():
     bus = ResilientEventBus(inner_bus=MemoryEventBus(), max_retries=2)
@@ -285,6 +311,7 @@ def test_resilient_event_bus__retry_failure_to_dlq():
     assert dlq[0][0] == "fail.event"
     assert dlq[0][1] == {"fail": True}
 
+
 def test_resilient_event_bus__reprocess_dlq():
     bus = ResilientEventBus(inner_bus=MemoryEventBus(), max_retries=1)
     attempts = 0
@@ -292,7 +319,7 @@ def test_resilient_event_bus__reprocess_dlq():
     def handler(data):
         nonlocal attempts
         attempts += 1
-        if attempts <= 2: # Fail initial and 1 retry
+        if attempts <= 2:  # Fail initial and 1 retry
             raise Exception("Fail first time")
 
     bus.on("reprocess.event", handler)
@@ -304,6 +331,7 @@ def test_resilient_event_bus__reprocess_dlq():
     bus.reprocess()
     assert len(bus.get_dlq()) == 0
     assert attempts == 3  # Initial + 1 retry (2 attempts), then 1 success in reprocess
+
 
 def test_asyncio_event_bus__async_handler_awaited():
     bus = AsyncioEventBus()
@@ -326,6 +354,7 @@ def test_asyncio_event_bus__async_handler_awaited():
 
     assert async_received
     assert sync_received
+
 
 def test_thread_pool_event_bus__handler_error_no_crash_and_parallelism():
     bus = ThreadPoolEventBus(max_workers=2)
@@ -355,7 +384,7 @@ def test_thread_pool_event_bus__handler_error_no_crash_and_parallelism():
         lock1.acquire()
         order.append("success_start")
         success_ran = True
-        lock2.release() # Signal success handler started
+        lock2.release()  # Signal success handler started
 
     bus.on("thread.event", error_handler)
     bus.on("thread.event", success_handler)
@@ -371,9 +400,11 @@ def test_thread_pool_event_bus__handler_error_no_crash_and_parallelism():
     assert "error_start" in order
     assert "success_start" in order
 
+
 # ==========================================
 # 3. IMiddleware & MiddlewarePipeline contract
 # ==========================================
+
 
 class DummyMiddleware(IMiddleware):
     def __init__(self, name):
@@ -386,15 +417,18 @@ class DummyMiddleware(IMiddleware):
         self.calls.append(f"{self.name}_after")
         return response
 
+
 class MutatingMiddleware(IMiddleware):
     def process(self, cmd_or_query, data_transfer_obj, next_handler):
         if isinstance(data_transfer_obj, dict):
             data_transfer_obj["mutated"] = True
         return next_handler()
 
+
 class BlockingMiddleware(IMiddleware):
     def process(self, cmd_or_query, data_transfer_obj, next_handler):
         return "blocked"
+
 
 def test_middleware_pipeline__single_middleware__called_before_and_after():
     m1 = DummyMiddleware("m1")
@@ -402,6 +436,7 @@ def test_middleware_pipeline__single_middleware__called_before_and_after():
     pipeline.add(m1)
 
     handler_called = False
+
     def handler():
         nonlocal handler_called
         handler_called = True
@@ -412,6 +447,7 @@ def test_middleware_pipeline__single_middleware__called_before_and_after():
     assert result == "response"
     assert handler_called
     assert m1.calls == ["m1_before", "m1_after"]
+
 
 def test_middleware_pipeline__multiple_middlewares__correct_order():
     m1 = DummyMiddleware("m1")
@@ -430,11 +466,13 @@ def test_middleware_pipeline__multiple_middlewares__correct_order():
     # Order should be m1_before -> m2_before -> m2_after -> m1_after
     # because m1 calls next_middleware which is m2
 
+
 def test_middleware_pipeline__mutates_data():
     pipeline = MiddlewarePipeline()
     pipeline.add(MutatingMiddleware())
 
     dto_obj = {"original": True}
+
     def handler():
         return dto_obj
 
@@ -443,11 +481,13 @@ def test_middleware_pipeline__mutates_data():
     assert result["mutated"] is True
     assert result["original"] is True
 
+
 def test_middleware_pipeline__blocks_execution():
     pipeline = MiddlewarePipeline()
     pipeline.add(BlockingMiddleware())
 
     handler_called = False
+
     def handler():
         nonlocal handler_called
         handler_called = True
@@ -463,26 +503,34 @@ def test_middleware_pipeline__blocks_execution():
 # 4. App (public API)
 # ==========================================
 
+
 class DummyCommand(ICommand):
     def __init__(self):
         pass
+
     def execute(self, data_transfer_obj):
         return f"Executed cmd with {data_transfer_obj}"
+
 
 class DummyQuery(IQuery):
     def __init__(self):
         pass
+
     def execute(self, data_transfer_obj):
         return f"Executed query with {data_transfer_obj}"
+
 
 class DummyModule(IModule):
     def register(self, app):
         pass
+
     def boot(self, app):
         pass
 
+
 class InvalidModule:
     pass
+
 
 def test_app__boot_without_module__emits_booted(event_bus):
     app = App(container=StdLibContainer(), event_bus=event_bus)
@@ -490,32 +538,33 @@ def test_app__boot_without_module__emits_booted(event_bus):
 
     assert_event_emitted(event_bus, "app.booted", times=1)
 
+
 def test_app__boot_with_auto_discover__discovers_module(tmp_path, event_bus):
     # Setup mock module structure
     mod_dir = tmp_path / "my_module"
     mod_dir.mkdir()
-    (mod_dir / "__init__.py").write_text('''
+    (mod_dir / "__init__.py").write_text("""
 from src.interfaces import IModule
 class MyAutoModule(IModule):
     def register(self, app):
         pass
     def boot(self, app):
         pass
-''')
+""")
 
     app = App(container=StdLibContainer(), event_bus=event_bus)
 
     # Temporarily add tmp_path to sys.path
-    import sys
     sys.path.insert(0, str(tmp_path))
 
     try:
-        app.boot(auto_discover='my_module')
+        app.boot(auto_discover="my_module")
     finally:
         sys.path.pop(0)
 
     # If it didn't crash and booted successfully, it worked.
     assert_event_emitted(event_bus, "app.booted", times=1)
+
 
 def test_app__execute_command__resolves_and_executes():
     container = StdLibContainer()
@@ -523,6 +572,7 @@ def test_app__execute_command__resolves_and_executes():
 
     result = app.execute(DummyCommand, "data")
     assert result == "Executed cmd with data"
+
 
 def test_app__execute_command_with_middleware():
     container = StdLibContainer()
@@ -535,12 +585,14 @@ def test_app__execute_command_with_middleware():
     assert result == "Executed cmd with data"
     assert middleware.calls == ["app_mw_before", "app_mw_after"]
 
+
 def test_app__execute_query__resolves_and_executes():
     container = StdLibContainer()
     app = App(container=container, event_bus=MemoryEventBus())
 
     result = app.query(DummyQuery, "query_data")
     assert result == "Executed query with query_data"
+
 
 def test_app__use_module__registers_and_boots():
     app = App(container=StdLibContainer(), event_bus=MemoryEventBus())
@@ -556,10 +608,12 @@ def test_app__use_module__registers_and_boots():
     mod.register.assert_called_once_with(app)
     mod.boot.assert_called_once_with(app)
 
+
 def test_app__use_invalid_module__raises_error():
     app = App(container=StdLibContainer(), event_bus=MemoryEventBus())
     with pytest.raises(ModuleRegistrationError):
         app.use(InvalidModule())
+
 
 def test_app__logger_behavior_on_boot():
     # Without logger, doesn't crash during boot
@@ -587,6 +641,7 @@ def test_app__logger_behavior_on_boot():
 # 5. ILogger contract (StdLogger)
 # ==========================================
 
+
 def test_std_logger__log_levels_to_console(capsys):
     logger = StdLogger()
 
@@ -603,6 +658,7 @@ def test_std_logger__log_levels_to_console(capsys):
     assert "WARNING - warning message" in captured.out
     assert "ERROR - error message" in captured.out
     assert "DEBUG - debug message" not in captured.out
+
 
 def test_std_logger__with_config__respects_level_and_file(tmp_path):
     log_file = tmp_path / "test.log"
@@ -627,13 +683,13 @@ def test_std_logger__with_config__respects_level_and_file(tmp_path):
 # 6. IConfig contract
 # ==========================================
 
-import os
 
 def test_config__dict_config__get_set():
     config = DictConfig()
     config.set("key", "value")
     assert config.get("key") == "value"
     assert config.get("nonexistent", "default") == "default"
+
 
 def test_config__manager__loads_sources_and_overrides():
     source1 = DictSource({"a": 1, "b": 2})
@@ -649,17 +705,23 @@ def test_config__manager__loads_sources_and_overrides():
     assert manager.get("c") == 4
     assert manager.get("d", "default") == "default"
 
+
 def test_config__env_source():
     with patch.dict(os.environ, {"MY_APP_ENV_VAR": "test_value"}):
         source = EnvSource(prefix="MY_APP_")
-        data = source.read()
+        source.read()
         # the prefix is usually stripped or lowercased depending on implementation
         # Let's check how EnvSource works
         manager = ConfigManager()
         manager.add_source(source)
         # implicit load via get()
         # In typical implementations with prefix MY_APP_, it becomes 'env_var'
-        assert manager.get("ENV_VAR") == "test_value" or manager.get("MY_APP_ENV_VAR") == "test_value" or manager.get("env_var") == "test_value"
+        assert (
+            manager.get("ENV_VAR") == "test_value"
+            or manager.get("MY_APP_ENV_VAR") == "test_value"
+            or manager.get("env_var") == "test_value"
+        )
+
 
 def test_config__json_source(tmp_path):
     json_file = tmp_path / "config.json"
@@ -671,6 +733,7 @@ def test_config__json_source(tmp_path):
     # implicit load via get()
 
     assert manager.get("json_key") == "json_val"
+
 
 def test_config__dotenv_source(tmp_path):
     env_file = tmp_path / ".env"
@@ -688,12 +751,12 @@ def test_config__dotenv_source(tmp_path):
 # 7. BaseEvent contract
 # ==========================================
 
-from datetime import datetime, timezone
 
 class MyEvent(BaseEvent):
     def __init__(self, data: str):
         super().__init__()
         self.data = data
+
 
 def test_base_event__unique_id_and_recent_timestamp():
     event1 = MyEvent("d1")
@@ -702,9 +765,10 @@ def test_base_event__unique_id_and_recent_timestamp():
     assert event1.event_id != event2.event_id
 
     # Check timestamp is close to now
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     diff = now - event1.occurred_on
     assert diff.total_seconds() < 1  # Should be created within 1 second
+
 
 def test_base_event__to_dict__returns_expected_keys():
     event = MyEvent("d1")
@@ -719,41 +783,41 @@ def test_base_event__to_dict__returns_expected_keys():
 # 8. IModule & ModuleAutoDiscovery
 # ==========================================
 
+
 def test_module_auto_discovery__loads_correct_modules(tmp_path, event_bus):
     root = tmp_path / "modules_test"
     root.mkdir()
-    (root / "__init__.py").write_text('')
+    (root / "__init__.py").write_text("")
 
     # 1. Package module (directory with __init__.py)
     pkg_dir = root / "pkg_mod"
     pkg_dir.mkdir()
-    (pkg_dir / "__init__.py").write_text('''
+    (pkg_dir / "__init__.py").write_text("""
 from src.interfaces import IModule
 class PkgModule(IModule):
     def register(self, app):
         app.event_bus.emit("pkg_mod.registered", None)
     def boot(self, app):
         pass
-''')
+""")
 
     # 2. Single file module
-    (root / "single_mod.py").write_text('''
+    (root / "single_mod.py").write_text("""
 from src.interfaces import IModule
 class SingleModule(IModule):
     def register(self, app):
         app.event_bus.emit("single_mod.registered", None)
     def boot(self, app):
         pass
-''')
+""")
 
     # 3. File without module class (ignored)
-    (root / "ignored.py").write_text('''
+    (root / "ignored.py").write_text("""
 class JustAClass:
     pass
-''')
+""")
 
     # Temporarily insert root parent to sys.path
-    import sys
     sys.path.insert(0, str(tmp_path))
 
     try:
@@ -770,6 +834,7 @@ class JustAClass:
 # ==========================================
 # 9. HealthModule
 # ==========================================
+
 
 def test_health_module__without_database(event_bus):
     container = StdLibContainer()
@@ -788,6 +853,7 @@ def test_health_module__without_database(event_bus):
     assert result["components"]["event_bus"] == "ok"
     assert result["components"]["database"] == "not configured or resolving failed"
 
+
 def test_health_module__with_database(event_bus):
     container = StdLibContainer()
     container.singleton(IContainer, container)
@@ -799,11 +865,10 @@ def test_health_module__with_database(event_bus):
     # The mock session needs to have an execute method that does not raise error
     mock_session.execute.return_value = None
 
-    import sys
-    original_sa = sys.modules.get('sqlalchemy')
+    original_sa = sys.modules.get("sqlalchemy")
     mock_sa = MagicMock()
     mock_sa.text.return_value = "SELECT 1"
-    sys.modules['sqlalchemy'] = mock_sa
+    sys.modules["sqlalchemy"] = mock_sa
 
     app.container.singleton(ISession, mock_session)
 
@@ -817,14 +882,15 @@ def test_health_module__with_database(event_bus):
         assert result["components"]["database"] == "ok"
     finally:
         if original_sa is None:
-            del sys.modules['sqlalchemy']
+            del sys.modules["sqlalchemy"]
         else:
-            sys.modules['sqlalchemy'] = original_sa
+            sys.modules["sqlalchemy"] = original_sa
 
 
 # ==========================================
 # 10. PydanticValidationMiddleware
 # ==========================================
+
 
 def test_pydantic_validation_middleware__validate_success():
     pytest.importorskip("pydantic")
@@ -837,6 +903,7 @@ def test_pydantic_validation_middleware__validate_success():
     middleware = PydanticValidationMiddleware(MyDTO)
 
     handler_called = False
+
     def final_handler():
         nonlocal handler_called
         handler_called = True
@@ -850,6 +917,7 @@ def test_pydantic_validation_middleware__validate_success():
     assert result == "ok"
     assert handler_called
 
+
 def test_pydantic_validation_middleware__validate_failure_blocks_execution():
     pytest.importorskip("pydantic")
     from pydantic import BaseModel
@@ -861,13 +929,14 @@ def test_pydantic_validation_middleware__validate_failure_blocks_execution():
     middleware = PydanticValidationMiddleware(MyDTO)
 
     handler_called = False
+
     def final_handler():
         nonlocal handler_called
         handler_called = True
         return "ok"
 
     # invalid input data_transfer_obj
-    data_transfer_obj = {"name": "Test"} # missing age
+    data_transfer_obj = {"name": "Test"}  # missing age
 
     with pytest.raises(ValueError, match="Validation failed"):
         middleware.process(DummyCommand(), data_transfer_obj, final_handler)
@@ -878,6 +947,7 @@ def test_pydantic_validation_middleware__validate_failure_blocks_execution():
 # ==========================================
 # 11. Integration End-to-End
 # ==========================================
+
 
 def test_integration__end_to_end_flow():
     # Setup Container and EventBus
@@ -900,8 +970,8 @@ def test_integration__end_to_end_flow():
     class MiniAppModule(IModule):
         def register(self, app):
             # Register Command and Query
-            app.container.bind('mini.command', MiniCommand)
-            app.container.bind('mini.query', MiniQuery)
+            app.container.bind("mini.command", MiniCommand)
+            app.container.bind("mini.query", MiniQuery)
 
             # Subscribe to event
             app.event_bus.on("mini.event", self.handle_mini_event)

@@ -1,7 +1,7 @@
 import os
-import shutil
-from typing import Union
+
 from src.interfaces import IFileStorage
+
 
 class LocalFileStorage(IFileStorage):
     """
@@ -21,14 +21,14 @@ class LocalFileStorage(IFileStorage):
     def read(self, path: str) -> bytes:
         """@brief Reads a file from local storage."""
         full_path = self._get_full_path(path)
-        with open(full_path, 'rb') as f:
+        with open(full_path, "rb") as f:
             return f.read()
 
-    def write(self, path: str, data: Union[bytes, str]) -> None:
+    def write(self, path: str, data: bytes | str) -> None:
         """@brief Writes data to local storage. Creates directories if necessary."""
         full_path = self._get_full_path(path)
         os.makedirs(os.path.dirname(full_path), exist_ok=True)
-        mode = 'wb' if isinstance(data, bytes) else 'w'
+        mode = "wb" if isinstance(data, bytes) else "w"
         with open(full_path, mode) as f:
             f.write(data)
 

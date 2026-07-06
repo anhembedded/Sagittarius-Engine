@@ -1,5 +1,8 @@
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
+
 from src.interfaces import IMiddleware
+
 
 class ValidationMiddleware(IMiddleware):
     """
@@ -16,7 +19,10 @@ class ValidationMiddleware(IMiddleware):
     # If app.execute(MyCommand, input_dto=None) is called, the Middleware will issue a warning.
     @endcode
     """
-    def process(self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]) -> Any:
+
+    def process(
+        self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]
+    ) -> Any:
         """
         @brief Processes the command or query, validating the input DTO.
 
@@ -25,7 +31,9 @@ class ValidationMiddleware(IMiddleware):
         @param next_handler The next middleware or the final execution function.
         @return The result of the operation.
         """
-        print(f"[ValidationMiddleware] Validating DTO for {cmd_or_query.__class__.__name__}")
+        print(
+            f"[ValidationMiddleware] Validating DTO for {cmd_or_query.__class__.__name__}"
+        )
         if data_transfer_obj is None:
             print("[ValidationMiddleware] Warning: DTO is None!")
         return next_handler()

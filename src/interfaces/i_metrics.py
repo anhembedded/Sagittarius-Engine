@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Dict
+
 
 class IMetrics(ABC):
     """
@@ -9,7 +9,9 @@ class IMetrics(ABC):
     """
 
     @abstractmethod
-    def increment_counter(self, name: str, value: int = 1, tags: Optional[Dict[str, str]] = None) -> None:
+    def increment_counter(
+        self, name: str, value: int = 1, tags: dict[str, str] | None = None
+    ) -> None:
         """
         @brief Increments a counter metric.
 
@@ -20,7 +22,9 @@ class IMetrics(ABC):
         ...
 
     @abstractmethod
-    def record_timing(self, name: str, duration_ms: float, tags: Optional[Dict[str, str]] = None) -> None:
+    def record_timing(
+        self, name: str, duration_ms: float, tags: dict[str, str] | None = None
+    ) -> None:
         """
         @brief Records a timing/duration metric.
 
@@ -31,7 +35,9 @@ class IMetrics(ABC):
         ...
 
     @abstractmethod
-    def set_gauge(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
+    def set_gauge(
+        self, name: str, value: float, tags: dict[str, str] | None = None
+    ) -> None:
         """
         @brief Sets a gauge metric to a specific value.
 

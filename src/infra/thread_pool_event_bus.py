@@ -1,7 +1,10 @@
 import concurrent.futures
-from typing import Any, Callable, Optional
-from src.interfaces import IEventBus, ILogger
+from collections.abc import Callable
+from typing import Any
+
 from src.infra.memory_event_bus import MemoryEventBus
+from src.interfaces import IEventBus, ILogger
+
 
 class ThreadPoolEventBus(IEventBus):
     """
@@ -10,13 +13,16 @@ class ThreadPoolEventBus(IEventBus):
     @details Internally uses a thread-safe MemoryEventBus to manage handlers.
     When an event is emitted, handlers are submitted to a thread pool for execution.
     """
-    def __init__(self, max_workers: int = 4, logger: Optional[ILogger] = None) -> None:
+
+    def __init__(self, max_workers: int = 4, logger: ILogger | None = None) -> None:
         """
         @brief Constructor.
         @param max_workers Maximum number of threads in the pool.
         @param logger Optional logger instance.
         """
-        self._inner_bus = MemoryEventBus(logger=None) # We will manage logging locally for the pool
+        self._inner_bus = MemoryEventBus(
+            logger=None
+        )  # We will manage logging locally for the pool
         self._executor = concurrent.futures.ThreadPoolExecutor(max_workers=max_workers)
         self.logger = logger
 
@@ -28,7 +34,9 @@ class ThreadPoolEventBus(IEventBus):
         @param data The data payload.
         """
         if self.logger:
-            self.logger.info(f"Emitting event: {event_name} to ThreadPoolEventBus with data: {data}")
+            self.logger.info(
+                f"Emitting event: {event_name} to ThreadPoolEventBus with data: {data}"
+            )
 
         # Snapshot handlers using inner bus lock
         with self._inner_bus._lock:
@@ -39,12 +47,16 @@ class ThreadPoolEventBus(IEventBus):
             futures.append(self._executor.submit(handler, data))
 
         for future in futures:
+
             def _log_error(f, event=event_name):
                 try:
                     f.result()
                 except Exception as exc:
                     if self.logger:
-                        self.logger.error(f"Error executing handler for event {event}: {exc}")
+                        self.logger.error(
+                            f"Error executing handler for event {event}: {exc}"
+                        )
+
             future.add_done_callback(_log_error)
 
     def on(self, event_name: str, handler: Callable) -> None:

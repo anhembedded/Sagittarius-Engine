@@ -1,6 +1,9 @@
 import asyncio
+
 import pytest
+
 from src.infra.asyncio_event_bus import AsyncioEventBus
+
 
 @pytest.mark.asyncio
 async def test_asyncio_event_bus_mixed_handlers():
@@ -14,13 +17,14 @@ async def test_asyncio_event_bus_mixed_handlers():
     def sync_handler(data):
         results.append(f"sync: {data}")
 
-    bus.on('test.event', async_handler)
-    bus.on('test.event', sync_handler)
+    bus.on("test.event", async_handler)
+    bus.on("test.event", sync_handler)
 
-    await bus.emit('test.event', 'payload')
+    await bus.emit("test.event", "payload")
 
     # Ensure both handlers executed successfully sequentially
     assert results == ["async: payload", "sync: payload"]
+
 
 @pytest.mark.asyncio
 async def test_asyncio_event_bus_exception_handling():
@@ -36,15 +40,16 @@ async def test_asyncio_event_bus_exception_handling():
     def successful_handler(data):
         results.append(f"success: {data}")
 
-    bus.on('test.event', failing_async_handler)
-    bus.on('test.event', failing_sync_handler)
-    bus.on('test.event', successful_handler)
+    bus.on("test.event", failing_async_handler)
+    bus.on("test.event", failing_sync_handler)
+    bus.on("test.event", successful_handler)
 
     # Should not raise exception
-    await bus.emit('test.event', 'payload')
+    await bus.emit("test.event", "payload")
 
     # The successful handler should still run since exceptions are caught
     assert results == ["success: payload"]
+
 
 @pytest.mark.asyncio
 async def test_asyncio_event_bus_on_off():
@@ -54,10 +59,10 @@ async def test_asyncio_event_bus_on_off():
     async def handler(data):
         results.append(data)
 
-    bus.on('test.event', handler)
-    await bus.emit('test.event', 'data1')
-    assert results == ['data1']
+    bus.on("test.event", handler)
+    await bus.emit("test.event", "data1")
+    assert results == ["data1"]
 
-    bus.off('test.event', handler)
-    await bus.emit('test.event', 'data2')
-    assert results == ['data1']
+    bus.off("test.event", handler)
+    await bus.emit("test.event", "data2")
+    assert results == ["data1"]
