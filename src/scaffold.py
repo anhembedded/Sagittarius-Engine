@@ -51,8 +51,6 @@ from src.modules.logger_module import LoggerModule
 from src.modules.database_module import DatabaseModule
 from src.modules.health_module import HealthModule
 
-from src.hot_reloader import HotReloader
-
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -80,9 +78,6 @@ def main():
         print(f"Error booting application: {e}")
 
 if __name__ == "__main__":
-    if "--watch" in sys.argv:
-        reloader = HotReloader(["domain", "application", "infrastructure", "adapters", "modules", "main.py"])
-        reloader.start()
     main()
 """
     main_path = os.path.join(project_dir, "main.py")

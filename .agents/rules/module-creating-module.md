@@ -38,7 +38,6 @@ Sagittarius_ForkBoy/
 │   ├── base_event.py        # BaseEvent (event metadata)
 │   ├── base_repository.py   # BaseRepository (generic CRUD)
 │   ├── exceptions.py        # DependencyResolutionError, ModuleRegistrationError
-│   ├── hot_reloader.py      # HotReloader (dev mode)
 │   ├── scaffold.py          # New project generator
 │   ├── infra/               # Infrastructure implementations
 │   │   ├── std_container.py
