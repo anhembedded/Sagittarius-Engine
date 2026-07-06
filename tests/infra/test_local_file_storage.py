@@ -32,11 +32,7 @@ def test_local_file_storage__read_write_valid_path__success(storage, base_dir):
 
     # Read data
     read_data = storage.read(test_path)
-    # The file is opened with mode 'w' so we expect str if we wrote str,
-    # wait, the write mode is "w" but read is "rb", let's write bytes to be safe
-
-    storage.write(test_path, data.encode('utf-8'))
-    assert storage.read(test_path) == data.encode('utf-8')
+    assert read_data == data.encode('utf-8')
 
     # Delete data
     storage.delete(test_path)
