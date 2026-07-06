@@ -16,7 +16,7 @@ class HealthCheckQuery(IQuery):
         @brief Executes the health check.
         @return A dictionary containing the health status of various components.
         """
-        status = {
+        status: Dict[str, Any] = {
             "status": "healthy",
             "components": {
                 "container": "ok",
@@ -45,7 +45,7 @@ class HealthCheckQuery(IQuery):
 
         # Check Database
         try:
-            session = self.container.resolve(ISession)
+            session: ISession = self.container.resolve(ISession)
             # Try a simple query
             try:
                 # E.g., for SQLAlchemy: execute("SELECT 1")
@@ -74,7 +74,7 @@ class HealthModule(BaseModule):
 
     def register(self, app: App) -> None:
         """@brief Registers the HealthCheckQuery in the container."""
-        app.container.bind('health.check', HealthCheckQuery)
+        app.container.bind(HealthCheckQuery, HealthCheckQuery)  # Use type instead of string for the key
 
     def boot(self, app: App) -> None:
         """@brief Boots the Health Module."""

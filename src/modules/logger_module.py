@@ -7,9 +7,9 @@ class LoggerModule(BaseModule):
     def register(self, app: App) -> None:
         # Check if config is registered in container to pass to StdLogger
         try:
-            config = app.container.resolve(IConfig)
+            config: IConfig = app.container.resolve(IConfig)
         except Exception:
-            config = None
+            config = None # type: ignore[assignment]
 
         logger_instance = StdLogger(config)
         app.container.singleton(ILogger, logger_instance)

@@ -37,10 +37,10 @@ class LoggingMiddleware(IMiddleware):
         name = cmd_or_query.__class__.__name__
 
         try:
-            logger = self.container.resolve(ILogger)
+            logger: ILogger = self.container.resolve(ILogger)
             logger.info(f"[LoggingMiddleware] Starting {name}")
         except Exception:
-            logger = None
+            logger = None # type: ignore[assignment]
             print(f"[LoggingMiddleware] Starting {name}")
 
         result = next_handler()
