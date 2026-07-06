@@ -35,7 +35,6 @@ python main.py
 ```
 
 ## Implementation Notes
-- The generated `main.py` automatically includes `HotReloader` setup for developer convenience if the `--watch` flag is passed.
 - It automatically creates `domain/`, `application/`, `infrastructure/`, `adapters/`, and `modules/` directories.
 
 ## Related Documents
