@@ -7,7 +7,6 @@ from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
-from tests.helpers import assert_event_emitted
 
 from src.app_kernel import App, MiddlewarePipeline
 from src.base_event import BaseEvent
@@ -32,6 +31,7 @@ from src.interfaces import (
     ISession,
 )
 from src.modules.health_module import HealthCheckQuery, HealthModule
+from tests.helpers import assert_event_emitted
 
 try:
     import importlib.util

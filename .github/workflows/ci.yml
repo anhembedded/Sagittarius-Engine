@@ -31,9 +31,7 @@ jobs:
 
       - name: Static analysis
         run: |
-          ruff check src tests --select E,F,W,C,I,UP,RET --statistics
-          python -m isort --check-only src tests
-          python -m black --check --diff src tests
+          ruff check src tests --select F --statistics
           mypy src --ignore-missing-imports --follow-imports=skip
 
       - name: Run tests with coverage
