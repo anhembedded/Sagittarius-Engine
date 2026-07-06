@@ -25,10 +25,18 @@ def test_base_repository():
     mock_session.session.get.return_value = entity
     assert repo.get_by_id(1) == entity
 
+    # get_by_id branch 1 - not found
+    mock_session.session.get.return_value = None
+    assert repo.get_by_id(999) is None
+
     # get_by_id branch 2
     del mock_session.session
     mock_session.query.return_value.get.return_value = entity
     assert repo.get_by_id(1) == entity
+
+    # get_by_id branch 2 - not found
+    mock_session.query.return_value.get.return_value = None
+    assert repo.get_by_id(999) is None
 
     # add branch 1
     mock_session = MagicMock()
