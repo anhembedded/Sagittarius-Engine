@@ -1,5 +1,7 @@
 import abc
 import asyncio
+import importlib
+import sys
 import time
 from typing import Any
 from unittest.mock import MagicMock, patch
@@ -468,6 +470,21 @@ def test_config__config_manager_failing_source__returns_default():
 
 
 # --- 8. PydanticValidationMiddleware Edge Cases ---
+
+
+def test_pydantic_middleware__missing_pydantic__raises_import_error():
+    from src.middleware import pydantic_validation_middleware
+
+    with patch.dict(sys.modules, {"pydantic": None}):
+        importlib.reload(pydantic_validation_middleware)
+        with pytest.raises(
+            ImportError,
+            match="pydantic is not installed. Please install it using `pip install pydantic`.",
+        ):
+            pydantic_validation_middleware.PydanticValidationMiddleware(None)
+
+    # Restore the module state for subsequent tests
+    importlib.reload(pydantic_validation_middleware)
 
 
 def test_pydantic_middleware__dto_is_none__raises_exception():
