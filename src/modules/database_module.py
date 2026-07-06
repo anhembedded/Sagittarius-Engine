@@ -58,7 +58,7 @@ class DatabaseModule(BaseModule):
             return
 
         try:
-            config = app.container.resolve(IConfig)
+            config: IConfig = app.container.resolve(IConfig)
             db_url = config.get("database.url", "sqlite:///:memory:")
         except Exception:
             db_url = "sqlite:///:memory:"

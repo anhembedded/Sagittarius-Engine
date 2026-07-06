@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Callable, TypeVar, Union, Optional
 
-T = TypeVar('T')
+T = TypeVar('T', bound=Any)
 
 class IContainer(ABC):
     """
@@ -44,7 +44,7 @@ class IContainer(ABC):
         ...
 
     @abstractmethod
-    def resolve(self, abstract: type[T]) -> T:
+    def resolve(self, abstract: Union[type[T], Any]) -> T:
         """
         @brief Resolves and returns an instance of the requested type.
 

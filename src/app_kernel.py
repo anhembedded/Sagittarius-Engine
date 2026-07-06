@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, TypeVar, Union, Optional
+from typing import Any, Callable, TypeVar, Union, Optional, List
 import inspect
 import pkgutil
 import importlib
@@ -218,7 +218,7 @@ class App:
         logger = self._get_logger()
         if logger:
             logger.info(f'Executing command: {command_class.__name__}')
-        command = self.container.resolve(command_class)
+        command = self.container.resolve(command_class) # type: ignore[var-annotated]
 
         def final() -> Any:
             return command.execute(input_dto)
@@ -237,7 +237,7 @@ class App:
         logger = self._get_logger()
         if logger:
             logger.info(f'Executing query: {query_class.__name__}')
-        query = self.container.resolve(query_class)
+        query = self.container.resolve(query_class) # type: ignore[var-annotated]
 
         def final() -> Any:
             return query.execute(input_dto)

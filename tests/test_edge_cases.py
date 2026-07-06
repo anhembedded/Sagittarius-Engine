@@ -334,7 +334,7 @@ def test_health_module__db_session_raises__returns_unhealthy(app, container, eve
     container.singleton(IEventBus, event_bus)
     container.singleton(IContainer, container)
 
-    query = container.resolve("health.check")
+    query = container.resolve(HealthCheckQuery)
 
     import sys
     mock_sqlalchemy = MagicMock()
@@ -355,7 +355,7 @@ def test_health_module__no_isession_configured__returns_not_configured(app, cont
     container.singleton(IEventBus, event_bus)
     container.singleton(IContainer, container)
 
-    query = container.resolve("health.check")
+    query = container.resolve(HealthCheckQuery)
     status = query.execute()
 
     assert "not configured" in status["components"]["database"]

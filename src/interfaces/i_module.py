@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, TypeVar, Union, Optional
+from typing import Any, Callable, TypeVar, Union, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.app_kernel import App
 
 class IModule(ABC):
     """

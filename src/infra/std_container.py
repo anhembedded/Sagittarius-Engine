@@ -61,7 +61,7 @@ class StdLibContainer(IContainer):
         else:
             self._instances[abstract] = instance_or_factory
 
-    def resolve(self, abstract: type[T]) -> T:
+    def resolve(self, abstract: Union[type[T], Any]) -> T:
         """
         @brief Resolves and retrieves an instance of the requested type.
         @details This function recursively resolves the entire dependency tree.

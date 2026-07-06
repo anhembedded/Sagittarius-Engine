@@ -2,7 +2,7 @@ import os
 import sys
 import time
 import threading
-from typing import List
+from typing import List, Dict, Optional
 
 class HotReloader:
     """
@@ -32,9 +32,9 @@ class HotReloader:
         """
         self.watch_paths = watch_paths
         self.interval = interval
-        self._mtimes = {}
+        self._mtimes: Dict[str, float] = {}
         self._running = False
-        self._thread = None
+        self._thread: Optional[threading.Thread] = None
 
     def _get_mtime(self, path: str) -> float:
         return os.stat(path).st_mtime
