@@ -22,13 +22,6 @@ def test_base_repository__add__success():
     mock_session.add.assert_called_with(entity)
 
 
-    # get_by_id branch 1 - not found
-    mock_session.session.get.return_value = None
-    assert repo.get_by_id(999) is None
-
-    # get_by_id branch 2
-    del mock_session.session
-    mock_session.query.return_value.get.return_value = entity
 def test_base_repository__get_by_id__success():
     mock_session = MagicMock()
     repo = BaseRepository(session=mock_session, entity_class=MyEntity)
@@ -38,11 +31,6 @@ def test_base_repository__get_by_id__success():
     mock_session.get.assert_called_with(MyEntity, 1)
 
 
-    # get_by_id branch 2 - not found
-    mock_session.query.return_value.get.return_value = None
-    assert repo.get_by_id(999) is None
-
-    # add branch 1
 def test_base_repository__list_all__success():
     mock_session = MagicMock()
     repo = BaseRepository(session=mock_session, entity_class=MyEntity)

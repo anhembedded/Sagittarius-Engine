@@ -44,7 +44,6 @@ class StdLibContainer(IContainer):
         self._bindings: dict[type, type] = {}
         self._instances: dict[type, Any] = {}
         self._factories: dict[type, Callable] = {}
-        self._lock = threading.RLock()
 
     def bind(self, abstract: type, concrete: type) -> None:
         """
@@ -78,14 +77,8 @@ class StdLibContainer(IContainer):
         @return An instance of the requested type.
         @exception DependencyResolutionError If the container cannot resolve a dependency.
         """
-        with self._lock:
-            if abstract in self._instances:
-                return self._instances[abstract]
-
-            if abstract in self._factories:
-                instance = self._factories[abstract](self)
-                self._instances[abstract] = instance
-                return instance
+        if abstract in self._instances:
+            return self._instances[abstract]
 
         with self._lock:
             if abstract in self._instances:
@@ -98,10 +91,9 @@ class StdLibContainer(IContainer):
 
             concrete = self._bindings.get(abstract, abstract)
 
-            if not inspect.isclass(concrete):
-                raise DependencyResolutionError(f"Cannot resolve {abstract}")
+        if not inspect.isclass(concrete):
+            raise DependencyResolutionError(f"Cannot resolve {abstract}")
 
-            if getattr(concrete, "__abstractmethods__", None):
         if getattr(concrete, "__abstractmethods__", None):
             raise DependencyResolutionError(
                 f"Cannot instantiate abstract class {concrete}"
@@ -134,24 +126,9 @@ class StdLibContainer(IContainer):
 
             if annotation == inspect.Parameter.empty:
                 raise DependencyResolutionError(
-                    f"Cannot instantiate abstract class {concrete}"
+                    f"Missing type hint for parameter '{name}' in {concrete.__name__}"
                 )
-
-            if getattr(concrete, "__init__", None) is object.__init__:
-                return concrete()
-
             try:
-                signature = inspect.signature(concrete.__init__)
-            except ValueError:
-                return concrete()
-
-            dependencies = {}
-            for name, param in signature.parameters.items():
-                if name == "self" or name == "args" or name == "kwargs":
-                    continue
-                if param.annotation == inspect.Parameter.empty:
-                    raise DependencyResolutionError(
-                        f"Missing type hint for parameter '{name}' in {concrete.__name__}"
                 dependencies[name] = self.resolve(annotation)
             except Exception as e:
                 if param.default is not inspect.Parameter.empty:
@@ -160,14 +137,5 @@ class StdLibContainer(IContainer):
                     raise DependencyResolutionError(
                         f"Failed to resolve '{name}' for {concrete.__name__}: {str(e)}"
                     )
-                try:
-                    dependencies[name] = self.resolve(param.annotation)
-                except Exception as e:
-                    if param.default is not inspect.Parameter.empty:
-                        dependencies[name] = param.default
-                    else:
-                        raise DependencyResolutionError(
-                            f"Failed to resolve \x27{name}\x27 for {concrete.__name__}: {str(e)}"
-                        )
 
-            return concrete(**dependencies)
+        return concrete(**dependencies)
