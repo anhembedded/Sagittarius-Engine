@@ -10,5 +10,6 @@ from .i_container import IContainer
 from .i_middleware import IMiddleware
 from .i_logger import ILogger
 from .i_config import IConfig
+from .i_domain_event import IDomainEvent
 
-__all__ = ['ICommand', 'IQuery', 'IModule', 'IEventBus', 'IContainer', 'IMiddleware', 'ILogger', 'IConfig', 'ISession', 'IFileStorage', 'IMetrics']
+__all__ = ['ICommand', 'IQuery', 'IModule', 'IEventBus', 'IContainer', 'IMiddleware', 'ILogger', 'IConfig', 'ISession', 'IFileStorage', 'IMetrics', 'IDomainEvent']
