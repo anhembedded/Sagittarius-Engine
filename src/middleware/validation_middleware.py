@@ -1,7 +1,10 @@
+import logging
 from collections.abc import Callable
 from typing import Any
 
 from src.interfaces import IMiddleware
+
+logger = logging.getLogger(__name__)
 
 
 class ValidationMiddleware(IMiddleware):
@@ -31,9 +34,9 @@ class ValidationMiddleware(IMiddleware):
         @param next_handler The next middleware or the final execution function.
         @return The result of the operation.
         """
-        print(
+        logger.debug(
             f"[ValidationMiddleware] Validating DTO for {cmd_or_query.__class__.__name__}"
         )
         if data_transfer_obj is None:
-            print("[ValidationMiddleware] Warning: DTO is None!")
+            logger.warning("[ValidationMiddleware] Warning: DTO is None!")
         return next_handler()
