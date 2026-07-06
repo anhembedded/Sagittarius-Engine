@@ -1,5 +1,6 @@
 import queue
 import threading
+import logging
 from collections.abc import Callable
 from multiprocessing.queues import Queue
 from typing import Any
@@ -89,12 +90,19 @@ class IPCBroker:
                                     f"Failed to route event {event_name} "
                                     f"to a subscriber: {e}"
                                 )
+                            else:
+                                logging.error(
+                                    f"Failed to route event {event_name} "
+                                    f"to a subscriber: {e}"
+                                )
 
             except queue.Empty:
                 continue
             except Exception as e:
                 if self._logger:
                     self._logger.error(f"IPCBroker encountered an error: {e}")
+                else:
+                    logging.error(f"IPCBroker encountered an error: {e}")
 
 
 class IPCQueueEventBus(IEventBus):
@@ -127,6 +135,8 @@ class IPCQueueEventBus(IEventBus):
                 self._logger.warning(
                     f"Cannot emit '{event_name}': publish_queue is None."
                 )
+            else:
+                logging.warning(f"Cannot emit '{event_name}': publish_queue is None.")
             return
 
         try:
@@ -136,6 +146,8 @@ class IPCQueueEventBus(IEventBus):
                 self._logger.error(
                     f"Failed to emit event '{event_name}' to publish_queue: {e}"
                 )
+            else:
+                logging.error(f"Failed to emit event '{event_name}' to publish_queue: {e}")
 
     def on(self, event_name: str, handler: Callable) -> None:
         """

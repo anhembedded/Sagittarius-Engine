@@ -171,6 +171,7 @@ def test_thread_pool_event_bus__handler_timeout__does_not_block(logger):
     fast_handler.assert_called_once_with(event)
 
 
+
 @pytest.mark.asyncio
 async def test_asyncio_event_bus__handler_cancelled__does_not_crash(logger):
     bus = AsyncioEventBus()

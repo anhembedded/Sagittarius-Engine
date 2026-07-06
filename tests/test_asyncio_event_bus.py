@@ -5,6 +5,7 @@ import pytest
 from src.infra.event_bus.asyncio_event_bus import AsyncioEventBus
 
 
+
 @pytest.mark.asyncio
 async def test_asyncio_event_bus_mixed_handlers():
     bus = AsyncioEventBus()
@@ -24,6 +25,7 @@ async def test_asyncio_event_bus_mixed_handlers():
 
     # Ensure both handlers executed successfully sequentially
     assert results == ["async: payload", "sync: payload"]
+
 
 
 @pytest.mark.asyncio
@@ -49,6 +51,7 @@ async def test_asyncio_event_bus_exception_handling():
 
     # The successful handler should still run since exceptions are caught
     assert results == ["success: payload"]
+
 
 
 @pytest.mark.asyncio
