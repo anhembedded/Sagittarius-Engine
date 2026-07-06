@@ -1,6 +1,7 @@
 import os
 
 from src.interfaces import IFileStorage
+from src.exceptions import PathTraversalError
 
 
 class LocalFileStorage(IFileStorage):
@@ -16,7 +17,17 @@ class LocalFileStorage(IFileStorage):
         self.base_path = base_path
 
     def _get_full_path(self, path: str) -> str:
-        return os.path.join(self.base_path, path)
+        if path is None:
+            raise ValueError("Path cannot be None")
+
+        base_path_real = os.path.realpath(self.base_path)
+        full_path = os.path.join(self.base_path, path)
+        full_path_real = os.path.realpath(full_path)
+
+        if os.path.commonpath([base_path_real, full_path_real]) != base_path_real:
+            raise PathTraversalError(f"Path traversal detected: {path}")
+
+        return full_path_real
 
     def read(self, path: str) -> bytes:
         """@brief Reads a file from local storage."""
