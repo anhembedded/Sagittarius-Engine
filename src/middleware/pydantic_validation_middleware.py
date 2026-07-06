@@ -57,20 +57,39 @@ class PydanticValidationMiddleware(IMiddleware):
         @exception ValueError if validation fails.
         """
         try:
-            if data_transfer_obj is None:
-                validated_dto = self.model_class()
-            elif isinstance(data_transfer_obj, dict):
-                validated_dto = self.model_class(**data_transfer_obj)
-            elif isinstance(data_transfer_obj, self.model_class):
-                validated_dto = data_transfer_obj
+            if hasattr(self.model_class, "model_validate"):
+                # Pydantic V2
+                if data_transfer_obj is None:
+                    validated_dto = self.model_class()
+                elif isinstance(data_transfer_obj, dict):
+                    validated_dto = self.model_class.model_validate(data_transfer_obj)
+                elif isinstance(data_transfer_obj, self.model_class):
+                    validated_dto = data_transfer_obj
+                else:
+                    try:
+                        validated_dto = self.model_class.model_validate(data_transfer_obj)
+                    except Exception:
+                        dto_dict = (
+                            data_transfer_obj.__dict__
+                            if hasattr(data_transfer_obj, "__dict__")
+                            else {}
+                        )
+                        validated_dto = self.model_class.model_validate(dto_dict)
             else:
-                # Try to convert object attributes to dict if possible
-                dto_dict = (
-                    data_transfer_obj.__dict__
-                    if hasattr(data_transfer_obj, "__dict__")
-                    else {}
-                )
-                validated_dto = self.model_class(**dto_dict)
+                # Pydantic V1 fallback
+                if data_transfer_obj is None:
+                    validated_dto = self.model_class()
+                elif isinstance(data_transfer_obj, dict):
+                    validated_dto = self.model_class(**data_transfer_obj)
+                elif isinstance(data_transfer_obj, self.model_class):
+                    validated_dto = data_transfer_obj
+                else:
+                    dto_dict = (
+                        data_transfer_obj.__dict__
+                        if hasattr(data_transfer_obj, "__dict__")
+                        else {}
+                    )
+                    validated_dto = self.model_class(**dto_dict)
             data_transfer_obj = validated_dto
         except ValidationError as e:
             raise ValueError(

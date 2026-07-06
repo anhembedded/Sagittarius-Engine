@@ -40,6 +40,7 @@ class StdLibContainer(IContainer):
     """
 
     def __init__(self) -> None:
+        self._lock = threading.RLock()
         self._bindings: dict[type, type] = {}
         self._instances: dict[type, Any] = {}
         self._factories: dict[type, Callable] = {}
@@ -52,7 +53,8 @@ class StdLibContainer(IContainer):
         @param abstract The abstract interface or class.
         @param concrete The concrete class to bind.
         """
-        self._bindings[abstract] = concrete
+        with self._lock:
+            self._bindings[abstract] = concrete
 
     def singleton(self, abstract: type, instance_or_factory: Any | Callable) -> None:
         """
@@ -61,10 +63,11 @@ class StdLibContainer(IContainer):
         @param abstract The abstract interface or class.
         @param instance_or_factory The existing instance or factory function.
         """
-        if callable(instance_or_factory) and not isinstance(instance_or_factory, type):
-            self._factories[abstract] = instance_or_factory
-        else:
-            self._instances[abstract] = instance_or_factory
+        with self._lock:
+            if callable(instance_or_factory) and not isinstance(instance_or_factory, type):
+                self._factories[abstract] = instance_or_factory
+            else:
+                self._instances[abstract] = instance_or_factory
 
     def resolve(self, abstract: type[T] | Any) -> T:  # noqa: C901
         """
@@ -84,12 +87,52 @@ class StdLibContainer(IContainer):
                 self._instances[abstract] = instance
                 return instance
 
+        with self._lock:
+            if abstract in self._instances:
+                return self._instances[abstract]
+
+            if abstract in self._factories:
+                instance = self._factories[abstract](self)
+                self._instances[abstract] = instance
+                return instance
+
             concrete = self._bindings.get(abstract, abstract)
 
             if not inspect.isclass(concrete):
                 raise DependencyResolutionError(f"Cannot resolve {abstract}")
 
             if getattr(concrete, "__abstractmethods__", None):
+        if getattr(concrete, "__abstractmethods__", None):
+            raise DependencyResolutionError(
+                f"Cannot instantiate abstract class {concrete}"
+            )
+
+        if getattr(concrete, "__init__", None) is object.__init__:
+            return concrete()
+
+        try:
+            signature = inspect.signature(concrete.__init__)
+        except ValueError:
+            return concrete()
+
+        import typing
+        try:
+            type_hints = typing.get_type_hints(concrete.__init__)
+        except Exception:
+            type_hints = None
+
+        dependencies = {}
+        for name, param in signature.parameters.items():
+            if name in ("self", "args", "kwargs"):
+                continue
+
+            annotation = inspect.Parameter.empty
+            if type_hints is not None and name in type_hints:
+                annotation = type_hints[name]
+            else:
+                annotation = param.annotation
+
+            if annotation == inspect.Parameter.empty:
                 raise DependencyResolutionError(
                     f"Cannot instantiate abstract class {concrete}"
                 )
@@ -109,6 +152,13 @@ class StdLibContainer(IContainer):
                 if param.annotation == inspect.Parameter.empty:
                     raise DependencyResolutionError(
                         f"Missing type hint for parameter '{name}' in {concrete.__name__}"
+                dependencies[name] = self.resolve(annotation)
+            except Exception as e:
+                if param.default is not inspect.Parameter.empty:
+                    dependencies[name] = param.default
+                else:
+                    raise DependencyResolutionError(
+                        f"Failed to resolve '{name}' for {concrete.__name__}: {str(e)}"
                     )
                 try:
                     dependencies[name] = self.resolve(param.annotation)
