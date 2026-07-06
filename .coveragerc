@@ -1,0 +1,12 @@
+[run]
+branch = True
+source = src
+omit =
+    tests/*
+    docs/*
+    example/*
+
+[report]
+show_missing = True
+fail_under = 80
+skip_covered = True

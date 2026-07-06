@@ -1,0 +1,44 @@
+[tool.black]
+line-length = 88
+target-version = ["py314"]
+include = '\.pyi?$'
+exclude = '''
+/(
+  \.git
+ | \.hg
+ | \.mypy_cache
+ | \.venv
+ | _build
+ | buck-out
+ | build
+ | dist
+ | docs/kb
+  )/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+include_trailing_comma = true
+force_grid_wrap = 0
+combine_as_imports = true
+balanced_wrapping = true
+src_paths = ["src"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py314"
+exclude = [".venv", "build", "dist", "__pycache__", ".pytest_cache", ".git"]
+
+[tool.ruff.lint]
+extend-select = ["E", "F", "W", "C", "I", "UP", "RET"]
+ignore = ["E501"]
+per-file-ignores = {"__init__.py" = ["F401"]}
+
+[tool.mypy]
+python_version = 3.14
+ignore_missing_imports = true
+follow_imports = "skip"
+show_error_codes = true
+pretty = true
+files = ["src"]

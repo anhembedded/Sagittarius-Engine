@@ -27,20 +27,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          # Install optional test dependencies if any
-          pip install pytest pytest-cov
+          pip install -r requirements-dev.txt
 
-      - name: Lint with flake8 (optional)
+      - name: Static analysis
         run: |
-          pip install flake8
-          flake8 src/ --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 src/ --count --exit-zero --max-complexity=10 --statistics
-
-      - name: Check typing with mypy (optional)
-        run: |
-          pip install mypy
-          mypy src/ --ignore-missing-imports --follow-imports=skip
+          ruff check src tests --select E,F,W,C,I,UP,RET --statistics
+          python -m isort --check-only src tests
+          python -m black --check --diff src tests
+          mypy src --ignore-missing-imports --follow-imports=skip
 
       - name: Run tests with coverage
         run: |
-          pytest tests/ --cov=src --cov-report=xml --cov-report=term
+          pytest tests/ --cov=src --cov-report=xml --cov-report=term --cov-fail-under=80
