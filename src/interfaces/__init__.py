@@ -5,10 +5,12 @@ from .i_container import IContainer
 from .i_domain_event import IDomainEvent
 from .i_event_bus import IEventBus
 from .i_file_storage import IFileStorage
+from .i_input_port import IInputPort
 from .i_logger import ILogger
 from .i_metrics import IMetrics
 from .i_middleware import IMiddleware
 from .i_module import IModule
+from .i_output_port import IOutputPort
 from .i_query import IQuery
 from .i_session import ISession
 from .i_thread_manager import IThreadManager
@@ -28,4 +30,6 @@ __all__ = [
     "IMetrics",
     "IDomainEvent",
     "IThreadManager",
+    "IInputPort",
+    "IOutputPort",
 ]
