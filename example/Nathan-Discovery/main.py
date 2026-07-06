@@ -1,8 +1,8 @@
 
 
 
-from src.infra.std_container import StdLibContainer
-from src.infra.memory_event_bus import MemoryEventBus
+from src.infra.container.std_container import StdLibContainer
+from src.infra.event_bus.memory_event_bus import MemoryEventBus
 from src.app_kernel import App
 from src.interfaces import IContainer, IEventBus
 

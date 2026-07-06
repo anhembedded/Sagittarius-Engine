@@ -12,15 +12,15 @@ from tests.helpers import assert_event_emitted
 from src.app_kernel import App, MiddlewarePipeline
 from src.base_event import BaseEvent
 from src.exceptions import DependencyResolutionError, ModuleRegistrationError
-from src.infra.asyncio_event_bus import AsyncioEventBus
-from src.infra.config_manager import ConfigManager, DictSource, EnvSource, JsonSource
-from src.infra.config_source.dotenv_source import DotenvSource
-from src.infra.dict_config import DictConfig
-from src.infra.memory_event_bus import MemoryEventBus
-from src.infra.resilient_event_bus import ResilientEventBus
-from src.infra.std_container import StdLibContainer
-from src.infra.std_logger import StdLogger
-from src.infra.thread_pool_event_bus import ThreadPoolEventBus
+from src.infra.event_bus.asyncio_event_bus import AsyncioEventBus
+from src.infra.config.config_manager import ConfigManager, DictSource, EnvSource, JsonSource
+from src.infra.config.config_source.dotenv_source import DotenvSource
+from src.infra.config.dict_config import DictConfig
+from src.infra.event_bus.memory_event_bus import MemoryEventBus
+from src.infra.event_bus.resilient_event_bus import ResilientEventBus
+from src.infra.container.std_container import StdLibContainer
+from src.infra.logging.std_logger import StdLogger
+from src.infra.event_bus.thread_pool_event_bus import ThreadPoolEventBus
 from src.interfaces import (
     ICommand,
     IContainer,

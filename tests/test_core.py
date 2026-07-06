@@ -5,8 +5,8 @@ import pytest
 from src.app_kernel import App
 from src.base_module import BaseModule
 from src.exceptions import ModuleRegistrationError
-from src.infra.memory_event_bus import MemoryEventBus
-from src.infra.std_container import DependencyResolutionError, StdLibContainer
+from src.infra.event_bus.memory_event_bus import MemoryEventBus
+from src.infra.container.std_container import DependencyResolutionError, StdLibContainer
 from src.interfaces import ICommand, IEventBus, IQuery
 
 

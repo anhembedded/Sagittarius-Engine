@@ -5,9 +5,9 @@ from typing import Any
 from src.app_kernel import App
 from src.base_module import BaseModule
 from src.interfaces import ICommand, IQuery, IEventBus, IContainer, IConfig
-from src.infra.std_container import StdLibContainer
-from src.infra.memory_event_bus import MemoryEventBus
-from src.infra.dict_config import DictConfig
+from src.infra.container.std_container import StdLibContainer
+from src.infra.event_bus.memory_event_bus import MemoryEventBus
+from src.infra.config.dict_config import DictConfig
 from src.modules.logger_module import LoggerModule
 from src.middleware.logging_middleware import LoggingMiddleware
 

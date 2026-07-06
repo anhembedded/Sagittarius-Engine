@@ -4,8 +4,8 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 from src.app_kernel import App
-from src.infra.std_container import StdLibContainer
-from src.infra.memory_event_bus import MemoryEventBus
+from src.infra.container.std_container import StdLibContainer
+from src.infra.event_bus.memory_event_bus import MemoryEventBus
 from src.interfaces import IEventBus
 
 from example.multi_module.modules.user_module import UserModule
