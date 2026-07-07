@@ -1,6 +1,6 @@
 import time
 
-from src.infra.event_bus.thread_pool_event_bus import ThreadPoolEventBus
+
 
 
 def test_thread_pool_event_bus_execution(thread_pool_bus_factory):

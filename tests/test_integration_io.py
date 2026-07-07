@@ -1,12 +1,11 @@
 import os
 import sys
 import tempfile
-import json
 from io import StringIO
 from unittest.mock import patch
 
-from src.app_kernel import App
-from src.app_runner import ApplicationRunner
+from src.core import App
+from src.core import ApplicationRunner
 from src.adapters.cli import CLIInputPort, CLIOutputPort
 from src.adapters.batch import BatchInputPort, BatchOutputPort
 from src.adapters.batch.const import FILE_TYPE_CSV
@@ -14,7 +13,7 @@ from src.interfaces import ICommand, IQuery, IModule, IContainer, IEventBus
 
 # Dummy implementations of required interfaces for the in-memory app
 
-from src.exceptions import DependencyResolutionError
+from src.core import DependencyResolutionError
 from src.interfaces import ILogger
 
 class DummyContainer(IContainer):

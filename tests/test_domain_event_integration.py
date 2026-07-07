@@ -1,4 +1,4 @@
-from src.base_event import BaseEvent
+from src.core import BaseEvent
 from src.infra.event_bus.memory_event_bus import MemoryEventBus
 from src.interfaces import IDomainEvent
 

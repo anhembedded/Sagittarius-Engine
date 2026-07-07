@@ -1,6 +1,6 @@
 import json
 
-from src.infra.config.config_manager import ConfigManager, DictSource, EnvSource, JsonSource
+from src.infra.config import ConfigManager, DictSource, EnvSource, JsonSource
 
 
 def test_config_manager_dict_source():

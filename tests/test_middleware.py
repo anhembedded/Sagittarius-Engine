@@ -1,4 +1,4 @@
-from src.app_kernel import MiddlewarePipeline
+from src.core import MiddlewarePipeline
 from src.interfaces import IMiddleware
 
 

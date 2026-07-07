@@ -1,7 +1,7 @@
 import os
 
 from src.interfaces import IFileStorage
-from src.exceptions import PathTraversalError
+from src.core import PathTraversalError
 
 
 class LocalFileStorage(IFileStorage):

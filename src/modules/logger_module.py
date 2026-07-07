@@ -1,5 +1,5 @@
-from src.app_kernel import App
-from src.base_module import BaseModule
+from src.core import App
+from src.core import BaseModule
 from src.infra.logging.std_logger import StdLogger
 from src.interfaces import IConfig, ILogger
 

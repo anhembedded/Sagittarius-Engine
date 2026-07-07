@@ -8,12 +8,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.app_kernel import App, MiddlewarePipeline
-from src.base_event import BaseEvent
-from src.exceptions import DependencyResolutionError, ModuleRegistrationError
+from src.core import App, MiddlewarePipeline
+from src.core import BaseEvent
+from src.core import DependencyResolutionError, ModuleRegistrationError
 from src.infra.event_bus.asyncio_event_bus import AsyncioEventBus
-from src.infra.config.config_manager import ConfigManager, DictSource, EnvSource, JsonSource
-from src.infra.config.config_source.dotenv_source import DotenvSource
+from src.infra.config import ConfigManager, DictSource, EnvSource, JsonSource
+from src.infra.config.config_sources.dotenv_source import DotenvSource
 from src.infra.config.dict_config import DictConfig
 from src.infra.event_bus.memory_event_bus import MemoryEventBus
 from src.infra.event_bus.resilient_event_bus import ResilientEventBus
@@ -30,7 +30,8 @@ from src.interfaces import (
     IQuery,
     ISession,
 )
-from src.modules.health_module import HealthCheckQuery, HealthModule
+from src.modules.health_check_query import HealthCheckQuery
+from src.modules.health_module import HealthModule
 from tests.helpers import assert_event_emitted
 
 try:
@@ -866,6 +867,8 @@ def test_health_module__with_database(event_bus):
     mock_session.execute.return_value = None
 
     mock_sa = MagicMock()
+    mock_sa.exc = MagicMock()
+    mock_sa.exc.SQLAlchemyError = Exception
     mock_sa.text.return_value = "SELECT 1"
 
     app.container.singleton(ISession, mock_session)

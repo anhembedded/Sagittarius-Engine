@@ -41,8 +41,8 @@ def create_project(project_name: str, base_path: str = ".") -> None:
     main_py_content = """import sys
 from src.infra.container.std_container import StdLibContainer
 from src.infra.event_bus.memory_event_bus import MemoryEventBus
-from src.infra.config.config_manager import ConfigManager
-from src.app_kernel import App
+from src.infra.config import ConfigManager
+from src.core import App
 from src.interfaces import IContainer, IEventBus, IConfig
 
 # Framework Modules
