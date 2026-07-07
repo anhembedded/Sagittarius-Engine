@@ -72,7 +72,7 @@ class StdLibContainer(IContainer):
             else:
                 self._instances[abstract] = instance_or_factory
 
-    def resolve(self, abstract: type[T] | Any) -> T:  # noqa: C901
+    def resolve(self, abstract: type[T] | Any) -> T:
         """
         @brief Resolves and retrieves an instance of the requested type.
         @details This function recursively resolves the entire dependency tree.
@@ -80,6 +80,12 @@ class StdLibContainer(IContainer):
         @param abstract The class type to resolve.
         @return An instance of the requested type.
         @exception DependencyResolutionError If the container cannot resolve a dependency.
+        """
+        return self._resolve(abstract, set())
+
+    def _resolve(self, abstract: type[T] | Any, resolving: set[type]) -> T:  # noqa: C901
+        """
+        @brief Internal recursive resolve method with circular dependency detection.
         """
         if abstract in self._instances:
             return self._instances[abstract]
@@ -95,6 +101,9 @@ class StdLibContainer(IContainer):
 
             concrete = self._bindings.get(abstract, abstract)
 
+        if concrete in resolving:
+            raise DependencyResolutionError(f"Circular dependency detected: {concrete}")
+
         if not inspect.isclass(concrete):
             raise DependencyResolutionError(f"Cannot resolve {abstract}")
 
@@ -103,63 +112,68 @@ class StdLibContainer(IContainer):
                 f"Cannot instantiate abstract class {concrete}"
             )
 
-        if getattr(concrete, "__init__", None) is object.__init__:
-            return concrete()
+        resolving.add(concrete)
 
-        # Check cache first to avoid slow inspect.signature and get_type_hints calls
-        with self._lock:
-            cached_deps = self._resolution_cache.get(concrete)
-
-        if cached_deps is None:
-            try:
-                signature = inspect.signature(concrete.__init__)
-            except ValueError:
-                with self._lock:
-                    self._resolution_cache[concrete] = {}
+        try:
+            if getattr(concrete, "__init__", None) is object.__init__:
                 return concrete()
 
-            import typing
-
-            try:
-                type_hints = typing.get_type_hints(concrete.__init__)
-            except Exception:
-                type_hints = None
-
-            cached_deps = {}
-            for name, param in signature.parameters.items():
-                if name in ("self", "args", "kwargs"):
-                    continue
-
-                annotation = inspect.Parameter.empty
-                if type_hints is not None and name in type_hints:
-                    annotation = type_hints[name]
-                else:
-                    annotation = param.annotation
-
-                if annotation == inspect.Parameter.empty:
-                    raise DependencyResolutionError(
-                        f"Missing type hint for parameter '{name}' in {concrete.__name__}"
-                    )
-
-                cached_deps[name] = {
-                    "annotation": annotation,
-                    "has_default": param.default is not inspect.Parameter.empty,
-                    "default": param.default,
-                }
-
+            # Check cache first to avoid slow inspect.signature and get_type_hints calls
             with self._lock:
-                self._resolution_cache[concrete] = cached_deps
+                cached_deps = self._resolution_cache.get(concrete)
 
-        dependencies = {}
-        for name, param_info in cached_deps.items():
-            try:
-                dependencies[name] = self.resolve(param_info["annotation"])
-            except Exception as e:
-                if param_info["has_default"]:
-                    dependencies[name] = param_info["default"]
-                else:
-                    raise DependencyResolutionError(
-                        f"Failed to resolve '{name}' for {concrete.__name__}: {str(e)}"
-                    )
+            if cached_deps is None:
+                try:
+                    signature = inspect.signature(concrete.__init__)
+                except ValueError:
+                    with self._lock:
+                        self._resolution_cache[concrete] = {}
+                    return concrete()
 
-        return concrete(**dependencies)
+                import typing
+
+                try:
+                    type_hints = typing.get_type_hints(concrete.__init__)
+                except Exception:
+                    type_hints = None
+
+                cached_deps = {}
+                for name, param in signature.parameters.items():
+                    if name in ("self", "args", "kwargs"):
+                        continue
+
+                    annotation = inspect.Parameter.empty
+                    if type_hints is not None and name in type_hints:
+                        annotation = type_hints[name]
+                    else:
+                        annotation = param.annotation
+
+                    if annotation == inspect.Parameter.empty:
+                        raise DependencyResolutionError(
+                            f"Missing type hint for parameter '{name}' in {concrete.__name__}"
+                        )
+
+                    cached_deps[name] = {
+                        "annotation": annotation,
+                        "has_default": param.default is not inspect.Parameter.empty,
+                        "default": param.default,
+                    }
+
+                with self._lock:
+                    self._resolution_cache[concrete] = cached_deps
+
+            dependencies = {}
+            for name, param_info in cached_deps.items():
+                try:
+                    dependencies[name] = self._resolve(param_info["annotation"], resolving)
+                except Exception as e:
+                    if param_info["has_default"]:
+                        dependencies[name] = param_info["default"]
+                    else:
+                        raise DependencyResolutionError(
+                            f"Failed to resolve '{name}' for {concrete.__name__}: {str(e)}"
+                        )
+
+            return concrete(**dependencies)
+        finally:
+            resolving.remove(concrete)
