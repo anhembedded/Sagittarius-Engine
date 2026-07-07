@@ -1,10 +1,10 @@
 from unittest.mock import MagicMock, patch
 
-from src.modules.database_module import DatabaseModule
+from src.infrastructure.persistence.database_module import DatabaseModule
 
 
 def test_database_module_no_sqlalchemy():
-    with patch("src.modules.database_module.SQLALCHEMY_INSTALLED", False):
+    with patch("src.infrastructure.persistence.database_module.SQLALCHEMY_INSTALLED", False):
         module = DatabaseModule()
         mock_app = MagicMock()
         mock_logger = MagicMock()

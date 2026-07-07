@@ -1,7 +1,7 @@
 import sys
 from pprint import pprint
 from typing import Any
-from src.core.base_output_port import BaseOutputPort
+from src.application.base.base_output_port import BaseOutputPort
 
 class CLIOutputPort(BaseOutputPort):
     """

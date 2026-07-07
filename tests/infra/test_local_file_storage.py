@@ -1,8 +1,8 @@
 import os
 import pytest
 
-from src.infra.storage.local_file_storage import LocalFileStorage
-from src.core import PathTraversalError
+from src.infrastructure.storage.local_file_storage import LocalFileStorage
+from src.exceptions import PathTraversalError
 
 
 @pytest.fixture

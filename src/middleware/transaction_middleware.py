@@ -1,7 +1,8 @@
 from collections.abc import Callable
 from typing import Any
 
-from src.interfaces import IContainer, IMiddleware, ISession
+from src.application.ports import IContainer, IMiddleware
+from src.infrastructure.persistence.i_session import ISession
 
 
 class TransactionMiddleware(IMiddleware):

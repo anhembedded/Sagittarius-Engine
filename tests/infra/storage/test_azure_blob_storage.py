@@ -1,3 +1,5 @@
+import pytest
+pytest.importorskip('azure')
 import importlib
 import sys
 import unittest
@@ -6,13 +8,13 @@ from unittest.mock import MagicMock, patch
 import pytest
 from azure.core.exceptions import ResourceNotFoundError
 
-import src.infra.storage.azure_blob_storage as azure_module
-from src.infra.storage.azure_blob_storage import AzureBlobStorage
+import src.infrastructure.storage.azure_blob_storage as azure_module
+from src.infrastructure.storage.azure_blob_storage import AzureBlobStorage
 
 
 class TestAzureBlobStorage:
     def test_azure_blob_storage__read__success(self):
-        with patch("src.infra.storage.azure_blob_storage.BlobServiceClient") as mock_blob_service_client:
+        with patch("src.infrastructure.storage.azure_blob_storage.BlobServiceClient") as mock_blob_service_client:
             mock_service_client = mock_blob_service_client.from_connection_string.return_value
             mock_container_client = mock_service_client.get_container_client.return_value
             mock_blob_client = mock_container_client.get_blob_client.return_value
@@ -29,7 +31,7 @@ class TestAzureBlobStorage:
             mock_blob_client.download_blob.return_value.readall.assert_called_once()
 
     def test_azure_blob_storage__write_bytes__success(self):
-        with patch("src.infra.storage.azure_blob_storage.BlobServiceClient") as mock_blob_service_client:
+        with patch("src.infrastructure.storage.azure_blob_storage.BlobServiceClient") as mock_blob_service_client:
             mock_service_client = mock_blob_service_client.from_connection_string.return_value
             mock_container_client = mock_service_client.get_container_client.return_value
             mock_blob_client = mock_container_client.get_blob_client.return_value
@@ -41,7 +43,7 @@ class TestAzureBlobStorage:
             mock_blob_client.upload_blob.assert_called_once_with(b"test data", overwrite=True)
 
     def test_azure_blob_storage__write_str__success(self):
-        with patch("src.infra.storage.azure_blob_storage.BlobServiceClient") as mock_blob_service_client:
+        with patch("src.infrastructure.storage.azure_blob_storage.BlobServiceClient") as mock_blob_service_client:
             mock_service_client = mock_blob_service_client.from_connection_string.return_value
             mock_container_client = mock_service_client.get_container_client.return_value
             mock_blob_client = mock_container_client.get_blob_client.return_value
@@ -53,7 +55,7 @@ class TestAzureBlobStorage:
             mock_blob_client.upload_blob.assert_called_once_with(b"test data", overwrite=True)
 
     def test_azure_blob_storage__delete__success(self):
-        with patch("src.infra.storage.azure_blob_storage.BlobServiceClient") as mock_blob_service_client:
+        with patch("src.infrastructure.storage.azure_blob_storage.BlobServiceClient") as mock_blob_service_client:
             mock_service_client = mock_blob_service_client.from_connection_string.return_value
             mock_container_client = mock_service_client.get_container_client.return_value
             mock_blob_client = mock_container_client.get_blob_client.return_value
@@ -65,7 +67,7 @@ class TestAzureBlobStorage:
             mock_blob_client.delete_blob.assert_called_once()
 
     def test_azure_blob_storage__exists__true(self):
-        with patch("src.infra.storage.azure_blob_storage.BlobServiceClient") as mock_blob_service_client:
+        with patch("src.infrastructure.storage.azure_blob_storage.BlobServiceClient") as mock_blob_service_client:
             mock_service_client = mock_blob_service_client.from_connection_string.return_value
             mock_container_client = mock_service_client.get_container_client.return_value
             mock_blob_client = mock_container_client.get_blob_client.return_value
@@ -79,7 +81,7 @@ class TestAzureBlobStorage:
             mock_blob_client.get_blob_properties.assert_called_once()
 
     def test_azure_blob_storage__exists__false(self):
-        with patch("src.infra.storage.azure_blob_storage.BlobServiceClient") as mock_blob_service_client:
+        with patch("src.infrastructure.storage.azure_blob_storage.BlobServiceClient") as mock_blob_service_client:
             mock_service_client = mock_blob_service_client.from_connection_string.return_value
             mock_container_client = mock_service_client.get_container_client.return_value
             mock_blob_client = mock_container_client.get_blob_client.return_value

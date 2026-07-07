@@ -1,7 +1,7 @@
 import json
 import os
 
-from src.scaffold import create_project
+from src.tools.scaffold import create_project
 
 
 def test_scaffold_create_project(tmp_path):

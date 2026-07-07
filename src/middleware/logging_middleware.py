@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from typing import Any
 
-from src.interfaces import IContainer, ILogger, IMiddleware
+from src.application.ports import IContainer, ILogger, IMiddleware
 
 
 class LoggingMiddleware(IMiddleware):

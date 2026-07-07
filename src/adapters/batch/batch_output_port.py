@@ -1,7 +1,7 @@
 import json
 import os
 from typing import Any
-from src.core.base_output_port import BaseOutputPort
+from src.application.base.base_output_port import BaseOutputPort
 
 class BatchOutputPort(BaseOutputPort):
     """

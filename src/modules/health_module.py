@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from src.core.app import App
+    from src.application.kernel.app import App
 
-from src.core.base_module import BaseModule
+from src.application.base.base_module import BaseModule
 from src.modules.health_check_query import HealthCheckQuery
 
 class HealthModule(BaseModule):

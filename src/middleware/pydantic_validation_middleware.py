@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from typing import Any
 
-from src.interfaces import IMiddleware
+from src.application.ports import IMiddleware
 
 try:
     from pydantic import BaseModel, ValidationError

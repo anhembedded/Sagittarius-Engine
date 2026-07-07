@@ -2,7 +2,7 @@ import logging
 from collections.abc import Callable
 from typing import Any
 
-from src.interfaces import IMiddleware
+from src.application.ports import IMiddleware
 
 logger = logging.getLogger(__name__)
 

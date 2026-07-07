@@ -2,12 +2,12 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.core import App
-from src.core import BaseModule
-from src.core import ModuleRegistrationError
-from src.infra.event_bus.memory_event_bus import MemoryEventBus
-from src.infra.container.std_container import DependencyResolutionError, StdLibContainer
-from src.interfaces import ICommand, IEventBus, IQuery
+from src.application.kernel import App
+from src.application.base import BaseModule
+from src.exceptions import ModuleRegistrationError
+from src.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+from src.infrastructure.container.std_container import DependencyResolutionError, StdLibContainer
+from src.application.ports import ICommand, IEventBus, IQuery
 
 
 def test_event_bus_emit_on_off():

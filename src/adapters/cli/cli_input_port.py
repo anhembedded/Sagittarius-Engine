@@ -1,7 +1,7 @@
 import argparse
 import sys
 from typing import Any
-from src.core.base_input_port import BaseInputPort
+from src.application.base.base_input_port import BaseInputPort
 from src.adapters.cli.const import COMMAND_KEY
 
 class CLIInputPort(BaseInputPort):

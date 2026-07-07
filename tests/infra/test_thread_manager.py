@@ -2,7 +2,7 @@ import pytest
 import threading
 import time
 
-from src.infra.thread_manager import ThreadManager
+from src.infrastructure.thread_manager import ThreadManager
 
 def test_thread_manager_submit_executes_task_and_returns_future():
     manager = ThreadManager(max_workers=2)

@@ -1,7 +1,7 @@
-from src.core import App
-from src.core import BaseModule
-from src.infra.logging.std_logger import StdLogger
-from src.interfaces import IConfig, ILogger
+from src.application.kernel import App
+from src.application.base import BaseModule
+from src.infrastructure.logging.std_logger import StdLogger
+from src.application.ports import IConfig, ILogger
 
 
 class LoggerModule(BaseModule):

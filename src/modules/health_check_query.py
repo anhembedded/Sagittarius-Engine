@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Any
-from src.interfaces import IContainer, IEventBus, IQuery, ISession
+from src.application.ports import IContainer, IEventBus, IQuery
+from src.infrastructure.persistence.i_session import ISession
 
 @dataclass
 class HealthCheckDTO:

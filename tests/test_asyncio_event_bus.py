@@ -3,7 +3,7 @@ import warnings
 
 import pytest
 
-from src.infra.event_bus.asyncio_event_bus import AsyncioEventBus
+from src.infrastructure.event_bus.asyncio_event_bus import AsyncioEventBus
 
 
 

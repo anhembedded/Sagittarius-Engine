@@ -1,5 +1,5 @@
-from src.core import MiddlewarePipeline
-from src.interfaces import IMiddleware
+from src.application.kernel import MiddlewarePipeline
+from src.application.ports import IMiddleware
 
 
 class DummyMiddleware(IMiddleware):
@@ -32,7 +32,8 @@ def test_middleware_pipeline_execution_order():
 
 def test_transaction_middleware_commits_on_success():
     from src.middleware.transaction_middleware import TransactionMiddleware
-    from src.interfaces import IContainer, ISession
+    from src.application.ports import IContainer
+    from src.infrastructure.persistence.i_session import ISession
     from unittest.mock import MagicMock
 
     mock_container = MagicMock(spec=IContainer)
@@ -52,7 +53,8 @@ def test_transaction_middleware_commits_on_success():
 
 def test_transaction_middleware_rollbacks_on_exception():
     from src.middleware.transaction_middleware import TransactionMiddleware
-    from src.interfaces import IContainer, ISession
+    from src.application.ports import IContainer
+    from src.infrastructure.persistence.i_session import ISession
     from unittest.mock import MagicMock
     import pytest
 
@@ -76,8 +78,8 @@ def test_middleware_pipeline_concurrent_execution():
     import uuid
     import time
     import random
-    from src.core import MiddlewarePipeline
-    from src.interfaces import IMiddleware
+    from src.application.kernel import MiddlewarePipeline
+    from src.application.ports import IMiddleware
 
     class DummyConcurrentMiddleware(IMiddleware):
         def process(self, cmd_or_query, data_transfer_obj, next_handler):
