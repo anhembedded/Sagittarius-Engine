@@ -15,7 +15,7 @@ from .config import (
     ConfigManager,
     DictConfig,
 )
-from .config.config_source import (
+from .config.config_sources import (
     DotenvSource,
 )
 from .container import (

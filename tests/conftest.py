@@ -1,10 +1,10 @@
 import pytest
 
-from src.app_kernel import App
+from src.core import App
 from src.infra.event_bus.memory_event_bus import MemoryEventBus
 from src.infra.container.std_container import StdLibContainer
 from src.infra.event_bus.thread_pool_event_bus import ThreadPoolEventBus
-from src.infra.event_bus.ipc_queue_event_bus import IPCBroker, IPCQueueEventBus
+from src.infra.event_bus import IPCBroker, IPCQueueEventBus
 
 
 class TrackedMemoryEventBus(MemoryEventBus):

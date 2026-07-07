@@ -2,7 +2,7 @@ import os
 import pytest
 
 from src.infra.storage.local_file_storage import LocalFileStorage
-from src.exceptions import PathTraversalError
+from src.core import PathTraversalError
 
 
 @pytest.fixture

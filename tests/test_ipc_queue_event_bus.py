@@ -2,7 +2,7 @@ import multiprocessing
 import time
 from multiprocessing.queues import Queue as MQueue
 
-from src.infra.event_bus.ipc_queue_event_bus import IPCBroker, IPCQueueEventBus
+from src.infra.event_bus import IPCBroker, IPCQueueEventBus
 
 
 def test_single_process_ipc_queue_event_bus(ipc_bus_factory):

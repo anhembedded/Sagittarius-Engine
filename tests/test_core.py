@@ -2,9 +2,9 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.app_kernel import App
-from src.base_module import BaseModule
-from src.exceptions import ModuleRegistrationError
+from src.core import App
+from src.core import BaseModule
+from src.core import ModuleRegistrationError
 from src.infra.event_bus.memory_event_bus import MemoryEventBus
 from src.infra.container.std_container import DependencyResolutionError, StdLibContainer
 from src.interfaces import ICommand, IEventBus, IQuery

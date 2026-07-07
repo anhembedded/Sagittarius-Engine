@@ -8,10 +8,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.app_kernel import App, MiddlewarePipeline
-from src.exceptions import DependencyResolutionError
+from src.core import App, MiddlewarePipeline
+from src.core import DependencyResolutionError
 from src.infra.event_bus.asyncio_event_bus import AsyncioEventBus
-from src.infra.config.config_manager import ConfigManager, JsonSource
+from src.infra.config import ConfigManager, JsonSource
 from src.infra.event_bus.memory_event_bus import MemoryEventBus
 from src.infra.event_bus.resilient_event_bus import ResilientEventBus
 from src.infra.container.std_container import StdLibContainer
@@ -25,7 +25,8 @@ from src.interfaces import (
     IModule,
     ISession,
 )
-from src.modules.health_module import HealthCheckQuery, HealthModule
+from src.modules.health_check_query import HealthCheckQuery
+from src.modules.health_module import HealthModule
 
 
 # --- Fixtures ---
@@ -417,6 +418,8 @@ def test_health_module__db_session_raises__returns_unhealthy(app, container, eve
     query = container.resolve(HealthCheckQuery)
 
     mock_sqlalchemy = MagicMock()
+    mock_sqlalchemy.exc = MagicMock()
+    mock_sqlalchemy.exc.SQLAlchemyError = Exception
     mock_sqlalchemy.text.return_value = "SELECT 1"
     with patch.dict("sys.modules", {"sqlalchemy": mock_sqlalchemy}):
         status = query.execute()
@@ -678,6 +681,7 @@ def test_session_context_manager():
     assert session2.rolled_back is True
 
 
+@patch('src.modules.database_module.SQLALCHEMY_INSTALLED', True)
 def test_database_module_production_failure(app, monkeypatch):
     from src.interfaces import IConfig
     from src.modules.database_module import DatabaseModule
@@ -696,7 +700,7 @@ def test_database_module_production_failure(app, monkeypatch):
 
 
 def test_health_check_query_dto(app, container, event_bus):
-    from src.modules.health_module import HealthCheckDTO, HealthCheckQuery
+    from src.modules.health_check_query import HealthCheckDTO, HealthCheckQuery
 
     container.singleton(IContainer, container)
     container.singleton(IEventBus, event_bus)

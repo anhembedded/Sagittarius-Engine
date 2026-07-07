@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.app_kernel import App
+    from src.core import App
 
 
 class IModule(ABC):

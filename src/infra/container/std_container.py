@@ -3,7 +3,7 @@ import threading
 from collections.abc import Callable
 from typing import Any, TypeVar
 
-from src.exceptions import DependencyResolutionError
+from src.core import DependencyResolutionError
 from src.interfaces import IContainer
 
 T = TypeVar("T")

@@ -2,8 +2,8 @@ import json
 import os
 from typing import Any
 
-from src.app_kernel import App
-from src.base_module import BaseModule
+from src.core import App
+from src.core import BaseModule
 from src.interfaces import ICommand, IQuery, IEventBus, IContainer, IConfig
 from src.infra.container.std_container import StdLibContainer
 from src.infra.event_bus.memory_event_bus import MemoryEventBus

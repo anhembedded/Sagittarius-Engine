@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from src.base_event import BaseEvent
+from src.core import BaseEvent
 from src.interfaces import IDomainEvent
 
 

@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from src.app_kernel import App
+    from src.core import App
 
-from src.base_module import BaseModule
+from src.core import BaseModule
 from src.infra.thread_manager import ThreadManager
 from src.interfaces import IConfig, IThreadManager
 

@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock
-from src.base_repository import BaseRepository
+from src.core import BaseRepository
 
 
 class MyEntity:
