@@ -1,7 +1,6 @@
 import os
 import sys
 import tempfile
-import json
 from io import StringIO
 from unittest.mock import patch
 
