@@ -1,0 +1,36 @@
+--- tests/test_middleware.py
++++ tests/test_middleware.py
+@@ -74,28 +74,6 @@
+     import time
+     import random
+-
+-class DummyConcurrentMiddleware(IMiddleware):
+-    def process(self, cmd_or_query, data_transfer_obj, next_handler):
+-        # Inject thread-specific data
+-        thread_id = str(uuid.uuid4())
+-        data_transfer_obj["thread_id"] = thread_id
+-
+-        # Simulate some work / delay
+-        time.sleep(random.uniform(0.001, 0.005))
+-
+-        result = next_handler()
+-
+-        # Verify state is not contaminated
+-        assert data_transfer_obj["thread_id"] == thread_id
+-
+-        return result
+-
+-def test_middleware_pipeline_concurrent_execution():
+-    pipeline = MiddlewarePipeline()
+-    pipeline.add(DummyConcurrentMiddleware())
+-
+-    successful_responses = set()
+-
+-    def final_handler(dto):
+-        # Ensure that final_handler receives the dto.
+-        # Wait, the final_handler in execute doesn't receive dto in MiddlewarePipeline execute:
+-        # def execute(self, cmd_or_query: Any, dto: Any, final_handler: Callable[[], Any]) -> Any:
+-        # final_handler takes no arguments in the signature. So we can't easily pass dto down to final_handler directly.
+-        pass
+
+ def test_middleware_pipeline_concurrent_execution():

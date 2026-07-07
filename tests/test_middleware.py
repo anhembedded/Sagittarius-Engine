@@ -70,3 +70,56 @@ def test_transaction_middleware_rollbacks_on_exception():
 
     mock_session.rollback.assert_called_once()
     mock_session.commit.assert_not_called()
+
+def test_middleware_pipeline_concurrent_execution():
+    import concurrent.futures
+    import uuid
+    import time
+    import random
+    from src.core import MiddlewarePipeline
+    from src.interfaces import IMiddleware
+
+    class DummyConcurrentMiddleware(IMiddleware):
+        def process(self, cmd_or_query, data_transfer_obj, next_handler):
+            # Inject thread-specific data
+            thread_id = str(uuid.uuid4())
+            data_transfer_obj["thread_id"] = thread_id
+
+            # Simulate some work / delay
+            time.sleep(random.uniform(0.001, 0.005))
+
+            result = next_handler()
+
+            # Verify state is not contaminated
+            assert data_transfer_obj["thread_id"] == thread_id
+
+            # Simulate more work
+            time.sleep(random.uniform(0.001, 0.005))
+
+            # Verify again
+            assert data_transfer_obj["thread_id"] == thread_id
+
+            return result
+
+    pipeline = MiddlewarePipeline()
+    pipeline.add(DummyConcurrentMiddleware())
+
+    def execute_request():
+        dto = {}
+        # final_handler takes no arguments in MiddlewarePipeline
+        def final_handler():
+            # simulate work
+            time.sleep(random.uniform(0.001, 0.005))
+            return dto["thread_id"]
+
+        return pipeline.execute("cmd", dto, final_handler)
+
+    num_requests = 100
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+        futures = [executor.submit(execute_request) for _ in range(num_requests)]
+        results = [f.result() for f in concurrent.futures.as_completed(futures)]
+
+    # Assert exactly 100 successful responses
+    assert len(results) == num_requests
+    # Assert no state contamination (all IDs are unique)
+    assert len(set(results)) == num_requests
