@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from functools import partial
 from typing import Any
 from src.interfaces import IMiddleware
 
@@ -28,20 +29,7 @@ class MiddlewarePipeline:
         Returns:
             The final execution result after passing through the pipeline.
         """
-        return self.__build_chain(cmd_or_query, dto, final_handler, 0)()
-
-    def __build_chain(self, cmd_or_query: Any, dto: Any, final_handler: Callable[[], Any], index: int) -> Callable[[], Any]:
-        """
-        Private helper method to recursively build the middleware chain.
-        Each middleware wraps around the next one until the final handler.
-        """
-        if index >= len(self.middlewares):
-            return final_handler
-        middleware = self.middlewares[index]
-        return lambda: self.__invoke_middleware(middleware, cmd_or_query, dto, final_handler, index)
-
-    def __invoke_middleware(self, middleware: IMiddleware, cmd_or_query: Any, dto: Any, final_handler: Callable[[], Any], index: int) -> Any:
-        """
-        Invoke a single middleware and pass control to the next one.
-        """
-        return middleware.process(cmd_or_query, dto, self.__build_chain(cmd_or_query, dto, final_handler, index + 1))
+        handler = final_handler
+        for middleware in reversed(self.middlewares):
+            handler = partial(middleware.process, cmd_or_query, dto, handler)
+        return handler()
