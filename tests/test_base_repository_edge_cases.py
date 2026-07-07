@@ -1,7 +1,6 @@
 import pytest
 import unittest.mock
 from unittest.mock import MagicMock
-import sys
 
 from src.core import BaseRepository
 
