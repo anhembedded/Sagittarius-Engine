@@ -1,4 +1,5 @@
 import asyncio
+import inspect
 import threading
 from collections.abc import Callable
 from typing import Any
@@ -38,7 +39,7 @@ class AsyncioEventBus(IAsyncEventBus):
 
         for handler in handlers_snapshot:
             try:
-                if asyncio.iscoroutinefunction(handler):
+                if inspect.iscoroutinefunction(handler):
                     await handler(data)
                 else:
                     handler(data)

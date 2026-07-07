@@ -1,4 +1,5 @@
 import asyncio
+import warnings
 
 import pytest
 
@@ -26,6 +27,23 @@ async def test_asyncio_event_bus_mixed_handlers():
     # Ensure both handlers executed successfully sequentially
     assert results == ["async: payload", "sync: payload"]
 
+
+
+@pytest.mark.asyncio
+async def test_asyncio_event_bus_avoids_deprecated_coroutine_check():
+    bus = AsyncioEventBus()
+    results = []
+
+    async def async_handler(data):
+        results.append(f"async: {data}")
+
+    bus.on("test.event", async_handler)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", DeprecationWarning)
+        await bus.emit("test.event", "payload")
+
+    assert results == ["async: payload"]
 
 
 @pytest.mark.asyncio
