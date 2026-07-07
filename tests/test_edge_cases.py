@@ -742,3 +742,27 @@ def test_pydantic_validation_middleware_v2():
 # 6. MiddlewarePipeline (test_pydantic_middleware__dto_is_none__raises_exception): `PydanticValidationMiddleware` was skipping validation and letting invalid input through if `data_transfer_obj` was None. Fixed by enforcing the model class initialization even for `None` DTOs, triggering proper `ValidationError`s.
 # 7. ModuleAutoDiscovery (test_module_autodiscovery__syntax_error__ignores_and_does_not_crash): Missing robust try-except around `importlib.import_module` in `AppKernel` allowing malformed modules to crash boot sequence.
 # 8. HealthModule (test_health_module__db_session_raises__returns_unhealthy): Handled `import sqlalchemy` missing gracefully but incorrectly set the status to "healthy" despite the DB check failing. Fixed by handling `ImportError` explicitly.
+
+def test_container__circular_dependency__raises_error():
+    from src.infra.container.std_container import StdLibContainer
+    from src.core.exceptions import DependencyResolutionError
+
+    class ClassB:
+        pass
+
+    class ClassA:
+        def __init__(self, b: ClassB):
+            self.b = b
+
+    # redefine b to create circular dependency
+    class ClassB:
+        def __init__(self, a: ClassA):
+            self.a = a
+
+    # Need to update ClassA's init annotations to point to new ClassB
+    ClassA.__init__.__annotations__["b"] = ClassB
+
+    container = StdLibContainer()
+
+    with pytest.raises(DependencyResolutionError, match="Circular dependency detected"):
+        container.resolve(ClassA)
