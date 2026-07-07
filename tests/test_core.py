@@ -82,7 +82,7 @@ def test_app_use_module():
 
     class MyModule(BaseModule):
         def register(self, a: App):
-            a.container.singleton("custom", "registered")
+            a.container.singleton("custom", "registered")  # type: ignore[arg-type]  # type: ignore[arg-type]  # type: ignore[arg-type]  # type: ignore[arg-type]
 
         def boot(self, a: App):
             pass

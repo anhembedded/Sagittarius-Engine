@@ -16,7 +16,7 @@ class AppTestCase(unittest.TestCase):
 class EventBusSpy:
     def __init__(self, event_bus: IEventBus):
         self.event_bus = event_bus
-        self.emitted_events = []
+        self.emitted_events: list = []
 
         # Monkey patch emit
         self.original_emit = event_bus.emit
@@ -25,7 +25,7 @@ class EventBusSpy:
             self.emitted_events.append((name, data))
             self.original_emit(name, data)
 
-        event_bus.emit = spy_emit
+        event_bus.emit = spy_emit  # type: ignore[method-assign]
 
     def assert_emitted(self, event_name: str, times: int = 1):
         count = sum(1 for name, _ in self.emitted_events if name == event_name)
