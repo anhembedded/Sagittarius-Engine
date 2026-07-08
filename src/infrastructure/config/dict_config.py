@@ -17,9 +17,13 @@ class DictConfig(IConfig):
     @endcode
     """
 
-    def __init__(self) -> None:
-        """@brief Constructor."""
-        self._config: dict[str, Any] = {}
+    def __init__(self, initial_data: dict[str, Any] | None = None) -> None:
+        """
+        @brief Constructor.
+
+        @param initial_data Optional initial dictionary to populate the configuration.
+        """
+        self._config: dict[str, Any] = initial_data if initial_data is not None else {}
 
     def get(self, key: str, default: Any = None) -> Any:
         """
