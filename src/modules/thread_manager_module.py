@@ -1,11 +1,12 @@
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from src.core import App
+    from src.application.kernel import App
 
-from src.core import BaseModule
-from src.infra.thread_manager import ThreadManager
-from src.interfaces import IConfig, IThreadManager
+from src.application.base import BaseModule
+from src.infrastructure.thread_manager import ThreadManager
+from src.application.ports import IConfig
+from src.infrastructure.persistence.i_thread_manager import IThreadManager
 
 class ThreadManagerModule(BaseModule):
     """!

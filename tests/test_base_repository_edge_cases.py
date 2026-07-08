@@ -1,9 +1,8 @@
 import pytest
 import unittest.mock
 from unittest.mock import MagicMock
-import sys
 
-from src.core import BaseRepository
+from src.application.base import BaseRepository
 
 class MyEntity:
     def __init__(self, id):

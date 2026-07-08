@@ -2,8 +2,8 @@ from datetime import UTC, datetime
 
 import pytest
 
-from src.core import BaseEvent
-from src.interfaces import IDomainEvent
+from src.domain import BaseEvent
+from src.domain.i_domain_event import IDomainEvent
 
 
 def test_base_event_initialization():

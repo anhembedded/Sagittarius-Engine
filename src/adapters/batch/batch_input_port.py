@@ -2,8 +2,8 @@ import csv
 import json
 import os
 from typing import Any, Iterator, Optional
-from src.core.app_runner import COMMAND_KEY, EXIT_COMMAND
-from src.core.base_input_port import BaseInputPort
+from src.application.kernel.app_runner import COMMAND_KEY, EXIT_COMMAND
+from src.application.base.base_input_port import BaseInputPort
 from src.adapters.batch.const import FILE_TYPE_CSV, FILE_TYPE_JSON
 
 class BatchInputPort(BaseInputPort):
