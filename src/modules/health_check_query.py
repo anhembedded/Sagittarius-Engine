@@ -46,7 +46,7 @@ class HealthCheckQuery(IQuery):
                 status['components']['database'] = 'sqlalchemy not installed'
                 status['status'] = 'unhealthy'
             except Exception as e:
-                status['components']['database'] = f'error executing query: {str(e)}'
+                status['components']['database'] = 'database connection failed'
                 status['status'] = 'unhealthy'
         except Exception:
             status['components']['database'] = 'not configured or resolving failed'

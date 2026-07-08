@@ -426,8 +426,7 @@ def test_health_module__db_session_raises__returns_unhealthy(app, container, eve
         status = query.execute()
 
     assert status["status"] == "unhealthy"
-    assert "error executing query" in status["components"]["database"]
-    assert "DB Connection Lost" in status["components"]["database"]
+    assert "database connection failed" in status["components"]["database"]
 
 
 def test_health_module__no_isession_configured__returns_not_configured(
