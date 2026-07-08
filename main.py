@@ -70,12 +70,11 @@ if __name__ == "__main__":
     container.singleton(IEventBus, event_bus)
 
     # Load configuration
-    config = DictConfig()
+    config_data = None
     if os.path.exists('config.json'):
         with open('config.json', 'r') as f:
             config_data = json.load(f)
-            for k, v in config_data.items():
-                config.set(k, v)
+    config = DictConfig(config_data)
     container.singleton(IConfig, config)
 
     # Register logger module
