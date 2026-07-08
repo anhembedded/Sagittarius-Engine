@@ -20,7 +20,7 @@ class TransactionMiddleware(IMiddleware):
     def process(
         self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]
     ) -> Any:
-        session = self._container.resolve(ISession)
+        session: ISession = self._container.resolve(ISession)
         try:
             result = next_handler()
             session.commit()

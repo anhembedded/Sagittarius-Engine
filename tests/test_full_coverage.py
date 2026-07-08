@@ -1,5 +1,4 @@
 from src.infrastructure.persistence.i_session import ISession
-from src.infrastructure.persistence.i_thread_manager import IThreadManager
 
 import asyncio
 import os

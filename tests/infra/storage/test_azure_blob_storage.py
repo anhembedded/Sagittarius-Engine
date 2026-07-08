@@ -1,8 +1,6 @@
 import pytest
 pytest.importorskip('azure')
 import importlib
-import sys
-import unittest
 from unittest.mock import MagicMock, patch
 
 import pytest
