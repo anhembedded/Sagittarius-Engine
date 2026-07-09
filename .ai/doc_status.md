@@ -1,0 +1,85 @@
+==================================================
+Documentation Status
+==================================================
+
+Phase D1 — Documentation Foundation
+Status: COMPLETED
+
+Deliverables:
+
+docs/
+  index.md                          ✅ Done
+  STYLE_GUIDE.md                    ✅ Done
+  DOC_REVIEW_CHECKLIST.md           ✅ Done
+  getting-started/
+    installation.md                 ✅ Done
+    first_app.md                    ✅ Done
+    first_extension.md              ✅ Done
+    project_templates.md            ✅ Done
+  concepts/
+    README.md                       ✅ Done (Placeholder)
+  tutorials/
+    README.md                       ✅ Done (Placeholder)
+  advanced/
+    extension_dependencies.md       ✅ Done
+
+--------------------------------------------------
+
+Phase D1.5 — Documentation Infrastructure
+Status: NOT STARTED
+Deliverables: mkdocs.yml
+
+Phase D1.6 — Documentation Quality
+Status: NOT STARTED
+Deliverables: tests/test_docs.py, .github/workflows/docs.yml
+
+Phase D1.7 / D6 — API Reference Auto-Generation
+Status: NOT STARTED
+Deliverables: mkdocstrings integration in mkdocs.yml
+
+Phase D2 — Core Concepts
+Status: NOT STARTED
+
+Phase D3 — Runtime Guides
+Status: NOT STARTED
+
+Phase D4 — Advanced Guides
+Status: NOT STARTED
+
+Phase D5 — Tutorials
+Status: NOT STARTED
+
+Phase D7 — Migration Guides
+Status: NOT STARTED
+
+Phase D8 — Documentation Polish & Release
+Status: NOT STARTED
+
+==================================================
+Documentation Rules
+==================================================
+
+Every page MUST:
+- Start with: > Applies to Sagittarius Engine v1.x
+- End with: > [Found an issue? Edit this page on GitHub.](link)
+
+Code examples MUST:
+- Use only: from sagittarius_engine import ...
+- Be <= 50 lines
+- Be runnable and terminate cleanly
+- Use no deprecated APIs (execute(), query())
+
+Diagrams MUST:
+- Architecture: flowchart TB
+- Lifecycle/Sequence: sequenceDiagram
+- Abstractions: classDiagram
+- Decision: flowchart LR
+- No screenshots. Mermaid only.
+
+Terminology:
+- Always: "Extension"
+- Never: "Module"
+- Always: "dispatch()"
+- Never: "execute()" or "query()" in new docs
+
+==================================================

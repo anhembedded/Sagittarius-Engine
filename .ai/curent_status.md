@@ -20,12 +20,41 @@ Completed Features
 ✓ SDK
 ✓ Project Templates
 ✓ Public API Stabilization
-✓ Examples
+✓ Examples (6 reference applications)
 ✓ Benchmarks
+✓ Documentation Foundation (Phase D1)
 
 In Progress
 
-- Documentation
+- Phase D1.5: MkDocs Infrastructure
+- Phase D1.6: Documentation CI
+- Phase D1.7/D6: API Reference Auto-Generation
+
+Planned
+
+- Phase D2: Core Concepts documentation
+- Phase D3: Runtime Guides documentation
+- Phase D4: Advanced Guides
+- Phase D5: Tutorials
+- Phase D7: Migration Guides
+- Phase D8: Documentation Polish & Release
+- Phase 9: CLI & Developer Experience
+- Phase 10 (deprecated by D-series): Documentation (moved to D phases)
+- Phase 11: Official Ecosystem
+- Phase 12: Stable Release v1.0
+
+Documentation Phase Status
+
+Phase D1  — Documentation Foundation   ✅ COMPLETED
+Phase D1.5 — MkDocs Infrastructure     🚧 NOT STARTED
+Phase D1.6 — Documentation Quality     🚧 NOT STARTED
+Phase D1.7 — API Reference             🚧 NOT STARTED
+Phase D2  — Core Concepts              🚧 NOT STARTED
+Phase D3  — Runtime Guides             🚧 NOT STARTED
+Phase D4  — Advanced Guides            🚧 NOT STARTED
+Phase D5  — Tutorials                  🚧 NOT STARTED
+Phase D7  — Migration Guides           🚧 NOT STARTED
+Phase D8  — Polish & Release           🚧 NOT STARTED
 
 Planned Ecosystem
 
