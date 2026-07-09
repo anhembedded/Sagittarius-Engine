@@ -1,0 +1,6 @@
+{
+    "app_name": "TradingBotReference",
+    "version": "1.0.0",
+    "trading_symbol": "BTCUSDT",
+    "check_interval_seconds": 0.1
+}

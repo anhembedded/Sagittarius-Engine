@@ -273,9 +273,25 @@ Không để user tự tạo thread khắp nơi.
 ### Acceptance
 Trading Bot, Desktop App, Worker, Automation đều chạy được.
 
+# ✅ Phase 8 — Reference Applications
+
+**Status:** Completed
+
+### Goal
+Xây dựng bộ ứng dụng mẫu thực tế (Reference Applications) để kiểm thử và chứng minh kiến trúc Sagittarius Engine.
+
+### Completed
+* **`trading_bot`**: Ứng dụng mẫu long-running service có cấu trúc thư mục modular (`app/`), exchange mock (`IHostedService`), và spawning order execution.
+* **`desktop`**: Mô phỏng event loop tích hợp với thread-safe task manager và events notification để cập nhật giao diện mà không bị khóa cứng vào PySide6.
+* **`rest_api`**: Server HTTP bằng standard library dùng dispatcher và DI container.
+* **`worker`**: Background queue processor chạy liên tục và hỗ trợ cooperative cancellation.
+* **`websocket`**: Client websocket mô phỏng có heartbeat loop, auto-reconnect backoff và cancellation token.
+* **`plugin_system`**: Kiểm thử Topological Sort của 3 tầng extension phụ thuộc (`Metrics` -> `Trading` -> `Dashboard`).
+* **`benchmark_runtime.py` & `runtime_validation.md`**: Bổ sung bộ benchmark đo hiệu năng (boot, scheduler, hosted services) và báo cáo xác thực kiểm chứng kiến trúc.
+
 ---
 
-# 🚧 Phase 8 — CLI & Tooling
+# 🚧 Phase 9 — CLI & Tooling
 
 Ví dụ:
 ```bash
@@ -290,7 +306,7 @@ Không đụng kernel.
 
 ---
 
-# 🚧 Phase 9 — Documentation & Samples
+# 🚧 Phase 10 — Documentation
 
 Ví dụ:
 ```text
@@ -301,48 +317,10 @@ sdk.md
 tutorials/
 examples/
 ```
-Ví dụ mẫu:
-* Trading Bot
-* Binance Client
-* PySide Desktop
-* REST API
-* Worker
-* CLI
 
 ---
 
-# 🚧 Phase 9.5 — Reference Applications
-
-Ví dụ:
-```text
-examples/
-    trading_bot/
-    desktop_pyside/
-    crypto_dashboard/
-    rest_api/
-    worker/
-    scheduler/
-    websocket/
-    plugin_system/
-```
-Đây không chỉ là example, mà là **proof of architecture**.
-
-Ví dụ Trading Bot:
-```text
-examples/
-    trading_bot/
-        app/
-        strategies/
-        exchanges/
-        ui/
-        config/
-        main.py
-```
-Người dùng clone, chạy ngay và hoạt động trực quan.
-
----
-
-# 🚧 Phase 10 — Ecosystem
+# 🚧 Phase 11 — Ecosystem
 
 Ví dụ:
 ```text
@@ -356,11 +334,10 @@ Ecosystem
     ├── sagittarius-ai
     └── sagittarius-backtesting
 ```
-Đây là ecosystem lớn mạnh của dự án, độc lập với core kernel.
 
 ---
 
-# 🚧 Phase 11 — Stable Release
+# 🚧 Phase 12 — Stable Release v1.0
 
 Kernel Freeze
 Semantic Versioning

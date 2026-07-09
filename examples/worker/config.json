@@ -1,0 +1,5 @@
+{
+    "app_name": "QueueWorkerReference",
+    "version": "1.0.0",
+    "max_concurrent_workers": 1
+}

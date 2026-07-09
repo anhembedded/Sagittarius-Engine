@@ -1,0 +1,5 @@
+{
+    "app_name": "PluginSystemReference",
+    "version": "1.0.0",
+    "enabled_plugins": ["CorePlugin", "AddonPlugin"]
+}
