@@ -1,21 +1,67 @@
-name: Sagittarius CI
+name: Sagittarius Engine CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
+  # ──────────────────────────────────────────────────────────────
+  # Job 1: Lint & Static Analysis (runs first, fails fast)
+  # ──────────────────────────────────────────────────────────────
+  lint:
+    name: Lint & Type Check
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.14-dev"]
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-lint-${{ hashFiles('requirements-dev.txt') }}
+          restore-keys: ${{ runner.os }}-pip-lint-
+
+      - name: Install dev tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Ruff — lint
+        run: ruff check sagittarius_engine tests
+
+      - name: Ruff — format check
+        run: ruff format --check sagittarius_engine tests
+
+      - name: mypy — type check
+        run: mypy sagittarius_engine --ignore-missing-imports --follow-imports=skip
+
+  # ──────────────────────────────────────────────────────────────
+  # Job 2: Test Matrix (Python 3.10 → 3.13 stable + 3.14 dev)
+  # ──────────────────────────────────────────────────────────────
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    needs: lint
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14-dev"]
+
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -23,17 +69,128 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
 
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
+          restore-keys: ${{ runner.os }}-pip-${{ matrix.python-version }}-
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
 
-      - name: Static analysis
-        run: |
-          ruff check src tests --select F
-          mypy sagittarius_engine --ignore-missing-imports --follow-imports=skip
-
       - name: Run tests with coverage
         run: |
-          pytest tests/ --cov=src --cov-report=xml --cov-report=term
+          pytest tests/ \
+            --ignore=tests/benchmark_runtime.py \
+            --cov=sagittarius_engine \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            -q
+
+      - name: Upload coverage (Python 3.12 only)
+        if: matrix.python-version == '3.12'
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+          fail_ci_if_error: false
+
+  # ──────────────────────────────────────────────────────────────
+  # Job 3: Architecture Guard Tests
+  # ──────────────────────────────────────────────────────────────
+  architecture:
+    name: Architecture Guard
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-arch-${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
+          restore-keys: ${{ runner.os }}-pip-arch-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run architecture tests
+        run: pytest tests/test_architecture.py -v
+
+  # ──────────────────────────────────────────────────────────────
+  # Job 4: Reference Application Integration Tests
+  # ──────────────────────────────────────────────────────────────
+  examples:
+    name: Reference Applications
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-examples-${{ hashFiles('requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-examples-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run example integration tests
+        run: pytest tests/test_examples.py -v
+
+  # ──────────────────────────────────────────────────────────────
+  # Job 5: Benchmark (informational, never blocks)
+  # ──────────────────────────────────────────────────────────────
+  benchmark:
+    name: Performance Benchmark
+    needs: test
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-bench-${{ hashFiles('requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-bench-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run benchmarks
+        run: python tests/benchmark_runtime.py
