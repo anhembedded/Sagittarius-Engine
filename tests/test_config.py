@@ -1,6 +1,6 @@
 import json
 
-from src.infrastructure.config import ConfigManager, DictSource, EnvSource, JsonSource
+from sagittarius_engine.infrastructure.config import ConfigManager, DictSource, EnvSource, JsonSource
 
 
 def test_config_manager_dict_source():

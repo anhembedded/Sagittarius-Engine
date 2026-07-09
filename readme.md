@@ -38,7 +38,7 @@ pip install -e .
 Use the built-in scaffolding tool to generate a new clean architecture application:
 
 ```bash
-python -m src.scaffold my_new_app
+python -m sagittarius_engine.tools.scaffold my_new_app
 ```
 
 ### 3. Examples
@@ -60,5 +60,5 @@ python example/multi_module/main.py
 The framework comes with a full suite of tests. Run them using `pytest` to ensure everything is working correctly:
 
 ```bash
-python -m pytest tests/ --cov=src
+python -m pytest tests/ --cov=sagittarius_engine
 ```

@@ -49,8 +49,8 @@ The framework provides several built-in middlewares:
 
 ```python
 from src.interfaces import IContainer
-from src.middleware.logging_middleware import LoggingMiddleware
-from src.middleware.timing_middleware import TimingMiddleware
+from sagittarius_engine.middleware.logging_middleware import LoggingMiddleware
+from sagittarius_engine.middleware.timing_middleware import TimingMiddleware
 
 def setup_middleware(app: 'App', container: IContainer):
     # Middlewares execute in the order they are added.

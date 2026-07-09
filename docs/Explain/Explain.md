@@ -47,8 +47,8 @@ Open `src/app_kernel.py`. This file contains:
 ### A Minimal App Bootstrap
 
 ```python
-from src.infra.std_container import StdLibContainer
-from src.infra.memory_event_bus import MemoryEventBus
+from sagittarius_engine.infrastructure.std_container import StdLibContainer
+from sagittarius_engine.infrastructure.memory_event_bus import MemoryEventBus
 from src.app_kernel import App
 from src.interfaces import IContainer, IEventBus
 
@@ -61,7 +61,7 @@ container.singleton(IContainer, container)
 container.singleton(IEventBus, event_bus)
 
 # Boot (and auto‑load modules from 'modules' package if you have one)
-app.boot(auto_discover="modules")
+app.boot(auto_discover="sagittarius_engine.extensions")
 ```
 
 After this, your app is alive, and you can call `app.execute(SomeCommand, data_transfer_obj)` or `app.query(SomeQuery, data_transfer_obj)`.
@@ -156,7 +156,7 @@ class UserModule(BaseModule):
         app.event_bus.on('user.created', lambda event: print("User created!"))
 ```
 
-Place this file in your app's `modules/` directory, and `app.boot(auto_discover="modules")` will load it automatically.
+Place this file in your app's `modules/` directory, and `app.boot(auto_discover="sagittarius_engine.extensions")` will load it automatically.
 
 ---
 
@@ -167,8 +167,8 @@ Middleware wraps every command/query execution. Open `src/interfaces/i_middlewar
 ### Using Built‑in Middleware
 
 ```python
-from src.middleware.logging_middleware import LoggingMiddleware
-from src.middleware.timing_middleware import TimingMiddleware
+from sagittarius_engine.middleware.logging_middleware import LoggingMiddleware
+from sagittarius_engine.middleware.timing_middleware import TimingMiddleware
 
 app.use_middleware(LoggingMiddleware(container))   # automatically logs start/end
 app.use_middleware(TimingMiddleware())             # prints execution time
@@ -196,7 +196,7 @@ class MyMiddleware(IMiddleware):
 In your `main.py`, simply add:
 
 ```python
-from src.modules.logger_module import LoggerModule
+from sagittarius_engine.extensions.logger_module import LoggerModule
 app.use(LoggerModule())
 ```
 
@@ -209,7 +209,7 @@ Now `app.execute(...)` and `EventBus` will log automatically.
 Let's build a tiny "User Creator" app using the scaffold. Run:
 
 ```bash
-python src/scaffold.py my_first_app
+python sagittarius_engine/tools/scaffold.py my_first_app
 cd my_first_app
 ```
 

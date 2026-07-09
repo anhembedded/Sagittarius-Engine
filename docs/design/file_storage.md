@@ -46,8 +46,8 @@ Sagittarius offers `IFileStorage` with three built-in implementations:
 ## How to Use / Examples
 
 ```python
-from src.infra.local_file_storage import LocalFileStorage
-from src.infra.s3_file_storage import S3FileStorage
+from sagittarius_engine.infrastructure.local_file_storage import LocalFileStorage
+from sagittarius_engine.infrastructure.s3_file_storage import S3FileStorage
 
 # Setup Local Storage
 storage = LocalFileStorage(base_path="/tmp/myapp_uploads")

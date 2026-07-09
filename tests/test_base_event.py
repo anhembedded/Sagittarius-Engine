@@ -2,8 +2,8 @@ from datetime import UTC, datetime
 
 import pytest
 
-from src.domain import BaseEvent
-from src.domain.i_domain_event import IDomainEvent
+from sagittarius_engine.domain import BaseEvent
+from sagittarius_engine.domain.i_domain_event import IDomainEvent
 
 
 def test_base_event_initialization():

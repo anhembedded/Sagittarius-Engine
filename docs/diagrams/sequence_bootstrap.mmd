@@ -12,7 +12,7 @@ sequenceDiagram
     Note over App, EventBus: Application Bootstrap Flow
     User->>App: create App(container, event_bus)
     App->>App: initialize pipeline & modules
-    User->>App: boot(auto_discover="modules")
+    User->>App: boot(auto_discover="sagittarius_engine.extensions")
 
     App->>AutoDiscovery: discover("modules", self)
     AutoDiscovery-->>App: use(Module)

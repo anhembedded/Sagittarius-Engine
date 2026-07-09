@@ -124,7 +124,7 @@ class IAsyncEventBus(Protocol):
 ### 1. MemoryEventBus
 
 ```python
-from src.infra.event_bus import MemoryEventBus
+from sagittarius_engine.infrastructure.event_bus import MemoryEventBus
 
 bus = MemoryEventBus()
 bus.on("user.created", lambda user: print(f"New user: {user['name']}"))
@@ -134,7 +134,7 @@ bus.emit("user.created", {"name": "Alice"})
 ### 2. ThreadPoolEventBus
 
 ```python
-from src.infra.event_bus import ThreadPoolEventBus
+from sagittarius_engine.infrastructure.event_bus import ThreadPoolEventBus
 import time
 
 def slow_handler(data):
@@ -151,7 +151,7 @@ bus.shutdown()
 
 ```python
 import asyncio
-from src.infra.event_bus import AsyncioEventBus
+from sagittarius_engine.infrastructure.event_bus import AsyncioEventBus
 
 async def main():
     bus = AsyncioEventBus()
@@ -164,7 +164,7 @@ asyncio.run(main())
 ### 4. ResilientEventBus
 
 ```python
-from src.infra.event_bus import MemoryEventBus, ResilientEventBus
+from sagittarius_engine.infrastructure.event_bus import MemoryEventBus, ResilientEventBus
 
 base_bus = MemoryEventBus()
 safe_bus = ResilientEventBus(base_bus, max_retries=3)
@@ -181,7 +181,7 @@ print(safe_bus.get_dlq())  # contains failed events
 
 ```python
 import multiprocessing
-from src.infra.event_bus import IPCBroker, IPCQueueEventBus
+from sagittarius_engine.infrastructure.event_bus import IPCBroker, IPCQueueEventBus
 
 def child_process(sub_queue, pub_queue):
     bus = IPCQueueEventBus(sub_queue, pub_queue)

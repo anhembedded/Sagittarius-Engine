@@ -35,7 +35,7 @@ Wraps a SQLAlchemy session to conform to the `ISession` interface.
 
 ```python
 from src.app_kernel import App
-from src.modules.database_module import DatabaseModule
+from sagittarius_engine.extensions.database_module import DatabaseModule
 
 # Assuming container and config are setup with database.url = 'sqlite:///app.db'
 app.use(DatabaseModule())

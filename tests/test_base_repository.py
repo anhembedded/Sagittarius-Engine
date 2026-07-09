@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock
-from src.application.base import BaseRepository
+from sagittarius_engine.base import BaseRepository
 
 
 class MyEntity:

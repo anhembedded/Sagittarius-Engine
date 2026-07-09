@@ -1,4 +1,4 @@
-from src.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
 
 class TestMemoryEventBus:

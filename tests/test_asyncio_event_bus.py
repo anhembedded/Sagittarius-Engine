@@ -3,7 +3,7 @@ import warnings
 
 import pytest
 
-from src.infrastructure.event_bus.asyncio_event_bus import AsyncioEventBus
+from sagittarius_engine.infrastructure.event_bus.asyncio_event_bus import AsyncioEventBus
 
 
 

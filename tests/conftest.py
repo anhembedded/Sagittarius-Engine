@@ -1,10 +1,10 @@
 import pytest
 
-from src.application.kernel import App
-from src.infrastructure.event_bus.memory_event_bus import MemoryEventBus
-from src.infrastructure.container.std_container import StdLibContainer
-from src.infrastructure.event_bus.thread_pool_event_bus import ThreadPoolEventBus
-from src.infrastructure.event_bus import IPCBroker, IPCQueueEventBus
+from sagittarius_engine.kernel import App
+from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
+from sagittarius_engine.infrastructure.event_bus.thread_pool_event_bus import ThreadPoolEventBus
+from sagittarius_engine.infrastructure.event_bus import IPCBroker, IPCQueueEventBus
 
 
 class TrackedMemoryEventBus(MemoryEventBus):

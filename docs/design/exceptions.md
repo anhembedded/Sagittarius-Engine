@@ -29,7 +29,7 @@ Sagittarius defines a set of specific exceptions extending the base `Exception` 
 ## How to Use / Examples
 
 ```python
-from src.exceptions import DependencyResolutionError, ModuleRegistrationError
+from sagittarius_engine.exceptions import DependencyResolutionError, ModuleRegistrationError
 from src.app_kernel import App
 from src.interfaces import ILogger
 

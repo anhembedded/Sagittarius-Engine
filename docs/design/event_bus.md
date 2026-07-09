@@ -58,9 +58,9 @@ Abstract base class representing the Event Bus port.
 ## How to Use / Examples
 
 ```python
-from src.infra.memory_event_bus import MemoryEventBus
-from src.infra.resilient_event_bus import ResilientEventBus
-from src.infra.std_logger import StdLogger
+from sagittarius_engine.infrastructure.memory_event_bus import MemoryEventBus
+from sagittarius_engine.infrastructure.resilient_event_bus import ResilientEventBus
+from sagittarius_engine.infrastructure.std_logger import StdLogger
 
 logger = StdLogger()
 

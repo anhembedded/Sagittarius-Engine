@@ -2,14 +2,14 @@ import json
 import os
 from typing import Any
 
-from src.core import App
-from src.core import BaseModule
-from src.interfaces import ICommand, IQuery, IEventBus, IContainer, IConfig
-from src.infra.container.std_container import StdLibContainer
-from src.infra.event_bus.memory_event_bus import MemoryEventBus
-from src.infra.config.dict_config import DictConfig
-from src.modules.logger_module import LoggerModule
-from src.middleware.logging_middleware import LoggingMiddleware
+from sagittarius_engine.kernel import App
+from sagittarius_engine.base import BaseModule
+from sagittarius_engine.interfaces import ICommand, IQuery, IEventBus, IContainer, IConfig
+from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
+from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+from sagittarius_engine.infrastructure.config.dict_config import DictConfig
+from sagittarius_engine.extensions.logger_module import LoggerModule
+from sagittarius_engine.middleware.logging_middleware import LoggingMiddleware
 
 # ========== DOMAIN ==========
 class User:
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     app.use(UserModule())
 
     # Boot app
-    app.boot(auto_discover="src.modules")
+    app.boot(auto_discover="sagittarius_engine.extensions")
     print("Application booted successfully.")
 
     # Execute command

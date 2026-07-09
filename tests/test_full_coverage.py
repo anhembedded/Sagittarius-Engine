@@ -1,4 +1,4 @@
-from src.infrastructure.persistence.i_session import ISession
+from sagittarius_engine.infrastructure.persistence.i_session import ISession
 
 import asyncio
 import os
@@ -10,19 +10,19 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.application.kernel import App, MiddlewarePipeline
-from src.domain import BaseEvent
-from src.exceptions import DependencyResolutionError, ModuleRegistrationError
-from src.infrastructure.event_bus.asyncio_event_bus import AsyncioEventBus
-from src.infrastructure.config import ConfigManager, DictSource, EnvSource, JsonSource
-from src.infrastructure.config.config_sources.dotenv_source import DotenvSource
-from src.infrastructure.config.dict_config import DictConfig
-from src.infrastructure.event_bus.memory_event_bus import MemoryEventBus
-from src.infrastructure.event_bus.resilient_event_bus import ResilientEventBus
-from src.infrastructure.container.std_container import StdLibContainer
-from src.infrastructure.logging.std_logger import StdLogger
-from src.infrastructure.event_bus.thread_pool_event_bus import ThreadPoolEventBus
-from src.application.ports import (
+from sagittarius_engine.kernel import App, MiddlewarePipeline
+from sagittarius_engine.domain import BaseEvent
+from sagittarius_engine.exceptions import DependencyResolutionError, ModuleRegistrationError
+from sagittarius_engine.infrastructure.event_bus.asyncio_event_bus import AsyncioEventBus
+from sagittarius_engine.infrastructure.config import ConfigManager, DictSource, EnvSource, JsonSource
+from sagittarius_engine.infrastructure.config.config_sources.dotenv_source import DotenvSource
+from sagittarius_engine.infrastructure.config.dict_config import DictConfig
+from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+from sagittarius_engine.infrastructure.event_bus.resilient_event_bus import ResilientEventBus
+from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
+from sagittarius_engine.infrastructure.logging.std_logger import StdLogger
+from sagittarius_engine.infrastructure.event_bus.thread_pool_event_bus import ThreadPoolEventBus
+from sagittarius_engine.interfaces import (
     ICommand,
     IContainer,
     IEventBus,
@@ -32,8 +32,8 @@ from src.application.ports import (
     IQuery,
 
 )
-from src.modules.health_check_query import HealthCheckQuery
-from src.modules.health_module import HealthModule
+from sagittarius_engine.extensions.health_check_query import HealthCheckQuery
+from sagittarius_engine.extensions.health_module import HealthModule
 from tests.helpers import assert_event_emitted
 
 try:
@@ -41,7 +41,7 @@ try:
 
     has_pydantic = importlib.util.find_spec("pydantic") is not None
 
-    from src.middleware.pydantic_validation_middleware import (
+    from sagittarius_engine.middleware.pydantic_validation_middleware import (
         PydanticValidationMiddleware,
     )
 
@@ -547,7 +547,7 @@ def test_app__boot_with_auto_discover__discovers_module(tmp_path, event_bus):
     mod_dir = tmp_path / "my_module"
     mod_dir.mkdir()
     (mod_dir / "__init__.py").write_text("""
-from src.application.ports import IModule
+from sagittarius_engine.interfaces import IModule
 class MyAutoModule(IModule):
     def register(self, app):
         pass
@@ -796,7 +796,7 @@ def test_module_auto_discovery__loads_correct_modules(tmp_path, event_bus):
     pkg_dir = root / "pkg_mod"
     pkg_dir.mkdir()
     (pkg_dir / "__init__.py").write_text("""
-from src.application.ports import IModule
+from sagittarius_engine.interfaces import IModule
 class PkgModule(IModule):
     def register(self, app):
         app.event_bus.emit("pkg_mod.registered", None)
@@ -806,7 +806,7 @@ class PkgModule(IModule):
 
     # 2. Single file module
     (root / "single_mod.py").write_text("""
-from src.application.ports import IModule
+from sagittarius_engine.interfaces import IModule
 class SingleModule(IModule):
     def register(self, app):
         app.event_bus.emit("single_mod.registered", None)

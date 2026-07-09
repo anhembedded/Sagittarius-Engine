@@ -41,11 +41,11 @@ A module to automatically wire the Logger into the Container.
 
 ```python
 from src.app_kernel import App
-from src.infra.std_container import StdLibContainer
-from src.infra.memory_event_bus import MemoryEventBus
-from src.infra.dict_config import DictConfig
+from sagittarius_engine.infrastructure.std_container import StdLibContainer
+from sagittarius_engine.infrastructure.memory_event_bus import MemoryEventBus
+from sagittarius_engine.infrastructure.dict_config import DictConfig
 from src.interfaces import IConfig, ILogger
-from src.modules.logger_module import LoggerModule
+from sagittarius_engine.extensions.logger_module import LoggerModule
 
 container = StdLibContainer()
 event_bus = MemoryEventBus()

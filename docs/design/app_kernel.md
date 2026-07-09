@@ -50,8 +50,8 @@ Auto-discovers and loads modules dynamically.
 
 ```python
 from src.app_kernel import App
-from src.infra.std_container import StdLibContainer
-from src.infra.memory_event_bus import MemoryEventBus
+from sagittarius_engine.infrastructure.std_container import StdLibContainer
+from sagittarius_engine.infrastructure.memory_event_bus import MemoryEventBus
 
 # Initialize core dependencies
 container = StdLibContainer()
@@ -61,7 +61,7 @@ event_bus = MemoryEventBus()
 app = App(container, event_bus)
 
 # Boot and auto-discover modules
-app.boot(auto_discover="src.modules")
+app.boot(auto_discover="sagittarius_engine.extensions")
 
 # Execute a command
 # app.execute(CreateUserCommand, CreateUserDTO(name="Alice"))

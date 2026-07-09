@@ -79,8 +79,8 @@ from src.interfaces import ICommand, IEventBus, IContainer, ...
 `App` is the central orchestrator. It receives `IContainer` and `IEventBus` through its constructor (Composition Root).
 
 ```python
-from src.infra.std_container import StdLibContainer
-from src.infra.memory_event_bus import MemoryEventBus
+from sagittarius_engine.infrastructure.std_container import StdLibContainer
+from sagittarius_engine.infrastructure.memory_event_bus import MemoryEventBus
 from src.app_kernel import App
 
 container = StdLibContainer()
@@ -92,7 +92,7 @@ container.singleton(IEventBus, event_bus)
 
 Key methods:
 - `use(module)`: registers a module.
-- `boot(auto_discover="modules")`: boots the app, auto-discovers if a package name is provided.
+- `boot(auto_discover="sagittarius_engine.extensions")`: boots the app, auto-discovers if a package name is provided.
 - `execute(CommandClass, data_transfer_obj)`, `query(QueryClass, data_transfer_obj)`: runs a use case through the middleware pipeline.
 
 ### 3.3 Container (Dependency Injection)
@@ -128,7 +128,7 @@ Each module implements `IModule` (or extends `BaseModule`). A module has two met
 - `register(app)`: binds classes into the container.
 - `boot(app)`: registers event handlers, initializes resources.
 
-Place modules in the app’s `modules/` directory and call `app.boot(auto_discover="modules")` to load them automatically.
+Place modules in the app’s `modules/` directory and call `app.boot(auto_discover="sagittarius_engine.extensions")` to load them automatically.
 
 Modules can be a single file (`modules/my_module.py`) or a package (`modules/my_module/__init__.py`).
 
@@ -155,7 +155,7 @@ Modules can be a single file (`modules/my_module.py`) or a package (`modules/my_
 
 ### 4.1 Create a new project
 ```bash
-python src/scaffold.py my_app
+python sagittarius_engine/tools/scaffold.py my_app
 cd my_app
 ```
 Generated structure:
@@ -253,11 +253,11 @@ class UserModule(BaseModule):
 
 ### 4.7 Composition Root (main.py)
 ```python
-from src.infra.std_container import StdLibContainer
-from src.infra.memory_event_bus import MemoryEventBus
+from sagittarius_engine.infrastructure.std_container import StdLibContainer
+from sagittarius_engine.infrastructure.memory_event_bus import MemoryEventBus
 from src.app_kernel import App
 from src.interfaces import IContainer, IEventBus
-from src.modules.logger_module import LoggerModule
+from sagittarius_engine.extensions.logger_module import LoggerModule
 
 def main():
     container = StdLibContainer()
@@ -269,7 +269,7 @@ def main():
 
     app.use(LoggerModule())  # optional
 
-    app.boot(auto_discover="modules")
+    app.boot(auto_discover="sagittarius_engine.extensions")
 
     # CLI or other startup logic
     # e.g.:
@@ -300,20 +300,20 @@ PYTHONPATH=. python main.py
 
 ### Attach middleware
 ```python
-from src.middleware.logging_middleware import LoggingMiddleware
+from sagittarius_engine.middleware.logging_middleware import LoggingMiddleware
 app.use_middleware(LoggingMiddleware(container))
 ```
 
 ### Use ResilientEventBus instead of MemoryEventBus
 ```python
-from src.infra.resilient_event_bus import ResilientEventBus
+from sagittarius_engine.infrastructure.resilient_event_bus import ResilientEventBus
 event_bus = ResilientEventBus(MemoryEventBus(), max_retries=3)
 ```
 
 ### Validate a DTO with Pydantic
 ```python
 from pydantic import BaseModel
-from src.middleware.pydantic_validation_middleware import PydanticValidationMiddleware
+from sagittarius_engine.middleware.pydantic_validation_middleware import PydanticValidationMiddleware
 
 class CreateUserDTO(BaseModel):
     name: str
@@ -324,7 +324,7 @@ app.use_middleware(PydanticValidationMiddleware(CreateUserDTO))
 
 ### Check application health
 ```python
-from src.modules.health_module import HealthCheckQuery
+from sagittarius_engine.extensions.health_module import HealthCheckQuery
 health = app.query(HealthCheckQuery)
 print(health)
 ```

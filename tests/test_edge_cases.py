@@ -7,17 +7,17 @@ from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
-from src.infrastructure.persistence.i_session import ISession
+from sagittarius_engine.infrastructure.persistence.i_session import ISession
 
-from src.application.kernel import App, MiddlewarePipeline
-from src.exceptions import DependencyResolutionError
-from src.infrastructure.event_bus.asyncio_event_bus import AsyncioEventBus
-from src.infrastructure.config import ConfigManager, JsonSource
-from src.infrastructure.event_bus.memory_event_bus import MemoryEventBus
-from src.infrastructure.event_bus.resilient_event_bus import ResilientEventBus
-from src.infrastructure.container.std_container import StdLibContainer
-from src.infrastructure.event_bus.thread_pool_event_bus import ThreadPoolEventBus
-from src.application.ports import (
+from sagittarius_engine.kernel import App, MiddlewarePipeline
+from sagittarius_engine.exceptions import DependencyResolutionError
+from sagittarius_engine.infrastructure.event_bus.asyncio_event_bus import AsyncioEventBus
+from sagittarius_engine.infrastructure.config import ConfigManager, JsonSource
+from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+from sagittarius_engine.infrastructure.event_bus.resilient_event_bus import ResilientEventBus
+from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
+from sagittarius_engine.infrastructure.event_bus.thread_pool_event_bus import ThreadPoolEventBus
+from sagittarius_engine.interfaces import (
     ICommand,
     IContainer,
     IEventBus,
@@ -26,8 +26,8 @@ from src.application.ports import (
     IModule,
 
 )
-from src.modules.health_check_query import HealthCheckQuery
-from src.modules.health_module import HealthModule
+from sagittarius_engine.extensions.health_check_query import HealthCheckQuery
+from sagittarius_engine.extensions.health_module import HealthModule
 
 
 # --- Fixtures ---
@@ -308,7 +308,7 @@ def test_module_autodiscovery__syntax_error__ignores_and_does_not_crash(app, tmp
     (module_dir / "__init__.py").touch()
 
     with open(module_dir / "valid_module.py", "w") as f:
-        f.write("from src.application.ports import IModule\n")
+        f.write("from sagittarius_engine.interfaces import IModule\n")
         f.write("class ValidModule(IModule):\n")
         f.write("    def register(self, app): pass\n")
         f.write("    def boot(self, app): pass\n")
@@ -335,14 +335,14 @@ def test_module_autodiscovery__import_error__ignores_and_does_not_crash(app, tmp
     (module_dir / "__init__.py").touch()
 
     with open(module_dir / "valid_module.py", "w") as f:
-        f.write("from src.application.ports import IModule\n")
+        f.write("from sagittarius_engine.interfaces import IModule\n")
         f.write("class ValidModule(IModule):\n")
         f.write("    def register(self, app): pass\n")
         f.write("    def boot(self, app): pass\n")
 
     with open(module_dir / "missing_import_module.py", "w") as f:
         f.write("import missing_package_12345\n")
-        f.write("from src.application.ports import IModule\n")
+        f.write("from sagittarius_engine.interfaces import IModule\n")
         f.write("class MissingImportModule(IModule):\n")
         f.write("    def register(self, app): pass\n")
         f.write("    def boot(self, app): pass\n")
@@ -477,7 +477,7 @@ def test_config__config_manager_failing_source__returns_default():
 
 
 def test_pydantic_middleware__missing_pydantic__raises_import_error():
-    from src.middleware import pydantic_validation_middleware
+    from sagittarius_engine.middleware import pydantic_validation_middleware
 
     with patch.dict(sys.modules, {"pydantic": None}):
         importlib.reload(pydantic_validation_middleware)
@@ -493,7 +493,7 @@ def test_pydantic_middleware__missing_pydantic__raises_import_error():
 
 def test_pydantic_middleware__dto_is_none__raises_exception():
     pydantic = pytest.importorskip("pydantic")
-    from src.middleware.pydantic_validation_middleware import (
+    from sagittarius_engine.middleware.pydantic_validation_middleware import (
         PydanticValidationMiddleware,
     )
 
@@ -515,7 +515,7 @@ def test_pydantic_middleware__dto_is_none__raises_exception():
 
 def test_pydantic_middleware__dto_missing_required_field__raises_exception():
     pydantic = pytest.importorskip("pydantic")
-    from src.middleware.pydantic_validation_middleware import (
+    from sagittarius_engine.middleware.pydantic_validation_middleware import (
         PydanticValidationMiddleware,
     )
 
@@ -686,10 +686,10 @@ def test_session_context_manager():
     assert session2.rolled_back is True
 
 
-@patch('src.infrastructure.persistence.database_module.SQLALCHEMY_INSTALLED', True)
+@patch('sagittarius_engine.infrastructure.persistence.database_module.SQLALCHEMY_INSTALLED', True)
 def test_database_module_production_failure(app, monkeypatch):
-    from src.application.ports import IConfig
-    from src.infrastructure.persistence.database_module import DatabaseModule
+    from sagittarius_engine.interfaces import IConfig
+    from sagittarius_engine.infrastructure.persistence.database_module import DatabaseModule
 
     monkeypatch.setenv("ENV", "production")
 
@@ -705,7 +705,7 @@ def test_database_module_production_failure(app, monkeypatch):
 
 
 def test_health_check_query_dto(app, container, event_bus):
-    from src.modules.health_check_query import HealthCheckDTO, HealthCheckQuery
+    from sagittarius_engine.extensions.health_check_query import HealthCheckDTO, HealthCheckQuery
 
     container.singleton(IContainer, container)
     container.singleton(IEventBus, event_bus)
@@ -718,7 +718,7 @@ def test_health_check_query_dto(app, container, event_bus):
 
 def test_pydantic_validation_middleware_v2():
     pydantic = pytest.importorskip("pydantic")
-    from src.middleware.pydantic_validation_middleware import PydanticValidationMiddleware
+    from sagittarius_engine.middleware.pydantic_validation_middleware import PydanticValidationMiddleware
 
     class TestDTO(pydantic.BaseModel):
         name: str
@@ -749,8 +749,8 @@ def test_pydantic_validation_middleware_v2():
 # 8. HealthModule (test_health_module__db_session_raises__returns_unhealthy): Handled `import sqlalchemy` missing gracefully but incorrectly set the status to "healthy" despite the DB check failing. Fixed by handling `ImportError` explicitly.
 
 def test_container__circular_dependency__raises_error():
-    from src.infrastructure.container.std_container import StdLibContainer
-    from src.exceptions import DependencyResolutionError
+    from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
+    from sagittarius_engine.exceptions import DependencyResolutionError
 
     class ClassB:
         pass

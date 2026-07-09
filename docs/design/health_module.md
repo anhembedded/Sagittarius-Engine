@@ -28,7 +28,7 @@ Sagittarius includes a `HealthModule` that can be added to the application. When
 
 ```python
 from src.app_kernel import App
-from src.modules.health_module import HealthModule
+from sagittarius_engine.extensions.health_module import HealthModule
 
 # Assuming app is initialized
 app.use(HealthModule())

@@ -6,10 +6,10 @@ from unittest.mock import MagicMock, patch
 import json
 import pytest
 
-from src.application.kernel.app_runner import ApplicationRunner, COMMAND_KEY, EXIT_COMMAND
-from src.adapters.cli import CLIInputPort, CLIOutputPort
-from src.adapters.batch import BatchInputPort, BatchOutputPort
-from src.adapters.batch.const import FILE_TYPE_CSV, FILE_TYPE_JSON
+from sagittarius_engine.kernel.app_runner import ApplicationRunner, COMMAND_KEY, EXIT_COMMAND
+from sagittarius_engine.adapters.cli import CLIInputPort, CLIOutputPort
+from sagittarius_engine.adapters.batch import BatchInputPort, BatchOutputPort
+from sagittarius_engine.adapters.batch.const import FILE_TYPE_CSV, FILE_TYPE_JSON
 
 
 def test_cli_input_port_normal():

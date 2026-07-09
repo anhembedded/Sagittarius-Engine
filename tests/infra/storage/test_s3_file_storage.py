@@ -6,8 +6,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 from botocore.exceptions import ClientError
 
-import src.infrastructure.storage.s3_file_storage as s3_module
-from src.infrastructure.storage.s3_file_storage import S3FileStorage
+import sagittarius_engine.infrastructure.storage.s3_file_storage as s3_module
+from sagittarius_engine.infrastructure.storage.s3_file_storage import S3FileStorage
 
 
 class TestS3FileStorage:

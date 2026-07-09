@@ -1,6 +1,6 @@
-from src.domain import BaseEvent
-from src.infrastructure.event_bus.memory_event_bus import MemoryEventBus
-from src.domain.i_domain_event import IDomainEvent
+from sagittarius_engine.domain import BaseEvent
+from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+from sagittarius_engine.domain.i_domain_event import IDomainEvent
 
 
 class CustomDomainEvent(BaseEvent):

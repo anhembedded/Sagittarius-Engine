@@ -33,7 +33,7 @@ Sagittarius defines the `IMetrics` interface with methods for common metric type
 
 ```python
 from src.interfaces import ILogger
-from src.infra.log_metrics import LogMetrics
+from sagittarius_engine.infrastructure.log_metrics import LogMetrics
 
 def execute_command(metrics: LogMetrics):
     # 1. Increment a counter

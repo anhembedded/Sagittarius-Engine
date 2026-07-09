@@ -6,14 +6,14 @@ from unittest.mock import MagicMock, patch
 
 from azure.core.exceptions import ResourceNotFoundError
 
-import src.infrastructure.storage.azure_blob_storage as azure_module
-from src.infrastructure.storage.azure_blob_storage import AzureBlobStorage
+import sagittarius_engine.infrastructure.storage.azure_blob_storage as azure_module
+from sagittarius_engine.infrastructure.storage.azure_blob_storage import AzureBlobStorage
 
 
 class TestAzureBlobStorage:
     def test_azure_blob_storage__read__success(self):
         with patch(
-            "src.infrastructure.storage.azure_blob_storage.BlobServiceClient"
+            "sagittarius_engine.infrastructure.storage.azure_blob_storage.BlobServiceClient"
         ) as mock_blob_service_client:
             mock_service_client = (
                 mock_blob_service_client.from_connection_string.return_value
@@ -46,7 +46,7 @@ class TestAzureBlobStorage:
 
     def test_azure_blob_storage__write_bytes__success(self):
         with patch(
-            "src.infrastructure.storage.azure_blob_storage.BlobServiceClient"
+            "sagittarius_engine.infrastructure.storage.azure_blob_storage.BlobServiceClient"
         ) as mock_blob_service_client:
             mock_service_client = (
                 mock_blob_service_client.from_connection_string.return_value
@@ -70,7 +70,7 @@ class TestAzureBlobStorage:
 
     def test_azure_blob_storage__write_str__success(self):
         with patch(
-            "src.infrastructure.storage.azure_blob_storage.BlobServiceClient"
+            "sagittarius_engine.infrastructure.storage.azure_blob_storage.BlobServiceClient"
         ) as mock_blob_service_client:
             mock_service_client = (
                 mock_blob_service_client.from_connection_string.return_value
@@ -94,7 +94,7 @@ class TestAzureBlobStorage:
 
     def test_azure_blob_storage__delete__success(self):
         with patch(
-            "src.infrastructure.storage.azure_blob_storage.BlobServiceClient"
+            "sagittarius_engine.infrastructure.storage.azure_blob_storage.BlobServiceClient"
         ) as mock_blob_service_client:
             mock_service_client = (
                 mock_blob_service_client.from_connection_string.return_value
@@ -116,7 +116,7 @@ class TestAzureBlobStorage:
 
     def test_azure_blob_storage__exists__true(self):
         with patch(
-            "src.infrastructure.storage.azure_blob_storage.BlobServiceClient"
+            "sagittarius_engine.infrastructure.storage.azure_blob_storage.BlobServiceClient"
         ) as mock_blob_service_client:
             mock_service_client = (
                 mock_blob_service_client.from_connection_string.return_value
@@ -140,7 +140,7 @@ class TestAzureBlobStorage:
 
     def test_azure_blob_storage__exists__false(self):
         with patch(
-            "src.infrastructure.storage.azure_blob_storage.BlobServiceClient"
+            "sagittarius_engine.infrastructure.storage.azure_blob_storage.BlobServiceClient"
         ) as mock_blob_service_client:
             mock_service_client = (
                 mock_blob_service_client.from_connection_string.return_value

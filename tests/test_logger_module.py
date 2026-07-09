@@ -1,8 +1,8 @@
-from src.application.kernel import App
-from src.infrastructure.event_bus.memory_event_bus import MemoryEventBus
-from src.infrastructure.container.std_container import StdLibContainer
-from src.application.ports import IConfig, ILogger
-from src.modules.logger_module import LoggerModule
+from sagittarius_engine.kernel import App
+from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
+from sagittarius_engine.interfaces import IConfig, ILogger
+from sagittarius_engine.extensions.logger_module import LoggerModule
 
 
 def test_logger_module_registers_logger():

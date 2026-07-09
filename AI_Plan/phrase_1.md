@@ -53,7 +53,7 @@ Update every import accordingly.
 
 Examples:
 
-from src.application.kernel.app import App
+from sagittarius_engine.kernel.app import App
 
 becomes
 
@@ -61,7 +61,7 @@ from sagittarius_engine.kernel.app import App
 
 --------------------------------------------
 
-from src.application.ports.i_logger import ILogger
+from sagittarius_engine.interfaces.i_logger import ILogger
 
 becomes
 

@@ -48,9 +48,9 @@ A simple dictionary-backed configuration for testing.
 ## How to Use / Examples
 
 ```python
-from src.infra.config_manager import ConfigManager, JsonSource, EnvSource
-from src.infra.config_source.dotenv_source import DotenvSource
-from src.infra.dict_config import DictConfig
+from sagittarius_engine.infrastructure.config_manager import ConfigManager, JsonSource, EnvSource
+from sagittarius_engine.infrastructure.config_source.dotenv_source import DotenvSource
+from sagittarius_engine.infrastructure.dict_config import DictConfig
 
 # --- Simple / Test Usage ---
 simple_config = DictConfig()

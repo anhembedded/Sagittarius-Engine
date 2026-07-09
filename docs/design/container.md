@@ -40,7 +40,7 @@ Standard implementation utilizing Python's `inspect` module.
 
 ```python
 from src.interfaces import IContainer
-from src.infra.std_container import StdLibContainer
+from sagittarius_engine.infrastructure.std_container import StdLibContainer
 
 # Assume interfaces IUserRepository, IEventBus exist
 # Assume implementations PostgresUserRepository, MemoryEventBus exist
