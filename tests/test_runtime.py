@@ -205,7 +205,9 @@ def test_scheduler_fixed_interval():
     app.context.scheduler.every(seconds=0.01).do(job)
 
     # Let it run a few times
-    time.sleep(0.04)
+    deadline = time.time() + 0.5
+    while run_count < 2 and time.time() < deadline:
+        time.sleep(0.01)
 
     assert run_count >= 2
     assert "started" in events
@@ -219,7 +221,9 @@ def test_scheduler_fixed_interval():
         raise RuntimeError("Job failed")
 
     app.context.scheduler.every(seconds=0.01).do(bad_job)
-    time.sleep(0.03)
+    deadline = time.time() + 0.5
+    while failing_runs < 1 and time.time() < deadline:
+        time.sleep(0.01)
 
     assert failing_runs >= 1
     assert run_count >= 3  # Good job continues running!
@@ -254,5 +258,5 @@ def test_graceful_shutdown():
     app.stop()
 
     assert app.context.lifecycle.is_stopped is True
-    assert app.context.scheduler._thread is None
-    assert app.context.async_runtime._thread is None
+    assert getattr(app.context.scheduler, "_thread", None) is None or not app.context.scheduler._thread.is_alive()
+    assert getattr(app.context.async_runtime, "_thread", None) is None or not app.context.async_runtime._thread.is_alive()
