@@ -2,7 +2,7 @@ import multiprocessing
 import time
 from multiprocessing.queues import Queue as MQueue
 
-from src.infra.event_bus import IPCQueueEventBus
+from src.infrastructure.event_bus import IPCQueueEventBus
 
 
 def test_single_process_ipc_queue_event_bus(ipc_bus_factory):
@@ -99,7 +99,9 @@ def test_ipc_broker_unpicklable_data(ipc_broker_factory, ipc_bus_factory, caplog
     bus = ipc_bus_factory(subscriber_queue=sub_q, publish_queue=pub_q)
 
     # Emitting an unpicklable object (lambda function)
-    unpicklable_data = lambda x: x
+    def unpicklable_data(x):
+        return x
+
     bus.emit("unpicklable.event", unpicklable_data)
 
     # Allow time for processing

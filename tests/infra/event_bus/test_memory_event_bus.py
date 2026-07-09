@@ -1,4 +1,4 @@
-from src.infra.event_bus.memory_event_bus import MemoryEventBus
+from src.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
 
 class TestMemoryEventBus:

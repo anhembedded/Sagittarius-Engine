@@ -1,7 +1,7 @@
-from src.core import App
-from src.infra.event_bus.memory_event_bus import MemoryEventBus
-from src.infra.container.std_container import StdLibContainer
-from src.interfaces import IConfig, ILogger
+from src.application.kernel import App
+from src.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+from src.infrastructure.container.std_container import StdLibContainer
+from src.application.ports import IConfig, ILogger
 from src.modules.logger_module import LoggerModule
 
 

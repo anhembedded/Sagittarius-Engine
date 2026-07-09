@@ -1,7 +1,8 @@
 from collections.abc import Callable
 from typing import Any
 
-from src.interfaces import IContainer, IMiddleware, ISession
+from src.application.ports import IContainer, IMiddleware
+from src.infrastructure.persistence.i_session import ISession
 
 
 class TransactionMiddleware(IMiddleware):
@@ -19,7 +20,7 @@ class TransactionMiddleware(IMiddleware):
     def process(
         self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]
     ) -> Any:
-        session = self._container.resolve(ISession)
+        session: ISession = self._container.resolve(ISession)
         try:
             result = next_handler()
             session.commit()

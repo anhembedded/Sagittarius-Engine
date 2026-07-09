@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 import json
 import pytest
 
-from src.core import COMMAND_KEY, EXIT_COMMAND, ApplicationRunner
+from src.application.kernel.app_runner import ApplicationRunner, COMMAND_KEY, EXIT_COMMAND
 from src.adapters.cli import CLIInputPort, CLIOutputPort
 from src.adapters.batch import BatchInputPort, BatchOutputPort
 from src.adapters.batch.const import FILE_TYPE_CSV, FILE_TYPE_JSON
