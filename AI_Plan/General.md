@@ -335,7 +335,7 @@ Lifecycle đầy đủ hơn.
 
 ---
 
-# Phase 5 - Extension System
+# Phase 5 - Extension System [DONE]
 
 Ví dụ
 
@@ -355,7 +355,7 @@ Kernel cực nhỏ.
 
 ---
 
-# Phase 6 - Project Layout
+# Phase 6 - Project Layout [DONE]
 
 Đây mới là điểm mình thích nhất.
 
