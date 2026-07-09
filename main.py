@@ -91,11 +91,16 @@ if __name__ == "__main__":
     print("Application booted successfully.")
 
     # Execute command
-    user = app.execute(CreateUserCommand, {'id': 1, 'name': 'Alice'})
+    user = app.dispatch(CreateUserCommand, {"id": 1, "name": "Alice"})
     print(f"Created user: {user.name}")
 
-    user2 = app.execute(CreateUserCommand, {'id': 2, 'name': 'Bob'})
+    user2 = app.dispatch(CreateUserCommand, {"id": 2, "name": "Bob"})
 
     # Execute query
-    all_users = app.query(ListUsersQuery)
+    all_users = app.dispatch(ListUsersQuery)
     print(f"All users: {[u.name for u in all_users]}")
+
+    # Graceful stop
+    app.stop()
+
+

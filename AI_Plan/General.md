@@ -1,505 +1,376 @@
-Mỗi phase đều chạy test được. Đây là cách mà một tech lead thường làm khi migrate framework.
+# Sagittarius Engine Roadmap v1
 
----
+## 🎯 Vision
 
-# Mục tiêu cuối cùng
-
-Từ
-
+Từ:
 ```text
-Sagittarius = Clean Architecture Application
+Sagittarius = Clean Architecture Framework
 ```
-
-thành
-
-```text
-Sagittarius = Application Engine
-```
-
-Engine chỉ cung cấp:
-
-* DI Container
-* Event Bus
-* Middleware Pipeline
-* Module Loader
-* Lifecycle
-* Logging
-* Configuration
-* Threading
-* Storage
-* Database Adapter
-* Metrics
-
-Engine **không biết**
-
-* Domain
-* UseCase
-* Repository
-* CQRS
-* Entity
-
-Đó là việc của project sử dụng engine.
-
----
-
-# Phase 1 - Rename architecture [DONE]
-
-Đây là phase dễ nhất.
-Không sửa logic.
-Chỉ đổi tên.
-
-## application
-
 ↓
-
+Đến:
 ```text
-kernel
+Sagittarius = Lightweight Modular Application Engine
 ```
 
-application/kernel
-
-↓
-
-```text
-kernel
-```
-
-application/ports
-
-↓
+Kernel provides capabilities.
+Applications choose architecture.
+Extensions integrate technologies.
+SDK accelerates development.
 
 ```text
-interfaces
-```
+                 Sagittarius
 
-application/base
-
-↓
-
-```text
-base
-```
-
-hoặc
-
-```text
-common
+            ┌──────────────────┐
+            │      Kernel      │
+            └──────────────────┘
+                     ▲
+                     │
+            ┌──────────────────┐
+            │  Runtime Infras. │   ← Phase 7
+            └──────────────────┘
+                     ▲
+                     │
+            ┌──────────────────┐
+            │       SDK        │
+            └──────────────────┘
+                     ▲
+                     │
+            ┌──────────────────┐
+            │   Applications   │
+            └──────────────────┘
+                     ▲
+                     │
+            ┌──────────────────┐
+            │    Ecosystem     │
+            └──────────────────┘
 ```
 
 ---
 
-## infrastructure
+# Foundation Migration (Completed)
 
-Không đổi.
-
-Nhưng tách rõ.
-
-```text
-infrastructure/
-
-    config/
-
-    logging/
-
-    storage/
-
-    persistence/
-
-    metrics/
-
-    ipc/
-```
+Đây là phần đã hoàn thành.
 
 ---
 
-## middleware
+## ✅ Phase 1 — Architecture Renaming
 
-Giữ nguyên.
+**Status:** Completed
 
----
+### Goal
+Loại bỏ tư duy "Application Framework".
 
-## adapters
-
-Giữ nguyên.
-
----
-
-## modules
-
-Đổi thành
-
-```text
-extensions
-```
-
-vì đây không phải business module.
+### Completed
+* application → kernel
+* ports → interfaces
+* modules → extensions
+* infrastructure restructuring
+* package cleanup
 
 ---
 
-Sau phase này
+## ✅ Phase 2 — Kernel Decomposition
 
-project sẽ thành
+**Status:** Completed
 
-```text
-sagittarius_engine/
+### Goal
+Biến App thành façade.
 
-    kernel/
-
-    interfaces/
-
-    container/
-
-    event_bus/
-
-    middleware/
-
-    logging/
-
-    config/
-
-    storage/
-
-    persistence/
-
-    adapters/
-
-    extensions/
-
-    tools/
-```
-
----
-
-# Phase 2 - Tách Kernel [DONE]
-
-Hiện tại
-
-App
-
-đang làm quá nhiều việc.
-
-Ví dụ
-
-```python
-App
-boot()
-execute()
-query()
-use()
-middleware
-container
-event_bus
-```
-
-AI sẽ tách thành
-
+### Completed
 ```text
 kernel/
     app.py
-    lifecycle.py
     bootstrap.py
-    module_loader.py
     dispatcher.py
-```
-
-App chỉ còn
-
-```python
-class App:
-    start()
-    stop()
-
+    lifecycle.py
+    module_loader.py
 ```
 
 ---
 
-# Phase 2.5 - Engine Service Registry & EngineContext [DONE]
+## ✅ Phase 2.5 — EngineContext
 
-Engine Service Registry
+**Status:** Completed
 
-Lý do là hiện tại App vẫn giữ trực tiếp các thành phần như:
+### Goal
+Central Runtime Context.
 
-Container
-EventBus
-Middleware
-Logger
-Config
-
-Trong một engine đúng nghĩa, App chỉ nên giữ EngineContext hoặc EngineServices, ví dụ:
-
-app.services.container
-app.services.event_bus
-app.services.logger
-app.services.config
-
-hoặc
-
-engine.container
-engine.events
-engine.logger
-
-Sau đó mới đến Phase 3 là tách CQRS, Repository, BaseModule... ra thành extensions.
-
-Theo mình, thêm bước này sẽ giúp Sagittarius chuyển hẳn sang tư duy Application Engine thay vì chỉ đổi tên thư mục.
-
-
-# Phase 3 - Loại bỏ Clean Architecture khỏi engine [DONE]
-
-Đây là phase quan trọng nhất.
-
-Engine KHÔNG nên có
-
+### Completed
 ```text
-application/
-
-domain/
-
-repository/
-
+EngineContext
+    container
+    dispatcher
+    event_bus
+    logger
+    config
+    middleware
+    extensions
 ```
 
 ---
 
-Bỏ khỏi engine
+## ✅ Phase 3 — Engine Decoupling
 
-```text
-BaseRepository
-ICommand
-IQuery
-BaseModule
+**Status:** Completed
 
-```
+### Goal
+Kernel không còn biết Clean Architecture.
 
----
-
-Thay bằng abstraction nhỏ hơn.
-
-Ví dụ
-
-```python
-IHandler
-IExecutable
-ILifecycle
-
-```
-
-hoặc
-
-```python
-IService
-```
+### Completed
+* CQRS → Extension
+* Repository → Extension
+* SQLAlchemy → Extension
+* Database → Extension
+* Compatibility Shims
 
 ---
 
-CQRS sẽ thành extension.
+## ✅ Phase 4 — Extension Runtime
 
-Ví dụ
+**Status:** Completed
 
-```text
-extensions/
-    cqrs/
-        command_bus.py
-        query_bus.py
+### Goal
+Extension trở thành first-class runtime object.
 
-```
-
----
-
-# Phase 4 - Module System [DONE]
-
-Module hiện tại
-
-đang là
-
-```python
-register()
-
-boot()
-
-```
-
-AI sẽ refactor thành
-
-```python
-initialize()
-
-start()
-
-stop()
-
-dispose()
-
-```
-
-Lifecycle đầy đủ hơn.
+### Completed
+* IExtension
+* ExtensionDescriptor
+* Dependency Graph
+* Topological Sort
+* Rollback
+* Lifecycle Events
+* Startup Ordering
+* Shutdown Ordering
+* Compatibility Layer
 
 ---
 
-# Phase 5 - Extension System [DONE]
+## ✅ Phase 5 — SDK & Project Templates
 
-Ví dụ
+**Status:** Completed
 
+### Goal
+Engine không còn biết project layout.
+
+### Completed
 ```text
-extensions/
-    sqlalchemy/
-    health/
-    metrics/
-    scheduler/
-    cqrs/
-    pydantic/
-
+sdk/
+templates/
+minimal
+clean
+ddd
+mvc
 ```
-
-Không còn nằm trong kernel.
-Kernel cực nhỏ.
+Features:
+* Project Generator
+* Template Loader
+* Placeholder Renderer
+* Third-party Templates
+* Runnable Skeleton
 
 ---
 
-# Phase 6 - Project Layout [DONE]
+## ✅ Phase 6 — Public API Stabilization
 
-Đây mới là điểm mình thích nhất.
+**Status:** Completed
 
-Ví dụ user tạo project
+### Goal
+Chuẩn hóa Public API.
 
-```text
-TradingBot/
-    sagittarius_engine/
-    app/
-
-```
-
-Trong app
-
-muốn architecture gì cũng được.
-
-Ví dụ
-
-```text
-app/
-    domain/
-    application/
-    infrastructure/
-
-```
-
-hoặc
-
-```text
-app/
-
-    services/
-    controllers/
-
-```
-
-hoặc
-
-```text
-app/
-    mvc/
-
-```
-
-Engine không quan tâm.
-
----
-
-# Phase 7 - API mới
-
-Hiện tại
-
-```python
-app.execute(CreateUserCommand())
-```
-
-mang hơi hướng CQRS.
-
-Mình sẽ chuyển thành
-
+### Completed
+Unified API:
 ```python
 engine.dispatch(...)
 ```
-
-hoặc
-
+Legacy APIs:
 ```python
-engine.run(...)
+execute()
+query()
 ```
-
-CQRS chỉ là extension.
-
----
-
-# Phase 8 - Đổi package name
-
-Từ
-
-```text
-src/
-```
-
 ↓
+DeprecationWarning
+↓
+Compatibility Wrapper
 
-```text
-sagittarius_engine/
-```
-
-Khi tạo project
-
-```text
-MyBot/
-    sagittarius_engine/
-    app/
-```
-
-Import
-
+Public exports:
 ```python
-from sagittarius_engine.kernel import App
+from sagittarius_engine import App
 ```
-
-rất tự nhiên.
-
----
-
-# Phase 9 - Documentation
-
-Đổi hoàn toàn cách giới thiệu.
-
-Không còn
-
-> A Clean Architecture framework
-
-Mà là
-
-> A lightweight Python Application Engine.
+Architectural Guardrails:
+AST Architecture Tests
+API Freeze
+205 Tests Passing
 
 ---
 
-Giới thiệu chỉ còn
+# 🎉 Migration Complete
+
+Đây là cột mốc quan trọng.
+Sagittarius **không còn là Clean Architecture framework nữa.**
+Nó đã là một **Application Engine**.
+
+---
+
+# Engine Evolution (v1)
+
+Từ đây trở đi **không refactor kiến trúc nữa**.
+Chỉ thêm capabilities.
+
+---
+
+# ✅ Phase 7 — Runtime Infrastructure
+
+**Status:** Completed
+
+## Goal
+Bổ sung các runtime capability còn thiếu cho desktop apps, trading bots và long-running services.
 
 ```text
-Core
-
-• Dependency Injection
-• Event Bus
-• Middleware
-• Module System
-• Configuration
-• Logging
-• Lifecycle
-
-Extensions
-
-• SQLAlchemy
-• Pydantic
-• Metrics
-• Scheduler
-• CQRS
+Runtime Infrastructure
+├── HostedServiceManager
+├── TaskScheduler
+├── TaskManager
+├── AsyncRuntime
+└── CancellationToken
 ```
 
-Không nhắc tới Domain.
-Không nhắc Repository.
-Không nhắc Entity.
+### Hosted Services
+```python
+class IHostedService:
+    start()
+    stop()
+```
+Engine tự quản lý lifecycle.
+
+### Background Task Manager
+Ví dụ:
+```python
+engine.tasks.spawn(...)
+```
+Có:
+* graceful shutdown
+* cancellation
+* exception propagation
+
+### Scheduler
+Ví dụ:
+```python
+engine.scheduler.every(1).minutes(...)
+```
+hoặc
+```python
+@schedule(...)
+```
+
+### Async Runtime
+Engine quản lý:
+* asyncio tasks
+* thread tasks
+* background workers
+
+Không để user tự tạo thread khắp nơi.
+
+### Acceptance
+Trading Bot, Desktop App, Worker, Automation đều chạy được.
 
 ---
+
+# 🚧 Phase 8 — CLI & Tooling
+
+Ví dụ:
+```bash
+sagittarius new
+sagittarius run
+sagittarius doctor
+sagittarius extension list
+sagittarius template list
+sagittarius test
+```
+Không đụng kernel.
+
+---
+
+# 🚧 Phase 9 — Documentation & Samples
+
+Ví dụ:
+```text
+docs/
+architecture.md
+extensions.md
+sdk.md
+tutorials/
+examples/
+```
+Ví dụ mẫu:
+* Trading Bot
+* Binance Client
+* PySide Desktop
+* REST API
+* Worker
+* CLI
+
+---
+
+# 🚧 Phase 9.5 — Reference Applications
+
+Ví dụ:
+```text
+examples/
+    trading_bot/
+    desktop_pyside/
+    crypto_dashboard/
+    rest_api/
+    worker/
+    scheduler/
+    websocket/
+    plugin_system/
+```
+Đây không chỉ là example, mà là **proof of architecture**.
+
+Ví dụ Trading Bot:
+```text
+examples/
+    trading_bot/
+        app/
+        strategies/
+        exchanges/
+        ui/
+        config/
+        main.py
+```
+Người dùng clone, chạy ngay và hoạt động trực quan.
+
+---
+
+# 🚧 Phase 10 — Ecosystem
+
+Ví dụ:
+```text
+Ecosystem
+├── Official
+│   ├── sagittarius-binance
+│   ├── sagittarius-fastapi
+│   └── sagittarius-pyside6
+└── Community
+    ├── sagittarius-discord
+    ├── sagittarius-ai
+    └── sagittarius-backtesting
+```
+Đây là ecosystem lớn mạnh của dự án, độc lập với core kernel.
+
+---
+
+# 🚧 Phase 11 — Stable Release
+
+Kernel Freeze
+Semantic Versioning
+API Freeze
+Performance Benchmarks
+Migration Guide
+Release Notes
+Official Website
+PyPI Release
+Long-term Support
+CI Badge
+Coverage
+Changelog

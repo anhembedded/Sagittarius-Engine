@@ -36,6 +36,25 @@ class EngineContext:
         self.bootstrap = Bootstrap(self)
         self.dispatcher = Dispatcher(self)
 
+        # Runtime Infrastructure
+        from sagittarius_engine.runtime.async_runtime.async_runtime import AsyncRuntime
+        from sagittarius_engine.runtime.tasks.task_manager import TaskManager
+        from sagittarius_engine.runtime.scheduler.scheduler import Scheduler
+        from sagittarius_engine.runtime.hosted.hosted_service_manager import (
+            HostedServiceManager,
+        )
+
+        self.async_runtime = AsyncRuntime(self)
+        self.tasks = TaskManager(self)
+        self.scheduler = Scheduler(self)
+        self.hosted_services = HostedServiceManager(self)
+
+        # Register runtime in container as singletons
+        self.container.singleton(AsyncRuntime, self.async_runtime)
+        self.container.singleton(TaskManager, self.tasks)
+        self.container.singleton(Scheduler, self.scheduler)
+        self.container.singleton(HostedServiceManager, self.hosted_services)
+
     @property
     def modules(self) -> list[Any]:
         return self.extension_manager.registered_extensions

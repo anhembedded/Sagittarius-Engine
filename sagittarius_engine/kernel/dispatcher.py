@@ -1,5 +1,6 @@
 from typing import Any
-from sagittarius_engine.interfaces import ICommand, IQuery, ILogger
+import warnings
+from sagittarius_engine.interfaces import ILogger
 
 
 class Dispatcher:
@@ -11,24 +12,39 @@ class Dispatcher:
     def _get_logger(self) -> ILogger | None:
         return self.context.logger
 
-    def execute(self, command_class: type[ICommand], input_dto: Any = None) -> Any:
+    def dispatch(self, handler_class: type, input_dto: Any = None) -> Any:
+        """
+        @brief Dispatches a handler (command, query, etc.) through the middleware pipeline.
+        """
         logger = self._get_logger()
         if logger:
-            logger.info(f"Executing command: {command_class.__name__}")
-        command = self.context.container.resolve(command_class)
+            msg_type = "query" if "Query" in handler_class.__name__ else "command"
+            logger.info(f"Executing {msg_type}: {handler_class.__name__}")
+        handler = self.context.container.resolve(handler_class)
 
         def final() -> Any:
-            return command.execute(input_dto)
+            return handler.execute(input_dto)
 
-        return self.context.middleware_pipeline.execute(command, input_dto, final)
+        return self.context.middleware_pipeline.execute(handler, input_dto, final)
 
-    def query(self, query_class: type[IQuery], input_dto: Any = None) -> Any:
-        logger = self._get_logger()
-        if logger:
-            logger.info(f"Executing query: {query_class.__name__}")
-        query = self.context.container.resolve(query_class)
+    def execute(self, command_class: type, input_dto: Any = None) -> Any:
+        """
+        @brief Deprecated. Use dispatch instead.
+        """
+        warnings.warn(
+            "Dispatcher.execute is deprecated. Use Dispatcher.dispatch instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.dispatch(command_class, input_dto)
 
-        def final() -> Any:
-            return query.execute(input_dto)
-
-        return self.context.middleware_pipeline.execute(query, input_dto, final)
+    def query(self, query_class: type, input_dto: Any = None) -> Any:
+        """
+        @brief Deprecated. Use dispatch instead.
+        """
+        warnings.warn(
+            "Dispatcher.query is deprecated. Use Dispatcher.dispatch instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.dispatch(query_class, input_dto)

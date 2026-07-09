@@ -73,14 +73,86 @@ class App:
         """
         self.context.bootstrap.boot(auto_discover)
 
-    def execute(self, command_class: type[ICommand], input_dto: Any = None) -> Any:
+    def dispatch(self, handler_class: type, input_dto: Any = None) -> Any:
         """
-        @brief Executes a Command through the Middleware Pipeline.
+        @brief Dispatches a command or query through the Middleware Pipeline.
         """
-        return self.context.dispatcher.execute(command_class, input_dto)
+        return self.context.dispatcher.dispatch(handler_class, input_dto)
 
-    def query(self, query_class: type[IQuery], input_dto: Any = None) -> Any:
+    def execute(self, command_class: type, input_dto: Any = None) -> Any:
         """
-        @brief Executes a Query through the Middleware Pipeline.
+        @brief Deprecated. Use dispatch instead.
         """
-        return self.context.dispatcher.query(query_class, input_dto)
+        import warnings
+
+        warnings.warn(
+            "App.execute is deprecated. Use App.dispatch instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.dispatch(command_class, input_dto)
+
+    def query(self, query_class: type, input_dto: Any = None) -> Any:
+        """
+        @brief Deprecated. Use dispatch instead.
+        """
+        import warnings
+
+        warnings.warn(
+            "App.query is deprecated. Use App.dispatch instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.dispatch(query_class, input_dto)
+
+    def stop(self) -> None:
+        """
+        @brief Shuts down the application gracefully.
+        @details Stops the scheduler, hosted services, extensions, task manager, and async runtime in reverse order.
+        """
+        logger = self._get_logger()
+        if logger:
+            logger.info("App is stopping gracefully...")
+
+        self.context.lifecycle.set_stopping()
+
+        # 1. Stop Scheduler
+        try:
+            self.context.scheduler.stop()
+        except Exception as e:
+            if logger:
+                logger.error(f"Error stopping scheduler: {e}")
+
+        # 2. Stop Hosted Services
+        try:
+            self.context.hosted_services.stop()
+        except Exception as e:
+            if logger:
+                logger.error(f"Error stopping hosted services: {e}")
+
+        # 3. Stop Extensions
+        try:
+            self.context.extension_manager.stop_and_dispose()
+        except Exception as e:
+            if logger:
+                logger.error(f"Error stopping extensions: {e}")
+
+        # 4. Shutdown Task Manager
+        try:
+            self.context.tasks.shutdown()
+        except Exception as e:
+            if logger:
+                logger.error(f"Error shutting down task manager: {e}")
+
+        # 5. Stop Async Runtime
+        try:
+            self.context.async_runtime.stop()
+        except Exception as e:
+            if logger:
+                logger.error(f"Error stopping async runtime: {e}")
+
+        self.context.lifecycle.set_stopped()
+        if logger:
+            logger.info("App stopped.")
+
+

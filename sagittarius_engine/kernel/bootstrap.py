@@ -21,10 +21,38 @@ class Bootstrap:
 
         self.context.lifecycle.set_booting()
 
-        if auto_discover:
-            self.context.module_loader.discover_and_load(auto_discover)
+        # Start Async Runtime early so extensions/hosted services can use it
+        self.context.async_runtime.start()
 
-        self.context.extension_manager.initialize_and_start()
+        try:
+            if auto_discover:
+                self.context.module_loader.discover_and_load(auto_discover)
+
+            self.context.extension_manager.initialize_and_start()
+
+            # Start Hosted Services
+            self.context.hosted_services.start()
+
+            # Start Scheduler
+            self.context.scheduler.start()
+
+        except Exception as e:
+            if logger:
+                logger.error(f"Error during boot sequence: {e}. Shutting down runtime...")
+            # Clean up what was started
+            try:
+                self.context.scheduler.stop()
+            except Exception:
+                pass
+            try:
+                self.context.hosted_services.stop()
+            except Exception:
+                pass
+            try:
+                self.context.async_runtime.stop()
+            except Exception:
+                pass
+            raise e
 
         self.context.lifecycle.set_booted()
 

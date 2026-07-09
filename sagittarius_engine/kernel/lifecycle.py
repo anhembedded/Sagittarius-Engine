@@ -14,6 +14,12 @@ class EngineLifecycle:
     def set_booted(self) -> None:
         self.state = "booted"
 
+    def set_stopping(self) -> None:
+        self.state = "stopping"
+
+    def set_stopped(self) -> None:
+        self.state = "stopped"
+
     @property
     def is_booted(self) -> bool:
         return self.state == "booted"
@@ -21,6 +27,10 @@ class EngineLifecycle:
     @property
     def is_booting(self) -> bool:
         return self.state == "booting"
+
+    @property
+    def is_stopping(self) -> bool:
+        return self.state == "stopping"
 
     @property
     def is_stopped(self) -> bool:
