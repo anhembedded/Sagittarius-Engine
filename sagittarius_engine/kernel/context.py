@@ -13,6 +13,9 @@ from sagittarius_engine.kernel.bootstrap import Bootstrap
 from sagittarius_engine.kernel.dispatcher import Dispatcher
 
 
+from sagittarius_engine.kernel.extension_manager import ExtensionManager
+
+
 class EngineContext:
     """The runtime composition root of the Sagittarius Engine.
 
@@ -25,13 +28,17 @@ class EngineContext:
         self.container = container
         self.event_bus = event_bus
         self.middleware_pipeline = MiddlewarePipeline()
-        self.modules: list[IModule] = []
+        self.extension_manager = ExtensionManager(self)
 
         # Instantiating subsystems with shared EngineContext
         self.lifecycle = EngineLifecycle(self)
         self.module_loader = ModuleLoader(self)
         self.bootstrap = Bootstrap(self)
         self.dispatcher = Dispatcher(self)
+
+    @property
+    def modules(self) -> list[Any]:
+        return self.extension_manager.registered_extensions
 
     @property
     def logger(self) -> ILogger | None:

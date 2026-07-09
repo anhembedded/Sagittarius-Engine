@@ -50,18 +50,12 @@ class App:
 
     def use(self, extension_or_module: Any) -> None:
         """
-        @brief Manually adds an Extension or Module to the App and calls its `register` method.
+        @brief Manually adds an Extension or Module to the App.
         """
-        from sagittarius_engine.interfaces.i_extension import IExtension
-
-        if not isinstance(extension_or_module, (IExtension, IModule)):
-            raise ModuleRegistrationError("Extension/Module must implement IExtension or IModule")
-        
-        self.context.modules.append(extension_or_module)
-        if isinstance(extension_or_module, IExtension):
-            extension_or_module.register(self.context)
-        else:
-            extension_or_module.register(self)
+        try:
+            self.context.extension_manager.register(extension_or_module)
+        except TypeError as e:
+            raise ModuleRegistrationError(str(e)) from e
 
     def use_middleware(self, middleware_instance: IMiddleware) -> None:
         """

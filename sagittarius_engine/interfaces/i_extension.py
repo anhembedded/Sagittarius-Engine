@@ -1,12 +1,36 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from sagittarius_engine.kernel.context import EngineContext
 
 
+@dataclass
+class ExtensionDescriptor:
+    """
+    @brief Metadata describing an engine extension.
+    """
+
+    name: str
+    version: str = "1.0.0"
+    dependencies: list[str] = field(default_factory=list)
+    optional_dependencies: list[str] = field(default_factory=list)
+    enabled: bool = True
+    priority: int = 0
+    author: str = ""
+    description: str = ""
+
+
 class IExtension(ABC):
     """Interface for Sagittarius Engine Extensions."""
+
+    @property
+    def descriptor(self) -> ExtensionDescriptor:
+        """
+        @brief Return the extension descriptor. Defaults to class name.
+        """
+        return ExtensionDescriptor(name=self.__class__.__name__)
 
     @abstractmethod
     def register(self, context: "EngineContext") -> None:
@@ -31,3 +55,27 @@ class IExtension(ABC):
         @param context The EngineContext instance.
         """
         ...
+
+    def initialize(self, context: "EngineContext") -> None:
+        """
+        @brief Orchestrator initialization step. Defaults to calling register.
+        """
+        self.register(context)
+
+    def start(self, context: "EngineContext") -> None:
+        """
+        @brief Orchestrator start step. Defaults to calling boot.
+        """
+        self.boot(context)
+
+    def stop(self, context: "EngineContext") -> None:
+        """
+        @brief Orchestrator stop step. Defaults to calling shutdown.
+        """
+        self.shutdown(context)
+
+    def dispose(self, context: "EngineContext") -> None:
+        """
+        @brief Orchestrator cleanup/release step. Defaults to no-op.
+        """
+        pass

@@ -14,3 +14,15 @@ class PathTraversalError(ValueError):
     """@brief Raised when a file path attempts to escape the allowed base directory."""
 
     pass
+
+
+class ExtensionDependencyError(Exception):
+    """@brief Error raised when a required extension dependency is missing."""
+
+    pass
+
+
+class ExtensionCircularDependencyError(ExtensionDependencyError):
+    """@brief Error raised when a circular dependency is detected between extensions."""
+
+    pass

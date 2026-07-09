@@ -10,6 +10,12 @@ from .i_logger import ILogger
 from .i_config import IConfig
 from .i_input_port import IInputPort
 from .i_output_port import IOutputPort
+from .events import (
+    ExtensionInitializing,
+    ExtensionStarted,
+    ExtensionStopped,
+    ExtensionDisposed,
+)
 
 __all__ = [
     "ICommand",
@@ -24,4 +30,9 @@ __all__ = [
     "IConfig",
     "IInputPort",
     "IOutputPort",
+    "ExtensionInitializing",
+    "ExtensionStarted",
+    "ExtensionStopped",
+    "ExtensionDisposed",
 ]
+
