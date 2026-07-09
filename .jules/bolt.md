@@ -4,3 +4,6 @@
 ## 2025-02-12 - Middleware Pipeline Iteration Optimization
 **Learning:** `MiddlewarePipeline` uses recursive lambdas `lambda: self.__invoke_middleware(...)` which generates closures dynamically for every request, slowing down the pipeline due to call stack depth and closure instantiation overhead.
 **Action:** Replace the recursive lambda execution chain with an iterative approach using `functools.partial` processing `reversed(self.middlewares)` to build a flat execution chain, avoiding recursion depth overhead and improving performance.
+## 2024-05-15 - Lock-Free Event Bus Emit
+**Learning:** EventBus emit operations suffer high contention from locking under concurrent workloads, but Python dict reads are thread-safe and tuples are immutable.
+**Action:** Implement Copy-on-Write (COW) pattern for EventBus handlers (storing tuples) to allow lock-free, atomic reads during emit while locking only on infrequent subscribe/unsubscribe actions.
