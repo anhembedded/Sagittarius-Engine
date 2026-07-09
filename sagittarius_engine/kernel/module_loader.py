@@ -5,18 +5,27 @@ from typing import Any
 from sagittarius_engine.base.base_module import BaseModule
 from sagittarius_engine.interfaces import IModule, ILogger
 
+
 class ModuleLoader:
     """Responsible for discovering and loading engine extensions."""
 
-    def __init__(self, app: Any) -> None:
-        self.app = app
+    def __init__(self, context_or_app: Any) -> None:
+        self.context_or_app = context_or_app
+
+    @property
+    def context(self) -> Any:
+        if hasattr(self.context_or_app, "context"):
+            return self.context_or_app.context
+        return self.context_or_app
 
     def _get_logger(self) -> ILogger | None:
         try:
-            from sagittarius_engine.interfaces import ILogger
-            return self.app.container.resolve(ILogger)
+            return self.context.logger
         except Exception:
-            return None
+            try:
+                return self.context.container.resolve(ILogger)
+            except Exception:
+                return None
 
     def discover_and_load(self, package_path: str) -> None:
         """
@@ -43,7 +52,10 @@ class ModuleLoader:
                         and obj is not IModule
                         and obj is not BaseModule
                     ):
-                        self.app.use(obj())
+                        if hasattr(self.context, "app") and self.context.app:
+                            self.context.app.use(obj())
+                        elif hasattr(self.context_or_app, "use"):
+                            self.context_or_app.use(obj())
             except Exception as e:
                 if logger:
                     logger.error(f"Failed to load module {full_module_name}: {e}")

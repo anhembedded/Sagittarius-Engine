@@ -1,4 +1,5 @@
-from .app import App, EngineServices
+from .app import App
+from .context import EngineContext
 from .app_runner import ApplicationRunner
 from .middleware_pipeline import MiddlewarePipeline
 from .module_auto_discovery import ModuleAutoDiscovery
@@ -9,7 +10,7 @@ from .dispatcher import Dispatcher
 
 __all__ = [
     "App",
-    "EngineServices",
+    "EngineContext",
     "ApplicationRunner",
     "MiddlewarePipeline",
     "ModuleAutoDiscovery",

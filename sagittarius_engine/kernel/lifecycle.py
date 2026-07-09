@@ -1,7 +1,11 @@
+from typing import Any
+
+
 class EngineLifecycle:
     """Responsible for managing engine state."""
 
-    def __init__(self) -> None:
+    def __init__(self, context: Any) -> None:
+        self.context = context
         self.state = "stopped"
 
     def set_booting(self) -> None:

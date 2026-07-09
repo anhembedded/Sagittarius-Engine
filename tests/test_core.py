@@ -165,18 +165,20 @@ def test_kernel_facade_and_components():
         ModuleLoader,
         EngineLifecycle,
         Dispatcher,
-        EngineServices,
+        EngineContext,
     )
 
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container=container, event_bus=event_bus)
 
-    # 1. Verify EngineServices Registry
-    assert app.services.container is container
-    assert app.services.event_bus is event_bus
+    # 1. Verify EngineContext composition
+    assert app.context.container is container
+    assert app.context.event_bus is event_bus
     assert app.container is container
     assert app.event_bus is event_bus
+    assert app.context.logger is None  # not bound yet
+    assert app.context.config is None  # not bound yet
 
     # 2. Verify EngineLifecycle state transitions
     assert app.lifecycle.is_stopped
@@ -189,8 +191,10 @@ def test_kernel_facade_and_components():
 
     # 3. Verify Docstrings
     assert App.__doc__ is not None and "The public façade of the Sagittarius Engine." in App.__doc__
+    assert EngineContext.__doc__ is not None and "The runtime composition root of the Sagittarius Engine." in EngineContext.__doc__
     assert Bootstrap.__doc__ is not None and "Responsible for bootstrapping the engine." in Bootstrap.__doc__
     assert Dispatcher.__doc__ is not None and "Responsible for executing handlers through the middleware pipeline." in Dispatcher.__doc__
     assert EngineLifecycle.__doc__ is not None and "Responsible for managing engine state." in EngineLifecycle.__doc__
     assert ModuleLoader.__doc__ is not None and "Responsible for discovering and loading engine extensions." in ModuleLoader.__doc__
+
 
