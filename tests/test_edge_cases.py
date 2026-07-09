@@ -686,10 +686,10 @@ def test_session_context_manager():
     assert session2.rolled_back is True
 
 
-@patch('sagittarius_engine.infrastructure.persistence.database_module.SQLALCHEMY_INSTALLED', True)
+@patch('sagittarius_engine.extensions.persistence.database_module.SQLALCHEMY_INSTALLED', True)
 def test_database_module_production_failure(app, monkeypatch):
     from sagittarius_engine.interfaces import IConfig
-    from sagittarius_engine.infrastructure.persistence.database_module import DatabaseModule
+    from sagittarius_engine.extensions.persistence.database_module import DatabaseModule
 
     monkeypatch.setenv("ENV", "production")
 

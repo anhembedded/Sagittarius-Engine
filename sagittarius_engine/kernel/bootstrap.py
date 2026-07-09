@@ -25,7 +25,12 @@ class Bootstrap:
             self.context.module_loader.discover_and_load(auto_discover)
 
         for module in self.context.modules:
-            module.boot(self.context.app)
+            from sagittarius_engine.interfaces.i_extension import IExtension
+
+            if isinstance(module, IExtension):
+                module.boot(self.context)
+            else:
+                module.boot(self.context.app)
 
         self.context.lifecycle.set_booted()
 

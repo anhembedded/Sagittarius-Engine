@@ -42,7 +42,7 @@ Engine **không biết**
 
 ---
 
-# Phase 1 - Rename architecture
+# Phase 1 - Rename architecture [DONE]
 
 Đây là phase dễ nhất.
 Không sửa logic.
@@ -170,7 +170,7 @@ sagittarius_engine/
 
 ---
 
-# Phase 2 - Tách Kernel
+# Phase 2 - Tách Kernel [DONE]
 
 Hiện tại
 
@@ -213,7 +213,7 @@ class App:
 
 ---
 
-# Phase 2.5
+# Phase 2.5 - Engine Service Registry & EngineContext [DONE]
 
 Engine Service Registry
 
@@ -243,7 +243,7 @@ Sau đó mới đến Phase 3 là tách CQRS, Repository, BaseModule... ra thàn
 Theo mình, thêm bước này sẽ giúp Sagittarius chuyển hẳn sang tư duy Application Engine thay vì chỉ đổi tên thư mục.
 
 
-# Phase 3 - Loại bỏ Clean Architecture khỏi engine
+# Phase 3 - Loại bỏ Clean Architecture khỏi engine [DONE]
 
 Đây là phase quan trọng nhất.
 

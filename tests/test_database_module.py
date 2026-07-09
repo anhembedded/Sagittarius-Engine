@@ -1,10 +1,9 @@
 from unittest.mock import MagicMock, patch
-
-from sagittarius_engine.infrastructure.persistence.database_module import DatabaseModule
+from sagittarius_engine.extensions.persistence.database_module import DatabaseModule
 
 
 def test_database_module_no_sqlalchemy():
-    with patch("sagittarius_engine.infrastructure.persistence.database_module.SQLALCHEMY_INSTALLED", False):
+    with patch("sagittarius_engine.extensions.persistence.database_module.SQLALCHEMY_INSTALLED", False):
         module = DatabaseModule()
         mock_app = MagicMock()
         mock_logger = MagicMock()

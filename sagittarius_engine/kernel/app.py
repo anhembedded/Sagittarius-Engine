@@ -37,7 +37,7 @@ class App:
         return self.context.event_bus
 
     @property
-    def modules(self) -> list[IModule]:
+    def modules(self) -> list[Any]:
         return self.context.modules
 
     @property
@@ -48,17 +48,20 @@ class App:
     def lifecycle(self) -> Any:
         return self.context.lifecycle
 
-    def use(self, module: IModule) -> None:
+    def use(self, extension_or_module: Any) -> None:
         """
-        @brief Manually adds a Module to the App and calls its `register` method immediately.
+        @brief Manually adds an Extension or Module to the App and calls its `register` method.
+        """
+        from sagittarius_engine.interfaces.i_extension import IExtension
 
-        @param module The module instance to add.
-        @exception ModuleRegistrationError If the module does not implement IModule.
-        """
-        if not isinstance(module, IModule):
-            raise ModuleRegistrationError("Module must implement IModule")
-        self.context.modules.append(module)
-        module.register(self)
+        if not isinstance(extension_or_module, (IExtension, IModule)):
+            raise ModuleRegistrationError("Extension/Module must implement IExtension or IModule")
+        
+        self.context.modules.append(extension_or_module)
+        if isinstance(extension_or_module, IExtension):
+            extension_or_module.register(self.context)
+        else:
+            extension_or_module.register(self)
 
     def use_middleware(self, middleware_instance: IMiddleware) -> None:
         """

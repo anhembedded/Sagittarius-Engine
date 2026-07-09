@@ -1,6 +1,7 @@
 from .i_command import ICommand
 from .i_query import IQuery
 from .i_module import IModule
+from .i_extension import IExtension
 from .i_event_bus import IEventBus
 from .i_async_event_bus import IAsyncEventBus
 from .i_container import IContainer
@@ -14,6 +15,7 @@ __all__ = [
     "ICommand",
     "IQuery",
     "IModule",
+    "IExtension",
     "IEventBus",
     "IAsyncEventBus",
     "IContainer",

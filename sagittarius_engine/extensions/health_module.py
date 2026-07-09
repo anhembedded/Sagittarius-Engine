@@ -1,21 +1,41 @@
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from sagittarius_engine.kernel.app import App
+from typing import TYPE_CHECKING, Any
 
-from sagittarius_engine.base.base_module import BaseModule
+if TYPE_CHECKING:
+    from sagittarius_engine.kernel.context import EngineContext
+
+from sagittarius_engine.interfaces.i_extension import IExtension
 from sagittarius_engine.extensions.health_check_query import HealthCheckQuery
 
-class HealthModule(BaseModule):
-    """
-    @brief Module for Application Health Checks.
 
-    @details Registers a HealthCheckQuery to allow monitoring systems to check application health.
+class HealthExtension(IExtension):
+    """
+    @brief Extension for Application Health Checks.
     """
 
-    def register(self, app: 'App') -> None:
+    def register(self, context: "EngineContext") -> None:
         """@brief Registers the HealthCheckQuery in the container."""
-        app.container.bind(HealthCheckQuery, HealthCheckQuery)
+        context.container.bind(HealthCheckQuery, HealthCheckQuery)
 
-    def boot(self, app: 'App') -> None:
-        """@brief Boots the Health Module."""
+    def boot(self, context: "EngineContext") -> None:
+        """@brief Boots the Health Extension."""
         pass
+
+    def shutdown(self, context: "EngineContext") -> None:
+        """@brief Shuts down the Health Extension."""
+        pass
+
+
+class HealthModule(HealthExtension):
+    """
+    @brief Deprecated wrapper for HealthExtension.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        import warnings
+
+        warnings.warn(
+            "HealthModule is deprecated. Use HealthExtension instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)
