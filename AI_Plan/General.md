@@ -289,65 +289,72 @@ Xây dựng bộ ứng dụng mẫu thực tế (Reference Applications) để k
 * **`plugin_system`**: Kiểm thử Topological Sort của 3 tầng extension phụ thuộc (`Metrics` -> `Trading` -> `Dashboard`).
 * **`benchmark_runtime.py` & `runtime_validation.md`**: Bổ sung bộ benchmark đo hiệu năng (boot, scheduler, hosted services) và báo cáo xác thực kiểm chứng kiến trúc.
 
----
+# 🚧 Phase 9 — CLI & Developer Experience
 
-# 🚧 Phase 9 — CLI & Tooling
+Mục tiêu không phải thêm tính năng vào kernel (đã đóng băng), mà là giúp người dùng sử dụng engine dễ dàng hơn.
 
-Ví dụ:
+Ví dụ các câu lệnh CLI:
 ```bash
-sagittarius new
+sagittarius new <template_name>
 sagittarius run
 sagittarius doctor
-sagittarius extension list
+sagittarius benchmark
 sagittarius template list
-sagittarius test
+sagittarius extension list
+sagittarius graph
 ```
-Không đụng kernel.
+
+* `sagittarius graph`: Hiển thị sơ đồ dependency graph (App -> Extensions -> Hosted Services).
+* Hoàn toàn không đụng vào kernel.
 
 ---
 
 # 🚧 Phase 10 — Documentation
 
-Ví dụ:
+Viết tài liệu theo cấu trúc học tập và thực hành:
 ```text
-docs/
-architecture.md
-extensions.md
-sdk.md
-tutorials/
-examples/
+Getting Started -> Concepts -> Tutorial -> Advanced -> API
 ```
+
+Các chủ đề tài liệu cốt lõi:
+* `getting_started.md`
+* `runtime.md`
+* `extensions.md`
+* `scheduler.md`
+* `hosted_services.md`
+* `event_bus.md`
+* `desktop.md`
+* `trading_bot.md`
+
+**Quy tắc tài liệu**: Mỗi API phải trả lời được 3 câu hỏi:
+1. **Why?** (Tại sao tồn tại?)
+2. **When?** (Khi nào dùng?)
+3. **When NOT?** (Khi nào không nên dùng?)
 
 ---
 
-# 🚧 Phase 11 — Ecosystem
+# 🚧 Phase 11 — Official Ecosystem
 
-Ví dụ:
-```text
-Ecosystem
-├── Official
-│   ├── sagittarius-binance
-│   ├── sagittarius-fastapi
-│   └── sagittarius-pyside6
-└── Community
-    ├── sagittarius-discord
-    ├── sagittarius-ai
-    └── sagittarius-backtesting
-```
+Xây dựng các adapter/ecosystem packages độc lập để kiểm chứng runtime capabilities:
+
+1. **`sagittarius-binance`**: Chứng minh Async Runtime, Hosted Services, Scheduler, Event Bus, và Task Manager.
+2. **`sagittarius-pyside6`**: Chứng minh Desktop Runtime (luồng GUI mượt mà, delegating tasks sang TaskManager, nhận update qua EventBus).
+3. **`sagittarius-fastapi`**: Chứng minh DI, Dispatcher, Hosted Services, và Configuration.
+4. **`sagittarius-redis`**: Adapter lưu trữ và giao tiếp phân tán.
 
 ---
 
 # 🚧 Phase 12 — Stable Release v1.0
 
-Kernel Freeze
-Semantic Versioning
-API Freeze
-Performance Benchmarks
-Migration Guide
-Release Notes
-Official Website
-PyPI Release
-Long-term Support
-CI Badge
-Coverage
-Changelog
+Chuẩn bị sẵn sàng cho production release:
+* **CI/CD**: Tự động test trên Linux, Windows, macOS qua Python 3.10, 3.11, 3.12, 3.13.
+* **Benchmarks**: Chạy kiểm tra Boot Time, Memory, Scheduler, Task Manager, Hosted Service.
+* **Coverage**: Duy trì kiểm thử code coverage > 90%.
+* **Release deliverables**: Release Notes, Migration Guide, PyPI publication, website chính thức.
+
+---
+
+# 🚀 Sau v1.0 — Production Verification & Evolution
+
+* **Đóng băng hoàn toàn core kernel**: Không tự đoán tính năng mới, để nhu cầu của hệ sinh thái và người dùng thực tế dẫn dắt (ví dụ: Retry Policy, Circuit Breaker, Distributed Scheduler).
+* **Ứng dụng thực tế**: Xây dựng một dự án thực tế hoàn chỉnh (ví dụ: *Sagittarius Trading Bot* kết nối Binance, PySide6, SQLite, Indicators, Risk Manager, Backtesting) chạy liên tục trong nhiều tuần để kiểm chứng độ ổn định của Application Engine trong môi trường production thực sự.
