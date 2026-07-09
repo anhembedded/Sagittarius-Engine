@@ -213,6 +213,36 @@ class App:
 
 ---
 
+# Phase 2.5
+
+Engine Service Registry
+
+Lý do là hiện tại App vẫn giữ trực tiếp các thành phần như:
+
+Container
+EventBus
+Middleware
+Logger
+Config
+
+Trong một engine đúng nghĩa, App chỉ nên giữ EngineContext hoặc EngineServices, ví dụ:
+
+app.services.container
+app.services.event_bus
+app.services.logger
+app.services.config
+
+hoặc
+
+engine.container
+engine.events
+engine.logger
+
+Sau đó mới đến Phase 3 là tách CQRS, Repository, BaseModule... ra thành extensions.
+
+Theo mình, thêm bước này sẽ giúp Sagittarius chuyển hẳn sang tư duy Application Engine thay vì chỉ đổi tên thư mục.
+
+
 # Phase 3 - Loại bỏ Clean Architecture khỏi engine
 
 Đây là phase quan trọng nhất.

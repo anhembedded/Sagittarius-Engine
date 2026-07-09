@@ -157,3 +157,40 @@ def test_app_execute_query():
 
     result = app.query(DummyQuery, {})
     assert result == "queried"
+
+
+def test_kernel_facade_and_components():
+    from sagittarius_engine.kernel import (
+        Bootstrap,
+        ModuleLoader,
+        EngineLifecycle,
+        Dispatcher,
+        EngineServices,
+    )
+
+    container = StdLibContainer()
+    event_bus = MemoryEventBus()
+    app = App(container=container, event_bus=event_bus)
+
+    # 1. Verify EngineServices Registry
+    assert app.services.container is container
+    assert app.services.event_bus is event_bus
+    assert app.container is container
+    assert app.event_bus is event_bus
+
+    # 2. Verify EngineLifecycle state transitions
+    assert app.lifecycle.is_stopped
+    assert not app.lifecycle.is_booting
+    assert not app.lifecycle.is_booted
+
+    app.boot()
+    assert app.lifecycle.is_booted
+    assert not app.lifecycle.is_stopped
+
+    # 3. Verify Docstrings
+    assert App.__doc__ is not None and "The public façade of the Sagittarius Engine." in App.__doc__
+    assert Bootstrap.__doc__ is not None and "Responsible for bootstrapping the engine." in Bootstrap.__doc__
+    assert Dispatcher.__doc__ is not None and "Responsible for executing handlers through the middleware pipeline." in Dispatcher.__doc__
+    assert EngineLifecycle.__doc__ is not None and "Responsible for managing engine state." in EngineLifecycle.__doc__
+    assert ModuleLoader.__doc__ is not None and "Responsible for discovering and loading engine extensions." in ModuleLoader.__doc__
+
