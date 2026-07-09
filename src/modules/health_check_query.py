@@ -27,14 +27,14 @@ class HealthCheckQuery(IQuery):
         status: dict[str, Any] = {'status': 'healthy', 'components': {'container': 'ok', 'event_bus': 'ok', 'database': 'unknown'}}
         try:
             self.container.resolve(IContainer)
-        except Exception as e:
-            status['components']['container'] = f'error: {str(e)}'
+        except Exception:
+            status['components']['container'] = 'error: container resolution failed'
             status['status'] = 'unhealthy'
         try:
             if not hasattr(self.event_bus, 'emit'):
                 raise ValueError('event_bus has no emit method')
-        except Exception as e:
-            status['components']['event_bus'] = f'error: {str(e)}'
+        except Exception:
+            status['components']['event_bus'] = 'error: event bus check failed'
             status['status'] = 'unhealthy'
         try:
             session: ISession = self.container.resolve(ISession)
