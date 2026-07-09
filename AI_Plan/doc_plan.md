@@ -557,3 +557,59 @@ Một phase tài liệu chỉ được đánh dấu **Completed** khi đáp ứn
 * Đã review theo `DOC_REVIEW_CHECKLIST.md`.
 
 ---
+
+
+==================================================
+Official Terminology
+==================================================
+
+Always use these terms consistently.
+
+Application
+The user's project.
+
+Engine
+Sagittarius Engine.
+
+Kernel
+The minimal orchestration layer.
+
+Runtime
+Long-running execution infrastructure.
+
+Extension
+A pluggable runtime capability.
+
+EngineContext
+The shared runtime service registry.
+
+Dispatcher
+The unified execution entry point.
+
+Hosted Service
+A long-running managed service.
+
+Task
+A unit of background execution.
+
+Scheduler
+A component responsible for time-based execution.
+
+SDK
+Developer tooling for project generation.
+
+Never use these outdated terms:
+
+Module
+
+Application Framework
+
+Clean Architecture Framework
+
+Business Layer
+
+UseCase Layer
+
+Repository Layer
+
+unless documenting migration from older versions.
