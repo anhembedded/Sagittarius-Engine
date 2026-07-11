@@ -51,9 +51,9 @@ Phase D1  — Documentation Foundation   ✅ COMPLETED
 Phase D1.5 — MkDocs Infrastructure     ✅ COMPLETED
 Phase D1.6 — Documentation Quality     ✅ COMPLETED
 Phase D1.7 — API Reference             ✅ COMPLETED
-Phase D2  — Core Concepts              🚧 NOT STARTED
-Phase D3  — Runtime Guides             🚧 NOT STARTED
-Phase D4  — Advanced Guides            🚧 NOT STARTED
+Phase D2  — Core Concepts              ✅ COMPLETED
+Phase D3  — Runtime Guides             ✅ COMPLETED
+Phase D4  — Advanced Guides            ✅ COMPLETED
 Phase D5  — Tutorials                  🚧 NOT STARTED
 Phase D6  — Documentation Review       🚧 NOT STARTED
 Phase D7  — Migration Guides           🚧 NOT STARTED

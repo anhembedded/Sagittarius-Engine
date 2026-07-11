@@ -513,31 +513,48 @@ If a topic belongs to docs/concepts/, summarize it and link to it.
 
 ---
 
-## 🚧 Phase D4 — Advanced Guides
+## ✅ Phase D4 — Advanced Guides
 
 ### Goal
 
-Advanced runtime architecture.
+Advanced Guides explain how Sagittarius Engine should be used in large, maintainable applications. Focus on architectural decisions, scalability, maintainability, performance considerations, extension composition, and troubleshooting.
+This phase targets experienced developers and architects.
 
 ### Deliverables
 
 ```text
 docs/advanced/
 
-extension_dependencies.md
+extension_dependencies.md (Review, Expand, Complete existing file)
 architecture.md
 performance.md
 best_practices.md
 troubleshooting.md
 ```
 
-Topics:
+### Document Structure
 
-* Dependency Graph
-* Topological Sorting
-* Performance
-* Large Applications
-* Common Pitfalls
+Every document MUST follow this structure:
+# Title -> Overview -> Why -> When to Use -> When NOT to Use -> Architecture -> How it Works -> Examples -> Design Trade-offs -> Best Practices -> Anti-Patterns -> Common Mistakes -> Related Guides -> Related API Reference -> See Also.
+
+Every document should contain at least one Mermaid diagram (flowchart TB, sequenceDiagram, or classDiagram) when appropriate.
+
+### Topics / Scope:
+
+* **extension_dependencies.md**: Review, expand, and complete existing file. Add dependency graph, priority, optional dependency, cycle detection, topological sorting, deterministic ordering, best practices, and common mistakes.
+* **architecture.md**: Complete engine architecture with clear separation (Application -> App Host -> Kernel -> Runtime -> EngineContext -> Extensions -> Infrastructure Services). Avoid mixing responsibilities. Include one high-level Mermaid diagram. Do NOT document APIs.
+* **performance.md**: Startup optimization, extension loading cost, scheduler overhead, task batching, avoiding unnecessary threads, avoiding blocking the Async Runtime, memory ownership, long-running services. Explain design trade-offs.
+* **best_practices.md**: Organized by topic: Application Structure, Extensions, Dependency Injection, Dispatcher, Events, Hosted Services, Scheduler, TaskManager, Async Runtime, Shutdown, Testing. Use DO/DON'T tables.
+* **troubleshooting.md**: Common developer issues. Use template for each: Symptoms, Possible Causes, Diagnosis, Resolution, Prevention, Related Guides.
+
+### Scope Guard
+This phase documents architecture and advanced usage.
+It must NOT:
+- duplicate API Reference
+- duplicate Runtime Guides
+- duplicate Core Concepts
+- expose implementation details, private classes, or internal packages.
+If a topic is already covered elsewhere, summarize it briefly and link to the existing document.
 
 ---
 
@@ -545,7 +562,8 @@ Topics:
 
 ### Goal
 
-Build complete real-world applications.
+Tutorials bridge the gap between Concepts, Runtime/Advanced Guides, and Real Applications. 
+The primary goal is to teach developers how to build complete applications using Sagittarius Engine by following real, runnable examples from start to finish.
 
 ### Deliverables
 
@@ -559,10 +577,17 @@ websocket_client.md
 plugin_system.md
 ```
 
-### Constraints
+### Critical Rules
 
-* Tutorials MUST be built from the corresponding reference applications under `examples/` (e.g. `examples/trading_bot` -> `docs/tutorials/trading_bot.md`) to guarantee they stay synchronized.
-* Every tutorial starts from an empty project and ends with a working application.
+1. **Tutorial <-> Example Mapping (1:1)**: Every tutorial MUST correspond to one reference application in `examples/` (e.g. `examples/desktop` -> `desktop_app.md`). Documentation explains the examples; it does not duplicate them. Do NOT invent APIs or behaviors.
+2. **Placeholder**: If an example does not exist, create a "Coming Soon" placeholder tutorial. Do NOT invent or hallucinate the implementation.
+3. **Synchronize `examples_index.md`**: The `.ai/examples_index.md` must be updated alongside tutorials to remain the single source of truth for all examples.
+4. **Snippets Policy**: Do NOT duplicate large source files. Use small snippets (<50 lines) to highlight and explain code. For large code blocks, reference the file in the `examples/` directory.
+
+### Document Structure
+
+Every tutorial MUST follow this exact structure:
+# Title -> Overview -> Why -> What You Will Build -> Prerequisites -> Architecture (Mermaid) -> Project Structure -> Step 1 (Explain -> Show -> Why -> Reference) ... -> Running the Application -> How It Works -> Best Practices -> Common Mistakes -> Next Steps -> Related Guides -> Related API Reference.
 
 ---
 

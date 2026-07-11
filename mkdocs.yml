@@ -97,6 +97,10 @@ nav:
       - Cancellation Token: runtime/cancellation_token.md
   - Advanced:
       - Extension Dependencies: advanced/extension_dependencies.md
+      - Architecture: advanced/architecture.md
+      - Performance: advanced/performance.md
+      - Best Practices: advanced/best_practices.md
+      - Troubleshooting: advanced/troubleshooting.md
   - Tutorials: tutorials/README.md
   - API Reference:
       - Overview: api/index.md

@@ -2,134 +2,114 @@
 
 # Extension Dependencies
 
-This is an advanced topic. Before reading this, make sure you are familiar with [Your First Extension](../getting-started/first_extension.md).
+## Overview
 
----
+Extensions are the building blocks of a Sagittarius Engine application. In medium-to-large applications, extensions rarely operate in isolation. They form a complex dependency graph. The Engine's Kernel automatically resolves this graph using topological sorting to ensure extensions start and stop in a safe, deterministic order.
 
-## What is an Extension Dependency?
+## Why
 
-Extensions can declare that they depend on other extensions. The engine uses this information to:
+As an application grows, manually orchestrating the initialization sequence of databases, message brokers, caching layers, and HTTP servers becomes fragile. A single ordering mistake can cause startup crashes or partial data corruption during shutdown. Extension dependencies offload the responsibility of deterministic ordering from the developer to the engine.
 
-- Start dependencies **before** the extension that requires them
-- Stop the extension **before** its dependencies during shutdown
-- Detect and reject **circular dependencies** at boot time
+## When to Use
 
-This allows complex plugin systems to self-organize without manual ordering.
+Use extension dependencies when:
+- Extension B relies on the services provided by Extension A.
+- Extension B needs Extension A to be fully started before Extension B can begin its own background tasks.
 
----
+## When NOT to Use
 
-## Declaring Dependencies
+Do NOT use extension dependencies when:
+- Two extensions only communicate asynchronously via the Event Bus and do not care which one starts first.
 
-Use `ExtensionDescriptor` to declare dependencies:
+## Architecture
+
+```mermaid
+flowchart TB
+    DatabaseExt[Database Extension]
+    MetricsExt[Metrics Extension]
+    AuthExt[Authentication Extension]
+    APIExt[API Extension]
+    
+    DatabaseExt -->|Required by| AuthExt
+    MetricsExt -->|Optional for| AuthExt
+    AuthExt -->|Required by| APIExt
+```
+
+## How it Works
+
+When `app.boot()` is called, the Kernel performs the following steps:
+1. **Graph Construction**: Reads the `dependencies` and `optional_dependencies` from every registered `ExtensionDescriptor`.
+2. **Cycle Detection**: Verifies that no circular dependencies exist.
+3. **Topological Sort**: Sorts the extensions so that every dependency is placed before the extension that requires it.
+4. **Priority Resolution**: If two extensions have no dependency relationship, they are ordered based on their `priority` value (higher priority starts earlier).
+5. **Startup Ordering**: Calls `register()` and `boot()` sequentially.
+6. **Shutdown Ordering**: When `app.stop()` is called, `shutdown()` is executed in exact reverse topological order.
+
+## Examples
+
+### Declaring a Strict Dependency
 
 ```python
 from sagittarius_engine import IExtension, ExtensionDescriptor, EngineContext
 
-
-class MetricsExtension(IExtension):
-
-    @property
-    def descriptor(self) -> ExtensionDescriptor:
-        return ExtensionDescriptor(name="Metrics")
-
-    def register(self, context: EngineContext) -> None:
-        pass
-
-    def boot(self, context: EngineContext) -> None:
-        print("Metrics started")
-
-    def shutdown(self, context: EngineContext) -> None:
-        print("Metrics stopped")
-
-
-class TradingExtension(IExtension):
-
+class AuthenticationExtension(IExtension):
     @property
     def descriptor(self) -> ExtensionDescriptor:
         return ExtensionDescriptor(
-            name="Trading",
-            dependencies=["Metrics"],  # Metrics must start first
+            name="Authentication",
+            dependencies=["Database"] # Database must start first
         )
 
     def register(self, context: EngineContext) -> None:
         pass
 
     def boot(self, context: EngineContext) -> None:
-        print("Trading started")
+        print("Auth Extension started.")
 
     def shutdown(self, context: EngineContext) -> None:
-        print("Trading stopped")
+        print("Auth Extension stopped.")
 ```
 
----
+## Design Trade-offs
 
-## Topological Sort
+*Why explicit string-based dependency declarations instead of type-based injection ordering?*
 
-When `app.boot()` is called, the engine builds a dependency graph and sorts extensions using topological ordering:
+Sagittarius Engine requires extensions to declare dependencies via string names in the `ExtensionDescriptor` rather than inferring ordering from constructor injection.
+This design allows the Kernel to build the entire dependency graph *before* instantiating any heavy services or resolving the container. It prevents the engine from getting stuck halfway through instantiation if a cycle exists, and allows for robust cycle-detection prior to execution.
 
-```mermaid
-flowchart LR
-    Metrics --> Trading
-    Trading --> Dashboard
+## Best Practices
+
+- **Use Optional Dependencies**: If your extension can integrate with another extension but does not strictly require it to function, use `optional_dependencies`. If the optional dependency is registered, it will start first. If it is missing, the engine will safely ignore it.
+- **Isolate Domains**: Group closely related functionality into a single extension rather than creating dozens of micro-extensions that all depend on each other.
+- **Fail Fast**: The engine's cycle detection occurs at boot time. Always run your integration tests after modifying extension dependencies.
+
+## Anti-Patterns
+
+### Circular Dependencies
+Do not create architectural cycles.
 ```
-
-Given this graph, the boot order will always be:
-
-1. `Metrics`
-2. `Trading`
-3. `Dashboard`
-
-Regardless of the order in which `app.use()` was called.
-
----
-
-## Priority
-
-When two extensions have no dependency relationship, `priority` breaks the tie:
-
-```python
-ExtensionDescriptor(name="Analytics", priority=10)  # starts earlier
-ExtensionDescriptor(name="Reporting", priority=5)   # starts later
+AuthExtension depends on UserExtension
+UserExtension depends on AuthExtension
 ```
-
-Higher priority value = earlier start.
-
----
-
-## Optional Dependencies
-
-Declare `optional_dependencies` for extensions that may or may not be present:
-
-```python
-ExtensionDescriptor(
-    name="Dashboard",
-    dependencies=["Trading"],
-    optional_dependencies=["Analytics"],
-)
-```
-
-If `Analytics` is not registered, the engine ignores it. If it is registered, it will start before `Dashboard`.
-
----
-
-## Rollback on Failure
-
-If any extension fails during `boot()`, the engine automatically stops and disposes all previously started extensions in reverse order.
-
----
+*Why it is discouraged:* The Engine cannot resolve which extension should start first, leading to a `ModuleRegistrationError` at boot time. You must break the cycle by extracting the shared interface or using the Event Bus to decouple them.
 
 ## Common Mistakes
 
-**Declaring a dependency that is never registered**
-This will raise an error at boot time. Use `optional_dependencies` for conditional integrations.
+- **Depending on Unregistered Extensions**: Declaring a strict dependency in `dependencies` that is never passed to `app.use()`. The application will refuse to boot.
+- **Assuming `app.use()` Order Matters**: Calling `app.use(B)` before `app.use(A)` does not force B to start before A. The topological graph dictates the absolute order.
 
-**Circular dependency**
-```
-A depends on B
-B depends on A
-```
-The engine detects this cycle and raises an error at boot time.
+## Related Guides
 
----
+- [Application Lifecycle](../runtime/application_lifecycle.md)
+- [Architecture](architecture.md)
 
-> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/advanced/extension_dependencies.md)
+## Related API Reference
+
+- [ExtensionDescriptor](../api/extension.md)
+
+## See Also
+
+- [Concepts: Extensions](../concepts/extensions.md)
+- [Concepts: Lifecycle](../concepts/lifecycle.md)
+
+> [Found an issue? Edit this page on GitHub.](#)
