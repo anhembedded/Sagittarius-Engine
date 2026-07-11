@@ -366,7 +366,9 @@ Prepare pre-commit hooks:
 
 ---
 
-## 🚧 Phase D1.7 — API Reference
+## ✅ Phase D1.7 — API Reference
+
+**Status:** Completed
 
 ### Goal
 

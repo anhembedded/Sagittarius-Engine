@@ -35,6 +35,15 @@ theme:
 
 plugins:
   - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            docstring_style: google
+            show_root_heading: true
+            show_source: false
+            heading_level: 2
   # - tags:
   #     # To be enabled in later content phases
   # - social:
@@ -73,3 +82,14 @@ nav:
   - Advanced:
       - Extension Dependencies: advanced/extension_dependencies.md
   - Tutorials: tutorials/README.md
+  - API Reference:
+      - Overview: api/index.md
+      - App: api/app.md
+      - Engine Context: api/engine_context.md
+      - Dispatcher: api/dispatcher.md
+      - Event Bus: api/event_bus.md
+      - Scheduler: api/scheduler.md
+      - Task Manager: api/task_manager.md
+      - Hosted Service: api/hosted_service.md
+      - Extension: api/extension.md
+      - Cancellation Token: api/cancellation_token.md

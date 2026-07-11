@@ -34,7 +34,7 @@ Status: NOT STARTED
 Deliverables: tests/test_docs.py, .github/workflows/docs.yml
 
 Phase D1.7 — API Reference
-Status: NOT STARTED
+Status: COMPLETED
 Deliverables: mkdocstrings integration, docs/api/index.md, app.md, engine_context.md, dispatcher.md, event_bus.md, scheduler.md, task_manager.md, hosted_service.md, extension.md, cancellation_token.md
 
 Phase D2 — Core Concepts
