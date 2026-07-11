@@ -102,6 +102,7 @@ nav:
       - Best Practices: advanced/best_practices.md
       - Troubleshooting: advanced/troubleshooting.md
   - Tutorials:
+      - Overview: tutorials/README.md
       - Desktop Application: tutorials/desktop_app.md
       - Worker Service: tutorials/worker_service.md
       - Trading Bot: tutorials/trading_bot.md
@@ -118,3 +119,6 @@ nav:
       - Hosted Service: api/hosted_service.md
       - Extension: api/extension.md
       - Cancellation Token: api/cancellation_token.md
+  - Documentation:
+      - Style Guide: STYLE_GUIDE.md
+      - Review Checklist: DOC_REVIEW_CHECKLIST.md

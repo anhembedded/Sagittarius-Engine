@@ -220,4 +220,4 @@ Depending on the GUI framework (like PySide6), updating UI elements directly fro
 - `TaskManager`
 
 ---
-Found an issue? Edit this page on GitHub.
+> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/tutorials/desktop_app.md)

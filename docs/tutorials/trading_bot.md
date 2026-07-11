@@ -235,4 +235,4 @@ If you place an order synchronously inside `check_market()`, and the exchange AP
 - `ITaskManager`
 
 ---
-Found an issue? Edit this page on GitHub.
+> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/tutorials/trading_bot.md)

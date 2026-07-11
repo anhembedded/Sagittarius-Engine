@@ -44,7 +44,7 @@ During the Engine boot phase, Extensions register bindings (interfaces to concre
 ### Resolution Flow
 
 ```mermaid
-flowchart TD
+flowchart TB
     Request["Request Handler Resolution"]
     Container["DI Container"]
     Handler["Handler Instance"]

@@ -233,4 +233,4 @@ If your background thread performs a blocking HTTP request without a timeout, an
 - `CancellationToken`
 
 ---
-Found an issue? Edit this page on GitHub.
+> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/tutorials/worker_service.md)

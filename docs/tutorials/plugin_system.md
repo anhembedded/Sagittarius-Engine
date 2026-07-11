@@ -249,4 +249,4 @@ If Plugin A depends on Plugin B, and Plugin B depends on Plugin A, the Kernel ca
 - `ExtensionDescriptor`
 
 ---
-Found an issue? Edit this page on GitHub.
+> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/tutorials/plugin_system.md)

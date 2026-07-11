@@ -254,4 +254,4 @@ Do not call synchronous blocking functions (like `requests.get()` or heavy CPU c
 - `CancellationToken`
 
 ---
-Found an issue? Edit this page on GitHub.
+> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/tutorials/websocket_client.md)
