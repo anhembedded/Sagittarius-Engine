@@ -145,4 +145,4 @@ k.start()
 - [Concepts: Engine](../concepts/engine.md)
 - [Concepts: Runtime](../concepts/runtime.md)
 
-> [Found an issue? Edit this page on GitHub.](#)
+> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/advanced/architecture.md)

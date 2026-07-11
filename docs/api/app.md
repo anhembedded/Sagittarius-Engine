@@ -22,4 +22,4 @@ Use `App` to configure your composition root, load extensions, attach middleware
 
 ---
 
-> [Found an issue? Edit this page on GitHub.]()
+> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/api/app.md)

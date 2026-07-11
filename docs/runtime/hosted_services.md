@@ -153,4 +153,4 @@ def main():
 
 - [IHostedService](../api/hosted_service.md)
 
-> [Found an issue? Edit this page on GitHub.](#)
+> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/runtime/hosted_services.md)

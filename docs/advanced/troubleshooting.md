@@ -179,4 +179,4 @@ Restarting the application in a loop without diagnosing the dependency cycle or 
 
 - [Concepts: Lifecycle](../concepts/lifecycle.md)
 
-> [Found an issue? Edit this page on GitHub.](#)
+> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/advanced/troubleshooting.md)

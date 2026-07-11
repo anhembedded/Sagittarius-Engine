@@ -1,6 +1,8 @@
 > Applies to Sagittarius Engine v1.x
 
-# WebSocket Client**Estimated Time**: 20 minutes  
+# WebSocket Client
+
+**Estimated Time**: 20 minutes  
 **Difficulty**: Intermediate  
 **Source Example**: `examples/websocket`
 

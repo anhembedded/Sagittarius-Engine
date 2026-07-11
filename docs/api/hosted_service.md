@@ -21,4 +21,4 @@ Implement `IHostedService` for classes that need to start background loops (e.g.
 
 ---
 
-> [Found an issue? Edit this page on GitHub.]()
+> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/api/hosted_service.md)

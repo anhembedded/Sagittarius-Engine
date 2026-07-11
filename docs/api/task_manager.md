@@ -21,4 +21,4 @@ Use the `TaskManager` to spawn long-running parallel tasks, fire-and-forget oper
 
 ---
 
-> [Found an issue? Edit this page on GitHub.]()
+> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/api/task_manager.md)

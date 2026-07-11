@@ -1,6 +1,8 @@
 > Applies to Sagittarius Engine v1.x
 
-# Desktop Application**Estimated Time**: 15 minutes  
+# Desktop Application
+
+**Estimated Time**: 15 minutes  
 **Difficulty**: Intermediate  
 **Source Example**: `examples/desktop`
 
@@ -93,7 +95,7 @@ Before launching a UI window, the engine needs to be initialized. We instantiate
 from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
-from sagittarius_engine.extensions.logger_module import LoggerModule
+from sagittarius_engine.extensions.logger_module import LoggerExtension
 
 # Initialize Core Infrastructure
 container = StdLibContainer()
@@ -101,7 +103,7 @@ event_bus = MemoryEventBus()
 app = App(container, event_bus)
 
 # Register Extensions
-app.use(LoggerModule())
+app.use(LoggerExtension())
 
 # Boot engine before UI launches
 app.boot()

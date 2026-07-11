@@ -21,4 +21,4 @@ Use `IEventBus` to notify other subsystems of occurrences (e.g., domain events o
 
 ---
 
-> [Found an issue? Edit this page on GitHub.]()
+> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/api/event_bus.md)

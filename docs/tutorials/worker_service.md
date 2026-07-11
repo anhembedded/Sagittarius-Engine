@@ -1,6 +1,8 @@
 > Applies to Sagittarius Engine v1.x
 
-# Worker Service**Estimated Time**: 15 minutes  
+# Worker Service
+
+**Estimated Time**: 15 minutes  
 **Difficulty**: Beginner  
 **Source Example**: `examples/worker`
 

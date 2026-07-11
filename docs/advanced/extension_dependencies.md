@@ -112,4 +112,4 @@ UserExtension depends on AuthExtension
 - [Concepts: Extensions](../concepts/extensions.md)
 - [Concepts: Lifecycle](../concepts/lifecycle.md)
 
-> [Found an issue? Edit this page on GitHub.](#)
+> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/advanced/extension_dependencies.md)

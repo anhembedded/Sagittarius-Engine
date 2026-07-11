@@ -1,6 +1,8 @@
 > Applies to Sagittarius Engine v1.x
 
-# Plugin System**Estimated Time**: 20 minutes  
+# Plugin System
+
+**Estimated Time**: 20 minutes  
 **Difficulty**: Advanced  
 **Source Example**: `examples/plugin_system`
 

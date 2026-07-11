@@ -1,6 +1,8 @@
 > Applies to Sagittarius Engine v1.x
 
-# Trading Bot**Estimated Time**: 30 minutes  
+# Trading Bot
+
+**Estimated Time**: 30 minutes  
 **Difficulty**: Advanced  
 **Source Example**: `examples/trading_bot`
 

@@ -119,7 +119,7 @@ Every page must start with:
 Every page must end with:
 
 ```markdown
-> [Found an issue? Edit this page on GitHub.](link)
+> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/STYLE_GUIDE.md)
 ```
 
 ---
