@@ -262,6 +262,14 @@ mkdocs build
 
 ---
 
+## TODO (Tương lai)
+
+* Cấu hình `pre-commit` với:
+  * `markdownlint` để kiểm tra định dạng và cấu trúc markdown.
+  * `ruff` / `black` để định dạng code block tự động.
+
+---
+
 # 🚧 Phase D1.7 — API Reference
 
 ## Goal
