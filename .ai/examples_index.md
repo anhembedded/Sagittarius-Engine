@@ -6,6 +6,7 @@ It ensures that tutorials, concepts, and guides remain synchronized with the pro
 ## Catalog
 
 ### 1. Desktop Application
+
 - **Directory**: `examples/desktop`
 - **Purpose**: Demonstrates how to integrate Sagittarius Engine with event-driven, thread-safe UI updates (PySide6). Shows proper shutdown sequences and bridging events.
 - **Difficulty**: Intermediate
@@ -15,6 +16,7 @@ It ensures that tutorials, concepts, and guides remain synchronized with the pro
 - **Related API**: `IHostedService`, `IEventBus`, `Extension`
 
 ### 2. Worker Service
+
 - **Directory**: `examples/worker`
 - **Purpose**: Demonstrates a background queue consumer executing tasks with cooperative cancellation.
 - **Difficulty**: Beginner
@@ -24,6 +26,7 @@ It ensures that tutorials, concepts, and guides remain synchronized with the pro
 - **Related API**: `ITaskManager`, `CancellationToken`
 
 ### 3. Trading Bot
+
 - **Directory**: `examples/trading_bot`
 - **Purpose**: Demonstrates building long-running strategy loops using `HostedService`, `TaskManager`, and `Scheduler`.
 - **Difficulty**: Advanced
@@ -33,6 +36,7 @@ It ensures that tutorials, concepts, and guides remain synchronized with the pro
 - **Related API**: `IScheduler`, `IHostedService`
 
 ### 4. WebSocket Client
+
 - **Directory**: `examples/websocket`
 - **Purpose**: Demonstrates asynchronous client connections, backoff reconnects, and heartbeats via the Async Runtime.
 - **Difficulty**: Intermediate
@@ -42,6 +46,7 @@ It ensures that tutorials, concepts, and guides remain synchronized with the pro
 - **Related API**: `IAsyncRuntime`
 
 ### 5. Plugin System
+
 - **Directory**: `examples/plugin_system`
 - **Purpose**: Demonstrates dynamic Extension loading, Extension discovery, Extension dependency graph, and Extension activation.
 - **Difficulty**: Advanced
@@ -51,6 +56,7 @@ It ensures that tutorials, concepts, and guides remain synchronized with the pro
 - **Related API**: `IExtension`, `ExtensionContext`
 
 ### 6. REST API (No Tutorial Yet)
+
 - **Directory**: `examples/rest_api`
 - **Purpose**: Simple HTTP server using the DI Container and Dispatcher.
 - **Difficulty**: Beginner

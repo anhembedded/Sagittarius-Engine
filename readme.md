@@ -1,64 +1,176 @@
-# Sagittarius Framework
+# Sagittarius Engine
 
-**A lightning-fast, minimalist, headless-first, event-driven Python framework designed to help you build applications using strict Clean Architecture and Domain-Driven Design (DDD) principles.**
+**A lightweight, modular Python Application Engine for building runtime-driven, extension-based applications.**
+
+Sagittarius Engine is a runtime host — not a web framework, not an ORM, not a DDD framework. It provides the infrastructure layer for building long-running applications: background workers, desktop apps, trading bots, plugin systems, automation pipelines, and CLI tools.
 
 ---
 
-## What is Sagittarius?
+## Why Sagittarius Engine?
 
-Sagittarius is not just another web framework. It is an **Application Core Framework**. Its primary goal is to isolate your core business logic (Domain and Application Use Cases) from external infrastructure, databases, and UI frameworks.
+Most Python frameworks force your application into a specific architecture. Sagittarius Engine takes a different approach: it provides runtime capabilities and gets out of the way.
 
-Whether you are building a CLI, a background worker, or an API using Flask/FastAPI, your core application remains the same. Sagittarius achieves this by strictly enforcing the Dependency Rule using a minimalist native Dependency Injection container.
+### What the Engine provides
 
-**Key Highlights:**
-- **Zero External Dependencies in Core:** Built entirely using the Python Standard Library.
-- **Decoupled Architecture:** Core library (Domain/App) is completely independent of infrastructure and adapters.
-- **Event-Driven:** Built-in sync (`MemoryEventBus`), background (`ThreadPoolEventBus`), and async (`AsyncioEventBus`) Event Buses for modular communication.
-- **Dependency Injection:** Automatic resolution of type-hinted dependencies.
-- **Middleware Pipeline:** Inject cross-cutting concerns like logging or validation effortlessly.
-- **Modular Design:** Extend application functionality seamlessly via `IModule`.
+| Capability | Description |
+|---|---|
+| **Extension System** | First-class runtime plugins with full lifecycle management (`initialize → start → stop → dispose`). |
+| **Dispatcher** | Unified request routing — dispatch commands and queries through registered handlers. |
+| **Hosted Services** | Long-running background services managed by the Engine lifecycle. |
+| **Scheduler** | Cron-style and interval-based task scheduling with cancellation support. |
+| **Task Manager** | Background task pool with cooperative cancellation via `CancellationToken`. |
+| **Async Runtime** | Integrated asyncio runtime with thread-safe bridge for sync/async coexistence. |
+| **Event Bus** | In-process event publishing and subscription. Sync and async variants available. |
+| **EngineContext** | Shared runtime context passed to Extensions and Hosted Services, providing safe access to all Engine capabilities. |
+| **Dependency Injection** | Constructor injection with automatic resolution from type hints. |
 
-## Documentation
+### What you decide
 
-- [Hướng dẫn sử dụng (Vietnamese)](docs/huong_dan_su_dung.md)
-- [Kiến trúc tổng thể (Architecture Details)](docs/architecture.md)
+Your architecture. Your domain. Your database. Your UI framework. Sagittarius Engine provides runtime infrastructure — your application provides the business logic.
 
-## Quick Start
+---
 
-### 1. Installation
+## Features
 
-To install the framework in editable mode for development:
+- **Zero mandatory external dependencies** — built on the Python Standard Library core.
+- **Extension-based architecture** — extend the Engine at runtime with isolated, reusable plugins.
+- **Full lifecycle management** — deterministic startup and shutdown with ordered extension resolution.
+- **Cooperative cancellation** — cancel long-running tasks gracefully using `CancellationToken`.
+- **Unified dispatcher** — route commands and queries through a single `app.dispatch()` call.
+- **Multiple Event Bus strategies** — synchronous, thread-pool, and asyncio variants.
+- **SDK templates** — scaffold new projects with `minimal`, `clean`, `ddd`, or `mvc` templates.
+
+---
+
+## Installation
+
+```bash
+pip install sagittarius-engine
+```
+
+For development (editable mode from source):
 
 ```bash
 pip install -e .
 ```
 
-### 2. Scaffold a new project
+---
 
-Use the built-in scaffolding tool to generate a new clean architecture application:
+## Quick Start
 
-```bash
-python -m sagittarius_engine.tools.scaffold my_new_app
+```python
+from sagittarius_engine import App, IExtension, IHostedService, EngineContext
+
+# Define a simple Hosted Service
+class GreeterService(IHostedService):
+    async def start(self, ctx: EngineContext) -> None:
+        print("Greeter started.")
+
+    async def stop(self) -> None:
+        print("Greeter stopped.")
+
+# Bundle it into an Extension
+class GreeterExtension(IExtension):
+    def initialize(self, ctx: EngineContext) -> None:
+        ctx.container.singleton(GreeterService, GreeterService())
+
+    def start(self, ctx: EngineContext) -> None:
+        ctx.runtime.add_hosted_service(ctx.container.resolve(GreeterService))
+
+# Wire up the application
+app = App()
+app.use(GreeterExtension())
+app.boot()
+app.stop()
 ```
 
-### 3. Examples
+---
 
-Check out the `example/` directory for sample applications demonstrating core features. These examples are designed to be run from the root of the project:
+## Project Templates (SDK)
 
-- **`example/CLI_smallApp/`**: A standard interactive CLI application.
-- **`example/batch_csv/`**: Shows how to handle batch processing of CSV files.
-- **`example/simple_ui/`**: A simple Flask web application adapter acting over the framework core.
-- **`example/multi_module/`**: Demonstrates inter-module communication using EventBus.
+Use the SDK to scaffold a new project:
 
-For example, to run the Multi-Module example:
 ```bash
-python example/multi_module/main.py
+python -m sagittarius_engine.sdk new my_app --template minimal
 ```
+
+Available templates:
+
+| Template | Description |
+|---|---|
+| `minimal` | Bare-bones App with a single Extension. |
+| `clean` | Layered architecture with Domain, Application, Infrastructure, and Adapters. |
+| `ddd` | Domain-Driven Design template with Aggregate Roots and Domain Events. |
+| `mvc` | Model-View-Controller layout for desktop or CLI apps. |
+
+Generated projects are immediately runnable.
+
+---
+
+## Examples
+
+The `examples/` directory contains reference applications that demonstrate real-world Engine usage.
+
+| Project | Directory | Description |
+|---|---|---|
+| Desktop Application | `examples/desktop/` | Event-driven PySide6 desktop app with thread-safe UI updates. |
+| Worker Service | `examples/worker/` | Background queue consumer with cooperative cancellation. |
+| Trading Bot | `examples/trading_bot/` | Long-running strategy loop using `HostedService`, `Scheduler`, and `TaskManager`. |
+| WebSocket Client | `examples/websocket/` | Async WebSocket client with reconnect backoff via Async Runtime. |
+| Plugin System | `examples/plugin_system/` | Dynamic Extension loading, dependency graph, and activation. |
+| REST API | `examples/rest_api/` | Simple HTTP server using the DI Container and Dispatcher. |
+
+---
+
+## Documentation
+
+The full documentation is available at the project docs site (built with MkDocs Material).
+
+| Section | Topics |
+|---|---|
+| [Getting Started](docs/getting-started/installation.md) | Installation, First App, First Extension, Templates |
+| [Concepts](docs/concepts/README.md) | Engine, Runtime, Dispatcher, Event Bus, Middleware, Extensions, Lifecycle |
+| [Runtime Guides](docs/runtime/application_lifecycle.md) | Application Lifecycle, Hosted Services, Scheduler, Task Manager, Async Runtime, Cancellation Token |
+| [Advanced Guides](docs/advanced/architecture.md) | Extension Dependencies, Architecture, Performance, Best Practices, Troubleshooting |
+| [Tutorials](docs/tutorials/README.md) | Desktop App, Worker Service, Trading Bot, WebSocket Client, Plugin System |
+| [API Reference](docs/api/index.md) | App, EngineContext, Dispatcher, Event Bus, Scheduler, Task Manager, Hosted Service, Extension, Cancellation Token |
+| [Migration Guides](docs/migration/upgrading.md) | Upgrading to v1.0, Deprecated APIs, Migrating from Clean Architecture |
+
+To build and serve the documentation locally:
+
+```bash
+pip install -r requirements-docs.txt
+mkdocs serve
+```
+
+---
 
 ## Running Tests
 
-The framework comes with a full suite of tests. Run them using `pytest` to ensure everything is working correctly:
-
 ```bash
-python -m pytest tests/ --cov=sagittarius_engine
+# Run the full test suite
+pytest
+
+# Run documentation code validation only
+pytest tests/test_docs.py
+
+# Run with coverage
+pytest --cov=sagittarius_engine
 ```
+
+---
+
+## Contributing
+
+1. Fork the repository.
+2. Create a feature branch: `git checkout -b feature/your-feature`.
+3. Commit your changes following the existing code style.
+4. Open a pull request against `develop`.
+
+Please ensure all tests pass and the documentation builds without errors before submitting.
+
+---
+
+## License
+
+MIT License. See [LICENSE](LICENSE) for details.
