@@ -4,3 +4,7 @@
 ## 2025-02-12 - Middleware Pipeline Iteration Optimization
 **Learning:** `MiddlewarePipeline` uses recursive lambdas `lambda: self.__invoke_middleware(...)` which generates closures dynamically for every request, slowing down the pipeline due to call stack depth and closure instantiation overhead.
 **Action:** Replace the recursive lambda execution chain with an iterative approach using `functools.partial` processing `reversed(self.middlewares)` to build a flat execution chain, avoiding recursion depth overhead and improving performance.
+
+## 2024-07-12 - [Lock-Free EventBus Emissions]
+**Learning:** High-frequency event emissions face severe lock contention when synchronizing access to mutable handler lists (`list.copy()` inside a `threading.Lock`).
+**Action:** Always use the Copy-On-Write (COW) pattern for event handlers by utilizing immutable `tuple`s instead of `list`s. Handlers are updated under a lock, but `emit` can perform a high-performance lock-free read via `.get()`.

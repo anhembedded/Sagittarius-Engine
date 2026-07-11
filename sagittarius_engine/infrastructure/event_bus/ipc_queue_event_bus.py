@@ -7,27 +7,35 @@ from typing import Any
 from sagittarius_engine.interfaces.i_event_bus import IEventBus
 from sagittarius_engine.interfaces.i_logger import ILogger
 
+
 class IPCQueueEventBus(IEventBus):
     """
     @brief IPC Event Bus that uses Queue for cross-process Pub/Sub.
     """
 
-    def __init__(self, subscriber_queue: Queue | None=None, publish_queue: Queue | None=None, logger: ILogger | None=None):
+    def __init__(
+        self,
+        subscriber_queue: Queue | None = None,
+        publish_queue: Queue | None = None,
+        logger: ILogger | None = None,
+    ):
         self._subscriber_queue = subscriber_queue
         self._publish_queue = publish_queue
         self._logger = logger
-        self._handlers: dict[str, list[Callable]] = {}
+        self._handlers: dict[str, tuple[Callable, ...]] = {}
         self._handlers_lock = threading.Lock()
         self._stop_event = threading.Event()
         self._thread: threading.Thread | None = None
 
-    def emit(self, event_name: str, data: Any=None) -> None:
+    def emit(self, event_name: str, data: Any = None) -> None:
         """
         @brief Publishes an event to the shared publish queue.
         """
         if not self._publish_queue:
             if self._logger:
-                self._logger.warning(f"Cannot emit '{event_name}': publish_queue is None.")
+                self._logger.warning(
+                    f"Cannot emit '{event_name}': publish_queue is None."
+                )
             else:
                 logging.warning(f"Cannot emit '{event_name}': publish_queue is None.")
             return
@@ -35,28 +43,34 @@ class IPCQueueEventBus(IEventBus):
             self._publish_queue.put((event_name, data))
         except Exception as e:
             if self._logger:
-                self._logger.error(f"Failed to emit event '{event_name}' to publish_queue: {e}")
+                self._logger.error(
+                    f"Failed to emit event '{event_name}' to publish_queue: {e}"
+                )
             else:
-                logging.error(f"Failed to emit event '{event_name}' to publish_queue: {e}")
+                logging.error(
+                    f"Failed to emit event '{event_name}' to publish_queue: {e}"
+                )
 
     def on(self, event_name: str, handler: Callable) -> None:
         """
         @brief Subscribes a local handler to an event.
         """
         with self._handlers_lock:
-            if event_name not in self._handlers:
-                self._handlers[event_name] = []
-            if handler not in self._handlers[event_name]:
-                self._handlers[event_name].append(handler)
+            handlers = self._handlers.get(event_name, ())
+            if handler not in handlers:
+                self._handlers[event_name] = handlers + (handler,)
 
     def off(self, event_name: str, handler: Callable) -> None:
         """
         @brief Unsubscribes a local handler from an event.
         """
         with self._handlers_lock:
-            if event_name in self._handlers and handler in self._handlers[event_name]:
-                self._handlers[event_name].remove(handler)
-                if not self._handlers[event_name]:
+            handlers = self._handlers.get(event_name, ())
+            if handler in handlers:
+                new_handlers = tuple(h for h in handlers if h != handler)
+                if new_handlers:
+                    self._handlers[event_name] = new_handlers
+                else:
                     del self._handlers[event_name]
 
     def start(self) -> None:
@@ -65,15 +79,19 @@ class IPCQueueEventBus(IEventBus):
         """
         if not self._subscriber_queue:
             if self._logger:
-                self._logger.warning('No subscriber_queue provided; IPCQueueEventBus will not listen for events.')
+                self._logger.warning(
+                    "No subscriber_queue provided; IPCQueueEventBus will not listen for events."
+                )
             return
         if self._thread and self._thread.is_alive():
             return
         self._stop_event.clear()
-        self._thread = threading.Thread(target=self._run, daemon=True, name='IPCQueueEventBusListener')
+        self._thread = threading.Thread(
+            target=self._run, daemon=True, name="IPCQueueEventBusListener"
+        )
         self._thread.start()
         if self._logger:
-            self._logger.info('IPCQueueEventBus listener started.')
+            self._logger.info("IPCQueueEventBus listener started.")
 
     def stop(self) -> None:
         """
@@ -82,14 +100,14 @@ class IPCQueueEventBus(IEventBus):
         self._stop_event.set()
         if self._subscriber_queue:
             try:
-                self._subscriber_queue.put(('_STOP_', None))
+                self._subscriber_queue.put(("_STOP_", None))
             except Exception as e:
                 if self._logger:
-                    self._logger.error(f'Error stopping IPCQueueEventBus: {e}')
+                    self._logger.error(f"Error stopping IPCQueueEventBus: {e}")
         if self._thread:
             self._thread.join(timeout=2.0)
         if self._logger:
-            self._logger.info('IPCQueueEventBus listener stopped.')
+            self._logger.info("IPCQueueEventBus listener stopped.")
 
     def _run(self) -> None:
         if not self._subscriber_queue:
@@ -97,7 +115,11 @@ class IPCQueueEventBus(IEventBus):
         while not self._stop_event.is_set():
             try:
                 message = self._subscriber_queue.get(timeout=0.1)
-                if isinstance(message, tuple) and len(message) == 2 and (message[0] == '_STOP_'):
+                if (
+                    isinstance(message, tuple)
+                    and len(message) == 2
+                    and (message[0] == "_STOP_")
+                ):
                     break
                 event_name, data = message
                 self._dispatch(event_name, data)
@@ -105,12 +127,11 @@ class IPCQueueEventBus(IEventBus):
                 continue
             except Exception as e:
                 if self._logger:
-                    self._logger.error(f'IPCQueueEventBus listener error: {e}')
+                    self._logger.error(f"IPCQueueEventBus listener error: {e}")
 
     def _dispatch(self, event_name: str, data: Any) -> None:
         """Calls all local handlers registered for the event."""
-        with self._handlers_lock:
-            handlers = self._handlers.get(event_name, []).copy()
+        handlers = self._handlers.get(event_name, ())
         for handler in handlers:
             try:
                 handler(data)

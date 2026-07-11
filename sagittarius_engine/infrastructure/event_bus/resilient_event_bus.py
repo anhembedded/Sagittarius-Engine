@@ -1,3 +1,4 @@
+import threading
 from collections.abc import Callable
 from typing import Any
 
@@ -42,9 +43,11 @@ class ResilientEventBus(IEventBus):
         self.inner_bus = inner_bus
         self.max_retries = max_retries
         self._dlq: list[tuple[str, Any, Callable, Exception]] = []
+        self._dlq_lock = threading.Lock()
         self.logger = logger
 
-        self._handlers: dict[str, list[Callable]] = {}
+        self._handlers: dict[str, tuple[Callable, ...]] = {}
+        self._lock = threading.Lock()
 
     def emit(self, event_name: str, data: Any = None) -> None:
         """
@@ -58,37 +61,47 @@ class ResilientEventBus(IEventBus):
                 f"Emitting resilient event: {event_name} with data: {data}"
             )
 
-        for handler in self._handlers.get(event_name, []):
+        # Lock-free read for high performance using COW pattern
+        handlers_snapshot = self._handlers.get(event_name, ())
+
+        for handler in handlers_snapshot:
             for attempt in range(self.max_retries + 1):
                 try:
                     handler(data)
                     break
                 except Exception as e:
                     if attempt == self.max_retries:
-                        self._dlq.append((event_name, data, handler, e))
+                        with self._dlq_lock:
+                            self._dlq.append((event_name, data, handler, e))
 
     def on(self, event_name: str, handler: Callable) -> None:
         """
-        @brief Registers a handler.
+        @brief Registers a handler using Copy-On-Write.
 
         @param event_name The name of the event.
         @param handler The callback function.
         """
-        if event_name not in self._handlers:
-            self._handlers[event_name] = []
-        if handler not in self._handlers[event_name]:
-            self._handlers[event_name].append(handler)
+        with self._lock:
+            handlers = self._handlers.get(event_name, ())
+            if handler not in handlers:
+                self._handlers[event_name] = handlers + (handler,)
         self.inner_bus.on(event_name, handler)
 
     def off(self, event_name: str, handler: Callable) -> None:
         """
-        @brief Unregisters a handler.
+        @brief Unregisters a handler using Copy-On-Write.
 
         @param event_name The name of the event.
         @param handler The callback function.
         """
-        if event_name in self._handlers and handler in self._handlers[event_name]:
-            self._handlers[event_name].remove(handler)
+        with self._lock:
+            handlers = self._handlers.get(event_name, ())
+            if handler in handlers:
+                new_handlers = tuple(h for h in handlers if h != handler)
+                if new_handlers:
+                    self._handlers[event_name] = new_handlers
+                else:
+                    del self._handlers[event_name]
         self.inner_bus.off(event_name, handler)
 
     def get_dlq(self) -> list[tuple[str, Any, Callable, Exception]]:
@@ -96,14 +109,16 @@ class ResilientEventBus(IEventBus):
         @brief Retrieves the Dead Letter Queue.
         @return A list of failed events stored in the DLQ.
         """
-        return list(self._dlq)
+        with self._dlq_lock:
+            return list(self._dlq)
 
     def reprocess(self) -> None:
         """
         @brief Attempts to reprocess all events currently in the DLQ.
         """
-        current_dlq = self._dlq
-        self._dlq = []
+        with self._dlq_lock:
+            current_dlq = self._dlq
+            self._dlq = []
         for event_name, data, handler, _ in current_dlq:
             for attempt in range(self.max_retries + 1):
                 try:
@@ -111,4 +126,5 @@ class ResilientEventBus(IEventBus):
                     break
                 except Exception as e:
                     if attempt == self.max_retries:
-                        self._dlq.append((event_name, data, handler, e))
+                        with self._dlq_lock:
+                            self._dlq.append((event_name, data, handler, e))
