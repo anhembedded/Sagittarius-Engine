@@ -452,11 +452,12 @@ Developers understand how Sagittarius Engine works.
 
 ---
 
-## 🚧 Phase D3 — Runtime Guides
+## ✅ Phase D3 — Runtime Guides
 
 ### Goal
 
-Explain Runtime Infrastructure.
+Explain how to use the Sagittarius Runtime Infrastructure in real applications.
+The goal is to teach developers how the runtime components cooperate and when to use them, going from concept → usage → best practices.
 
 ### Deliverables
 
@@ -471,15 +472,44 @@ async_runtime.md
 cancellation_token.md
 ```
 
-Topics:
+### Clarification: Lifecycle (D2 vs D3)
 
-* Startup
-* Shutdown
-* Rollback
-* Threading
-* Async execution
+* **D2 – `concepts/lifecycle.md`**: Explains the architectural lifecycle (Application → Kernel → Runtime → Shutdown). No deep component details.
+* **D3 – `runtime/application_lifecycle.md`**: Explains the actual runtime execution, including Boot sequence, Startup order, Rollback, Shutdown order, Thread cleanup, Async runtime shutdown, Scheduler stop, Hosted service stop, and Task cleanup.
+  * *Do NOT explain architecture philosophy, kernel responsibilities, or extension concepts here.*
 
-Includes runnable examples and Mermaid diagrams.
+### Document Structure
+
+Every document MUST begin with a "Runtime Component Relationships" section (e.g. Scheduler -> TaskManager -> AsyncRuntime).
+Structure:
+# Title -> Runtime Component Relationships -> Overview -> Why -> When to Use -> When NOT to Use -> Runtime Responsibilities -> Lifecycle -> Architecture (Mermaid) -> Basic Example -> Advanced Example -> Best Practices -> Common Mistakes -> Related Concepts -> Related Runtime Guides -> Related Tutorials -> Related API Reference.
+
+### Topics:
+
+* application_lifecycle.md: Actual runtime execution, startup ordering, shutdown ordering, runtime resource ownership, rollback guarantees, cleanup guarantees, runtime state transitions.
+* hosted_services.md: Hosted Service Lifetime Ownership (Application -> HostedServiceManager -> HostedService), managed lifecycle, rollback, cancellation.
+* scheduler.md: Interval scheduling, Cron scheduling (if supported by current public API), isolation.
+* task_manager.md: Background execution, Thread Pool, CPU/IO work, Async work, Task Metadata, Task Cleanup.
+* async_runtime.md: The asynchronous execution environment managed by the Runtime. Explain why it exists, when developers benefit from it, and how synchronous and asynchronous execution cooperate. (Do NOT use the word "internal").
+* cancellation_token.md: Cancellation hierarchy (Application Stop -> CancellationToken -> Hosted Services -> Scheduler -> Background Tasks). Cooperative cancellation.
+
+### Runnable Examples
+Examples MUST be:
+- <= 50 lines
+- executable and terminate cleanly
+- use only `from sagittarius_engine import ...`
+- no internal imports, no private classes, no deprecated APIs.
+
+### Scope Guard
+This phase documents runtime usage.
+It must NOT:
+- duplicate Core Concepts
+- duplicate API Reference
+- expose implementation details
+- expose internal packages
+- explain private classes
+If a topic already exists in docs/api/, link to it instead of repeating it.
+If a topic belongs to docs/concepts/, summarize it and link to it.
 
 ---
 

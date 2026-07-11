@@ -88,6 +88,13 @@ nav:
       - Middleware: concepts/middleware.md
       - Extensions: concepts/extensions.md
       - Lifecycle: concepts/lifecycle.md
+  - Runtime:
+      - Application Lifecycle: runtime/application_lifecycle.md
+      - Hosted Services: runtime/hosted_services.md
+      - Scheduler: runtime/scheduler.md
+      - Task Manager: runtime/task_manager.md
+      - Async Runtime: runtime/async_runtime.md
+      - Cancellation Token: runtime/cancellation_token.md
   - Advanced:
       - Extension Dependencies: advanced/extension_dependencies.md
   - Tutorials: tutorials/README.md

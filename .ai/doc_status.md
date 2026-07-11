@@ -42,7 +42,8 @@ Status: COMPLETED
 Deliverables: docs/concepts/engine.md, docs/concepts/runtime.md, docs/concepts/dispatcher.md, docs/concepts/dependency_injection.md, docs/concepts/event_bus.md, docs/concepts/middleware.md, docs/concepts/extensions.md, docs/concepts/lifecycle.md
 
 Phase D3 — Runtime Guides
-Status: NOT STARTED
+Status: COMPLETED
+Deliverables: docs/runtime/application_lifecycle.md, docs/runtime/hosted_services.md, docs/runtime/scheduler.md, docs/runtime/task_manager.md, docs/runtime/async_runtime.md, docs/runtime/cancellation_token.md
 
 Phase D4 — Advanced Guides
 Status: NOT STARTED
