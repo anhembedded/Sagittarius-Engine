@@ -6,7 +6,7 @@ Documentation không chỉ mô tả API.
 
 Documentation là **specification**, **learning path** và **developer experience** của Sagittarius Engine.
 
-Mục tiêu là đạt chất lượng tương đương:
+Mục tiêu đạt chất lượng tương đương:
 
 * Microsoft .NET Documentation
 * ASP.NET Core
@@ -14,11 +14,13 @@ Mục tiêu là đạt chất lượng tương đương:
 * FastAPI
 * Kubernetes
 
+Documentation phải luôn phản ánh **public API**, **runtime capabilities**, và **best practices** của Sagittarius Engine.
+
 ---
 
-# Documentation Principles
+# Documentation Philosophy
 
-Mọi tài liệu phải dạy **Concept trước API**.
+Documentation ưu tiên dạy **Concept trước API**.
 
 Learning Path:
 
@@ -44,11 +46,15 @@ API Reference
 Migration
 ```
 
+Documentation không giải thích implementation.
+
+Documentation giải thích cách **sử dụng Engine**.
+
 ---
 
-# Documentation Rules
+# Documentation Principles
 
-Mỗi document phải trả lời được:
+Mỗi tài liệu phải trả lời được:
 
 ```text
 What?
@@ -63,7 +69,7 @@ How?
 
 Example
 
-Diagram (nếu cần)
+Diagram (if needed)
 
 Best Practices
 
@@ -76,233 +82,320 @@ Related APIs
 
 # Documentation Standards
 
-* Chỉ sử dụng Public API
+Mọi code example:
 
 ```python
 from sagittarius_engine import ...
 ```
 
-* Không import internal packages.
+Không:
 
-* Không dùng deprecated APIs.
+* import internal packages
+* dùng deprecated APIs
+* giải thích private implementation
+* sử dụng screenshots
 
-* Không giải thích implementation.
+Ưu tiên:
 
-* Không dùng screenshot.
-
-* Ưu tiên Mermaid.
+* Mermaid Flowcharts
+* Mermaid Sequence Diagrams
+* Mermaid Class Diagrams
 
 ---
 
-# ✅ Phase D1 — Documentation Foundation
+# Documentation Source of Truth
+
+Documentation must always follow the following priority:
+
+1. Public API
+2. Project Knowledge Base
+3. Examples
+4. Runtime Behavior
+5. Internal Source Code (only if necessary)
+
+AI must never infer undocumented behavior.
+
+If behavior cannot be confirmed by the Project Knowledge Base or Public API, it should be marked as unknown rather than guessed.
+
+---
+
+# Examples Code Rules
+
+Examples are normative.
+
+Whenever possible, documentation should reference the corresponding example application instead of duplicating large code snippets.
+
+Large examples belong in `examples/`.
+
+Documentation should explain them rather than copy them.
+
+---
+
+# Project Knowledge Base
+
+To keep documentation consistent and avoid repeatedly scanning the source tree, AI should use the maintained knowledge base under `.ai/`.
+
+```text
+.ai/
+
+project_knowledge.md
+public_api.md
+runtime_overview.md
+architecture.md
+terminology.md
+examples_index.md
+roadmap.md
+benchmark_results.md
+current_status.md
+doc_status.md
+doc_plan.md
+```
+
+## project_knowledge.md
+
+High-level overview of Sagittarius Engine:
+
+* Vision
+* Philosophy
+* Runtime capabilities
+* Extension system
+* SDK
+* Roadmap
+
+## public_api.md
+
+Frozen public API.
+
+Contains only officially supported types.
+
+Example:
+
+```text
+App
+EngineContext
+Dispatcher
+IExtension
+ExtensionDescriptor
+IHostedService
+TaskManager
+Scheduler
+CancellationToken
+dispatch()
+```
+
+## runtime_overview.md
+
+Runtime architecture.
+
+Boot sequence.
+
+Shutdown sequence.
+
+Hosted services.
+
+Scheduler.
+
+Task manager.
+
+Async runtime.
+
+Cancellation.
+
+## architecture.md
+
+Architecture overview.
+
+Kernel responsibilities.
+
+Runtime responsibilities.
+
+Extension lifecycle.
+
+Dependency graph.
+
+## terminology.md
+
+Official vocabulary.
+
+Ensures documentation never mixes terms like:
+
+* Module vs Extension
+* Engine vs Application
+* Runtime vs Kernel
+
+AI must always consult these files before generating new documentation.
+
+## examples_index.md
+
+Lists all reference applications, their purpose, and the public APIs they illustrate.
+
+## roadmap.md
+
+Summarizes phase status of the engine to keep documentation aligned with the development roadmap.
+
+## benchmark_results.md
+
+Stores core benchmark results (boot time, scheduler latency, hosted services) as a unified reference for performance documentation.
+
+---
+
+# Documentation Status
+
+## ✅ Phase D1 — Documentation Foundation
 
 **Status:** Completed
 
-## Goal
-
-Tạo nền tảng cho toàn bộ documentation.
-
----
-
-## Deliverables
+### Deliverables
 
 ```text
 docs/
 
 index.md
-
 STYLE_GUIDE.md
-
 DOC_REVIEW_CHECKLIST.md
 
 getting-started/
 
-    installation.md
+installation.md
+first_app.md
+first_extension.md
+project_templates.md
 
-    first_app.md
+concepts/
+README.md
 
-    first_extension.md
+tutorials/
+README.md
 
-    project_templates.md
+advanced/
+extension_dependencies.md
 ```
 
----
+### Acceptance
 
-## Nội dung
-
-### Landing Page
-
-Giới thiệu:
-
-* Sagittarius Engine là gì?
-* Application Engine Philosophy
-* Who is this for?
-* Who is this NOT for?
-* Learning Path
-* Mermaid Architecture Diagram
+* Landing page completed
+* Style guide completed
+* Getting Started completed
 
 ---
 
-### Style Guide
-
-Định nghĩa:
-
-* Documentation as Code
-* Terminology
-* Mermaid Rules
-* Code Example Rules
-* Formatting
-* Admonitions
-
----
-
-### Getting Started
-
-Bao gồm:
-
-* Installation
-* First App
-* First Extension
-* SDK Templates
-
----
-
-## Acceptance
-
-* Landing page hoàn chỉnh
-* Getting Started hoàn chỉnh
-* Style Guide hoàn chỉnh
-
----
-
-# ✅ Phase D1.5 — Documentation Infrastructure
+## ✅ Phase D1.5 — Documentation Infrastructure
 
 **Status:** Completed
 
-## Goal
-
-Biến docs thành một website.
-
----
-
-## Deliverables
+### Deliverables
 
 ```text
 mkdocs.yml
 requirements-docs.txt
-docs/assets/logo.svg
-docs/assets/favicon.png
+
+docs/assets/
+logo.svg
+favicon.png
+
 docs.bat
 docs.sh
+Makefile
 ```
 
-Material Theme
+### Features
 
-Navigation
+* Material Theme
+* Search
+* Dark Mode
+* Mermaid
+* Mike Versioning
+* Strict Build
+* Reproducible dependency versions
 
-Search
+### Acceptance
 
-Dark Mode
+```bash
+docs.bat build
+docs.bat serve
+```
 
-Versioning (Mike)
-
----
-
-## Acceptance
-
-* `docs.bat build` và `docs.bat serve` chạy thành công không lỗi.
-
----
-
-# 🚧 Phase D1.6 — Documentation Quality
-
-## Goal
-
-Đảm bảo docs luôn đúng.
+Both execute successfully.
 
 ---
 
-## Deliverables
+## 🚧 Phase D1.6 — Documentation Quality
+
+### Goal
+
+Treat documentation as production code.
+
+### Deliverables
 
 ```text
 tests/
-
     test_docs.py
+
+.github/workflows/
+    docs.yml
 ```
 
-Github Actions
+### Validation
 
-```text
-.github/workflows/docs.yml
-```
+Verify:
 
----
-
-## Validation
-
-Kiểm tra:
-
-* Markdown Links
-* Build Docs
-* Python Snippets
+* Markdown links
+* MkDocs build
+* Python snippets
+* Public imports
 * Deprecated APIs
-* Public Imports
+* Mermaid rendering
+* Broken links
 
----
-
-## Acceptance
+### Acceptance
 
 ```bash
 pytest
-
-mkdocs build
+mkdocs build --strict
 ```
 
-đều pass.
+Both pass successfully.
+
+### Future
+
+Prepare pre-commit hooks:
+
+* markdownlint
+* ruff
+* black
 
 ---
 
-## TODO (Tương lai)
+## 🚧 Phase D1.7 — API Reference
 
-* Cấu hình `pre-commit` với:
-  * `markdownlint` để kiểm tra định dạng và cấu trúc markdown.
-  * `ruff` / `black` để định dạng code block tự động.
+### Goal
 
----
+Automatically generate API documentation.
 
-# 🚧 Phase D1.7 — API Reference
-
-## Goal
-
-Sinh API Reference tự động.
-
----
-
-## Deliverables
+### Deliverables
 
 ```text
-docs/
+docs/api/
 
-api/
-
-    index.md
-
-    kernel.md
-
-    runtime.md
-
-    extensions.md
+index.md
+app.md
+engine_context.md
+dispatcher.md
+event_bus.md
+scheduler.md
+task_manager.md
+hosted_service.md
+extension.md
+cancellation_token.md
 ```
 
-Sử dụng:
+Using:
 
 * mkdocstrings
 * Docstrings
-* Auto Generation
+* Auto-generation
 
----
-
-## Bao gồm
+### Public APIs
 
 * App
 * EngineContext
@@ -316,345 +409,250 @@ Sử dụng:
 
 ---
 
-# 🚧 Phase D2 — Core Concepts
+## 🚧 Phase D2 — Core Concepts
 
-## Goal
+### Goal
 
-Giải thích tư duy của Sagittarius.
+Explain the design philosophy of Sagittarius Engine.
 
----
-
-## Deliverables
+### Deliverables
 
 ```text
-docs/
+docs/concepts/
 
-concepts/
-
-    engine.md
-
-    runtime.md
-
-    dispatcher.md
-
-    dependency_injection.md
-
-    event_bus.md
-
-    middleware.md
-
-    extensions.md
-
-    lifecycle.md
+engine.md
+runtime.md
+dispatcher.md
+dependency_injection.md
+event_bus.md
+middleware.md
+extensions.md
+lifecycle.md
 ```
 
----
-
-## Nội dung
-
-Không giải thích API.
-
-Chỉ giải thích:
+Focus:
 
 * WHY
 * DESIGN
 * RELATIONSHIPS
 
-Có Mermaid diagrams.
+`runtime.md` should only explain what the Runtime is, what it contains, and the Runtime lifecycle. It must not include API details (to avoid duplication with the API Reference and to keep file sizes manageable).
+
+No API reference.
+
+Acceptance:
+
+Developers understand how Sagittarius Engine works.
 
 ---
 
-## Acceptance
+## 🚧 Phase D3 — Runtime Guides
 
-Đọc xong Concepts,
+### Goal
 
-developer hiểu:
+Explain Runtime Infrastructure.
 
-> Sagittarius hoạt động như thế nào.
-
----
-
-# 🚧 Phase D3 — Runtime Guides
-
-## Goal
-
-Giải thích Runtime Infrastructure.
-
----
-
-## Deliverables
+### Deliverables
 
 ```text
-docs/
+docs/runtime/
 
-runtime/
-
-    hosted_services.md
-
-    scheduler.md
-
-    task_manager.md
-
-    async_runtime.md
-
-    cancellation_token.md
+application_lifecycle.md
+hosted_services.md
+scheduler.md
+task_manager.md
+async_runtime.md
+cancellation_token.md
 ```
 
----
+Topics:
 
-## Nội dung
+* Startup
+* Shutdown
+* Rollback
+* Threading
+* Async execution
 
-Bao gồm:
-
-* lifecycle
-* startup
-* shutdown
-* rollback
-* threading
-* async
-
-Có sequence diagrams.
-
-Có runnable examples.
+Includes runnable examples and Mermaid diagrams.
 
 ---
 
-# 🚧 Phase D4 — Advanced Guides
+## 🚧 Phase D4 — Advanced Guides
 
-## Goal
+### Goal
 
-Các chủ đề nâng cao.
+Advanced runtime architecture.
 
----
-
-## Deliverables
+### Deliverables
 
 ```text
-docs/
+docs/advanced/
 
-advanced/
-
-    extension_dependencies.md
-
-    architecture.md
-
-    performance.md
-
-    best_practices.md
-
-    troubleshooting.md
+extension_dependencies.md
+architecture.md
+performance.md
+best_practices.md
+troubleshooting.md
 ```
 
----
-
-## Nội dung
-
-Ví dụ:
+Topics:
 
 * Dependency Graph
 * Topological Sorting
-* Performance Tips
-* Common Pitfalls
+* Performance
 * Large Applications
+* Common Pitfalls
 
 ---
 
-# 🚧 Phase D5 — Tutorials
+## 🚧 Phase D5 — Tutorials
 
-## Goal
+### Goal
 
-Xây dựng ứng dụng thực tế.
+Build complete real-world applications.
 
----
-
-## Deliverables
+### Deliverables
 
 ```text
-docs/
+docs/tutorials/
 
-tutorials/
-
-    desktop_app.md
-
-    worker_service.md
-
-    trading_bot.md
-
-    websocket_client.md
-
-    plugin_system.md
+desktop_app.md
+worker_service.md
+trading_bot.md
+websocket_client.md
+plugin_system.md
 ```
 
----
+### Constraints
 
-## Nội dung
-
-Tutorial từng bước.
-
-Từ project trống
-
-↓
-
-Ứng dụng chạy được.
-
-Có hình minh họa bằng Mermaid.
+* Tutorials MUST be built from the corresponding reference applications under `examples/` (e.g. `examples/trading_bot` -> `docs/tutorials/trading_bot.md`) to guarantee they stay synchronized.
+* Every tutorial starts from an empty project and ends with a working application.
 
 ---
 
-# 🚧 Phase D6 — Documentation Review
+## 🚧 Phase D6 — Documentation Review
 
-## Goal
+### Goal
 
-Đảm bảo tính chính xác và nhất quán của tài liệu thông qua review chéo và kiểm tra thủ công.
+Review and standardize all documentation.
 
----
+### Deliverables
 
-## Deliverables
+Review every page using:
 
 ```text
-docs/
-
-STYLE_GUIDE.md
-
 DOC_REVIEW_CHECKLIST.md
+STYLE_GUIDE.md
 ```
 
----
+### Constraints
 
-## Nội dung
+* Every example referenced in documentation must exist under `examples/` (do not write separate isolated snippets).
 
-* Rà soát toàn bộ tài liệu theo `DOC_REVIEW_CHECKLIST.md`.
-* Thực hiện review chéo giữa các bên đóng góp.
-* Chỉnh sửa cấu trúc câu và phong cách viết để đồng nhất.
+### Review:
 
----
+* Grammar
+* Consistency
+* Cross-links
+* Mermaid
+* Terminology
+* Examples
 
-## Acceptance
+Acceptance:
 
-* Tất cả các trang đã được review và check off trong checklist.
-* Sửa chữa các lỗi chính tả, ngữ nghĩa phát hiện được trong quá trình review.
-
----
-
-# 🚧 Phase D7 — Migration Guides
-
-## Goal
-
-Hỗ trợ người dùng nâng cấp.
+Every page passes documentation review.
 
 ---
 
-## Deliverables
+## 🚧 Phase D7 — Migration Guides
+
+### Goal
+
+Help users migrate from older versions.
+
+### Deliverables
 
 ```text
-docs/
+docs/migration/
 
-migration/
-
-    from_clean_architecture.md
-
-    deprecated_apis.md
-
-    upgrading.md
+from_clean_architecture.md
+deprecated_apis.md
+upgrading.md
 ```
 
----
+Topics:
 
-## Nội dung
-
-* API Changes
-* Migration Examples
+* API changes
+* Migration examples
+* Compatibility notes
 * Deprecated APIs
-* Compatibility Notes
 
 ---
 
-# 🚧 Phase D8 — Documentation Polish & Release
+## 🚧 Phase D8 — Documentation Polish & Release
 
-## Goal
+### Goal
 
-Hoàn thiện tài liệu trước khi phát hành v1.0.
+Finalize documentation for v1.0.
 
----
+### Checklist
 
-## Checklist
-
-* Kiểm tra toàn bộ liên kết.
-* Chuẩn hóa Mermaid.
-* Chạy tất cả code examples.
-* Kiểm tra ngữ pháp và thuật ngữ.
-* Đồng bộ giữa code, examples và docs.
-* Đảm bảo mọi ví dụ chỉ dùng Public API.
-* Hoàn thiện navigation và search.
-
----
-
-# ✅ Định nghĩa Done
-
-Một phase tài liệu chỉ được đánh dấu **Completed** khi đáp ứng đủ:
-
-* Tất cả tài liệu của phase đã hoàn thành.
-* Tất cả code examples chạy được.
-* `pytest` pass.
-* `mkdocs build` pass.
-* Không có broken links.
-* Không sử dụng deprecated APIs.
-* Tất cả sơ đồ Mermaid render đúng.
-* Đã review theo `DOC_REVIEW_CHECKLIST.md`.
+* Validate all links
+* Validate Mermaid diagrams
+* Execute all code examples
+* Grammar review
+* Terminology review
+* Synchronize docs with code
+* Public API verification
+* Navigation review
+* Search validation
 
 ---
 
-==================================================
-Official Terminology
-==================================================
+# Definition of Done
+
+A documentation phase is considered **Completed** only if:
+
+* All planned documents are completed.
+* All code examples execute successfully.
+* `pytest` passes.
+* `mkdocs build --strict` passes.
+* No broken links.
+* No deprecated APIs are used.
+* All Mermaid diagrams render correctly.
+* Documentation follows `STYLE_GUIDE.md`.
+* Documentation passes `DOC_REVIEW_CHECKLIST.md`.
+* Documentation is consistent with the Project Knowledge Base.
+* Examples remain synchronized with `examples/`.
+* Public API matches `public_api.md`.
+
+---
+
+# Official Terminology
 
 Always use these terms consistently.
 
-Application
-The user's project.
+| Preferred      | Meaning                               |
+| -------------- | ------------------------------------- |
+| Application    | User's project                        |
+| Engine         | Sagittarius Engine                    |
+| Kernel         | Minimal orchestration layer           |
+| Runtime        | Long-running execution infrastructure |
+| Extension      | Pluggable runtime capability          |
+| EngineContext  | Shared runtime service registry       |
+| Dispatcher     | Unified execution entry point         |
+| Hosted Service | Managed long-running service          |
+| Task           | Unit of background execution          |
+| Scheduler      | Time-based execution component        |
+| SDK            | Project generation tooling            |
+| Host           | The application host coordinating the engine lifecycle |
+| Facade         | The stable public API exposed by Sagittarius Engine |
 
-Engine
-Sagittarius Engine.
+Never use these outdated terms except in migration documentation:
 
-Kernel
-The minimal orchestration layer.
-
-Runtime
-Long-running execution infrastructure.
-
-Extension
-A pluggable runtime capability.
-
-EngineContext
-The shared runtime service registry.
-
-Dispatcher
-The unified execution entry point.
-
-Hosted Service
-A long-running managed service.
-
-Task
-A unit of background execution.
-
-Scheduler
-A component responsible for time-based execution.
-
-SDK
-Developer tooling for project generation.
-
-Never use these outdated terms:
-
-Module
-
-Application Framework
-
-Clean Architecture Framework
-
-Business Layer
-
-UseCase Layer
-
-Repository Layer
-
-unless documenting migration from older versions.
+* Module
+* Application Framework
+* Clean Architecture Framework
+* Business Layer
+* UseCase Layer
+* Repository Layer

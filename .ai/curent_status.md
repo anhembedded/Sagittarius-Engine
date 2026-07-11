@@ -28,7 +28,7 @@ Completed Features
 In Progress
 
 - Phase D1.6: Documentation CI
-- Phase D1.7/D6: API Reference Auto-Generation
+- Phase D1.7: API Reference Auto-Generation
 
 Planned
 
@@ -36,6 +36,7 @@ Planned
 - Phase D3: Runtime Guides documentation
 - Phase D4: Advanced Guides
 - Phase D5: Tutorials
+- Phase D6: Documentation Review
 - Phase D7: Migration Guides
 - Phase D8: Documentation Polish & Release
 - Phase 9: CLI & Developer Experience
@@ -53,6 +54,7 @@ Phase D2  — Core Concepts              🚧 NOT STARTED
 Phase D3  — Runtime Guides             🚧 NOT STARTED
 Phase D4  — Advanced Guides            🚧 NOT STARTED
 Phase D5  — Tutorials                  🚧 NOT STARTED
+Phase D6  — Documentation Review       🚧 NOT STARTED
 Phase D7  — Migration Guides           🚧 NOT STARTED
 Phase D8  — Polish & Release           🚧 NOT STARTED
 
