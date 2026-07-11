@@ -30,7 +30,7 @@ Status: COMPLETED
 Deliverables: mkdocs.yml
 
 Phase D1.6 — Documentation Quality
-Status: NOT STARTED
+Status: COMPLETED
 Deliverables: tests/test_docs.py, .github/workflows/docs.yml
 
 Phase D1.7 — API Reference
