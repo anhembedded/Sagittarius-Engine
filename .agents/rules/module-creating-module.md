@@ -79,10 +79,6 @@ from src.interfaces import ICommand, IEventBus, IContainer, ...
 `App` is the central orchestrator. It receives `IContainer` and `IEventBus` through its constructor (Composition Root).
 
 ```python
-from sagittarius_engine.infrastructure.std_container import StdLibContainer
-from sagittarius_engine.infrastructure.memory_event_bus import MemoryEventBus
-from src.app_kernel import App
-
 container = StdLibContainer()
 event_bus = MemoryEventBus()
 app = App(container, event_bus)
@@ -203,10 +199,6 @@ class IUserRepository(ABC):
 ### 4.4 Write Use Cases (Command/Query)
 ```python
 # application/commands/create_user.py
-from src.interfaces import ICommand, IEventBus
-from my_app.application.contracts.user_repo import IUserRepository
-from my_app.domain.user import User
-from my_app.domain.events import UserCreated
 
 class CreateUserCommand(ICommand):
     def __init__(self, repo: IUserRepository, event_bus: IEventBus):
@@ -235,13 +227,6 @@ class InMemoryUserRepository(IUserRepository):
 
 ### 4.6 Package into a Module
 ```python
-# modules/user_module/__init__.py
-from src.base_module import BaseModule
-from src.app_kernel import App
-from my_app.application.contracts.user_repo import IUserRepository
-from my_app.infrastructure.memory_user_repo import InMemoryUserRepository
-from my_app.application.commands.create_user import CreateUserCommand
-
 class UserModule(BaseModule):
     def register(self, app: App):
         app.container.singleton(IUserRepository, InMemoryUserRepository())
@@ -253,12 +238,6 @@ class UserModule(BaseModule):
 
 ### 4.7 Composition Root (main.py)
 ```python
-from sagittarius_engine.infrastructure.std_container import StdLibContainer
-from sagittarius_engine.infrastructure.memory_event_bus import MemoryEventBus
-from src.app_kernel import App
-from src.interfaces import IContainer, IEventBus
-from sagittarius_engine.extensions.logger_module import LoggerModule
-
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -342,13 +321,6 @@ class OrderPlaced(BaseEvent):
 ## 7. Testing Notes
 
 When writing tests for an app using the framework, you can use the fixtures from the framework’s `tests/conftest.py` (if importable) or create your own container, event bus, app in your own fixtures. Always test through `App.execute`, `App.query`, `EventBus.emit/on`; do not invoke internal functions directly.
-
-```python
-def test_create_user(app):
-    from my_app.application.commands.create_user import CreateUserCommand
-    user = app.execute(CreateUserCommand, {'id': 1, 'name': 'Alice'})
-    assert user.name == 'Alice'
-```
 
 ---
 
