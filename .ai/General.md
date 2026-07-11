@@ -289,9 +289,15 @@ Xây dựng bộ ứng dụng mẫu thực tế (Reference Applications) để k
 * **`plugin_system`**: Kiểm thử Topological Sort của 3 tầng extension phụ thuộc (`Metrics` -> `Trading` -> `Dashboard`).
 * **`benchmark_runtime.py` & `runtime_validation.md`**: Bổ sung bộ benchmark đo hiệu năng (boot, scheduler, hosted services) và báo cáo xác thực kiểm chứng kiến trúc.
 
+Reference Applications are part of the validation suite.
+
+Future applications should validate new runtime capabilities instead of introducing framework features.
+
 # 🚧 Phase 9 — CLI & Developer Experience
 
 Mục tiêu không phải thêm tính năng vào kernel (đã đóng băng), mà là giúp người dùng sử dụng engine dễ dàng hơn.
+
+> CLI is an SDK concern. It must never introduce functionality that bypasses the public API.
 
 Ví dụ các câu lệnh CLI:
 ```bash
@@ -309,31 +315,23 @@ sagittarius graph
 
 ---
 
-# 🚧 Phase 10 — Documentation
+# ✅ Phase 10 — Documentation Suite
 
-Viết tài liệu theo cấu trúc học tập và thực hành:
-```text
-Getting Started -> Concepts -> Tutorial -> Advanced -> API
-```
+**Status:** Completed
 
-Các chủ đề tài liệu cốt lõi:
-* `getting_started.md`
-* `runtime.md`
-* `extensions.md`
-* `scheduler.md`
-* `hosted_services.md`
-* `event_bus.md`
-* `desktop.md`
-* `trading_bot.md`
+Documentation is maintained independently under:
 
-**Quy tắc tài liệu**: Mỗi API phải trả lời được 3 câu hỏi:
-1. **Why?** (Tại sao tồn tại?)
-2. **When?** (Khi nào dùng?)
-3. **When NOT?** (Khi nào không nên dùng?)
+`.ai/doc_plan.md`
+
+Documentation changes follow the Documentation Roadmap.
+
+The Engine Roadmap no longer tracks individual documentation phases.
+
+Reference: [`.ai/doc_plan.md`](.ai/doc_plan.md)
 
 ---
 
-# 🚧 Phase 11 — Official Ecosystem
+# 🚧 Phase 11 — Official Extensions & Integrations
 
 Xây dựng các adapter/ecosystem packages độc lập để kiểm chứng runtime capabilities:
 
@@ -351,10 +349,55 @@ Chuẩn bị sẵn sàng cho production release:
 * **Benchmarks**: Chạy kiểm tra Boot Time, Memory, Scheduler, Task Manager, Hosted Service.
 * **Coverage**: Duy trì kiểm thử code coverage > 90%.
 * **Release deliverables**: Release Notes, Migration Guide, PyPI publication, website chính thức.
+* **Compatibility Matrix**: Python versions (3.10–3.13), supported platforms (Linux, Windows, macOS).
+* **API Stability Policy**: Public API is frozen after v1. Breaking changes require a new major version.
+* **Semantic Versioning Policy**: `MAJOR.MINOR.PATCH` — MINOR adds capabilities without breaking API; PATCH is bug fixes only.
 
 ---
 
 # 🚀 Sau v1.0 — Production Verification & Evolution
 
-* **Đóng băng hoàn toàn core kernel**: Không tự đoán tính năng mới, để nhu cầu của hệ sinh thái và người dùng thực tế dẫn dắt (ví dụ: Retry Policy, Circuit Breaker, Distributed Scheduler).
+* **Đóng băng hoàn toàn core kernel**: Không tự đoán tính năng mới.
+* **New capability policy**: New capabilities should only be introduced when:
+  - required by multiple real applications, OR
+  - validated by ecosystem packages, OR
+  - required for runtime correctness.
 * **Ứng dụng thực tế**: Xây dựng một dự án thực tế hoàn chỉnh (ví dụ: *Sagittarius Trading Bot* kết nối Binance, PySide6, SQLite, Indicators, Risk Manager, Backtesting) chạy liên tục trong nhiều tuần để kiểm chứng độ ổn định của Application Engine trong môi trường production thực sự.
+
+---
+
+# Governance
+
+Architecture is frozen after v1.
+
+Public API changes require deprecation notices before removal.
+
+Runtime behavior changes require a compatibility review.
+
+New capabilities must not increase Kernel complexity.
+
+Examples validate capabilities, not framework features.
+
+Documentation specifies runtime behavior.
+
+The Project Knowledge Base is the authoritative source for AI-assisted development.
+
+---
+
+# Project Knowledge Base
+
+AI should always consult the following files before proposing architectural, runtime, or documentation changes:
+
+* `.ai/project_knowledge.md`
+* `.ai/public_api.md`
+* `.ai/runtime_overview.md`
+* `.ai/architecture.md`
+* `.ai/current_status.md`
+* `.ai/doc_plan.md`
+* `.ai/doc_status.md`
+
+These files are the authoritative specification.
+
+Do not infer behavior from source code internals.
+
+Do not propose changes that contradict the Project Knowledge Base.

@@ -1,3 +1,18 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sagittarius-engine"
+version = "1.0.0"
+description = "A lightweight, modular Python Application Engine"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+readme = "readme.md"
+
+[tool.setuptools.packages.find]
+include = ["sagittarius_engine*"]
+
 [tool.black]
 line-length = 88
 target-version = ["py314"]
