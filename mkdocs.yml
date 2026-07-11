@@ -1,0 +1,75 @@
+site_name: Sagittarius Engine
+site_description: Lightweight Modular Python Application Engine
+site_author: Sagittarius Contributors
+docs_dir: docs
+site_dir: site
+use_directory_urls: true
+
+repo_name: Sagittarius Engine
+repo_url: ""
+edit_uri: ""
+
+theme:
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/favicon.png
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - toc.follow
+    - content.code.copy
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+  # - tags:
+  #     # To be enabled in later content phases
+  # - social:
+  #     cards: true # Uncomment when pillow/cairosvg dependencies are installed
+
+extra:
+  version:
+    provider: mike
+
+markdown_extensions:
+  - admonition
+  - footnotes
+  - def_list
+  - tables
+  - pymdownx.details
+  - pymdownx.tabbed
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:pymdownx.emoji.twemoji
+      emoji_generator: !!python/name:pymdownx.emoji.to_svg
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - First App: getting-started/first_app.md
+      - First Extension: getting-started/first_extension.md
+      - Project Templates: getting-started/project_templates.md
+  - Concepts: concepts/README.md
+  - Advanced:
+      - Extension Dependencies: advanced/extension_dependencies.md
+  - Tutorials: tutorials/README.md

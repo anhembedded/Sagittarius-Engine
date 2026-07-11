@@ -23,10 +23,10 @@ Completed Features
 ✓ Examples (6 reference applications)
 ✓ Benchmarks
 ✓ Documentation Foundation (Phase D1)
+✓ MkDocs Infrastructure (Phase D1.5)
 
 In Progress
 
-- Phase D1.5: MkDocs Infrastructure
 - Phase D1.6: Documentation CI
 - Phase D1.7/D6: API Reference Auto-Generation
 
@@ -46,7 +46,7 @@ Planned
 Documentation Phase Status
 
 Phase D1  — Documentation Foundation   ✅ COMPLETED
-Phase D1.5 — MkDocs Infrastructure     🚧 NOT STARTED
+Phase D1.5 — MkDocs Infrastructure     ✅ COMPLETED
 Phase D1.6 — Documentation Quality     🚧 NOT STARTED
 Phase D1.7 — API Reference             🚧 NOT STARTED
 Phase D2  — Core Concepts              🚧 NOT STARTED

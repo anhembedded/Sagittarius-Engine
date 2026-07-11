@@ -26,7 +26,7 @@ docs/
 --------------------------------------------------
 
 Phase D1.5 — Documentation Infrastructure
-Status: NOT STARTED
+Status: COMPLETED
 Deliverables: mkdocs.yml
 
 Phase D1.6 — Documentation Quality
@@ -60,16 +60,19 @@ Documentation Rules
 ==================================================
 
 Every page MUST:
+
 - Start with: > Applies to Sagittarius Engine v1.x
 - End with: > [Found an issue? Edit this page on GitHub.](link)
 
 Code examples MUST:
+
 - Use only: from sagittarius_engine import ...
 - Be <= 50 lines
 - Be runnable and terminate cleanly
 - Use no deprecated APIs (execute(), query())
 
 Diagrams MUST:
+
 - Architecture: flowchart TB
 - Lifecycle/Sequence: sequenceDiagram
 - Abstractions: classDiagram
@@ -77,6 +80,7 @@ Diagrams MUST:
 - No screenshots. Mermaid only.
 
 Terminology:
+
 - Always: "Extension"
 - Never: "Module"
 - Always: "dispatch()"

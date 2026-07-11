@@ -175,7 +175,9 @@ Bao gồm:
 
 ---
 
-# 🚧 Phase D1.5 — Documentation Infrastructure
+# ✅ Phase D1.5 — Documentation Infrastructure
+
+**Status:** Completed
 
 ## Goal
 
@@ -187,6 +189,11 @@ Biến docs thành một website.
 
 ```text
 mkdocs.yml
+requirements-docs.txt
+docs/assets/logo.svg
+docs/assets/favicon.png
+docs.bat
+docs.sh
 ```
 
 Material Theme
@@ -203,11 +210,7 @@ Versioning (Mike)
 
 ## Acceptance
 
-```bash
-mkdocs serve
-```
-
-chạy thành công.
+* `docs.bat build` và `docs.bat serve` chạy thành công không lỗi.
 
 ---
 
@@ -256,6 +259,52 @@ mkdocs build
 ```
 
 đều pass.
+
+---
+
+# 🚧 Phase D1.7 — API Reference
+
+## Goal
+
+Sinh API Reference tự động.
+
+---
+
+## Deliverables
+
+```text
+docs/
+
+api/
+
+    index.md
+
+    kernel.md
+
+    runtime.md
+
+    extensions.md
+```
+
+Sử dụng:
+
+* mkdocstrings
+* Docstrings
+* Auto Generation
+
+---
+
+## Bao gồm
+
+* App
+* EngineContext
+* Dispatcher
+* EventBus
+* IExtension
+* IHostedService
+* Scheduler
+* TaskManager
+* CancellationToken
 
 ---
 
@@ -444,11 +493,11 @@ Có hình minh họa bằng Mermaid.
 
 ---
 
-# 🚧 Phase D6 — API Reference
+# 🚧 Phase D6 — Documentation Review
 
 ## Goal
 
-Sinh API Reference tự động.
+Đảm bảo tính chính xác và nhất quán của tài liệu thông qua review chéo và kiểm tra thủ công.
 
 ---
 
@@ -457,36 +506,25 @@ Sinh API Reference tự động.
 ```text
 docs/
 
-api/
+STYLE_GUIDE.md
 
-    index.md
-
-    kernel.md
-
-    runtime.md
-
-    extensions.md
+DOC_REVIEW_CHECKLIST.md
 ```
-
-Sử dụng:
-
-* mkdocstrings
-* Docstrings
-* Auto Generation
 
 ---
 
-## Bao gồm
+## Nội dung
 
-* App
-* EngineContext
-* Dispatcher
-* EventBus
-* IExtension
-* IHostedService
-* Scheduler
-* TaskManager
-* CancellationToken
+* Rà soát toàn bộ tài liệu theo `DOC_REVIEW_CHECKLIST.md`.
+* Thực hiện review chéo giữa các bên đóng góp.
+* Chỉnh sửa cấu trúc câu và phong cách viết để đồng nhất.
+
+---
+
+## Acceptance
+
+* Tất cả các trang đã được review và check off trong checklist.
+* Sửa chữa các lỗi chính tả, ngữ nghĩa phát hiện được trong quá trình review.
 
 ---
 
@@ -557,7 +595,6 @@ Một phase tài liệu chỉ được đánh dấu **Completed** khi đáp ứn
 * Đã review theo `DOC_REVIEW_CHECKLIST.md`.
 
 ---
-
 
 ==================================================
 Official Terminology
