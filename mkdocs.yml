@@ -78,7 +78,16 @@ nav:
       - First App: getting-started/first_app.md
       - First Extension: getting-started/first_extension.md
       - Project Templates: getting-started/project_templates.md
-  - Concepts: concepts/README.md
+  - Concepts:
+      - Overview: concepts/README.md
+      - Engine: concepts/engine.md
+      - Runtime: concepts/runtime.md
+      - Dispatcher: concepts/dispatcher.md
+      - Dependency Injection: concepts/dependency_injection.md
+      - Event Bus: concepts/event_bus.md
+      - Middleware: concepts/middleware.md
+      - Extensions: concepts/extensions.md
+      - Lifecycle: concepts/lifecycle.md
   - Advanced:
       - Extension Dependencies: advanced/extension_dependencies.md
   - Tutorials: tutorials/README.md

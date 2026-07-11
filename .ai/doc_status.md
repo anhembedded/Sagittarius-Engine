@@ -38,7 +38,8 @@ Status: COMPLETED
 Deliverables: mkdocstrings integration, docs/api/index.md, app.md, engine_context.md, dispatcher.md, event_bus.md, scheduler.md, task_manager.md, hosted_service.md, extension.md, cancellation_token.md
 
 Phase D2 — Core Concepts
-Status: NOT STARTED
+Status: COMPLETED
+Deliverables: docs/concepts/engine.md, docs/concepts/runtime.md, docs/concepts/dispatcher.md, docs/concepts/dependency_injection.md, docs/concepts/event_bus.md, docs/concepts/middleware.md, docs/concepts/extensions.md, docs/concepts/lifecycle.md
 
 Phase D3 — Runtime Guides
 Status: NOT STARTED
