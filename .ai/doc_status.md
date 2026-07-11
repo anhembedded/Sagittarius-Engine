@@ -49,7 +49,8 @@ Phase D4 — Advanced Guides
 Status: COMPLETED
 Deliverables: docs/advanced/extension_dependencies.md, docs/advanced/architecture.md, docs/advanced/performance.md, docs/advanced/best_practices.md, docs/advanced/troubleshooting.md
 Phase D5 — Tutorials
-Status: NOT STARTED
+Status: COMPLETED
+Deliverables: docs/tutorials/desktop_app.md, docs/tutorials/worker_service.md, docs/tutorials/trading_bot.md, docs/tutorials/websocket_client.md, docs/tutorials/plugin_system.md
 
 Phase D6 — Documentation Review
 Status: NOT STARTED

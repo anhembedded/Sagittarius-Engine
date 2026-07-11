@@ -101,7 +101,12 @@ nav:
       - Performance: advanced/performance.md
       - Best Practices: advanced/best_practices.md
       - Troubleshooting: advanced/troubleshooting.md
-  - Tutorials: tutorials/README.md
+  - Tutorials:
+      - Desktop Application: tutorials/desktop_app.md
+      - Worker Service: tutorials/worker_service.md
+      - Trading Bot: tutorials/trading_bot.md
+      - WebSocket Client: tutorials/websocket_client.md
+      - Plugin System: tutorials/plugin_system.md
   - API Reference:
       - Overview: api/index.md
       - App: api/app.md

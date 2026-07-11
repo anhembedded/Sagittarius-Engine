@@ -558,7 +558,9 @@ If a topic is already covered elsewhere, summarize it briefly and link to the ex
 
 ---
 
-## 🚧 Phase D5 — Tutorials
+## ✅ Phase D5 — Tutorials
+
+**Status:** Completed
 
 ### Goal
 
@@ -618,6 +620,12 @@ STYLE_GUIDE.md
 * Mermaid
 * Terminology
 * Examples
+* **Tutorial Checks (Added post-D5):**
+  * Every tutorial references its source example under `examples/`.
+  * Learning Outcomes are present and accurate.
+  * Estimated Time and Difficulty are included where appropriate.
+  * All code snippets remain synchronized with the corresponding example projects.
+  * Every tutorial links to the relevant Concepts, Runtime Guides, and API Reference pages.
 
 Acceptance:
 

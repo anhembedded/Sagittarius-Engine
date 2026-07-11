@@ -42,6 +42,16 @@ Use this checklist before marking any documentation phase as complete.
 
 ---
 
+## Tutorials (Post-D5)
+
+- [ ] Every tutorial references its source example under `examples/`
+- [ ] Learning Outcomes are present and accurate
+- [ ] Estimated Time and Difficulty are included where appropriate
+- [ ] All code snippets remain synchronized with the corresponding example projects
+- [ ] Every tutorial links to the relevant Concepts, Runtime Guides, and API Reference pages
+
+---
+
 ## Automation
 
 - [ ] `mkdocs build` passes with zero errors
