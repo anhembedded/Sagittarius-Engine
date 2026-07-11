@@ -658,11 +658,19 @@ Topics:
 
 ---
 
-## 🚧 Phase D8 — Documentation Polish & Release
+## ✅ Phase D8 — Documentation Polish & Release
 
 ### Goal
 
 Finalize documentation for v1.0.
+
+### Release Gate Rules
+
+Phase D8 is an audit phase.
+
+It must not introduce new documentation unless a validation failure requires correction.
+
+Its purpose is to verify that all previous documentation phases are internally consistent, synchronized with the current public API, and ready for release.
 
 ### Checklist
 
@@ -675,6 +683,20 @@ Finalize documentation for v1.0.
 * Public API verification
 * Navigation review
 * Search validation
+
+### Phase D8 Release Notes
+
+**Date:** 2026-07-11
+
+**Validation Results:**
+
+* `pytest tests/test_docs.py` — 184 passed, 0 failed
+* `pytest` (full suite) — 398 passed, 1 skipped, 29 warnings (all warnings are expected backward-compatibility DeprecationWarnings from v0.x shims)
+* `mkdocs build --strict` — Build succeeded, 0 errors
+
+**Documentation Status: ✅ RELEASE READY**
+
+All phases D1 through D8 completed. No documentation corrections were required during the final audit.
 
 ---
 
