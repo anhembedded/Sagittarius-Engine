@@ -119,6 +119,10 @@ nav:
       - Hosted Service: api/hosted_service.md
       - Extension: api/extension.md
       - Cancellation Token: api/cancellation_token.md
+  - Migration:
+      - Upgrading to v1.0: migration/upgrading.md
+      - Deprecated APIs: migration/deprecated_apis.md
+      - From Clean Architecture: migration/from_clean_architecture.md
   - Documentation:
       - Style Guide: STYLE_GUIDE.md
       - Review Checklist: DOC_REVIEW_CHECKLIST.md
