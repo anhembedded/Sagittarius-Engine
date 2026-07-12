@@ -1,6 +1,3 @@
-## 2024-06-25 - DictConfig constructor optimization
-**Learning:** Initializing configurations key-by-key using a python loop inside application bootstrapping takes noticeable CPU time when configuration sizes grow, because each `config.set` invokes internal python dictionary operations plus loop overhead.
-**Action:** When loading configurations from files (like JSON), if the underlying store supports it, inject the entire dictionary at once via constructor arguments (`DictConfig(config_data)`) to bypass per-key iteration overhead.
-## 2025-02-12 - Middleware Pipeline Iteration Optimization
-**Learning:** `MiddlewarePipeline` uses recursive lambdas `lambda: self.__invoke_middleware(...)` which generates closures dynamically for every request, slowing down the pipeline due to call stack depth and closure instantiation overhead.
-**Action:** Replace the recursive lambda execution chain with an iterative approach using `functools.partial` processing `reversed(self.middlewares)` to build a flat execution chain, avoiding recursion depth overhead and improving performance.
+## $(date +%Y-%m-%d) - EventBus lock-free emits and blind lint fixing
+**Learning:** Implemented a COW pattern for `EventBus` components by exchanging lists for tuples inside the handlers dictionary. Reading `.get(key, ())` provides a lock-free snapshot for emission loops. Additionally, blindly applying `ruff check --fix` removed required re-exported deprecated APIs, breaking backward compatibility.
+**Action:** Always prefer lock-free data structures (like tuples) for read-heavy operations like event broadcasting. Never blindly apply global linter autofixes without manually verifying the changes, particularly for `__init__.py` or interface files acting as public API boundaries.
