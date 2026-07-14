@@ -24,5 +24,5 @@ class TestMemoryEventBus:
         bus.off(event_name, obj.handle_event)
 
         # Verify it was removed
-        assert len(bus._handlers[event_name]) == 0
-        assert obj.handle_event not in bus._handlers[event_name]
+        assert bus._handlers.get(event_name, ()) == ()
+        assert obj.handle_event not in bus._handlers.get(event_name, ())
