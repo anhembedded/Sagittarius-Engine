@@ -30,6 +30,10 @@ def test_template_loader_discovery(tmp_path):
     with pytest.raises(ValueError):
         loader.get_template_path("non_existent_template_999")
 
+    from sagittarius_engine.exceptions import PathTraversalError
+    with pytest.raises(PathTraversalError):
+        loader.get_template_path("../../")
+
 
 def test_template_renderer():
     renderer = TemplateRenderer()

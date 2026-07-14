@@ -1,6 +1,8 @@
 import os
 from typing import List
 
+from sagittarius_engine.exceptions import PathTraversalError
+
 
 class TemplateLoader:
     """
@@ -36,7 +38,13 @@ class TemplateLoader:
         @brief Resolves the absolute directory path of a given template.
         """
         for directory in self.template_directories:
+            base_dir_real = os.path.realpath(directory)
             path = os.path.join(directory, template_name)
-            if os.path.exists(path) and os.path.isdir(path):
-                return path
+            path_real = os.path.realpath(path)
+
+            if os.path.commonpath([base_dir_real, path_real]) != base_dir_real:
+                raise PathTraversalError(f"Path traversal detected: {template_name}")
+
+            if os.path.exists(path_real) and os.path.isdir(path_real):
+                return path_real
         raise ValueError(f"Template '{template_name}' not found.")
