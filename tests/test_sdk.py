@@ -3,6 +3,7 @@ import shutil
 import subprocess
 import sys
 import pytest
+from sagittarius_engine.exceptions import PathTraversalError
 from sagittarius_engine.sdk.template_loader import TemplateLoader
 from sagittarius_engine.sdk.template_renderer import TemplateRenderer
 from sagittarius_engine.sdk.project_generator import ProjectGenerator
@@ -93,3 +94,11 @@ def test_project_generator(tmp_path):
     assert result.returncode == 0
     assert "booted successfully" in result.stdout
     assert "test-generated-app" in result.stdout
+
+def test_template_loader_path_traversal():
+    loader = TemplateLoader()
+    with pytest.raises(PathTraversalError):
+        loader.get_template_path("../../etc")
+
+    with pytest.raises(PathTraversalError):
+        loader.get_template_path("../../../../etc/passwd")
