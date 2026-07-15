@@ -20,7 +20,7 @@ class AsyncioEventBus(IAsyncEventBus):
         @brief Constructor.
         @param logger Optional logger instance.
         """
-        self._handlers: dict[str, list[Callable]] = {}
+        self._handlers: dict[str, tuple[Callable, ...]] = {}
         self._lock = threading.Lock()
         self.logger = logger
 
@@ -34,8 +34,7 @@ class AsyncioEventBus(IAsyncEventBus):
         if self.logger:
             self.logger.info(f"Emitting async event: {event_name} with data: {data}")
 
-        with self._lock:
-            handlers_snapshot = list(self._handlers.get(event_name, []))
+        handlers_snapshot = self._handlers.get(event_name, ())
 
         for handler in handlers_snapshot:
             try:
@@ -62,10 +61,9 @@ class AsyncioEventBus(IAsyncEventBus):
         @param handler The callback function (can be sync or async).
         """
         with self._lock:
-            if event_name not in self._handlers:
-                self._handlers[event_name] = []
-            if handler not in self._handlers[event_name]:
-                self._handlers[event_name].append(handler)
+            handlers = self._handlers.get(event_name, ())
+            if handler not in handlers:
+                self._handlers[event_name] = handlers + (handler,)
 
     def off(self, event_name: str, handler: Callable) -> None:
         """
@@ -75,5 +73,6 @@ class AsyncioEventBus(IAsyncEventBus):
         @param handler The callback function to remove.
         """
         with self._lock:
-            if event_name in self._handlers and handler in self._handlers[event_name]:
-                self._handlers[event_name].remove(handler)
+            handlers = self._handlers.get(event_name, ())
+            if handler in handlers:
+                self._handlers[event_name] = tuple(h for h in handlers if h != handler)
