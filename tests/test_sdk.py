@@ -31,6 +31,27 @@ def test_template_loader_discovery(tmp_path):
         loader.get_template_path("non_existent_template_999")
 
 
+def test_template_loader__get_template_path__with_path_traversal__raises_error(tmp_path):
+    from sagittarius_engine.exceptions import PathTraversalError
+    loader = TemplateLoader()
+
+    # Setup malicious directory structure
+    base_dir = tmp_path / "base"
+    base_dir.mkdir()
+    secret_dir = tmp_path / "secret"
+    secret_dir.mkdir()
+
+    # We need a directory inside the secret to mimic a valid "template" directory
+    secret_tpl = secret_dir / "my_secret_tpl"
+    secret_tpl.mkdir()
+
+    loader.register_template_directory(str(base_dir))
+
+    # Attempt to traverse out of base_dir to secret_dir/my_secret_tpl
+    with pytest.raises(PathTraversalError):
+        loader.get_template_path("../secret/my_secret_tpl")
+
+
 def test_template_renderer():
     renderer = TemplateRenderer()
     content = "Project: {{ project_name }}, Author: {{author}}, Version: {{ version }}"
