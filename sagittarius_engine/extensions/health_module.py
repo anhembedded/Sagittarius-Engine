@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from sagittarius_engine.kernel.context import EngineContext
 
-from sagittarius_engine.interfaces.i_extension import IExtension
 from sagittarius_engine.extensions.health_check_query import HealthCheckQuery
+from sagittarius_engine.interfaces.i_extension import IExtension
 
 
 class HealthExtension(IExtension):

@@ -1,4 +1,5 @@
 from typing import Any, Optional
+
 from sagittarius_engine.interfaces import ILogger
 
 
@@ -38,7 +39,9 @@ class Bootstrap:
 
         except Exception as e:
             if logger:
-                logger.error(f"Error during boot sequence: {e}. Shutting down runtime...")
+                logger.error(
+                    f"Error during boot sequence: {e}. Shutting down runtime..."
+                )
             # Clean up what was started
             try:
                 self.context.scheduler.stop()

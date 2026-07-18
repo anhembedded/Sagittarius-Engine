@@ -76,4 +76,3 @@ class SchedulerStarted:
 @dataclass
 class SchedulerStopped:
     """Event emitted when the scheduler has stopped."""
-

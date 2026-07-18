@@ -1,4 +1,5 @@
 import warnings
+
 from sagittarius_engine.extensions.cqrs.commands import ICommand
 
 # Emit deprecation warning when imported

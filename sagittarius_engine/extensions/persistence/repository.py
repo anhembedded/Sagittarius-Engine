@@ -1,4 +1,5 @@
 from typing import Any, TypeVar
+
 from sagittarius_engine.extensions.persistence.i_session import ISession
 
 T = TypeVar("T")

@@ -1,7 +1,7 @@
 import os
 
-from sagittarius_engine.infrastructure.ports.i_file_storage import IFileStorage
 from sagittarius_engine.exceptions import PathTraversalError
+from sagittarius_engine.infrastructure.ports.i_file_storage import IFileStorage
 
 
 class LocalFileStorage(IFileStorage):

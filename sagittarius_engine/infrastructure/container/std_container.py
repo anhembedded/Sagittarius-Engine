@@ -83,7 +83,9 @@ class StdLibContainer(IContainer):
         """
         return self._resolve(abstract, set())
 
-    def _resolve(self, abstract: type[T] | Any, resolving: set[type]) -> T:  # noqa: C901
+    def _resolve(
+        self, abstract: type[T] | Any, resolving: set[type]
+    ) -> T:  # noqa: C901
         """
         @brief Internal recursive resolve method with circular dependency detection.
         """
@@ -165,7 +167,9 @@ class StdLibContainer(IContainer):
             dependencies = {}
             for name, param_info in cached_deps.items():
                 try:
-                    dependencies[name] = self._resolve(param_info["annotation"], resolving)
+                    dependencies[name] = self._resolve(
+                        param_info["annotation"], resolving
+                    )
                 except Exception as e:
                     if param_info["has_default"]:
                         dependencies[name] = param_info["default"]

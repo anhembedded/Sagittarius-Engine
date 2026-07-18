@@ -1,10 +1,11 @@
 import logging
 from typing import Any, List
-from sagittarius_engine.runtime.hosted.hosted_service import IHostedService
+
 from sagittarius_engine.interfaces.events import (
     HostedServiceStarted,
     HostedServiceStopped,
 )
+from sagittarius_engine.runtime.hosted.hosted_service import IHostedService
 
 
 class HostedServiceManager:
@@ -84,6 +85,4 @@ class HostedServiceManager:
 
         self.started_services.clear()
         if errors:
-            raise RuntimeError(
-                f"Multiple errors stopping hosted services: {errors}"
-            )
+            raise RuntimeError(f"Multiple errors stopping hosted services: {errors}")

@@ -1,9 +1,10 @@
 import warnings
+
 from sagittarius_engine.extensions.persistence.database_module import (
-    DatabaseModule,
-    DatabaseExtension,
-    SqlAlchemyExtension,
     SQLALCHEMY_INSTALLED,
+    DatabaseExtension,
+    DatabaseModule,
+    SqlAlchemyExtension,
 )
 
 # Emit deprecation warning when imported

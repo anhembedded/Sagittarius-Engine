@@ -1,13 +1,15 @@
 from typing import Any, Optional
+
 from sagittarius_engine.interfaces.i_logger import ILogger
 from sagittarius_engine.interfaces.i_output_port import IOutputPort
+
 
 class BaseOutputPort(IOutputPort):
     """
     @brief Base class for output ports.
     """
 
-    def __init__(self, logger: Optional[ILogger]=None) -> None:
+    def __init__(self, logger: Optional[ILogger] = None) -> None:
         self.logger = logger
 
     def present(self, result: Any) -> None:
@@ -15,7 +17,7 @@ class BaseOutputPort(IOutputPort):
         @brief Presents the result. Logs if logger exists, else prints.
         """
         if self.logger:
-            self.logger.info(f'Result: {result}')
+            self.logger.info(f"Result: {result}")
         else:
             print(result)
 
@@ -24,6 +26,6 @@ class BaseOutputPort(IOutputPort):
         @brief Presents the error. Logs if logger exists, else prints.
         """
         if self.logger:
-            self.logger.error(f'Error: {error}')
+            self.logger.error(f"Error: {error}")
         else:
-            print(f'Error: {error}')
+            print(f"Error: {error}")

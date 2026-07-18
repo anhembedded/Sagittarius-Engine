@@ -1,6 +1,8 @@
 import os
 from typing import Any
+
 from sagittarius_engine.infrastructure.config.config_source import ConfigSource
+
 
 class EnvSource(ConfigSource):
     """
@@ -9,7 +11,7 @@ class EnvSource(ConfigSource):
     @details Example: EnvSource(prefix="APP_") will read the `APP_HOST` variable and store it with the key `HOST`.
     """
 
-    def __init__(self, prefix: str='') -> None:
+    def __init__(self, prefix: str = "") -> None:
         """
         @brief Constructor.
         @param prefix The prefix to filter environment variables by.
@@ -21,6 +23,6 @@ class EnvSource(ConfigSource):
         result = {}
         for k, v in os.environ.items():
             if k.startswith(self.prefix):
-                key = k[len(self.prefix):]
+                key = k[len(self.prefix) :]
                 result[key] = v
         return result

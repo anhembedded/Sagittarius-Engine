@@ -2,8 +2,9 @@ import importlib
 import inspect
 import pkgutil
 from typing import Any
+
 from sagittarius_engine.base.base_module import BaseModule
-from sagittarius_engine.interfaces import IModule, ILogger
+from sagittarius_engine.interfaces import ILogger, IModule
 
 
 class ModuleLoader:
