@@ -1,7 +1,9 @@
 import sys
 from pprint import pprint
 from typing import Any
+
 from sagittarius_engine.base.base_output_port import BaseOutputPort
+
 
 class CLIOutputPort(BaseOutputPort):
     """
@@ -19,4 +21,4 @@ class CLIOutputPort(BaseOutputPort):
         """
         @brief Prints the error to stderr.
         """
-        print(f'ERROR: {error}', file=sys.stderr)
+        print(f"ERROR: {error}", file=sys.stderr)

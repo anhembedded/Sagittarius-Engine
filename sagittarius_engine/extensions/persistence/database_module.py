@@ -1,15 +1,15 @@
-from typing import TYPE_CHECKING, Any
 import os
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from sagittarius_engine.kernel.context import EngineContext
 
-from sagittarius_engine.interfaces.i_extension import IExtension
-from sagittarius_engine.interfaces import IConfig, ILogger
 from sagittarius_engine.extensions.persistence.i_session import ISession
 from sagittarius_engine.extensions.persistence.sqlalchemy_session_adapter import (
     SQLAlchemySessionAdapter,
 )
+from sagittarius_engine.interfaces import IConfig, ILogger
+from sagittarius_engine.interfaces.i_extension import IExtension
 
 try:
     from sqlalchemy import create_engine

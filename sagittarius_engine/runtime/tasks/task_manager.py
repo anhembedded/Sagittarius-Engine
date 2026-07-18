@@ -3,13 +3,14 @@ import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Dict, Optional, Union
-from sagittarius_engine.runtime.tasks.background_task import BackgroundTask
-from sagittarius_engine.runtime.tasks.cancellation_token import CancellationToken
+
 from sagittarius_engine.interfaces.events import (
-    TaskStarted,
     TaskCompleted,
     TaskFailed,
+    TaskStarted,
 )
+from sagittarius_engine.runtime.tasks.background_task import BackgroundTask
+from sagittarius_engine.runtime.tasks.cancellation_token import CancellationToken
 
 
 class TaskManager:
@@ -83,9 +84,7 @@ class TaskManager:
             bg_task.status = "failed"
             bg_task.error = e
             self._logger.error(f"Async task '{bg_task.name}' failed: {e}")
-            self._emit(
-                "runtime.tasks.failed", TaskFailed(bg_task.id, bg_task.name, e)
-            )
+            self._emit("runtime.tasks.failed", TaskFailed(bg_task.id, bg_task.name, e))
             raise e
         finally:
             self._cleanup_old_tasks()
@@ -99,13 +98,10 @@ class TaskManager:
         """
         @brief Spawns a background execution (sync thread or async coroutine).
         """
-        task_name = (
-            name
-            or (
-                callable_or_coro.__name__
-                if hasattr(callable_or_coro, "__name__")
-                else "UnnamedTask"
-            )
+        task_name = name or (
+            callable_or_coro.__name__
+            if hasattr(callable_or_coro, "__name__")
+            else "UnnamedTask"
         )
         bg_task = BackgroundTask(task_name, token)
 
@@ -133,9 +129,7 @@ class TaskManager:
             except Exception as e:
                 bg_task.status = "failed"
                 bg_task.error = e
-                self._emit(
-                    "runtime.tasks.failed", TaskFailed(bg_task.id, task_name, e)
-                )
+                self._emit("runtime.tasks.failed", TaskFailed(bg_task.id, task_name, e))
                 raise e
         else:
             # It's sync
@@ -152,9 +146,7 @@ class TaskManager:
             except Exception as e:
                 bg_task.status = "failed"
                 bg_task.error = e
-                self._emit(
-                    "runtime.tasks.failed", TaskFailed(bg_task.id, task_name, e)
-                )
+                self._emit("runtime.tasks.failed", TaskFailed(bg_task.id, task_name, e))
                 raise e
 
         return bg_task

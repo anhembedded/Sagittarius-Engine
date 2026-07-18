@@ -3,12 +3,12 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from sagittarius_engine.kernel.context import EngineContext
 
-from sagittarius_engine.interfaces.i_extension import IExtension
-from sagittarius_engine.infrastructure.thread_manager import ThreadManager
-from sagittarius_engine.interfaces import IConfig
 from sagittarius_engine.infrastructure.persistence.i_thread_manager import (
     IThreadManager,
 )
+from sagittarius_engine.infrastructure.thread_manager import ThreadManager
+from sagittarius_engine.interfaces import IConfig
+from sagittarius_engine.interfaces.i_extension import IExtension
 
 
 class ThreadManagerExtension(IExtension):

@@ -1,6 +1,6 @@
 from typing import Any
+
 from sagittarius_engine.exceptions import ModuleRegistrationError
-from sagittarius_engine.kernel.context import EngineContext
 from sagittarius_engine.interfaces import (
     ICommand,
     IContainer,
@@ -10,6 +10,7 @@ from sagittarius_engine.interfaces import (
     IModule,
     IQuery,
 )
+from sagittarius_engine.kernel.context import EngineContext
 
 
 class App:
@@ -154,5 +155,3 @@ class App:
         self.context.lifecycle.set_stopped()
         if logger:
             logger.info("App stopped.")
-
-

@@ -1,6 +1,8 @@
 from typing import Any
-from sagittarius_engine.interfaces import IConfig
+
 from sagittarius_engine.infrastructure.config.config_source import ConfigSource
+from sagittarius_engine.interfaces import IConfig
+
 
 class ConfigManager(IConfig):
     """
@@ -50,7 +52,7 @@ class ConfigManager(IConfig):
                 pass
         self._loaded = True
 
-    def get(self, key: str, default: Any=None) -> Any:
+    def get(self, key: str, default: Any = None) -> Any:
         """
         @brief Gets a configuration value.
 

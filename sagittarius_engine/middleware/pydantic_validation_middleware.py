@@ -67,7 +67,9 @@ class PydanticValidationMiddleware(IMiddleware):
                     validated_dto = data_transfer_obj
                 else:
                     try:
-                        validated_dto = self.model_class.model_validate(data_transfer_obj)
+                        validated_dto = self.model_class.model_validate(
+                            data_transfer_obj
+                        )
                     except Exception:
                         dto_dict = (
                             data_transfer_obj.__dict__

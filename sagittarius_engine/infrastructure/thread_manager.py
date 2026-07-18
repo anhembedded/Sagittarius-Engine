@@ -3,7 +3,10 @@ import threading
 from collections.abc import Callable
 from typing import Any
 
-from sagittarius_engine.infrastructure.persistence.i_thread_manager import IThreadManager
+from sagittarius_engine.infrastructure.persistence.i_thread_manager import (
+    IThreadManager,
+)
+
 
 class ThreadManager(IThreadManager):
     """!
@@ -20,10 +23,14 @@ class ThreadManager(IThreadManager):
         @param max_workers The maximum number of threads to use in the pool.
         """
         self._max_workers = max_workers
-        self._executor = concurrent.futures.ThreadPoolExecutor(max_workers=self._max_workers)
+        self._executor = concurrent.futures.ThreadPoolExecutor(
+            max_workers=self._max_workers
+        )
         self._lock = threading.Lock()
 
-    def submit(self, task: Callable[..., Any], *args: Any, **kwargs: Any) -> concurrent.futures.Future[Any]:
+    def submit(
+        self, task: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> concurrent.futures.Future[Any]:
         """!
         @brief Submit a task to be executed by the thread pool.
 

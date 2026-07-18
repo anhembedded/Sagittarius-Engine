@@ -1,17 +1,18 @@
 from typing import Any, Optional
-from sagittarius_engine.interfaces.i_extension import IExtension, ExtensionDescriptor
-from sagittarius_engine.interfaces.i_module import IModule
+
+from sagittarius_engine.exceptions import (
+    ExtensionCircularDependencyError,
+    ExtensionDependencyError,
+    ModuleRegistrationError,
+)
 from sagittarius_engine.interfaces.events import (
+    ExtensionDisposed,
     ExtensionInitializing,
     ExtensionStarted,
     ExtensionStopped,
-    ExtensionDisposed,
 )
-from sagittarius_engine.exceptions import (
-    ExtensionDependencyError,
-    ExtensionCircularDependencyError,
-    ModuleRegistrationError,
-)
+from sagittarius_engine.interfaces.i_extension import ExtensionDescriptor, IExtension
+from sagittarius_engine.interfaces.i_module import IModule
 
 
 class ModuleExtensionAdapter(IExtension):
@@ -105,9 +106,7 @@ class ExtensionManager:
         """
         @brief Scans and initializes deferred extensions whose dependencies have been registered and initialized.
         """
-        initialized_names = {
-            ext.descriptor.name for ext in self.initialized_extensions
-        }
+        initialized_names = {ext.descriptor.name for ext in self.initialized_extensions}
         enabled_exts = [
             ext for ext in self.registered_extensions if ext.descriptor.enabled
         ]

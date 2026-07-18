@@ -1,10 +1,10 @@
 from typing import Any, Type
 
-from sagittarius_engine.kernel import App
 from sagittarius_engine.interfaces.i_command import ICommand
 from sagittarius_engine.interfaces.i_input_port import IInputPort
 from sagittarius_engine.interfaces.i_output_port import IOutputPort
 from sagittarius_engine.interfaces.i_query import IQuery
+from sagittarius_engine.kernel import App
 
 COMMAND_KEY = "command"
 EXIT_COMMAND = "exit"

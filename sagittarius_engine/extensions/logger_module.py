@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from sagittarius_engine.kernel.context import EngineContext
 
-from sagittarius_engine.interfaces.i_extension import IExtension
 from sagittarius_engine.infrastructure.logging.std_logger import StdLogger
 from sagittarius_engine.interfaces import IConfig, ILogger
+from sagittarius_engine.interfaces.i_extension import IExtension
 
 
 class LoggerExtension(IExtension):

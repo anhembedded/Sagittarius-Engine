@@ -1,4 +1,5 @@
 import warnings
+
 from sagittarius_engine.extensions.persistence.sqlalchemy_session_adapter import (
     SQLAlchemySessionAdapter,
 )

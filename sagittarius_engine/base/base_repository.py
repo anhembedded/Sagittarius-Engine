@@ -1,4 +1,5 @@
 import warnings
+
 from sagittarius_engine.extensions.persistence.repository import BaseRepository
 
 # Emit deprecation warning when imported

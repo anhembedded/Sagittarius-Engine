@@ -1,3 +1,4 @@
+import threading
 from collections.abc import Callable
 from typing import Any
 
@@ -44,7 +45,8 @@ class ResilientEventBus(IEventBus):
         self._dlq: list[tuple[str, Any, Callable, Exception]] = []
         self.logger = logger
 
-        self._handlers: dict[str, list[Callable]] = {}
+        self._handlers: dict[str, tuple[Callable, ...]] = {}
+        self._lock = threading.Lock()
 
     def emit(self, event_name: str, data: Any = None) -> None:
         """
@@ -58,7 +60,10 @@ class ResilientEventBus(IEventBus):
                 f"Emitting resilient event: {event_name} with data: {data}"
             )
 
-        for handler in self._handlers.get(event_name, []):
+        # Read lock-free using COW pattern
+        handlers = self._handlers.get(event_name, ())
+
+        for handler in handlers:
             for attempt in range(self.max_retries + 1):
                 try:
                     handler(data)
@@ -74,10 +79,10 @@ class ResilientEventBus(IEventBus):
         @param event_name The name of the event.
         @param handler The callback function.
         """
-        if event_name not in self._handlers:
-            self._handlers[event_name] = []
-        if handler not in self._handlers[event_name]:
-            self._handlers[event_name].append(handler)
+        with self._lock:
+            current_handlers = self._handlers.get(event_name, ())
+            if handler not in current_handlers:
+                self._handlers[event_name] = current_handlers + (handler,)
         self.inner_bus.on(event_name, handler)
 
     def off(self, event_name: str, handler: Callable) -> None:
@@ -87,8 +92,14 @@ class ResilientEventBus(IEventBus):
         @param event_name The name of the event.
         @param handler The callback function.
         """
-        if event_name in self._handlers and handler in self._handlers[event_name]:
-            self._handlers[event_name].remove(handler)
+        with self._lock:
+            current_handlers = self._handlers.get(event_name, ())
+            if handler in current_handlers:
+                self._handlers[event_name] = tuple(
+                    h for h in current_handlers if h != handler
+                )
+                if not self._handlers[event_name]:
+                    del self._handlers[event_name]
         self.inner_bus.off(event_name, handler)
 
     def get_dlq(self) -> list[tuple[str, Any, Callable, Exception]]:
