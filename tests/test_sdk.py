@@ -6,6 +6,7 @@ import pytest
 from sagittarius_engine.sdk.template_loader import TemplateLoader
 from sagittarius_engine.sdk.template_renderer import TemplateRenderer
 from sagittarius_engine.sdk.project_generator import ProjectGenerator
+from sagittarius_engine.exceptions import PathTraversalError
 
 
 def test_template_loader_discovery(tmp_path):
@@ -29,6 +30,13 @@ def test_template_loader_discovery(tmp_path):
 
     with pytest.raises(ValueError):
         loader.get_template_path("non_existent_template_999")
+
+
+def test_template_loader_path_traversal():
+    loader = TemplateLoader()
+    # It shouldn't be able to escape to root or outside template directories
+    with pytest.raises(PathTraversalError):
+        loader.get_template_path("../../../../../../../../etc")
 
 
 def test_template_renderer():
