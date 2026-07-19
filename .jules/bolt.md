@@ -4,3 +4,6 @@
 ## 2025-02-12 - Middleware Pipeline Iteration Optimization
 **Learning:** `MiddlewarePipeline` uses recursive lambdas `lambda: self.__invoke_middleware(...)` which generates closures dynamically for every request, slowing down the pipeline due to call stack depth and closure instantiation overhead.
 **Action:** Replace the recursive lambda execution chain with an iterative approach using `functools.partial` processing `reversed(self.middlewares)` to build a flat execution chain, avoiding recursion depth overhead and improving performance.
+## 2025-02-13 - Event Bus Copy-On-Write Optimization
+**Learning:** Frequent event emissions that require acquiring a thread lock in `emit()` to snapshot handlers can cause severe thread contention under high load.
+**Action:** Use a Copy-On-Write (COW) pattern for Event Buses by storing handlers in an immutable `tuple` (e.g., `dict[str, tuple]`). This allows `emit()` to read the handlers completely lock-free, pushing the synchronization cost solely to the less frequent `on()` and `off()` registration methods.

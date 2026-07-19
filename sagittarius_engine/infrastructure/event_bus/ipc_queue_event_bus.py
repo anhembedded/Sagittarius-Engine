@@ -16,7 +16,7 @@ class IPCQueueEventBus(IEventBus):
         self._subscriber_queue = subscriber_queue
         self._publish_queue = publish_queue
         self._logger = logger
-        self._handlers: dict[str, list[Callable]] = {}
+        self._handlers: dict[str, tuple[Callable, ...]] = {}
         self._handlers_lock = threading.Lock()
         self._stop_event = threading.Event()
         self._thread: threading.Thread | None = None
@@ -45,9 +45,9 @@ class IPCQueueEventBus(IEventBus):
         """
         with self._handlers_lock:
             if event_name not in self._handlers:
-                self._handlers[event_name] = []
+                self._handlers[event_name] = ()
             if handler not in self._handlers[event_name]:
-                self._handlers[event_name].append(handler)
+                self._handlers[event_name] = self._handlers[event_name] + (handler,)
 
     def off(self, event_name: str, handler: Callable) -> None:
         """
@@ -55,9 +55,7 @@ class IPCQueueEventBus(IEventBus):
         """
         with self._handlers_lock:
             if event_name in self._handlers and handler in self._handlers[event_name]:
-                self._handlers[event_name].remove(handler)
-                if not self._handlers[event_name]:
-                    del self._handlers[event_name]
+                self._handlers[event_name] = tuple(h for h in self._handlers[event_name] if h != handler)
 
     def start(self) -> None:
         """
@@ -109,8 +107,7 @@ class IPCQueueEventBus(IEventBus):
 
     def _dispatch(self, event_name: str, data: Any) -> None:
         """Calls all local handlers registered for the event."""
-        with self._handlers_lock:
-            handlers = self._handlers.get(event_name, []).copy()
+        handlers = self._handlers.get(event_name, ())
         for handler in handlers:
             try:
                 handler(data)

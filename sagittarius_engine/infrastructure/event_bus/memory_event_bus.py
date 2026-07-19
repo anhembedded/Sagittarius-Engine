@@ -34,7 +34,7 @@ class MemoryEventBus(IEventBus):
         @brief Constructor.
         @param logger Optional logger instance.
         """
-        self._handlers: dict[str, list[Callable]] = {}
+        self._handlers: dict[str, tuple[Callable, ...]] = {}
         self._lock = threading.Lock()
         self.logger = logger
 
@@ -48,8 +48,7 @@ class MemoryEventBus(IEventBus):
         if self.logger:
             self.logger.info(f"Emitting event: {event_name} with data: {data}")
 
-        with self._lock:
-            handlers_snapshot = list(self._handlers.get(event_name, []))
+        handlers_snapshot = self._handlers.get(event_name, ())
 
         for handler in handlers_snapshot:
             try:
@@ -67,9 +66,9 @@ class MemoryEventBus(IEventBus):
         """
         with self._lock:
             if event_name not in self._handlers:
-                self._handlers[event_name] = []
+                self._handlers[event_name] = ()
             if handler not in self._handlers[event_name]:
-                self._handlers[event_name].append(handler)
+                self._handlers[event_name] = self._handlers[event_name] + (handler,)
 
     def off(self, event_name: str, handler: Callable) -> None:
         """
@@ -80,4 +79,4 @@ class MemoryEventBus(IEventBus):
         """
         with self._lock:
             if event_name in self._handlers and handler in self._handlers[event_name]:
-                self._handlers[event_name].remove(handler)
+                self._handlers[event_name] = tuple(h for h in self._handlers[event_name] if h != handler)
