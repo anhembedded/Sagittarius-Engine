@@ -4,6 +4,7 @@ from typing import Any
 from sagittarius_engine.interfaces import IMiddleware
 
 try:
+    # pyrefly: ignore [missing-import]
     from pydantic import BaseModel, ValidationError
 except ImportError:
     BaseModel = None

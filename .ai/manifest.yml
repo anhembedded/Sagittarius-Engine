@@ -1,0 +1,48 @@
+version: 1.0
+
+entrypoint: PLAYBOOK.md
+
+default_context:
+  - project.md
+  - repository.md
+
+context:
+  - architecture.md
+  - runtime.md
+  - modules.md
+  - api.md
+  - build.md
+  - testing.md
+  - deployment.md
+  - documentation.md
+  - glossary.md
+  - configuration.md
+  - dependencies.md
+  - examples.md
+  - troubleshooting.md
+  - lint.md
+
+rules:
+  - architecture.md
+  - coding-style.md
+  - testing.md
+  - documentation.md
+  - knowledge-base.md
+  - commit-rule.md
+  - deployment.md
+  - task-tracking.md
+
+skills:
+  - implement-module.md
+  - investigate-fix-bug.md
+  - review-pr.md
+  - review_system.md
+  - refactor.md
+  - optimize.md
+  - write-doc.md
+  - architecture.md
+
+prompts:
+  - feature.md
+  - bug.md
+  - review.md

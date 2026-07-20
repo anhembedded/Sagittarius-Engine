@@ -3,7 +3,6 @@ import shutil
 from sagittarius_engine.sdk.template_loader import TemplateLoader
 from sagittarius_engine.sdk.template_renderer import TemplateRenderer
 
-
 class ProjectGenerator:
     """
     @brief Orchestrates the project generation process by cloning template files.

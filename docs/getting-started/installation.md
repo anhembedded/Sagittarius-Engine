@@ -35,8 +35,8 @@ After installation, run the following to confirm the engine boots and stops clea
 
 ```python
 from sagittarius_engine import App
-from sagittarius_engine.infra.std_container import StdLibContainer
-from sagittarius_engine.infra.memory_event_bus import MemoryEventBus
+from sagittarius_engine.infrastructure.container import StdLibContainer
+from sagittarius_engine.infrastructure.event_bus import MemoryEventBus
 
 container = StdLibContainer()
 event_bus = MemoryEventBus()
