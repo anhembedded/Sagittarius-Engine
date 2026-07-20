@@ -91,3 +91,11 @@ def test_local_file_storage__empty_path__resolves_to_base_dir(storage, base_dir)
     """Test that an empty path resolves to the base directory itself."""
     resolved_path = storage._get_full_path("")
     assert resolved_path == os.path.realpath(base_dir)
+
+
+def test_local_file_storage__read_empty_file__returns_empty_bytes(storage):
+    """Test reading an empty file returns empty bytes."""
+    test_path = "empty_file.txt"
+    storage.write(test_path, b"")
+    read_data = storage.read(test_path)
+    assert read_data == b""
