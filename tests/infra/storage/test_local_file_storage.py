@@ -91,3 +91,21 @@ def test_local_file_storage__empty_path__resolves_to_base_dir(storage, base_dir)
     """Test that an empty path resolves to the base directory itself."""
     resolved_path = storage._get_full_path("")
     assert resolved_path == os.path.realpath(base_dir)
+
+def test_local_file_storage__write_bytes__success(storage):
+    """Test writing bytes data."""
+    test_path = "bytes_file.bin"
+    data = b"\x00\x01\x02\x03"
+    storage.write(test_path, data)
+
+    assert storage.read(test_path) == data
+
+
+def test_local_file_storage__delete_non_existent__does_not_crash(storage):
+    """Test deleting a file that doesn't exist doesn't crash."""
+    storage.delete("non_existent_file.txt")
+
+
+def test_local_file_storage__exists_non_existent__returns_false(storage):
+    """Test checking existence of a non-existent file."""
+    assert storage.exists("ghost_file.txt") is False
