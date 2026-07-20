@@ -1,6 +1,8 @@
 import os
 from typing import List
 
+from sagittarius_engine.exceptions import PathTraversalError
+
 
 class TemplateLoader:
     """
@@ -37,6 +39,12 @@ class TemplateLoader:
         """
         for directory in self.template_directories:
             path = os.path.join(directory, template_name)
+            directory_real = os.path.realpath(directory)
+            path_real = os.path.realpath(path)
+
+            if os.path.commonpath([directory_real, path_real]) != directory_real:
+                raise PathTraversalError(f"Path traversal detected: {template_name}")
+
             if os.path.exists(path) and os.path.isdir(path):
                 return path
         raise ValueError(f"Template '{template_name}' not found.")
