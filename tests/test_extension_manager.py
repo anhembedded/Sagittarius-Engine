@@ -1,6 +1,11 @@
 import pytest
 from sagittarius_engine.kernel.app import App
 from sagittarius_engine.interfaces.i_extension import IExtension, ExtensionDescriptor
+from sagittarius_engine.interfaces.i_module import IModule
+from sagittarius_engine.kernel.extension_manager import (
+    create_module_extension_adapter,
+    ModuleExtensionAdapter,
+)
 from sagittarius_engine.exceptions import (
     ExtensionDependencyError,
     ExtensionCircularDependencyError,
@@ -213,3 +218,52 @@ def test_extension_manager_lifecycle_events():
     assert emitted_events[1][0] == "started"
     assert isinstance(emitted_events[1][1], ExtensionStarted)
     assert emitted_events[1][1].extension_name == "ExtA"
+
+
+class DummyLegacyModule(IModule):
+    def __init__(self):
+        self.registered = False
+        self.booted = False
+
+    def register(self, app):
+        self.registered = True
+
+    def boot(self, app):
+        self.booted = True
+
+    def custom_method(self):
+        return "custom"
+
+
+def test_create_module_extension_adapter():
+    legacy_module = DummyLegacyModule()
+    adapter = create_module_extension_adapter(legacy_module)
+
+    assert isinstance(adapter, ModuleExtensionAdapter)
+    assert isinstance(adapter, IExtension)
+
+    # Check class name is retained
+    assert adapter.__class__.__name__ == "DummyLegacyModule"
+    assert adapter.descriptor.name == "DummyLegacyModule"
+
+    # Check register and boot
+    class DummyApp:
+        pass
+
+    class DummyContext:
+        def __init__(self):
+            self.app = DummyApp()
+
+    context = DummyContext()
+
+    adapter.register(context)
+    assert legacy_module.registered is True
+
+    adapter.boot(context)
+    assert legacy_module.booted is True
+
+    # shutdown is a no-op but shouldn't fail
+    adapter.shutdown(context)
+
+    # Check __getattr__ delegation
+    assert adapter.custom_method() == "custom"
