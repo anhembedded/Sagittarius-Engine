@@ -7,3 +7,6 @@
 ## 2024-05-19 - Template Rendering Optimization
 **Learning:** Recompiling regular expressions inside loops is a common source of performance degradation in text processing utilities. In `TemplateRenderer`, iterating over a dictionary and compiling a new regex for every single placeholder key caused performance to scale negatively with the number of placeholders (`O(K * N)`). Using a single, generic pre-compiled regex with a matching function dramatically improves speed (measured a 61% reduction in execution time in benchmarks) and prevents unintended nested substitution bugs.
 **Action:** Always prefer single-pass generic regex matching (`re.sub` with a callable) over multiple dynamic compilations when performing bulk text substitutions based on key-value mappings.
+## 2025-03-09 - EventBus Emit Lock Contention
+**Learning:** In synchronous implementations like `MemoryEventBus`, acquiring a thread lock on every single `emit()` call creates significant lock contention and slows down the event pipeline, especially when emissions are extremely frequent.
+**Action:** Use a Copy-On-Write (COW) pattern for event handlers, storing them in immutable tuples. This allows `emit()` to perform lock-free reads while `on()` and `off()` handle the synchronization and tuple replacement, drastically improving emission speed.
