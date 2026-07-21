@@ -213,3 +213,82 @@ def test_extension_manager_lifecycle_events():
     assert emitted_events[1][0] == "started"
     assert isinstance(emitted_events[1][1], ExtensionStarted)
     assert emitted_events[1][1].extension_name == "ExtA"
+
+
+def test_extension_attribute_dependencies_topological_sort():
+    from sagittarius_engine.base import BaseModule
+
+    history = []
+
+    class ConfigExt(IExtension):
+        def register(self, context):
+            history.append("ConfigExt_registered")
+
+        def boot(self, context):
+            history.append("ConfigExt_booted")
+
+        def shutdown(self, context):
+            pass
+
+    class DatabaseExt(IExtension):
+        dependencies = ["ConfigExt"]
+
+        def register(self, context):
+            history.append("DatabaseExt_registered")
+
+        def boot(self, context):
+            history.append("DatabaseExt_booted")
+
+        def shutdown(self, context):
+            pass
+
+    container = StdLibContainer()
+    event_bus = MemoryEventBus()
+    app = App(container, event_bus)
+
+    # Register DatabaseExt BEFORE ConfigExt (out-of-order)
+    app.use(DatabaseExt())
+    app.use(ConfigExt())
+
+    app.boot()
+
+    # Topological sorting ensures ConfigExt executes BEFORE DatabaseExt
+    assert history.index("ConfigExt_registered") < history.index("DatabaseExt_registered")
+    assert history.index("ConfigExt_booted") < history.index("DatabaseExt_booted")
+
+
+def test_base_module_dependencies_topological_sort():
+    from sagittarius_engine.base import BaseModule
+
+    history = []
+
+    class ConfigModule(BaseModule):
+        def register(self, app):
+            history.append("ConfigModule_registered")
+
+        def boot(self, app):
+            history.append("ConfigModule_booted")
+
+    class DatabaseModule(BaseModule):
+        dependencies = ["ConfigModule"]
+
+        def register(self, app):
+            history.append("DatabaseModule_registered")
+
+        def boot(self, app):
+            history.append("DatabaseModule_booted")
+
+    container = StdLibContainer()
+    event_bus = MemoryEventBus()
+    app = App(container, event_bus)
+
+    # Register DatabaseModule BEFORE ConfigModule (out-of-order)
+    app.use(DatabaseModule())
+    app.use(ConfigModule())
+
+    app.boot()
+
+    # Topological sorting ensures ConfigModule executes BEFORE DatabaseModule
+    assert history.index("ConfigModule_registered") < history.index("DatabaseModule_registered")
+    assert history.index("ConfigModule_booted") < history.index("DatabaseModule_booted")
+

@@ -28,9 +28,20 @@ class IExtension(ABC):
     @property
     def descriptor(self) -> ExtensionDescriptor:
         """
-        @brief Return the extension descriptor. Defaults to class name.
+        @brief Return the extension descriptor. Defaults to class name and attributes.
         """
-        return ExtensionDescriptor(name=self.__class__.__name__)
+        deps = getattr(self, "dependencies", [])
+        opt_deps = getattr(self, "optional_dependencies", [])
+        prio = getattr(self, "priority", 0)
+        enabled = getattr(self, "enabled", True)
+        return ExtensionDescriptor(
+            name=self.__class__.__name__,
+            dependencies=deps if isinstance(deps, list) else [],
+            optional_dependencies=opt_deps if isinstance(opt_deps, list) else [],
+            priority=prio if isinstance(prio, int) else 0,
+            enabled=enabled if isinstance(enabled, bool) else True,
+        )
+
 
     @abstractmethod
     def register(self, context: "EngineContext") -> None:

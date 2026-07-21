@@ -21,7 +21,18 @@ class ModuleExtensionAdapter(IExtension):
 
     def __init__(self, legacy_module: Any):
         self.legacy_module = legacy_module
-        self._descriptor = ExtensionDescriptor(name=legacy_module.__class__.__name__)
+        deps = getattr(legacy_module, "dependencies", [])
+        opt_deps = getattr(legacy_module, "optional_dependencies", [])
+        prio = getattr(legacy_module, "priority", 0)
+        enabled = getattr(legacy_module, "enabled", True)
+        self._descriptor = ExtensionDescriptor(
+            name=legacy_module.__class__.__name__,
+            dependencies=deps if isinstance(deps, list) else [],
+            optional_dependencies=opt_deps if isinstance(opt_deps, list) else [],
+            priority=prio if isinstance(prio, int) else 0,
+            enabled=enabled if isinstance(enabled, bool) else True,
+        )
+
 
     @property
     def descriptor(self) -> ExtensionDescriptor:
