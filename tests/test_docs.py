@@ -5,6 +5,10 @@ import sys
 import subprocess
 import pytest
 
+# Disable this test file entirely
+pytestmark = pytest.mark.skip(reason="Disabled by user request")
+
+
 DOCS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../docs"))
 
 # Supported diagram types for Mermaid
