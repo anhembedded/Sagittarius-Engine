@@ -50,7 +50,7 @@ def test_cli_output_port_present_error():
     error = ValueError("Something went wrong")
     with patch("sys.stderr", new_callable=StringIO) as mock_stderr:
         port.present_error(error)
-        assert "ERROR: Something went wrong" in mock_stderr.getvalue()
+        assert "ERROR: An internal error occurred." in mock_stderr.getvalue()
 
 
 def test_batch_input_port_csv_normal():
@@ -154,7 +154,7 @@ def test_batch_output_port():
 
         assert len(lines) == 2
         assert json.loads(lines[0].strip()) == {"id": 1, "name": "Test"}
-        assert lines[1].strip() == "ERROR: Failed"
+        assert lines[1].strip() == "ERROR: An internal error occurred."
     finally:
         os.remove(tmp_path)
 
