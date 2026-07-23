@@ -38,9 +38,8 @@ class ThreadPoolEventBus(IEventBus):
                 f"Emitting event: {event_name} to ThreadPoolEventBus with data: {data}"
             )
 
-        # Snapshot handlers using inner bus lock
-        with self._inner_bus._lock:
-            handlers_snapshot = list(self._inner_bus._handlers.get(event_name, []))
+        # Snapshot handlers (lock-free due to COW pattern in MemoryEventBus)
+        handlers_snapshot = self._inner_bus._handlers.get(event_name, ())
 
         futures = []
         for handler in handlers_snapshot:
