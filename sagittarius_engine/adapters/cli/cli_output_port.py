@@ -19,4 +19,7 @@ class CLIOutputPort(BaseOutputPort):
         """
         @brief Prints the error to stderr.
         """
-        print(f'ERROR: {error}', file=sys.stderr)
+        if self.logger:
+            self.logger.error(f"CLIOutputPort Error: {error}")
+        # 🛡️ Sentinel: Security Concern - Prevent information disclosure by not writing raw exceptions to standard out/error
+        print('ERROR: An internal error occurred.', file=sys.stderr)

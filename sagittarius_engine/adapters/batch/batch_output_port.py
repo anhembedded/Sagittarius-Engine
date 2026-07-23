@@ -31,9 +31,12 @@ class BatchOutputPort(BaseOutputPort):
         """
         @brief Appends the error to the output file.
         """
+        if self.logger:
+            self.logger.error(f"BatchOutputPort Error: {error}")
         try:
             with open(self.output_path, 'a', encoding='utf-8') as f:
-                f.write(f'ERROR: {error}\n')
+                # 🛡️ Sentinel: Security Concern - Prevent information disclosure by not writing raw exceptions to external output
+                f.write('ERROR: An internal error occurred.\n')
         except Exception as e:
             if self.logger:
                 self.logger.error(f'Error writing to output file: {e}')

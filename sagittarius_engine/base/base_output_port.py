@@ -26,4 +26,7 @@ class BaseOutputPort(IOutputPort):
         if self.logger:
             self.logger.error(f'Error: {error}')
         else:
-            print(f'Error: {error}')
+            import logging
+            logging.error(f"BaseOutputPort Error: {error}")
+            # 🛡️ Sentinel: Security Concern - Prevent information disclosure by not writing raw exceptions to standard out
+            print('Error: An internal error occurred.')
