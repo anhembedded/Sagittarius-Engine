@@ -34,7 +34,7 @@ class MemoryEventBus(IEventBus):
         @brief Constructor.
         @param logger Optional logger instance.
         """
-        self._handlers: dict[str, list[Callable]] = {}
+        self._handlers: dict[str, tuple[Callable, ...]] = {}
         self._lock = threading.Lock()
         self.logger = logger
 
@@ -48,8 +48,8 @@ class MemoryEventBus(IEventBus):
         if self.logger:
             self.logger.info(f"Emitting event: {event_name} with data: {data}")
 
-        with self._lock:
-            handlers_snapshot = list(self._handlers.get(event_name, []))
+        # Lock-free read for Copy-On-Write pattern
+        handlers_snapshot = self._handlers.get(event_name, ())
 
         for handler in handlers_snapshot:
             try:
@@ -66,10 +66,9 @@ class MemoryEventBus(IEventBus):
         @param handler The callback function.
         """
         with self._lock:
-            if event_name not in self._handlers:
-                self._handlers[event_name] = []
-            if handler not in self._handlers[event_name]:
-                self._handlers[event_name].append(handler)
+            current_handlers = self._handlers.get(event_name, ())
+            if handler not in current_handlers:
+                self._handlers[event_name] = current_handlers + (handler,)
 
     def off(self, event_name: str, handler: Callable) -> None:
         """
@@ -79,5 +78,8 @@ class MemoryEventBus(IEventBus):
         @param handler The callback function to remove.
         """
         with self._lock:
-            if event_name in self._handlers and handler in self._handlers[event_name]:
-                self._handlers[event_name].remove(handler)
+            current_handlers = self._handlers.get(event_name, ())
+            if handler in current_handlers:
+                # Copy without the removed handler
+                new_handlers = tuple(h for h in current_handlers if h != handler)
+                self._handlers[event_name] = new_handlers
