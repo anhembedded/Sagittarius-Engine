@@ -133,3 +133,25 @@ def test_middleware_pipeline_concurrent_execution():
     assert len(results) == num_requests
     # Assert no state contamination (all IDs are unique)
     assert len(set(results)) == num_requests
+
+
+def test_timing_middleware_process(capsys):
+    from sagittarius_engine.middleware.timing_middleware import TimingMiddleware
+
+    middleware = TimingMiddleware()
+
+    class DummyCommand:
+        pass
+
+    cmd = DummyCommand()
+
+    def next_handler():
+        return "success_result"
+
+    result = middleware.process(cmd, None, next_handler)
+
+    assert result == "success_result"
+
+    captured = capsys.readouterr()
+    assert "[TimingMiddleware] DummyCommand executed in" in captured.out
+    assert "ms" in captured.out
