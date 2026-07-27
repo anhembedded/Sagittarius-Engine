@@ -92,6 +92,7 @@ class MainWindow(QMainWindow, IStudentMonitorView):
             """
         )
 
+        self._student_items: dict[str, QTableWidgetItem] = {}
         self._init_ui()
         self.presenter = StudentMonitorPresenter(self, app)
         self._connect_signals()
@@ -196,22 +197,21 @@ class MainWindow(QMainWindow, IStudentMonitorView):
 
     def display_students(self, students: Sequence[Student]) -> None:
         self.table.setRowCount(0)
+        self._student_items.clear()
         for s in students:
             self.update_student_row(s)
 
     def update_student_row(self, s: Student) -> None:
-        row_idx = -1
-        for i in range(self.table.rowCount()):
-            item = self.table.item(i, 0)
-            if item is not None and item.text() == s.id:
-                row_idx = i
-                break
-
-        if row_idx == -1:
+        if s.id in self._student_items:
+            row_idx = self._student_items[s.id].row()
+        else:
             row_idx = self.table.rowCount()
             self.table.insertRow(row_idx)
 
-        self.table.setItem(row_idx, 0, QTableWidgetItem(s.id))
+            uuid_item = QTableWidgetItem(s.id)
+            self._student_items[s.id] = uuid_item
+            self.table.setItem(row_idx, 0, uuid_item)
+
         self.table.setItem(row_idx, 1, QTableWidgetItem(s.student_id))
         self.table.setItem(row_idx, 2, QTableWidgetItem(s.full_name))
         self.table.setItem(row_idx, 3, QTableWidgetItem(str(s.age)))
@@ -223,11 +223,10 @@ class MainWindow(QMainWindow, IStudentMonitorView):
         self.table.setItem(row_idx, 6, gpa_item)
 
     def remove_student_row(self, uuid: str) -> None:
-        for i in range(self.table.rowCount()):
-            item = self.table.item(i, 0)
-            if item is not None and item.text() == uuid:
-                self.table.removeRow(i)
-                break
+        if uuid in self._student_items:
+            row_idx = self._student_items[uuid].row()
+            self.table.removeRow(row_idx)
+            del self._student_items[uuid]
 
     def update_report_progress(self, progress: int) -> None:
         self.progress_bar.setValue(progress)

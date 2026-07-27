@@ -7,3 +7,7 @@
 ## 2024-05-19 - Template Rendering Optimization
 **Learning:** Recompiling regular expressions inside loops is a common source of performance degradation in text processing utilities. In `TemplateRenderer`, iterating over a dictionary and compiling a new regex for every single placeholder key caused performance to scale negatively with the number of placeholders (`O(K * N)`). Using a single, generic pre-compiled regex with a matching function dramatically improves speed (measured a 61% reduction in execution time in benchmarks) and prevents unintended nested substitution bugs.
 **Action:** Always prefer single-pass generic regex matching (`re.sub` with a callable) over multiple dynamic compilations when performing bulk text substitutions based on key-value mappings.
+
+## $(date +%Y-%m-%d) - O(N^2) UI table update optimization
+**Learning:** In PySide6 UI applications utilizing a `QTableWidget`, manually iterating through table rows to find and update existing items based on identifiers scales at O(N^2) complexity, quickly causing blocking behavior when tables grow large (e.g. hundreds or thousands of rows).
+**Action:** When working with large sets of items in a UI table, cache unique identifiers to their corresponding `QTableWidgetItem` objects in a dictionary. This allows O(1) row updates by calling `.row()` on the item, dropping the overall complexity to O(N).
