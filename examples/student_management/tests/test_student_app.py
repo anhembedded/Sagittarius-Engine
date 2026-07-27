@@ -3,10 +3,11 @@ import threading
 from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+from sagittarius_engine.interfaces import IConfig, IEventBus
+from sagittarius_engine.infrastructure.config.dict_config import DictConfig
 
-
-# Models and exceptions
-from examples.student_management.app.models.student import (
+# Domain Models & Exceptions
+from examples.student_management.domain.student import (
     Student,
     EmptyNameError,
     InvalidAgeError,
@@ -15,33 +16,30 @@ from examples.student_management.app.models.student import (
     StudentNotFoundError,
 )
 
-# Repository
-from examples.student_management.app.contracts.student_repository import IStudentRepository
-from examples.student_management.app.infrastructure.in_memory_student_repo import InMemoryStudentRepository
+# Application Layer Contracts & UseCases
+from examples.student_management.application.contracts.student_repository import IStudentRepository
+from examples.student_management.application.dtos.commands import (
+    AddStudentCommand,
+    UpdateStudentCommand,
+    DeleteStudentCommand,
+    GenerateReportCommand,
+)
+from examples.student_management.application.dtos.queries import (
+    ListStudentsQuery,
+    SearchStudentsQuery,
+    GetStudentQuery,
+)
+from examples.student_management.application.use_cases.add_student_use_case import AddStudentUseCase
+from examples.student_management.application.use_cases.update_student_use_case import UpdateStudentUseCase
+from examples.student_management.application.use_cases.delete_student_use_case import DeleteStudentUseCase
+from examples.student_management.application.use_cases.list_students_use_case import ListStudentsUseCase
+from examples.student_management.application.use_cases.search_students_use_case import SearchStudentsUseCase
+from examples.student_management.application.use_cases.get_student_use_case import GetStudentUseCase
+from examples.student_management.application.use_cases.generate_report_use_case import GenerateReportUseCase
 
-# Commands & Queries
-from examples.student_management.app.commands.add_student import AddStudentCommand
-from examples.student_management.app.commands.update_student import UpdateStudentCommand
-from examples.student_management.app.commands.delete_student import DeleteStudentCommand
-from examples.student_management.app.queries.list_students import ListStudentsQuery
-from examples.student_management.app.queries.search_students import SearchStudentsQuery
-from examples.student_management.app.queries.get_student import GetStudentQuery
-
-# Handlers
-from examples.student_management.app.handlers.add_student_handler import AddStudentCommandHandler
-from examples.student_management.app.handlers.update_student_handler import UpdateStudentCommandHandler
-from examples.student_management.app.handlers.delete_student_handler import DeleteStudentCommandHandler
-from examples.student_management.app.handlers.list_students_handler import ListStudentsHandler
-from examples.student_management.app.handlers.search_students_handler import SearchStudentsHandler
-from examples.student_management.app.handlers.get_student_handler import GetStudentHandler
-from examples.student_management.app.commands.generate_report import GenerateReportCommand
-from examples.student_management.app.handlers.generate_report_handler import GenerateReportCommandHandler
-
-
-
-from sagittarius_engine.interfaces import IConfig, IEventBus
-from sagittarius_engine.infrastructure.config.dict_config import DictConfig
-from examples.student_management.app.infrastructure.sqlite_student_repo import SqliteStudentRepository
+# Infrastructure Adapters
+from examples.student_management.infrastructure.sqlite_student_repo import SqliteStudentRepository
+from examples.student_management.infrastructure.in_memory_student_repo import InMemoryStudentRepository
 
 
 @pytest.fixture
@@ -63,27 +61,23 @@ def app() -> App:
     container.singleton(IEventBus, event_bus)
     container.singleton(IStudentRepository, lambda c: c.resolve(SqliteStudentRepository))
 
-
-    container.bind(AddStudentCommandHandler, AddStudentCommandHandler)
-    container.bind(UpdateStudentCommandHandler, UpdateStudentCommandHandler)
-    container.bind(DeleteStudentCommandHandler, DeleteStudentCommandHandler)
-    container.bind(ListStudentsHandler, ListStudentsHandler)
-    container.bind(SearchStudentsHandler, SearchStudentsHandler)
-    container.bind(GetStudentHandler, GetStudentHandler)
-    container.bind(GenerateReportCommandHandler, GenerateReportCommandHandler)
+    container.bind(AddStudentUseCase, AddStudentUseCase)
+    container.bind(UpdateStudentUseCase, UpdateStudentUseCase)
+    container.bind(DeleteStudentUseCase, DeleteStudentUseCase)
+    container.bind(ListStudentsUseCase, ListStudentsUseCase)
+    container.bind(SearchStudentsUseCase, SearchStudentsUseCase)
+    container.bind(GetStudentUseCase, GetStudentUseCase)
+    container.bind(GenerateReportUseCase, GenerateReportUseCase)
 
     app.boot()
     yield app
     app.stop()
 
-    # Cleanup test DB file
     if os.path.exists(db_file):
         try:
             os.remove(db_file)
         except OSError:
             pass
-
-
 
 
 def test_domain_model_validations() -> None:
@@ -113,7 +107,7 @@ def test_add_student_workflow(app: App) -> None:
         major="Computer Science",
         gpa=3.8,
     )
-    student = app.dispatch(AddStudentCommandHandler, cmd)
+    student = app.dispatch(AddStudentUseCase, cmd)
 
     assert student.id is not None
     assert student.student_id == "STD001"
@@ -123,43 +117,43 @@ def test_add_student_workflow(app: App) -> None:
 
     # Assert duplicate student ID exception
     with pytest.raises(DuplicateStudentIDError):
-        app.dispatch(AddStudentCommandHandler, cmd)
+        app.dispatch(AddStudentUseCase, cmd)
 
 
 def test_query_and_search_workflows(app: App) -> None:
     # Add two students
     app.dispatch(
-        AddStudentCommandHandler,
+        AddStudentUseCase,
         AddStudentCommand("STD001", "Alice Smith", 21, "Female", "CS", 3.8),
     )
     bob = app.dispatch(
-        AddStudentCommandHandler,
+        AddStudentUseCase,
         AddStudentCommand("STD002", "Bob Johnson", 22, "Male", "Math", 3.2),
     )
 
     # 1. List Students
-    students = app.dispatch(ListStudentsHandler, ListStudentsQuery())
+    students = app.dispatch(ListStudentsUseCase, ListStudentsQuery())
     assert len(students) == 2
 
     # 2. Get Student by UUID
-    retrieved = app.dispatch(GetStudentHandler, GetStudentQuery(id=bob.id))
+    retrieved = app.dispatch(GetStudentUseCase, GetStudentQuery(id=bob.id))
     assert retrieved.student_id == "STD002"
     assert retrieved.full_name == "Bob Johnson"
 
     # 3. Search by Name (Substring)
-    matches = app.dispatch(SearchStudentsHandler, SearchStudentsQuery(term="alice"))
+    matches = app.dispatch(SearchStudentsUseCase, SearchStudentsQuery(term="alice"))
     assert len(matches) == 1
     assert matches[0].student_id == "STD001"
 
     # 4. Search by Student ID (Exact match)
-    matches_id = app.dispatch(SearchStudentsHandler, SearchStudentsQuery(term="STD002"))
+    matches_id = app.dispatch(SearchStudentsUseCase, SearchStudentsQuery(term="STD002"))
     assert len(matches_id) == 1
     assert matches_id[0].full_name == "Bob Johnson"
 
 
 def test_update_and_delete_workflows(app: App) -> None:
     alice = app.dispatch(
-        AddStudentCommandHandler,
+        AddStudentUseCase,
         AddStudentCommand("STD001", "Alice Smith", 21, "Female", "CS", 3.8),
     )
 
@@ -173,28 +167,28 @@ def test_update_and_delete_workflows(app: App) -> None:
         major="Data Science",
         gpa=3.9,
     )
-    updated = app.dispatch(UpdateStudentCommandHandler, update_cmd)
+    updated = app.dispatch(UpdateStudentUseCase, update_cmd)
     assert updated.full_name == "Alice A. Smith"
     assert updated.age == 22
     assert updated.major == "Data Science"
     assert updated.gpa == 3.9
 
     # 2. Delete Student
-    app.dispatch(DeleteStudentCommandHandler, DeleteStudentCommand(id=alice.id))
+    app.dispatch(DeleteStudentUseCase, DeleteStudentCommand(id=alice.id))
 
     # Verify student is removed
-    students = app.dispatch(ListStudentsHandler, ListStudentsQuery())
+    students = app.dispatch(ListStudentsUseCase, ListStudentsQuery())
     assert len(students) == 0
 
     # Getting student should now throw NotFound
     with pytest.raises(StudentNotFoundError):
-        app.dispatch(GetStudentHandler, GetStudentQuery(id=alice.id))
+        app.dispatch(GetStudentUseCase, GetStudentQuery(id=alice.id))
 
 
 def test_async_report_generation(app: App) -> None:
     # Add a student to calculate GPA average
     app.dispatch(
-        AddStudentCommandHandler,
+        AddStudentUseCase,
         AddStudentCommand("STD001", "Alice Smith", 21, "Female", "CS", 4.0),
     )
 
@@ -210,7 +204,7 @@ def test_async_report_generation(app: App) -> None:
     app.event_bus.on("report.completed", on_report_completed)
 
     # Dispatch GenerateReportCommand (returns immediately)
-    msg = app.dispatch(GenerateReportCommandHandler, GenerateReportCommand())
+    msg = app.dispatch(GenerateReportUseCase, GenerateReportCommand())
     assert msg == "Async GPA report generation started."
 
     # Wait for background task to complete (timeout 6.0s since we sleep 4.0s)
@@ -235,12 +229,12 @@ def test_persistence_across_app_lifecycle() -> None:
     container1.singleton(IConfig, DictConfig(initial_data={"database.path": db_file}))
     container1.singleton(IEventBus, event_bus1)
     container1.singleton(IStudentRepository, lambda c: c.resolve(SqliteStudentRepository))
-    container1.bind(AddStudentCommandHandler, AddStudentCommandHandler)
+    container1.bind(AddStudentUseCase, AddStudentUseCase)
 
     app1.boot()
     
     app1.dispatch(
-        AddStudentCommandHandler,
+        AddStudentUseCase,
         AddStudentCommand("STD777", "Alice Persistent", 20, "Female", "CS", 3.9)
     )
     app1.stop()
@@ -252,11 +246,11 @@ def test_persistence_across_app_lifecycle() -> None:
     container2.singleton(IConfig, DictConfig(initial_data={"database.path": db_file}))
     container2.singleton(IEventBus, event_bus2)
     container2.singleton(IStudentRepository, lambda c: c.resolve(SqliteStudentRepository))
-    container2.bind(ListStudentsHandler, ListStudentsHandler)
+    container2.bind(ListStudentsUseCase, ListStudentsUseCase)
 
     app2.boot()
     
-    students = app2.dispatch(ListStudentsHandler, ListStudentsQuery())
+    students = app2.dispatch(ListStudentsUseCase, ListStudentsQuery())
     assert len(students) == 1
     assert students[0].student_id == "STD777"
     assert students[0].full_name == "Alice Persistent"
@@ -268,6 +262,3 @@ def test_persistence_across_app_lifecycle() -> None:
             os.remove(db_file)
         except OSError:
             pass
-
-
-
