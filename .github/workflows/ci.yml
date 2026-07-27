@@ -14,6 +14,9 @@ defaults:
   run:
     shell: bash
 
+env:
+  ACTIONS_NODE20_DEPRECATION_WARNING: 'false'
+
 jobs:
   # ──────────────────────────────────────────────────────────────
   # Job 1: Lint & Static Analysis (runs first, fails fast)
@@ -87,7 +90,7 @@ jobs:
 
       - name: Upload coverage (Python 3.14-dev)
         if: matrix.python-version == '3.14-dev'
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: coverage.xml
           fail_ci_if_error: false
