@@ -45,7 +45,7 @@ jobs:
         run: ruff format --check sagittarius_engine tests
 
       - name: mypy — type check
-        run: mypy sagittarius_engine --ignore-missing-imports --follow-imports=skip
+        run: mypy sagittarius_engine tests --ignore-missing-imports --follow-imports=skip
 
   # ──────────────────────────────────────────────────────────────
   # Job 2: Test Matrix (Python 3.10 → 3.13 stable + 3.14 dev)
@@ -89,6 +89,7 @@ jobs:
             --cov=sagittarius_engine \
             --cov-report=xml \
             --cov-report=term-missing \
+            --cov-fail-under=80 \
             -q
 
       - name: Upload coverage (Python 3.12 only)
@@ -103,7 +104,7 @@ jobs:
   # ──────────────────────────────────────────────────────────────
   architecture:
     name: Architecture Guard
-    needs: lint
+    needs: [lint, test]   # Wait for unit tests: no point guarding arch if tests already fail
     runs-on: ubuntu-latest
 
     steps:
@@ -135,7 +136,7 @@ jobs:
   # ──────────────────────────────────────────────────────────────
   examples:
     name: Reference Applications
-    needs: test
+    needs: [test, architecture]   # Both unit tests AND arch guard must pass first
     runs-on: ubuntu-latest
 
     steps:
@@ -160,7 +161,7 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Run example integration tests
-        run: pytest tests/test_examples.py -v
+        run: PYTHONPATH=. pytest tests/test_examples.py -v
 
   # ──────────────────────────────────────────────────────────────
   # Job 5: Benchmark (informational, never blocks)
