@@ -36,7 +36,7 @@ class StudentModule(BaseModule):
 
     def register(self, app: App) -> None:
         # Register Repository
-        app.container.singleton(IStudentRepository, lambda c: c.resolve(SqliteStudentRepository))
+        app.container.singleton(IStudentRepository, SqliteStudentRepository)
 
         # Bind UseCase Ports → Concrete Implementations
         # Callers dispatch via interface (e.g. app.dispatch(IAddStudentUseCase, cmd))

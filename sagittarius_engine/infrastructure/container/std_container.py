@@ -59,17 +59,29 @@ class StdLibContainer(IContainer):
 
     def singleton(self, abstract: type, instance_or_factory: Any | Callable) -> None:
         """
-        @brief Registers an existing instance or a Factory function (executed once).
+        @brief Registers an existing instance, a class, or a Factory function (executed once).
 
         @param abstract The abstract interface or class.
-        @param instance_or_factory The existing instance or factory function.
+        @param instance_or_factory
+            - A **concrete instance** (e.g. ``MemoryEventBus()``): stored as-is.
+            - A **class** (e.g. ``SqliteStudentRepository``): treated as a lazy factory;
+              the container resolves it (with auto-injection) on first use.
+            - A **callable/lambda** (e.g. ``lambda c: c.resolve(X)``): called once on
+              first use; the result is cached as the singleton.
         """
         with self._lock:
-            if callable(instance_or_factory) and not isinstance(
-                instance_or_factory, type
-            ):
+            if isinstance(instance_or_factory, type):
+                # Class passed — wrap in a lazy factory so the container can
+                # auto-inject all constructor dependencies on first resolve.
+                # This allows: singleton(IRepo, ConcreteRepo)
+                # instead of:  singleton(IRepo, lambda c: c.resolve(ConcreteRepo))
+                concrete = instance_or_factory
+                self._factories[abstract] = lambda c: c._resolve(concrete, set())
+            elif callable(instance_or_factory):
+                # Factory function / lambda — call once and cache the result.
                 self._factories[abstract] = instance_or_factory
             else:
+                # Concrete instance — store directly.
                 self._instances[abstract] = instance_or_factory
 
     def resolve(self, abstract: type[Any]) -> Any:
