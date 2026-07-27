@@ -147,7 +147,7 @@ def test_batch_output_port():
         tmp_path = tmp.name
 
     try:
-        port = BatchOutputPort(output_path=tmp_path)
+        port = BatchOutputPort(output_path=tmp_path, allowed_dir=os.path.dirname(tmp_path))
 
         # Test normal present
         port.present({"id": 1, "name": "Test"})
@@ -163,6 +163,21 @@ def test_batch_output_port():
         assert lines[1].strip() == "ERROR: Failed"
     finally:
         os.remove(tmp_path)
+
+
+def test_batch_output_port_path_traversal():
+    from sagittarius_engine.exceptions import PathTraversalError
+    import pytest
+
+    # Use a safe temporary directory as the allowed base directory
+    with tempfile.TemporaryDirectory() as safe_dir:
+        # Attempt to create an output file outside the allowed directory using path traversal
+        malicious_path = "../escaped_file.txt"
+
+        with pytest.raises(PathTraversalError) as exc_info:
+            BatchOutputPort(output_path=malicious_path, allowed_dir=safe_dir)
+
+        assert "Path traversal detected" in str(exc_info.value)
 
 
 def test_application_runner():

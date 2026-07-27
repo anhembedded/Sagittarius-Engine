@@ -2,6 +2,7 @@ import json
 import os
 from typing import Any
 from sagittarius_engine.base.base_output_port import BaseOutputPort
+from sagittarius_engine.exceptions import PathTraversalError
 
 
 class BatchOutputPort(BaseOutputPort):
@@ -9,10 +10,18 @@ class BatchOutputPort(BaseOutputPort):
     @brief Batch Output Port that appends output to a file.
     """
 
-    def __init__(self, output_path: str) -> None:
+    def __init__(self, output_path: str, allowed_dir: str = ".") -> None:
         super().__init__()
-        self.output_path = output_path
-        os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+
+        # Path traversal prevention
+        allowed_real = os.path.realpath(allowed_dir)
+        full_path_real = os.path.realpath(os.path.join(allowed_real, output_path))
+
+        if os.path.commonpath([allowed_real, full_path_real]) != allowed_real:
+            raise PathTraversalError(f"Path traversal detected: {output_path}")
+
+        self.output_path = full_path_real
+        os.makedirs(os.path.dirname(self.output_path), exist_ok=True)
 
     def present(self, result: Any) -> None:
         """
