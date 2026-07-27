@@ -8,9 +8,15 @@ class BackgroundTask:
     @brief Represents a running background task (sync thread or async future).
     """
 
-    def __init__(self, name: str, token: Optional[CancellationToken] = None) -> None:
+    def __init__(
+        self,
+        name: str,
+        token: Optional[CancellationToken] = None,
+        critical: bool = False,
+    ) -> None:
         self.id: str = str(uuid.uuid4())
         self.name: str = name
+        self.critical: bool = critical
         self.token: CancellationToken = (
             token if token is not None else CancellationToken()
         )

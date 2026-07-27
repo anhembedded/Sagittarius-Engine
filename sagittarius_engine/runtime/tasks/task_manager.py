@@ -12,6 +12,26 @@ from sagittarius_engine.interfaces.events import (
 )
 
 
+class DaemonThreadPoolExecutor(ThreadPoolExecutor):
+    """
+    @brief ThreadPoolExecutor subclass that creates daemon worker threads.
+    """
+
+    def _adjust_thread_count(self) -> None:
+        original_thread = threading.Thread
+
+        def daemon_thread(*args: Any, **kwargs: Any) -> threading.Thread:
+            t = original_thread(*args, **kwargs)
+            t.daemon = True
+            return t
+
+        try:
+            threading.Thread = daemon_thread  # type: ignore[assignment]
+            super()._adjust_thread_count()
+        finally:
+            threading.Thread = original_thread  # type: ignore[assignment]
+
+
 class TaskManager:
     """
     @brief Unified manager for spawning, tracking, and coordinating sync and async tasks.
@@ -20,9 +40,16 @@ class TaskManager:
     def __init__(self, context: Any) -> None:
         self.context = context
         self.tasks: Dict[str, BackgroundTask] = {}
-        self.executor = ThreadPoolExecutor(
-            max_workers=20, thread_name_prefix="SagittariusTask"
+        self.background_executor = DaemonThreadPoolExecutor(
+            max_workers=20,
+            thread_name_prefix="SagittariusBgTask",
         )
+        self.critical_executor = DaemonThreadPoolExecutor(
+            max_workers=10,
+            thread_name_prefix="SagittariusCriticalTask",
+        )
+        # Backwards compatibility alias
+        self.executor = self.background_executor
         self._lock = threading.Lock()
         self._logger = logging.getLogger("App")
 
@@ -95,9 +122,15 @@ class TaskManager:
         callable_or_coro: Union[Callable[..., Any], Any],
         name: Optional[str] = None,
         token: Optional[CancellationToken] = None,
+        critical: bool = False,
     ) -> BackgroundTask:
         """
         @brief Spawns a background execution (sync thread or async coroutine).
+        @param callable_or_coro Callable function or coroutine object to run.
+        @param name Optional descriptive task name.
+        @param token Optional cancellation token.
+        @param critical If True, runs on non-daemon critical thread pool with graceful shutdown timeout.
+                        If False (default), runs on daemon background thread pool safe to kill on exit.
         """
         task_name = (
             name
@@ -107,7 +140,7 @@ class TaskManager:
                 else "UnnamedTask"
             )
         )
-        bg_task = BackgroundTask(task_name, token)
+        bg_task = BackgroundTask(task_name, token, critical=critical)
 
         with self._lock:
             self.tasks[bg_task.id] = bg_task
@@ -147,7 +180,10 @@ class TaskManager:
                 else:
                     fn = lambda: callable_or_coro()
 
-                future = self.executor.submit(self._wrap_sync(bg_task, fn))
+                target_executor = (
+                    self.critical_executor if critical else self.background_executor
+                )
+                future = target_executor.submit(self._wrap_sync(bg_task, fn))
                 bg_task.future = future
             except Exception as e:
                 bg_task.status = "failed"
@@ -168,9 +204,28 @@ class TaskManager:
                 if task.status == "running":
                     task.cancel()
 
-    def shutdown(self) -> None:
+    def shutdown(self, timeout: float = 5.0) -> None:
         """
-        @brief Gracefully stops all tasks and shuts down the thread pool executor.
+        @brief Gracefully stops all tasks and shuts down the thread pool executors.
+        @details Critical tasks are given up to `timeout` seconds to complete gracefully.
+                 Background daemon tasks are non-blockingly cancelled and shut down.
         """
         self.cancel_all()
-        self.executor.shutdown(wait=True)
+
+        with self._lock:
+            critical_futures = [
+                t.future
+                for t in self.tasks.values()
+                if t.critical and t.status == "running" and t.future is not None
+            ]
+
+        if critical_futures:
+            from concurrent.futures import wait
+            wait(critical_futures, timeout=timeout)
+
+        try:
+            self.critical_executor.shutdown(wait=False, cancel_futures=True)
+            self.background_executor.shutdown(wait=False, cancel_futures=True)
+        except TypeError:
+            self.critical_executor.shutdown(wait=False)
+            self.background_executor.shutdown(wait=False)

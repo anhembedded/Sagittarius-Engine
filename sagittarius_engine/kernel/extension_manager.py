@@ -291,3 +291,6 @@ class ExtensionManager:
             except Exception as e:
                 if logger:
                     logger.error(f"Error disposing extension '{name}': {e}")
+
+        self.sorted_extensions.clear()
+        self.initialized_extensions.clear()

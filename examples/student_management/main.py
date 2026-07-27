@@ -93,7 +93,9 @@ def main() -> None:
     original_emit = event_bus.emit
     def logging_emit(event_name: str, data: Any = None):
         try:
-            bridge.all_events_logged.emit(event_name, str(data) if data is not None else "")
+            qt_inst = QApplication.instance()
+            if qt_inst is not None:
+                bridge.all_events_logged.emit(event_name, str(data) if data is not None else "")
         except Exception:
             pass
         original_emit(event_name, data)

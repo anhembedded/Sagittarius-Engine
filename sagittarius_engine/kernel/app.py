@@ -110,6 +110,9 @@ class App:
         @brief Shuts down the application gracefully.
         @details Stops the scheduler, hosted services, extensions, task manager, and async runtime in reverse order.
         """
+        if self.context.lifecycle.is_stopping or self.context.lifecycle.is_stopped:
+            return
+
         logger = self._get_logger()
         if logger:
             logger.info("App is stopping gracefully...")
