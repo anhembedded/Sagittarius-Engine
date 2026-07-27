@@ -1,6 +1,7 @@
 import threading
 import logging
 import queue
+import pickle
 from collections.abc import Callable
 from multiprocessing.queues import Queue
 from typing import Any
@@ -32,6 +33,8 @@ class IPCQueueEventBus(IEventBus):
                 logging.warning(f"Cannot emit '{event_name}': publish_queue is None.")
             return
         try:
+            # Check if the data is picklable before putting it into the queue to avoid crashing the background thread
+            pickle.dumps((event_name, data))
             self._publish_queue.put((event_name, data))
         except Exception as e:
             if self._logger:
