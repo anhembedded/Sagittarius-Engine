@@ -16,12 +16,14 @@ from examples.student_management.application.dtos.queries import (
     ListStudentsQuery,
     SearchStudentsQuery,
 )
-from examples.student_management.application.use_cases.add_student_use_case import AddStudentUseCase
-from examples.student_management.application.use_cases.update_student_use_case import UpdateStudentUseCase
-from examples.student_management.application.use_cases.delete_student_use_case import DeleteStudentUseCase
-from examples.student_management.application.use_cases.list_students_use_case import ListStudentsUseCase
-from examples.student_management.application.use_cases.search_students_use_case import SearchStudentsUseCase
-from examples.student_management.application.use_cases.generate_report_use_case import GenerateReportUseCase
+from examples.student_management.application.contracts.use_case_ports import (
+    IAddStudentUseCase,
+    IUpdateStudentUseCase,
+    IDeleteStudentUseCase,
+    IListStudentsUseCase,
+    ISearchStudentsUseCase,
+    IGenerateReportUseCase,
+)
 
 
 class TerminalMenu(IHostedService):
@@ -121,7 +123,7 @@ class TerminalMenu(IHostedService):
     def _list_students(self) -> None:
         print("--- List Students ---")
         try:
-            students = self.app.dispatch(ListStudentsUseCase, ListStudentsQuery())
+            students = self.app.dispatch(IListStudentsUseCase, ListStudentsQuery())
             self._print_student_table(students)
         except Exception as e:
             print(f"❌ Error listing students: {e}")
@@ -157,7 +159,7 @@ class TerminalMenu(IHostedService):
                 major=major,
                 gpa=gpa,
             )
-            student = self.app.dispatch(AddStudentUseCase, cmd)
+            student = self.app.dispatch(IAddStudentUseCase, cmd)
             print(f"\n✅ Student '{student.full_name}' added successfully!")
         except StudentException as e:
             print(f"❌ Validation Error: {e}")
@@ -167,7 +169,7 @@ class TerminalMenu(IHostedService):
     def _find_student_by_user_input(self) -> Any:
         student_id = input("Enter Student ID to find: ").strip()
         students = self.app.dispatch(
-            SearchStudentsUseCase, SearchStudentsQuery(term=student_id)
+            ISearchStudentsUseCase, SearchStudentsQuery(term=student_id)
         )
         for s in students:
             if s.student_id == student_id:
@@ -230,7 +232,7 @@ class TerminalMenu(IHostedService):
                 major=new_major,
                 gpa=new_gpa,
             )
-            updated = self.app.dispatch(UpdateStudentUseCase, cmd)
+            updated = self.app.dispatch(IUpdateStudentUseCase, cmd)
             print(f"\n✅ Student '{updated.full_name}' updated successfully!")
         except StudentException as e:
             print(f"❌ Validation Error: {e}")
@@ -250,7 +252,7 @@ class TerminalMenu(IHostedService):
             ).strip().lower()
             if confirm == "y":
                 cmd = DeleteStudentCommand(id=student.id)
-                self.app.dispatch(DeleteStudentUseCase, cmd)
+                self.app.dispatch(IDeleteStudentUseCase, cmd)
                 print("✅ Student deleted successfully!")
             else:
                 print("Deletion cancelled.")
@@ -266,7 +268,7 @@ class TerminalMenu(IHostedService):
 
         try:
             students = self.app.dispatch(
-                SearchStudentsUseCase, SearchStudentsQuery(term=term)
+                ISearchStudentsUseCase, SearchStudentsQuery(term=term)
             )
             self._print_student_table(students)
         except Exception as e:
@@ -290,7 +292,7 @@ class TerminalMenu(IHostedService):
     def _generate_report(self) -> None:
         print("--- Generate GPA Report (Async) ---")
         try:
-            msg = self.app.dispatch(GenerateReportUseCase, GenerateReportCommand())
+            msg = self.app.dispatch(IGenerateReportUseCase, GenerateReportCommand())
             print(f"⏳ {msg}")
         except Exception as e:
             print(f"❌ Error: {e}")

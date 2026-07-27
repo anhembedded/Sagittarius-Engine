@@ -2,9 +2,10 @@ from examples.student_management.application.contracts.student_repository import
 from examples.student_management.application.dtos.queries import GetStudentQuery
 from examples.student_management.domain.student import Student, StudentNotFoundError
 from sagittarius_engine.extensions.cqrs import IQuery
+from examples.student_management.application.contracts.use_case_ports import IGetStudentUseCase
 
 
-class GetStudentUseCase(IQuery[GetStudentQuery, Student]):
+class GetStudentUseCase(IGetStudentUseCase):
     def __init__(self, repo: IStudentRepository) -> None:
         self.repo = repo
 

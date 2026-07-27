@@ -334,3 +334,22 @@ if __name__ == "__main__":
 
 * [Sagittarius Architecture Reference](file:///c:/Users/hoang/Documents/Sagittarius_ForkBoy/docs)
 * [Example Implementation](file:///c:/Users/hoang/Documents/Sagittarius_ForkBoy/examples/student_management)
+
+
+
+
+```mermaid
+classDiagram
+    class Model {
+        +getData()
+        +setData()
+    }
+
+    class Presenter {
+        +updateView()
+        +handleUserAction()
+    }
+
+    Model <.. Presenter : uses
+    Presenter --> View : updates
+```

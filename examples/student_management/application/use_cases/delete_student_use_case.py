@@ -4,9 +4,10 @@ from examples.student_management.application.dtos.commands import DeleteStudentC
 from examples.student_management.domain.student import StudentNotFoundError
 from sagittarius_engine.extensions.cqrs import ICommand
 from sagittarius_engine.interfaces import IEventBus
+from examples.student_management.application.contracts.use_case_ports import IDeleteStudentUseCase
 
 
-class DeleteStudentUseCase(ICommand[DeleteStudentCommand, None]):
+class DeleteStudentUseCase(IDeleteStudentUseCase):
     def __init__(self, repo: IStudentRepository, event_bus: IEventBus) -> None:
         self.repo = repo
         self.event_bus = event_bus

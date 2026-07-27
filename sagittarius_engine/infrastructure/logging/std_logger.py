@@ -2,6 +2,7 @@ import logging
 import sys
 from typing import Any
 
+from sagittarius_engine.infrastructure.logging.logger_config import LoggerConfig
 from sagittarius_engine.infrastructure.logging.tcp_log_viewer_handler import TcpLogViewerHandler
 from sagittarius_engine.interfaces import IConfig, ILogger
 
@@ -10,34 +11,26 @@ class StdLogger(ILogger):
     """
     @brief Implementation of ILogger using the default Python `logging` module.
 
-    @details Automatically reads the IConfig (if provided) to set log level, log file,
-    and optional TcpLogViewerHandler to stream logs to Sagittarius LogViewer.
+    @details Accepts an optional IConfig; delegates all config-key parsing to
+    LoggerConfig so this class stays focused on handler wiring only.
     """
 
     def __init__(self, config: IConfig | None = None):
         """
         @brief Constructor.
-        @param config Optional configuration instance.
+        @param config Optional configuration instance. Parsed via LoggerConfig.from_iconfig().
         """
         self._logger = logging.getLogger("App")
 
-        log_level = logging.INFO
-        log_file = None
-        viewer_enabled = False
-        viewer_host = "localhost"
-        viewer_port = 9999
-        viewer_module = "sagittarius-app"
+        # Parse all logger settings from IConfig via the dedicated config type.
+        # Falls back to LoggerConfig defaults (INFO level, no file, viewer disabled)
+        # when no IConfig is provided (e.g. in tests or minimal setups).
+        cfg: LoggerConfig = LoggerConfig.from_iconfig(config) if config else LoggerConfig()
 
-        if config:
-            level_str = config.get("log.level", "INFO").upper()
-            log_level = getattr(logging, level_str, logging.INFO)
-            log_file = config.get("log.file")
-            viewer_enabled = config.get("log.viewer.enabled", False)
-            viewer_host = config.get("log.viewer.host", "localhost")
-            viewer_port = config.get("log.viewer.port", 9999)
-            viewer_module = config.get("log.viewer.module", "sagittarius-app")
-
-        self._logger.setLevel(log_level)
+        # setLevel sets the MINIMUM threshold for this logger.
+        # Calling info() labels the record as INFO; setLevel decides whether that level is allowed through.
+        # These are independent: info() can still be silently filtered if threshold > INFO.
+        self._logger.setLevel(cfg.log_level)
 
         for handler in list(self._logger.handlers):
             handler.close()
@@ -54,16 +47,16 @@ class StdLogger(ILogger):
         ch.setFormatter(formatter)
         self._logger.addHandler(ch)
 
-        if log_file:
-            fh = logging.FileHandler(log_file)
+        if cfg.log_file:
+            fh = logging.FileHandler(cfg.log_file)
             fh.setFormatter(formatter)
             self._logger.addHandler(fh)
 
-        if viewer_enabled:
+        if cfg.viewer_enabled:
             vh = TcpLogViewerHandler(
-                host=viewer_host,
-                port=viewer_port,
-                module_name=viewer_module,
+                host=cfg.viewer_host,
+                port=cfg.viewer_port,
+                module_name=cfg.viewer_module,
             )
             self._logger.addHandler(vh)
 
