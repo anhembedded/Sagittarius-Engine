@@ -31,6 +31,7 @@ class TcpLogViewerHandler(logging.Handler):
         self.module_name = module_name
         self._queue: queue.Queue = queue.Queue(maxsize=max_queue_size)
         self._stop_event = threading.Event()
+        self._seq = 0
 
         self._worker_thread = threading.Thread(
             target=self._network_worker,
@@ -50,6 +51,9 @@ class TcpLogViewerHandler(logging.Handler):
             else:
                 extra_data = {"raw_extra": str(raw_extra)} if raw_extra else {}
 
+            self._seq += 1
+            index = extra_data.pop("index", self._seq)
+
             submodule = extra_data.pop("submodule", None)
             if not submodule and hasattr(record, "submodule") and getattr(record, "submodule"):
                 submodule = getattr(record, "submodule")
@@ -68,6 +72,7 @@ class TcpLogViewerHandler(logging.Handler):
             dt = datetime.fromtimestamp(record.created, tz=timezone.utc)
 
             payload: dict[str, Any] = {
+                "index": index,
                 "timestamp": dt.isoformat(),
                 "level": record.levelname,
                 "message": msg,
