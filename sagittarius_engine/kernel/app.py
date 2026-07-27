@@ -110,9 +110,7 @@ class App:
         @brief Shuts down the application gracefully.
         @details Stops the scheduler, hosted services, extensions, task manager, and async runtime in reverse order.
         """
-        print("[DEBUG] [app.py] App.stop() called.", flush=True)
         if self.context.lifecycle.is_stopping or self.context.lifecycle.is_stopped:
-            print("[DEBUG] [app.py] App.stop() skipped (already stopping/stopped).", flush=True)
             return
 
         logger = self._get_logger()
@@ -123,45 +121,41 @@ class App:
 
         # 1. Stop Scheduler
         try:
-            print("[DEBUG] [app.py] Step 1: Stopping scheduler...", flush=True)
             self.context.scheduler.stop()
-            print("[DEBUG] [app.py] Step 1: Scheduler stopped.", flush=True)
         except Exception as e:
-            print(f"[DEBUG] [app.py] Step 1 Error: {e}", flush=True)
+            if logger:
+                logger.error(f"Error stopping scheduler: {e}")
 
         # 2. Stop Hosted Services
         try:
-            print("[DEBUG] [app.py] Step 2: Stopping hosted services...", flush=True)
             self.context.hosted_services.stop()
-            print("[DEBUG] [app.py] Step 2: Hosted services stopped.", flush=True)
         except Exception as e:
-            print(f"[DEBUG] [app.py] Step 2 Error: {e}", flush=True)
+            if logger:
+                logger.error(f"Error stopping hosted services: {e}")
 
         # 3. Stop Extensions
         try:
-            print("[DEBUG] [app.py] Step 3: Stopping extensions...", flush=True)
             self.context.extension_manager.stop_and_dispose()
-            print("[DEBUG] [app.py] Step 3: Extensions stopped.", flush=True)
         except Exception as e:
-            print(f"[DEBUG] [app.py] Step 3 Error: {e}", flush=True)
+            if logger:
+                logger.error(f"Error stopping extensions: {e}")
 
         # 4. Shutdown Task Manager
         try:
-            print("[DEBUG] [app.py] Step 4: Shutting down task manager...", flush=True)
             self.context.tasks.shutdown()
-            print("[DEBUG] [app.py] Step 4: Task manager shut down.", flush=True)
         except Exception as e:
-            print(f"[DEBUG] [app.py] Step 4 Error: {e}", flush=True)
+            if logger:
+                logger.error(f"Error shutting down task manager: {e}")
 
         # 5. Stop Async Runtime
         try:
-            print("[DEBUG] [app.py] Step 5: Stopping async runtime...", flush=True)
             self.context.async_runtime.stop()
-            print("[DEBUG] [app.py] Step 5: Async runtime stopped.", flush=True)
         except Exception as e:
-            print(f"[DEBUG] [app.py] Step 5 Error: {e}", flush=True)
+            if logger:
+                logger.error(f"Error stopping async runtime: {e}")
 
         self.context.lifecycle.set_stopped()
-        print("[DEBUG] [app.py] App.stop() finished cleanly.", flush=True)
+        if logger:
+            logger.info("App stopped.")
 
 

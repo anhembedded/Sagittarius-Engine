@@ -46,19 +46,15 @@ class AsyncRuntime:
         """
         @brief Stops and closes the background event loop gracefully.
         """
-        print("[DEBUG] [async_runtime.py] AsyncRuntime.stop() called.", flush=True)
         if self.loop is None:
-            print("[DEBUG] [async_runtime.py] Loop is None, returning.", flush=True)
             return
 
         self._logger.info("Stopping AsyncRuntime event loop...")
         self.loop.call_soon_threadsafe(self.loop.stop)
 
         if self._thread is not None:
-            print("[DEBUG] [async_runtime.py] Joining AsyncRuntime thread...", flush=True)
             self._thread.join(timeout=5.0)
             self._thread = None
-            print("[DEBUG] [async_runtime.py] AsyncRuntime thread joined.", flush=True)
 
         try:
             pending = asyncio.all_tasks(self.loop)
@@ -70,5 +66,4 @@ class AsyncRuntime:
 
         self.loop.close()
         self.loop = None
-        print("[DEBUG] [async_runtime.py] AsyncRuntime.stop() completed.", flush=True)
         self._logger.info("AsyncRuntime event loop stopped.")

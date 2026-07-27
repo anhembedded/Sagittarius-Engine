@@ -71,23 +71,18 @@ class HostedServiceManager:
         """
         @brief Stops all started hosted services in reverse order.
         """
-        print("[DEBUG] [hosted_service_manager.py] HostedServiceManager.stop() called.", flush=True)
         errors = []
         for service in reversed(self.started_services):
             name = service.__class__.__name__
-            print(f"[DEBUG] [hosted_service_manager.py] Stopping service '{name}'...", flush=True)
             self._logger.info(f"Stopping Hosted Service '{name}'...")
             try:
                 service.stop(self.context)
-                print(f"[DEBUG] [hosted_service_manager.py] Service '{name}' stopped cleanly.", flush=True)
                 self._emit("runtime.hosted.stopped", HostedServiceStopped(name))
             except Exception as e:
-                print(f"[DEBUG] [hosted_service_manager.py] Error stopping service '{name}': {e}", flush=True)
                 self._logger.error(f"Error stopping Hosted Service '{name}': {e}")
                 errors.append(e)
 
         self.started_services.clear()
-        print("[DEBUG] [hosted_service_manager.py] HostedServiceManager.stop() completed.", flush=True)
         if errors:
             raise RuntimeError(
                 f"Multiple errors stopping hosted services: {errors}"

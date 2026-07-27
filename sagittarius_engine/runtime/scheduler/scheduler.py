@@ -92,23 +92,17 @@ class Scheduler:
         """
         @brief Stops the scheduler thread gracefully.
         """
-        print("[DEBUG] [scheduler.py] Scheduler.stop() called.", flush=True)
         with self._lock:
             if not self._running:
-                print("[DEBUG] [scheduler.py] Scheduler not running, returning.", flush=True)
                 return
             self._running = False
             self._cond.notify_all()
 
         if self._thread is not None:
-            print("[DEBUG] [scheduler.py] Joining scheduler thread...", flush=True)
             self._thread.join(timeout=5.0)
             self._thread = None
-            print("[DEBUG] [scheduler.py] Scheduler thread joined.", flush=True)
         self._logger.info("Scheduler stopped.")
-        print("[DEBUG] [scheduler.py] Emitting runtime.scheduler.stopped event...", flush=True)
         self._emit("runtime.scheduler.stopped", SchedulerStopped())
-        print("[DEBUG] [scheduler.py] Scheduler.stop() completed.", flush=True)
 
     def add_job(self, job: ScheduledJob) -> None:
         """
