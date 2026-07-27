@@ -2,6 +2,7 @@ from typing import Any
 from sagittarius_engine.interfaces import IConfig
 from sagittarius_engine.infrastructure.config.config_source import ConfigSource
 
+
 class ConfigManager(IConfig):
     """
     @brief Multi-layer configuration manager.

@@ -1,7 +1,9 @@
 import os
 import pytest
 
-from sagittarius_engine.infrastructure.storage.local_file_storage import LocalFileStorage
+from sagittarius_engine.infrastructure.storage.local_file_storage import (
+    LocalFileStorage,
+)
 from sagittarius_engine.exceptions import PathTraversalError
 
 
@@ -32,7 +34,7 @@ def test_local_file_storage__read_write_valid_path__success(storage, base_dir):
 
     # Read data
     read_data = storage.read(test_path)
-    assert read_data == data.encode('utf-8')
+    assert read_data == data.encode("utf-8")
 
     # Delete data
     storage.delete(test_path)
@@ -73,7 +75,9 @@ def test_local_file_storage__symlink_escape__raises_error(storage, base_dir, tmp
         os.symlink(str(target_file), symlink_path)
     except OSError as e:
         if getattr(e, "winerror", None) == 1314:
-            pytest.skip("Developer privilege for creating symlinks is not held on Windows.")
+            pytest.skip(
+                "Developer privilege for creating symlinks is not held on Windows."
+            )
         raise
 
     # Attempt to read through the symlink (the path 'symlink.txt' is relative to base_dir)

@@ -27,9 +27,7 @@ def get_imports_in_file(filepath: str) -> list[str]:
 
 def check_forbidden_imports(directory: str, forbidden_prefixes: list[str]) -> list[str]:
     violations = []
-    py_files = glob.glob(
-        os.path.join(directory, "**", "*.py"), recursive=True
-    )
+    py_files = glob.glob(os.path.join(directory, "**", "*.py"), recursive=True)
     for filepath in py_files:
         # Ignore tests, temp files
         if "tests" in filepath or "temp" in filepath:
@@ -64,27 +62,21 @@ def test_architectural_dependency_rules():
         interfaces_dir,
         ["sagittarius_engine.extensions", "sagittarius_engine.sdk"],
     )
-    assert not violations, (
-        "Interfaces dependency violations found:\n" + "\n".join(violations)
+    assert not violations, "Interfaces dependency violations found:\n" + "\n".join(
+        violations
     )
 
     # Rule 3: Extensions must NOT import sdk
     extensions_dir = os.path.join(base_dir, "extensions")
-    violations = check_forbidden_imports(
-        extensions_dir, ["sagittarius_engine.sdk"]
+    violations = check_forbidden_imports(extensions_dir, ["sagittarius_engine.sdk"])
+    assert not violations, "Extensions dependency violations found:\n" + "\n".join(
+        violations
     )
-    assert (
-        not violations
-    ), "Extensions dependency violations found:\n" + "\n".join(violations)
 
     # Rule 4: SDK must NOT import extensions
     sdk_dir = os.path.join(base_dir, "sdk")
-    violations = check_forbidden_imports(
-        sdk_dir, ["sagittarius_engine.extensions"]
-    )
-    assert not violations, "SDK dependency violations found:\n" + "\n".join(
-        violations
-    )
+    violations = check_forbidden_imports(sdk_dir, ["sagittarius_engine.extensions"])
+    assert not violations, "SDK dependency violations found:\n" + "\n".join(violations)
 
 
 def test_public_api_exports():
@@ -100,9 +92,9 @@ def test_public_api_exports():
         "IQuery",
         "BaseRepository",
     }
-    assert (
-        public_exports == expected_exports
-    ), f"Expected root exports {expected_exports}, got {public_exports}"
+    assert public_exports == expected_exports, (
+        f"Expected root exports {expected_exports}, got {public_exports}"
+    )
 
 
 def test_deprecation_warnings():

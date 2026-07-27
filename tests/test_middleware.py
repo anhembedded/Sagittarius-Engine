@@ -30,8 +30,11 @@ def test_middleware_pipeline_execution_order():
     assert result == "result"
     assert tracer == ["mw1_start", "mw2_start", "final", "mw2_end", "mw1_end"]
 
+
 def test_transaction_middleware_commits_on_success():
-    from sagittarius_engine.middleware.transaction_middleware import TransactionMiddleware
+    from sagittarius_engine.middleware.transaction_middleware import (
+        TransactionMiddleware,
+    )
     from sagittarius_engine.interfaces import IContainer
     from sagittarius_engine.extensions.persistence import ISession
     from unittest.mock import MagicMock
@@ -51,8 +54,11 @@ def test_transaction_middleware_commits_on_success():
     mock_session.commit.assert_called_once()
     mock_session.rollback.assert_not_called()
 
+
 def test_transaction_middleware_rollbacks_on_exception():
-    from sagittarius_engine.middleware.transaction_middleware import TransactionMiddleware
+    from sagittarius_engine.middleware.transaction_middleware import (
+        TransactionMiddleware,
+    )
     from sagittarius_engine.interfaces import IContainer
     from sagittarius_engine.extensions.persistence import ISession
     from unittest.mock import MagicMock
@@ -72,6 +78,7 @@ def test_transaction_middleware_rollbacks_on_exception():
 
     mock_session.rollback.assert_called_once()
     mock_session.commit.assert_not_called()
+
 
 def test_middleware_pipeline_concurrent_execution():
     import concurrent.futures
@@ -108,6 +115,7 @@ def test_middleware_pipeline_concurrent_execution():
 
     def execute_request():
         dto = {}
+
         # final_handler takes no arguments in MiddlewarePipeline
         def final_handler():
             # simulate work

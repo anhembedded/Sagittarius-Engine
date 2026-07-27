@@ -55,14 +55,18 @@ class TcpLogViewerHandler(logging.Handler):
             index = extra_data.pop("index", self._seq)
 
             submodule = extra_data.pop("submodule", None)
-            if not submodule and hasattr(record, "submodule") and getattr(record, "submodule"):
+            if (
+                not submodule
+                and hasattr(record, "submodule")
+                and getattr(record, "submodule")
+            ):
                 submodule = getattr(record, "submodule")
 
             msg = record.getMessage()
 
             # Automatic inference if message starts with [SubmoduleName]
             if not submodule and msg.startswith("[") and "]" in msg:
-                bracket_content = msg[1:msg.find("]")]
+                bracket_content = msg[1 : msg.find("]")]
                 if " " not in bracket_content:
                     submodule = bracket_content
 

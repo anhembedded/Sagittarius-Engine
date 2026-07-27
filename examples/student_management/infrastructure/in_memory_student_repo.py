@@ -1,6 +1,8 @@
 # Clean Architecture - Infrastructure Adapter (In-Memory Repository)
 from typing import Sequence, Optional
-from examples.student_management.application.contracts.student_repository import IStudentRepository
+from examples.student_management.application.contracts.student_repository import (
+    IStudentRepository,
+)
 from examples.student_management.domain.student import Student
 
 
@@ -34,6 +36,7 @@ class InMemoryStudentRepository(IStudentRepository):
     def search(self, term: str) -> Sequence[Student]:
         term_lower = term.lower()
         return [
-            s for s in self._students.values()
+            s
+            for s in self._students.values()
             if term_lower in s.full_name.lower() or term_lower in s.student_id.lower()
         ]

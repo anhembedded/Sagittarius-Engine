@@ -8,12 +8,8 @@ import threading
 def run_example_script(script_path: str) -> None:
     # Set up PYTHONPATH so the examples can locate sagittarius_engine in the parent directory
     env = os.environ.copy()
-    current_workspace = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..")
-    )
-    env["PYTHONPATH"] = (
-        f"{current_workspace}{os.pathsep}{env.get('PYTHONPATH', '')}"
-    )
+    current_workspace = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    env["PYTHONPATH"] = f"{current_workspace}{os.pathsep}{env.get('PYTHONPATH', '')}"
 
     result = subprocess.run(
         [sys.executable, script_path],
@@ -67,9 +63,9 @@ def test_stress_boot_shutdown_cycles():
     final_thread_count = threading.active_count()
 
     # We shouldn't leak any non-daemon active threads
-    assert (
-        final_thread_count <= initial_thread_count + 1
-    ), f"Thread leak detected! Initial: {initial_thread_count}, Final: {final_thread_count}"
+    assert final_thread_count <= initial_thread_count + 1, (
+        f"Thread leak detected! Initial: {initial_thread_count}, Final: {final_thread_count}"
+    )
 
 
 def test_stress_task_and_scheduler_under_load():
@@ -120,4 +116,3 @@ def test_benchmark_runnability():
     )
     assert os.path.exists(benchmark_path)
     run_example_script(benchmark_path)
-

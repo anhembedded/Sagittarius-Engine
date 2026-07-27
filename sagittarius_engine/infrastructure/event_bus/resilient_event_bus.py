@@ -80,7 +80,11 @@ class ResilientEventBus(IEventBus):
         @param event_name_or_type The name of the event or event class type.
         @param handler The callback function.
         """
-        event_name = event_name_or_type if isinstance(event_name_or_type, str) else getattr(event_name_or_type, "__name__", str(event_name_or_type))
+        event_name = (
+            event_name_or_type
+            if isinstance(event_name_or_type, str)
+            else getattr(event_name_or_type, "__name__", str(event_name_or_type))
+        )
         if event_name not in self._handlers:
             self._handlers[event_name] = []
         if handler not in self._handlers[event_name]:
@@ -94,7 +98,11 @@ class ResilientEventBus(IEventBus):
         @param event_name_or_type The name of the event or event class type.
         @param handler The callback function.
         """
-        event_name = event_name_or_type if isinstance(event_name_or_type, str) else getattr(event_name_or_type, "__name__", str(event_name_or_type))
+        event_name = (
+            event_name_or_type
+            if isinstance(event_name_or_type, str)
+            else getattr(event_name_or_type, "__name__", str(event_name_or_type))
+        )
         if event_name in self._handlers and handler in self._handlers[event_name]:
             self._handlers[event_name].remove(handler)
         self.inner_bus.off(event_name_or_type, handler)

@@ -29,5 +29,4 @@ class DeleteStudentCommand:
 
 
 @dataclass(frozen=True)
-class GenerateReportCommand:
-    ...
+class GenerateReportCommand: ...

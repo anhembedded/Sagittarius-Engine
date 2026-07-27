@@ -6,7 +6,10 @@ from sagittarius_engine.kernel import App
 from sagittarius_engine.base import BaseModule
 from sagittarius_engine.exceptions import ModuleRegistrationError
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
-from sagittarius_engine.infrastructure.container.std_container import DependencyResolutionError, StdLibContainer
+from sagittarius_engine.infrastructure.container.std_container import (
+    DependencyResolutionError,
+    StdLibContainer,
+)
 from sagittarius_engine.extensions.cqrs import ICommand, IQuery
 from sagittarius_engine.interfaces import IEventBus
 
@@ -191,11 +194,30 @@ def test_kernel_facade_and_components():
     assert not app.lifecycle.is_stopped
 
     # 3. Verify Docstrings
-    assert App.__doc__ is not None and "The public façade of the Sagittarius Engine." in App.__doc__
-    assert EngineContext.__doc__ is not None and "The runtime composition root of the Sagittarius Engine." in EngineContext.__doc__
-    assert Bootstrap.__doc__ is not None and "Responsible for bootstrapping the engine." in Bootstrap.__doc__
-    assert Dispatcher.__doc__ is not None and "Responsible for executing handlers through the middleware pipeline." in Dispatcher.__doc__
-    assert EngineLifecycle.__doc__ is not None and "Responsible for managing engine state." in EngineLifecycle.__doc__
-    assert ModuleLoader.__doc__ is not None and "Responsible for discovering and loading engine extensions." in ModuleLoader.__doc__
-
-
+    assert (
+        App.__doc__ is not None
+        and "The public façade of the Sagittarius Engine." in App.__doc__
+    )
+    assert (
+        EngineContext.__doc__ is not None
+        and "The runtime composition root of the Sagittarius Engine."
+        in EngineContext.__doc__
+    )
+    assert (
+        Bootstrap.__doc__ is not None
+        and "Responsible for bootstrapping the engine." in Bootstrap.__doc__
+    )
+    assert (
+        Dispatcher.__doc__ is not None
+        and "Responsible for executing handlers through the middleware pipeline."
+        in Dispatcher.__doc__
+    )
+    assert (
+        EngineLifecycle.__doc__ is not None
+        and "Responsible for managing engine state." in EngineLifecycle.__doc__
+    )
+    assert (
+        ModuleLoader.__doc__ is not None
+        and "Responsible for discovering and loading engine extensions."
+        in ModuleLoader.__doc__
+    )

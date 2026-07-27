@@ -10,6 +10,7 @@ class HealthCheckDTO:
     """
     @brief DTO for HealthCheckQuery.
     """
+
     pass
 
 
@@ -50,6 +51,7 @@ class HealthCheckQuery(IQuery):
             session: ISession = self.container.resolve(ISession)
             try:
                 from sqlalchemy import text
+
                 session.execute(text("SELECT 1"))
                 status["components"]["database"] = "ok"
             except ImportError:

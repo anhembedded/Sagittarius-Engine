@@ -3,6 +3,7 @@ from collections.abc import Callable
 import concurrent.futures
 from typing import Any
 
+
 class IThreadManager(ABC):
     """!
     @brief Interface for managing a thread pool executor.
@@ -12,7 +13,9 @@ class IThreadManager(ABC):
     """
 
     @abstractmethod
-    def submit(self, task: Callable[..., Any], *args: Any, **kwargs: Any) -> concurrent.futures.Future[Any]:
+    def submit(
+        self, task: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> concurrent.futures.Future[Any]:
         """!
         @brief Submit a task to be executed by the thread pool.
 

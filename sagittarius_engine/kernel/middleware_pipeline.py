@@ -3,6 +3,7 @@ from collections.abc import Callable
 from typing import Any
 from sagittarius_engine.interfaces import IMiddleware
 
+
 class MiddlewarePipeline:
     """
     Manages a chain of Middlewares using the Onion execution pattern:
@@ -17,7 +18,9 @@ class MiddlewarePipeline:
         """Append a middleware to the end of the chain."""
         self.middlewares.append(middleware)
 
-    def execute(self, cmd_or_query: Any, dto: Any, final_handler: Callable[[], Any]) -> Any:
+    def execute(
+        self, cmd_or_query: Any, dto: Any, final_handler: Callable[[], Any]
+    ) -> Any:
         """
         Execute the entire middleware chain.
 
@@ -34,5 +37,7 @@ class MiddlewarePipeline:
         # lambda closure creation overhead during execution and reduces call stack depth.
         next_handler = final_handler
         for middleware in reversed(self.middlewares):
-            next_handler = functools.partial(middleware.process, cmd_or_query, dto, next_handler)
+            next_handler = functools.partial(
+                middleware.process, cmd_or_query, dto, next_handler
+            )
         return next_handler()

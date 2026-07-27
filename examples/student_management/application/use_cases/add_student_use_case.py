@@ -1,10 +1,14 @@
 # Clean Architecture - UseCase (Command Handler)
 import uuid
-from examples.student_management.application.contracts.student_repository import IStudentRepository
+from examples.student_management.application.contracts.student_repository import (
+    IStudentRepository,
+)
 from examples.student_management.application.dtos.commands import AddStudentCommand
 from examples.student_management.domain.student import Student, DuplicateStudentIDError
 from sagittarius_engine.interfaces import IEventBus, ILogger
-from examples.student_management.application.contracts.use_case_ports import IAddStudentUseCase
+from examples.student_management.application.contracts.use_case_ports import (
+    IAddStudentUseCase,
+)
 
 
 class AddStudentUseCase(IAddStudentUseCase):

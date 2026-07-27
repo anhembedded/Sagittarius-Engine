@@ -64,9 +64,7 @@ class HttpHostedService(IHostedService):
             target=self.server.serve_forever, name="HttpServerThread", daemon=True
         )
         self._thread.start()
-        context.logger.info(
-            f"HTTP Server started on http://127.0.0.1:{self.port}"
-        )
+        context.logger.info(f"HTTP Server started on http://127.0.0.1:{self.port}")
 
     def stop(self, context) -> None:
         if self.server:

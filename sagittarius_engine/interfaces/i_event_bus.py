@@ -37,7 +37,9 @@ class IEventBus(ABC):
         ...
 
     @abstractmethod
-    def on(self, event_name_or_type: str | type[E] | Any, handler: Callable[..., Any]) -> None:
+    def on(
+        self, event_name_or_type: str | type[E] | Any, handler: Callable[..., Any]
+    ) -> None:
         """
         @brief Subscribes a handler function to an event.
 
@@ -47,7 +49,9 @@ class IEventBus(ABC):
         ...
 
     @abstractmethod
-    def off(self, event_name_or_type: str | type[E] | Any, handler: Callable[..., Any]) -> None:
+    def off(
+        self, event_name_or_type: str | type[E] | Any, handler: Callable[..., Any]
+    ) -> None:
         """
         @brief Unsubscribes a handler function from an event.
 

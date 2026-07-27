@@ -15,10 +15,14 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QFont
 from sagittarius_engine import App
-from examples.student_management.application.contracts.student_monitor_view import IStudentMonitorView
+from examples.student_management.application.contracts.student_monitor_view import (
+    IStudentMonitorView,
+)
 from examples.student_management.domain.student import Student
 from examples.student_management.presentation.ui.event_bridge import EventBridge
-from examples.student_management.presentation.presenters.student_monitor_presenter import StudentMonitorPresenter
+from examples.student_management.presentation.presenters.student_monitor_presenter import (
+    StudentMonitorPresenter,
+)
 
 
 class MainWindow(QMainWindow, IStudentMonitorView):
@@ -34,7 +38,9 @@ class MainWindow(QMainWindow, IStudentMonitorView):
         self.app = app
         self.bridge = bridge
 
-        self.setWindowTitle("Sagittarius Engine - Student Monitor (PySide6 Clean Architecture)")
+        self.setWindowTitle(
+            "Sagittarius Engine - Student Monitor (PySide6 Clean Architecture)"
+        )
         self.resize(1150, 700)
         self.setStyleSheet(
             """
@@ -111,12 +117,28 @@ class MainWindow(QMainWindow, IStudentMonitorView):
         self.table = QTableWidget()
         self.table.setColumnCount(7)
         self.table.setHorizontalHeaderLabels(
-            ["Internal UUID", "Student ID", "Full Name", "Age", "Gender", "Major", "GPA"]
+            [
+                "Internal UUID",
+                "Student ID",
+                "Full Name",
+                "Age",
+                "Gender",
+                "Major",
+                "GPA",
+            ]
         )
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
-        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
-        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
+        self.table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeMode.Stretch
+        )
+        self.table.horizontalHeader().setSectionResizeMode(
+            0, QHeaderView.ResizeMode.ResizeToContents
+        )
+        self.table.horizontalHeader().setSectionResizeMode(
+            1, QHeaderView.ResizeMode.ResizeToContents
+        )
+        self.table.horizontalHeader().setSectionResizeMode(
+            3, QHeaderView.ResizeMode.ResizeToContents
+        )
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         left_layout.addWidget(left_widget, stretch=7)
@@ -149,12 +171,16 @@ class MainWindow(QMainWindow, IStudentMonitorView):
 
         self.report_label = QLabel("Waiting for report generation task...")
         self.report_label.setWordWrap(True)
-        self.report_label.setStyleSheet("color: #abb2bf; font-style: italic; background-color: #282c34; padding: 10px; border-radius: 4px;")
+        self.report_label.setStyleSheet(
+            "color: #abb2bf; font-style: italic; background-color: #282c34; padding: 10px; border-radius: 4px;"
+        )
         right_layout.addWidget(right_widget, stretch=4)
 
         # Footer Status Bar
         self.health_label = QLabel("Health Check: INITIALIZING...")
-        self.health_label.setStyleSheet("color: #e5c07b; font-weight: bold; margin-left: 10px;")
+        self.health_label.setStyleSheet(
+            "color: #e5c07b; font-weight: bold; margin-left: 10px;"
+        )
         self.statusBar().addWidget(self.health_label)
 
     def _connect_signals(self) -> None:
@@ -191,7 +217,7 @@ class MainWindow(QMainWindow, IStudentMonitorView):
         self.table.setItem(row_idx, 3, QTableWidgetItem(str(s.age)))
         self.table.setItem(row_idx, 4, QTableWidgetItem(s.gender))
         self.table.setItem(row_idx, 5, QTableWidgetItem(s.major))
-        
+
         gpa_item = QTableWidgetItem(f"{s.gpa:.2f}")
         gpa_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         self.table.setItem(row_idx, 6, gpa_item)
@@ -206,12 +232,16 @@ class MainWindow(QMainWindow, IStudentMonitorView):
     def update_report_progress(self, progress: int) -> None:
         self.progress_bar.setValue(progress)
         self.report_label.setText(f"Calculating averages... Progress: {progress}%")
-        self.report_label.setStyleSheet("color: #e5c07b; font-style: normal; background-color: #282c34; padding: 10px; border-radius: 4px;")
+        self.report_label.setStyleSheet(
+            "color: #e5c07b; font-style: normal; background-color: #282c34; padding: 10px; border-radius: 4px;"
+        )
 
     def display_report(self, report_text: str) -> None:
         self.progress_bar.setValue(100)
         self.report_label.setText(report_text)
-        self.report_label.setStyleSheet("color: #98c379; font-weight: bold; background-color: #282c34; padding: 10px; border-radius: 4px;")
+        self.report_label.setStyleSheet(
+            "color: #98c379; font-weight: bold; background-color: #282c34; padding: 10px; border-radius: 4px;"
+        )
 
     def add_event_log(self, event_name: str, event_data: str) -> None:
         payload = event_data if len(event_data) <= 60 else event_data[:57] + "..."
@@ -224,9 +254,13 @@ class MainWindow(QMainWindow, IStudentMonitorView):
         overall = status.get("status", "unknown").upper()
         comps = status.get("components", {})
         details = ", ".join(f"{k.capitalize()}: {v}" for k, v in comps.items())
-        
+
         self.health_label.setText(f"System Health: {overall} ({details})")
         if overall == "HEALTHY":
-            self.health_label.setStyleSheet("color: #98c379; font-weight: bold; margin-left: 10px;")
+            self.health_label.setStyleSheet(
+                "color: #98c379; font-weight: bold; margin-left: 10px;"
+            )
         else:
-            self.health_label.setStyleSheet("color: #e06c75; font-weight: bold; margin-left: 10px;")
+            self.health_label.setStyleSheet(
+                "color: #e06c75; font-weight: bold; margin-left: 10px;"
+            )

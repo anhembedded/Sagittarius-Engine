@@ -157,5 +157,3 @@ class App:
         self.context.lifecycle.set_stopped()
         if logger:
             logger.info("App stopped.")
-
-

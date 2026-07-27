@@ -250,7 +250,9 @@ def test_extension_attribute_dependencies_topological_sort():
     app.boot()
 
     # Topological sorting ensures ConfigExt executes BEFORE DatabaseExt
-    assert history.index("ConfigExt_registered") < history.index("DatabaseExt_registered")
+    assert history.index("ConfigExt_registered") < history.index(
+        "DatabaseExt_registered"
+    )
     assert history.index("ConfigExt_booted") < history.index("DatabaseExt_booted")
 
 
@@ -286,6 +288,7 @@ def test_base_module_dependencies_topological_sort():
     app.boot()
 
     # Topological sorting ensures ConfigModule executes BEFORE DatabaseModule
-    assert history.index("ConfigModule_registered") < history.index("DatabaseModule_registered")
+    assert history.index("ConfigModule_registered") < history.index(
+        "DatabaseModule_registered"
+    )
     assert history.index("ConfigModule_booted") < history.index("DatabaseModule_booted")
-

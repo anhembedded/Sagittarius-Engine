@@ -1,9 +1,13 @@
 # Clean Architecture - UseCase (Command Handler)
-from examples.student_management.application.contracts.student_repository import IStudentRepository
+from examples.student_management.application.contracts.student_repository import (
+    IStudentRepository,
+)
 from examples.student_management.application.dtos.commands import DeleteStudentCommand
 from examples.student_management.domain.student import StudentNotFoundError
 from sagittarius_engine.interfaces import IEventBus
-from examples.student_management.application.contracts.use_case_ports import IDeleteStudentUseCase
+from examples.student_management.application.contracts.use_case_ports import (
+    IDeleteStudentUseCase,
+)
 
 
 class DeleteStudentUseCase(IDeleteStudentUseCase):

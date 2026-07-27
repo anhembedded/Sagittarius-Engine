@@ -26,7 +26,10 @@ class Dispatcher:
         logger = self._get_logger()
         if logger:
             msg_type = "query" if "Query" in handler_class.__name__ else "command"
-            logger.info(f"Executing {msg_type}: {handler_class.__name__}", extra={"submodule": "Dispatcher"})
+            logger.info(
+                f"Executing {msg_type}: {handler_class.__name__}",
+                extra={"submodule": "Dispatcher"},
+            )
         handler = self.context.container.resolve(handler_class)
 
         def final() -> Any:

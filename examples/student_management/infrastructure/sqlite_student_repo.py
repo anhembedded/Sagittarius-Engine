@@ -4,7 +4,9 @@ from contextlib import contextmanager
 from typing import Sequence, Iterator, Optional
 
 from sagittarius_engine.interfaces import IConfig
-from examples.student_management.application.contracts.student_repository import IStudentRepository
+from examples.student_management.application.contracts.student_repository import (
+    IStudentRepository,
+)
 from examples.student_management.domain.student import Student
 
 

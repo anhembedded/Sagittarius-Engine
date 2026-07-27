@@ -1,5 +1,6 @@
 import pytest
-pytest.importorskip('boto3')
+
+pytest.importorskip("boto3")
 import importlib
 from unittest.mock import MagicMock, patch
 

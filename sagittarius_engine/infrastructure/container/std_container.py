@@ -185,7 +185,9 @@ class StdLibContainer(IContainer):
             dependencies = {}
             for name, param_info in cached_deps.items():
                 try:
-                    dependencies[name] = self._resolve(param_info["annotation"], resolving)
+                    dependencies[name] = self._resolve(
+                        param_info["annotation"], resolving
+                    )
                 except Exception as e:
                     if param_info["has_default"]:
                         dependencies[name] = param_info["default"]

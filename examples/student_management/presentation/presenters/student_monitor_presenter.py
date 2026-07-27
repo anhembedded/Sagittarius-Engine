@@ -2,8 +2,12 @@
 from typing import Any
 from sagittarius_engine import App
 from sagittarius_engine.interfaces import IEventBus
-from examples.student_management.application.contracts.student_monitor_view import IStudentMonitorView
-from examples.student_management.application.contracts.student_repository import IStudentRepository
+from examples.student_management.application.contracts.student_monitor_view import (
+    IStudentMonitorView,
+)
+from examples.student_management.application.contracts.student_repository import (
+    IStudentRepository,
+)
 from examples.student_management.domain.student import Student
 
 

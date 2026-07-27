@@ -248,5 +248,11 @@ def test_graceful_shutdown():
     app.stop()
 
     assert app.context.lifecycle.is_stopped is True
-    assert getattr(app.context.scheduler, "_thread", None) is None or not app.context.scheduler._thread.is_alive()
-    assert getattr(app.context.async_runtime, "_thread", None) is None or not app.context.async_runtime._thread.is_alive()
+    assert (
+        getattr(app.context.scheduler, "_thread", None) is None
+        or not app.context.scheduler._thread.is_alive()
+    )
+    assert (
+        getattr(app.context.async_runtime, "_thread", None) is None
+        or not app.context.async_runtime._thread.is_alive()
+    )

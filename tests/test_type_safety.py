@@ -70,7 +70,9 @@ def test_cqrs_strong_typing_dispatch():
     app.container.bind(CreateUserCommandHandler, CreateUserCommandHandler)
     app.container.bind(GetUserQueryHandler, GetUserQueryHandler)
 
-    cmd_res = app.dispatch(CreateUserCommandHandler, CreateUserDTO(user_id=1, username="Bob"))
+    cmd_res = app.dispatch(
+        CreateUserCommandHandler, CreateUserDTO(user_id=1, username="Bob")
+    )
     assert cmd_res is True
 
     query_res = app.dispatch(GetUserQueryHandler, GetUserQueryDTO(user_id=100))

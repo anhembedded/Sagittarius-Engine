@@ -4,7 +4,9 @@ import threading
 import time
 from sagittarius_engine.infrastructure.config.dict_config import DictConfig
 from sagittarius_engine.infrastructure.logging.std_logger import StdLogger
-from sagittarius_engine.infrastructure.logging.tcp_log_viewer_handler import TcpLogViewerHandler
+from sagittarius_engine.infrastructure.logging.tcp_log_viewer_handler import (
+    TcpLogViewerHandler,
+)
 
 
 class MockTcpLogServer:
@@ -27,7 +29,9 @@ class MockTcpLogServer:
         while not self._stop_event.is_set():
             try:
                 client_sock, _ = self._server_socket.accept()
-                threading.Thread(target=self._handle_client, args=(client_sock,), daemon=True).start()
+                threading.Thread(
+                    target=self._handle_client, args=(client_sock,), daemon=True
+                ).start()
             except socket.timeout:
                 continue
             except Exception:
@@ -72,11 +76,14 @@ def test_tcp_log_viewer_handler_transmission():
         )
 
         import logging
+
         logger = logging.getLogger("TestTcpLogger")
         logger.setLevel(logging.INFO)
         logger.addHandler(handler)
 
-        logger.info("Service booted successfully", extra={"extra": {"request_id": "req-123"}})
+        logger.info(
+            "Service booted successfully", extra={"extra": {"request_id": "req-123"}}
+        )
 
         # Give background worker thread brief time to deliver log over TCP
         time.sleep(0.5)
@@ -97,15 +104,20 @@ def test_std_logger_structured_logging():
     server.start()
 
     try:
-        config = DictConfig({
-            "log.viewer.enabled": True,
-            "log.viewer.host": server.host,
-            "log.viewer.port": server.port,
-            "log.viewer.module": "student-test-app",
-        })
+        config = DictConfig(
+            {
+                "log.viewer.enabled": True,
+                "log.viewer.host": server.host,
+                "log.viewer.port": server.port,
+                "log.viewer.module": "student-test-app",
+            }
+        )
 
         logger = StdLogger(config)
-        logger.info("User created", extra={"user_id": 99, "role": "admin", "submodule": "UserService"})
+        logger.info(
+            "User created",
+            extra={"user_id": 99, "role": "admin", "submodule": "UserService"},
+        )
 
         time.sleep(0.5)
 

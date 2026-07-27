@@ -1,7 +1,9 @@
 from unittest.mock import Mock
 
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
-from sagittarius_engine.infrastructure.event_bus.resilient_event_bus import ResilientEventBus
+from sagittarius_engine.infrastructure.event_bus.resilient_event_bus import (
+    ResilientEventBus,
+)
 
 
 def test_resilient_event_bus_success():

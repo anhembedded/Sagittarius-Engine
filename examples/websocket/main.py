@@ -67,9 +67,7 @@ class MockWebSocketClient(IHostedService):
                 self.logger.error(f"[WebSocket] Connection error: {e}")
 
             if not token.is_cancelled():
-                self.logger.info(
-                    f"[WebSocket] Reconnecting in {backoff}s..."
-                )
+                self.logger.info(f"[WebSocket] Reconnecting in {backoff}s...")
                 await asyncio.sleep(backoff)
                 backoff = min(backoff * 2, 0.5)
 

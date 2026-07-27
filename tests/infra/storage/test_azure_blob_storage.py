@@ -7,7 +7,9 @@ from unittest.mock import MagicMock, patch
 from azure.core.exceptions import ResourceNotFoundError
 
 import sagittarius_engine.infrastructure.storage.azure_blob_storage as azure_module
-from sagittarius_engine.infrastructure.storage.azure_blob_storage import AzureBlobStorage
+from sagittarius_engine.infrastructure.storage.azure_blob_storage import (
+    AzureBlobStorage,
+)
 
 
 class TestAzureBlobStorage:

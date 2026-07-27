@@ -6,7 +6,11 @@ from unittest.mock import MagicMock, patch
 import json
 import pytest
 
-from sagittarius_engine.kernel.app_runner import ApplicationRunner, COMMAND_KEY, EXIT_COMMAND
+from sagittarius_engine.kernel.app_runner import (
+    ApplicationRunner,
+    COMMAND_KEY,
+    EXIT_COMMAND,
+)
 from sagittarius_engine.adapters.cli import CLIInputPort, CLIOutputPort
 from sagittarius_engine.adapters.batch import BatchInputPort, BatchOutputPort
 from sagittarius_engine.adapters.batch.const import FILE_TYPE_CSV, FILE_TYPE_JSON
@@ -120,7 +124,9 @@ def test_batch_input_port_json_invalid(caplog):
         row1 = port.receive()
 
         assert row1 == {COMMAND_KEY: EXIT_COMMAND}
-        mock_logger.error.assert_called_once_with("JSON file must contain an array of objects")
+        mock_logger.error.assert_called_once_with(
+            "JSON file must contain an array of objects"
+        )
     finally:
         os.remove(tmp_path)
 
@@ -169,12 +175,14 @@ def test_application_runner():
         {"command": "add", "id": "1"},
         {"command": "get", "id": "2"},
         {"command": "unknown", "id": "3"},
-        {"command": "exit"}
+        {"command": "exit"},
     ]
     # Setup App returns
     mock_app.dispatch.side_effect = ["Added", "Found"]
 
-    runner = ApplicationRunner(app=mock_app, input_port=mock_input_port, output_port=mock_output_port)
+    runner = ApplicationRunner(
+        app=mock_app, input_port=mock_input_port, output_port=mock_output_port
+    )
 
     class DummyCommand:
         pass
@@ -210,14 +218,17 @@ def test_application_runner_exception():
     # Setup app to raise exception
     mock_input_port.receive.side_effect = [
         {"command": "add", "id": "1"},
-        {"command": "exit"}
+        {"command": "exit"},
     ]
     mock_app.dispatch.side_effect = Exception("Crash")
 
-    runner = ApplicationRunner(app=mock_app, input_port=mock_input_port, output_port=mock_output_port)
+    runner = ApplicationRunner(
+        app=mock_app, input_port=mock_input_port, output_port=mock_output_port
+    )
 
     class DummyCommand:
         pass
+
     command_map = {"add": DummyCommand}
 
     runner.run_cli_loop(command_map, {})
@@ -235,7 +246,9 @@ def test_application_runner_keyboard_interrupt():
 
     mock_input_port.receive.side_effect = KeyboardInterrupt()
 
-    runner = ApplicationRunner(app=mock_app, input_port=mock_input_port, output_port=mock_output_port)
+    runner = ApplicationRunner(
+        app=mock_app, input_port=mock_input_port, output_port=mock_output_port
+    )
 
     runner.run_cli_loop({}, {})
 

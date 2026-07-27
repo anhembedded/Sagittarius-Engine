@@ -36,6 +36,7 @@ import sagittarius_engine.infrastructure.event_bus.memory_event_bus as memory_ev
 sys.modules['sagittarius_engine.infra.memory_event_bus'] = memory_event_bus
 """
 
+
 def get_markdown_files():
     """Helper to collect all Markdown files under docs/ recursively."""
     md_files = []
@@ -44,6 +45,7 @@ def get_markdown_files():
             if file.endswith(".md"):
                 md_files.append(os.path.join(root, file))
     return md_files
+
 
 @pytest.mark.parametrize("file_path", get_markdown_files())
 def test_markdown_file_structure(file_path):
@@ -63,6 +65,7 @@ def test_markdown_file_structure(file_path):
         f"File {os.path.basename(file_path)} is missing the GitHub edit footer"
     )
 
+
 @pytest.mark.parametrize("file_path", get_markdown_files())
 def test_markdown_links(file_path):
     """Extract and validate all relative internal Markdown links and image references."""
@@ -70,7 +73,7 @@ def test_markdown_links(file_path):
         content = f.read()
 
     # Find patterns like [text](link) and ![alt](link)
-    link_pattern = re.compile(r'!?\[[^\]]*\]\(([^)]+)\)')
+    link_pattern = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
     links = link_pattern.findall(content)
 
     for link in links:
@@ -98,6 +101,7 @@ def test_markdown_links(file_path):
             f"Broken internal link '{link}' found in {os.path.basename(file_path)}"
         )
 
+
 @pytest.mark.parametrize("file_path", get_markdown_files())
 def test_mermaid_blocks(file_path):
     """Verify that every Mermaid block declares a supported diagram type."""
@@ -110,11 +114,12 @@ def test_mermaid_blocks(file_path):
     for block in mermaid_blocks:
         lines = [line.strip() for line in block.splitlines() if line.strip()]
         assert lines, f"Empty Mermaid block found in {os.path.basename(file_path)}"
-        
+
         first_line = lines[0]
         assert any(first_line.startswith(t) for t in SUPPORTED_MERMAID_TYPES), (
             f"Mermaid block in {os.path.basename(file_path)} declares unsupported diagram type: '{first_line}'"
         )
+
 
 @pytest.mark.parametrize("file_path", get_markdown_files())
 def test_python_code_blocks(file_path):
@@ -128,9 +133,15 @@ def test_python_code_blocks(file_path):
     for code in code_blocks:
         # Check if the block is explicitly a negative example or non-runnable
         is_negative_or_no_run = any(
-            tag in code for tag in (
-                "# non-runnable", "# click-only", "# no-run", "# Never do this", 
-                "# ❌ Never do this", "❌", "Never import"
+            tag in code
+            for tag in (
+                "# non-runnable",
+                "# click-only",
+                "# no-run",
+                "# Never do this",
+                "# ❌ Never do this",
+                "❌",
+                "Never import",
             )
         )
 
@@ -139,7 +150,9 @@ def test_python_code_blocks(file_path):
             tree = ast.parse(code)
             compile(code, file_path, "exec")
         except SyntaxError as e:
-            pytest.fail(f"Syntax error in Python block of {os.path.basename(file_path)}: {e}")
+            pytest.fail(
+                f"Syntax error in Python block of {os.path.basename(file_path)}: {e}"
+            )
 
         # If it is a negative example or explicitly skipped, we don't perform import/API/execution checks
         if is_negative_or_no_run:
@@ -151,18 +164,31 @@ def test_python_code_blocks(file_path):
                 for alias in node.names:
                     # Check for direct sagittarius_engine.* imports
                     if alias.name.startswith("sagittarius_engine."):
-                        parts = alias.name.split('.')
+                        parts = alias.name.split(".")
                         # Reject direct imports of private/internal modules
-                        if parts[1] in ("kernel", "interfaces", "runtime", "extensions"):
+                        if parts[1] in (
+                            "kernel",
+                            "interfaces",
+                            "runtime",
+                            "extensions",
+                        ):
                             pytest.fail(
                                 f"Non-public direct module import '{alias.name}' in {os.path.basename(file_path)}"
                             )
             elif isinstance(node, ast.ImportFrom):
                 if node.module and node.module.startswith("sagittarius_engine"):
-                    parts = node.module.split('.')
+                    parts = node.module.split(".")
                     if len(parts) > 1:
                         # Reject sub-module imports of classes exported at the root package
-                        if parts[1] in ("kernel", "interfaces", "runtime", "extensions", "adapters", "base", "domain"):
+                        if parts[1] in (
+                            "kernel",
+                            "interfaces",
+                            "runtime",
+                            "extensions",
+                            "adapters",
+                            "base",
+                            "domain",
+                        ):
                             for alias in node.names:
                                 if alias.name in ROOT_EXPORTS:
                                     pytest.fail(
@@ -180,10 +206,7 @@ def test_python_code_blocks(file_path):
                         )
 
         # 4. Snippet Execution (if runnable)
-        is_runnable = (
-            "sagittarius_engine" in code 
-            and "app.boot()" in code
-        )
+        is_runnable = "sagittarius_engine" in code and "app.boot()" in code
 
         if is_runnable:
             # Prepend legacy imports mapping to support compat layer execution
@@ -194,11 +217,13 @@ def test_python_code_blocks(file_path):
                     capture_output=True,
                     text=True,
                     timeout=8,
-                    cwd=os.getcwd()
+                    cwd=os.getcwd(),
                 )
                 assert res.returncode == 0, (
                     f"Code execution failed in {os.path.basename(file_path)} with exit code {res.returncode}.\n"
                     f"STDOUT:\n{res.stdout}\nSTDERR:\n{res.stderr}"
                 )
             except subprocess.TimeoutExpired:
-                pytest.fail(f"Code block in {os.path.basename(file_path)} timed out (leaked threads/async loop)")
+                pytest.fail(
+                    f"Code block in {os.path.basename(file_path)} timed out (leaked threads/async loop)"
+                )

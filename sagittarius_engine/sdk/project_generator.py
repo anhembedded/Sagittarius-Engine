@@ -3,6 +3,7 @@ import shutil
 from sagittarius_engine.sdk.template_loader import TemplateLoader
 from sagittarius_engine.sdk.template_renderer import TemplateRenderer
 
+
 class ProjectGenerator:
     """
     @brief Orchestrates the project generation process by cloning template files.
@@ -53,9 +54,7 @@ class ProjectGenerator:
                 try:
                     with open(src_file_path, "r", encoding="utf-8") as f:
                         file_content = f.read()
-                    rendered_content = self.renderer.render(
-                        file_content, placeholders
-                    )
+                    rendered_content = self.renderer.render(file_content, placeholders)
                     with open(dest_file_path, "w", encoding="utf-8") as f:
                         f.write(rendered_content)
                 except UnicodeDecodeError:

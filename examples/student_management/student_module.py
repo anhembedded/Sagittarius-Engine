@@ -2,8 +2,12 @@
 from sagittarius_engine import App
 from sagittarius_engine.base import BaseModule
 
-from examples.student_management.application.contracts.student_repository import IStudentRepository
-from examples.student_management.infrastructure.sqlite_student_repo import SqliteStudentRepository
+from examples.student_management.application.contracts.student_repository import (
+    IStudentRepository,
+)
+from examples.student_management.infrastructure.sqlite_student_repo import (
+    SqliteStudentRepository,
+)
 
 # Use Case Ports (interfaces) — Presentation/Infrastructure depend only on these
 from examples.student_management.application.contracts.use_case_ports import (
@@ -17,13 +21,27 @@ from examples.student_management.application.contracts.use_case_ports import (
 )
 
 # Concrete Implementations — only imported here at the Composition Root
-from examples.student_management.application.use_cases.add_student_use_case import AddStudentUseCase
-from examples.student_management.application.use_cases.update_student_use_case import UpdateStudentUseCase
-from examples.student_management.application.use_cases.delete_student_use_case import DeleteStudentUseCase
-from examples.student_management.application.use_cases.list_students_use_case import ListStudentsUseCase
-from examples.student_management.application.use_cases.search_students_use_case import SearchStudentsUseCase
-from examples.student_management.application.use_cases.get_student_use_case import GetStudentUseCase
-from examples.student_management.application.use_cases.generate_report_use_case import GenerateReportUseCase
+from examples.student_management.application.use_cases.add_student_use_case import (
+    AddStudentUseCase,
+)
+from examples.student_management.application.use_cases.update_student_use_case import (
+    UpdateStudentUseCase,
+)
+from examples.student_management.application.use_cases.delete_student_use_case import (
+    DeleteStudentUseCase,
+)
+from examples.student_management.application.use_cases.list_students_use_case import (
+    ListStudentsUseCase,
+)
+from examples.student_management.application.use_cases.search_students_use_case import (
+    SearchStudentsUseCase,
+)
+from examples.student_management.application.use_cases.get_student_use_case import (
+    GetStudentUseCase,
+)
+from examples.student_management.application.use_cases.generate_report_use_case import (
+    GenerateReportUseCase,
+)
 
 
 class StudentModule(BaseModule):

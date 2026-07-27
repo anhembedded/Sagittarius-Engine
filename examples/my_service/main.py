@@ -9,9 +9,7 @@ def main():
     app = App(container, event_bus)
 
     app.boot(auto_discover="modules")
-    print(
-        "Clean Architecture App 'my_service' booted successfully by Developer!"
-    )
+    print("Clean Architecture App 'my_service' booted successfully by Developer!")
 
 
 if __name__ == "__main__":

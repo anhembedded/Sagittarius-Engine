@@ -106,10 +106,14 @@ def test_ipc_broker_unpicklable_data(ipc_broker_factory, ipc_bus_factory, caplog
 
     # Allow time for processing
     import time
+
     time.sleep(0.2)
 
     # Assert that an error was logged instead of a crash
-    assert any("Failed to emit event 'unpicklable.event' to publish_queue" in record.message for record in caplog.records)
+    assert any(
+        "Failed to emit event 'unpicklable.event' to publish_queue" in record.message
+        for record in caplog.records
+    )
 
     manager.shutdown()
 

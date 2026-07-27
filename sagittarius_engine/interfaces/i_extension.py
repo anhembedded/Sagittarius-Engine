@@ -42,7 +42,6 @@ class IExtension(ABC):
             enabled=enabled if isinstance(enabled, bool) else True,
         )
 
-
     @abstractmethod
     def register(self, context: "EngineContext") -> None:
         """

@@ -3,7 +3,10 @@ from sagittarius_engine.extensions.persistence.database_module import DatabaseEx
 
 
 def test_database_module_no_sqlalchemy():
-    with patch("sagittarius_engine.extensions.persistence.database_module.SQLALCHEMY_INSTALLED", False):
+    with patch(
+        "sagittarius_engine.extensions.persistence.database_module.SQLALCHEMY_INSTALLED",
+        False,
+    ):
         extension = DatabaseExtension()
         mock_app = MagicMock()
         mock_logger = MagicMock()

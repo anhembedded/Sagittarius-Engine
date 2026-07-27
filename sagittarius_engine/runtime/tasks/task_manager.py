@@ -110,9 +110,7 @@ class TaskManager:
             bg_task.status = "failed"
             bg_task.error = e
             self._logger.error(f"Async task '{bg_task.name}' failed: {e}")
-            self._emit(
-                "runtime.tasks.failed", TaskFailed(bg_task.id, bg_task.name, e)
-            )
+            self._emit("runtime.tasks.failed", TaskFailed(bg_task.id, bg_task.name, e))
             raise e
         finally:
             self._cleanup_old_tasks()
@@ -132,13 +130,10 @@ class TaskManager:
         @param critical If True, runs on non-daemon critical thread pool with graceful shutdown timeout.
                         If False (default), runs on daemon background thread pool safe to kill on exit.
         """
-        task_name = (
-            name
-            or (
-                callable_or_coro.__name__
-                if hasattr(callable_or_coro, "__name__")
-                else "UnnamedTask"
-            )
+        task_name = name or (
+            callable_or_coro.__name__
+            if hasattr(callable_or_coro, "__name__")
+            else "UnnamedTask"
         )
         bg_task = BackgroundTask(task_name, token, critical=critical)
 
@@ -166,9 +161,7 @@ class TaskManager:
             except Exception as e:
                 bg_task.status = "failed"
                 bg_task.error = e
-                self._emit(
-                    "runtime.tasks.failed", TaskFailed(bg_task.id, task_name, e)
-                )
+                self._emit("runtime.tasks.failed", TaskFailed(bg_task.id, task_name, e))
                 raise e
         else:
             # It's sync
@@ -176,9 +169,11 @@ class TaskManager:
             try:
                 sig = inspect.signature(callable_or_coro)
                 if "token" in sig.parameters:
+
                     def fn():
                         return callable_or_coro(token=bg_task.token)
                 else:
+
                     def fn():
                         return callable_or_coro()
 
@@ -190,9 +185,7 @@ class TaskManager:
             except Exception as e:
                 bg_task.status = "failed"
                 bg_task.error = e
-                self._emit(
-                    "runtime.tasks.failed", TaskFailed(bg_task.id, task_name, e)
-                )
+                self._emit("runtime.tasks.failed", TaskFailed(bg_task.id, task_name, e))
                 raise e
 
         return bg_task
@@ -223,6 +216,7 @@ class TaskManager:
 
         if critical_futures:
             from concurrent.futures import wait
+
             wait(critical_futures, timeout=timeout)
 
         try:

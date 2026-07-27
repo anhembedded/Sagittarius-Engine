@@ -3,6 +3,7 @@ import time
 
 from sagittarius_engine.infrastructure.thread_manager import ThreadManager
 
+
 def test_thread_manager_submit_executes_task_and_returns_future():
     manager = ThreadManager(max_workers=2)
 
@@ -14,6 +15,7 @@ def test_thread_manager_submit_executes_task_and_returns_future():
 
     assert result == 8
     manager.shutdown(wait=True)
+
 
 def test_thread_manager_max_workers_limits_parallel_execution():
     manager = ThreadManager(max_workers=2)
@@ -56,6 +58,7 @@ def test_thread_manager_max_workers_limits_parallel_execution():
     event2.set()
     manager.shutdown(wait=True)
 
+
 def test_thread_manager_shutdown_wait_true():
     manager = ThreadManager(max_workers=1)
 
@@ -87,6 +90,7 @@ def test_thread_manager_shutdown_wait_true():
     shutdown_th.join(timeout=2)
     assert shutdown_th.is_alive() is False
     assert task_completed is True
+
 
 def test_thread_manager_shutdown_wait_false():
     manager = ThreadManager(max_workers=1)

@@ -112,8 +112,14 @@ def test_add_student_workflow(app: App) -> None:
 
 def test_query_and_search_workflows(app: App) -> None:
     # Add initial dataset
-    s1 = app.dispatch(IAddStudentUseCase, AddStudentCommand("STD001", "Alice Smith", 21, "Female", "CS", 3.8))
-    app.dispatch(IAddStudentUseCase, AddStudentCommand("STD002", "Bob Johnson", 22, "Male", "EE", 3.2))
+    s1 = app.dispatch(
+        IAddStudentUseCase,
+        AddStudentCommand("STD001", "Alice Smith", 21, "Female", "CS", 3.8),
+    )
+    app.dispatch(
+        IAddStudentUseCase,
+        AddStudentCommand("STD002", "Bob Johnson", 22, "Male", "EE", 3.2),
+    )
 
     # 1. List All Students
     all_students = app.dispatch(IListStudentsUseCase, ListStudentsQuery())
@@ -143,10 +149,15 @@ def test_update_and_delete_workflows(app: App) -> None:
     app.event_bus.on("student.updated", lambda s: updated_events.append(s))
     app.event_bus.on("student.deleted", lambda sid: deleted_events.append(sid))
 
-    student = app.dispatch(IAddStudentUseCase, AddStudentCommand("STD001", "Charlie Brown", 20, "Male", "CS", 3.0))
+    student = app.dispatch(
+        IAddStudentUseCase,
+        AddStudentCommand("STD001", "Charlie Brown", 20, "Male", "CS", 3.0),
+    )
 
     # 1. Update Student
-    update_cmd = UpdateStudentCommand(student.id, "STD001", "Charlie B.", 21, "Male", "Software Eng", 3.7)
+    update_cmd = UpdateStudentCommand(
+        student.id, "STD001", "Charlie B.", 21, "Male", "Software Eng", 3.7
+    )
     updated = app.dispatch(IUpdateStudentUseCase, update_cmd)
 
     assert updated.full_name == "Charlie B."
@@ -173,7 +184,10 @@ def test_async_report_generation(app: App) -> None:
     app.event_bus.on("report.completed", lambda r: completed_reports.append(r))
     app.event_bus.on("report.progress", lambda p: progress_updates.append(p))
 
-    app.dispatch(IAddStudentUseCase, AddStudentCommand("STD001", "Student A", 20, "Male", "CS", 4.0))
+    app.dispatch(
+        IAddStudentUseCase,
+        AddStudentCommand("STD001", "Student A", 20, "Male", "CS", 4.0),
+    )
 
     # Trigger Async Report Generation Task
     result = app.dispatch(IGenerateReportUseCase, GenerateReportCommand())
@@ -211,7 +225,7 @@ def test_persistence_across_app_lifecycle() -> None:
 
     app1.dispatch(
         IAddStudentUseCase,
-        AddStudentCommand("STD777", "Alice Persistent", 20, "Female", "CS", 3.9)
+        AddStudentCommand("STD777", "Alice Persistent", 20, "Female", "CS", 3.9),
     )
     app1.stop()
 

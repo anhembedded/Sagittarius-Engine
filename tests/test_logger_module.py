@@ -43,6 +43,7 @@ def test_logger_module_with_config():
 
 # --- LoggerConfig tests ---
 
+
 def test_logger_config__defaults():
     """LoggerConfig() with no args must have sensible defaults."""
     cfg = LoggerConfig()
@@ -56,6 +57,7 @@ def test_logger_config__defaults():
 
 def test_logger_config__from_iconfig__reads_all_keys():
     """from_iconfig() must map all IConfig keys to LoggerConfig fields."""
+
     class FakeConfig(IConfig):
         _data = {
             "log.level": "DEBUG",
@@ -65,8 +67,10 @@ def test_logger_config__from_iconfig__reads_all_keys():
             "log.viewer.port": 5000,
             "log.viewer.module": "my-app",
         }
+
         def get(self, key, default=None):
             return self._data.get(key, default)
+
         def set(self, key, value):
             pass
 
@@ -81,9 +85,11 @@ def test_logger_config__from_iconfig__reads_all_keys():
 
 def test_logger_config__from_iconfig__unknown_level_falls_back_to_info():
     """An unrecognised log level string must fall back to INFO, not raise."""
+
     class FakeConfig(IConfig):
         def get(self, key, default=None):
             return "VERBOSE" if key == "log.level" else default
+
         def set(self, key, value):
             pass
 

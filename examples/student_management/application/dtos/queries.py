@@ -3,8 +3,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class ListStudentsQuery:
-    ...
+class ListStudentsQuery: ...
 
 
 @dataclass(frozen=True)

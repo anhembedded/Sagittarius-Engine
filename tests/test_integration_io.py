@@ -17,11 +17,14 @@ from sagittarius_engine.interfaces import IModule, IContainer, IEventBus
 from sagittarius_engine.exceptions import DependencyResolutionError
 from sagittarius_engine.interfaces import ILogger
 
+
 class DummyContainer(IContainer):
     def bind(self, abstract: type, concrete: type) -> None:
         pass
+
     def singleton(self, abstract: type, instance_or_factory: type | object) -> None:
         pass
+
     def resolve(self, abstract):
         if abstract == ILogger:
             raise DependencyResolutionError("No logger")
@@ -31,8 +34,10 @@ class DummyContainer(IContainer):
 class DummyEventBus(IEventBus):
     def on(self, event_name, handler) -> None:
         pass
+
     def off(self, event_name, handler) -> None:
         pass
+
     def emit(self, event_name, data=None) -> None:
         pass
 
@@ -50,6 +55,7 @@ class TestQuery(IQuery):
 class DummyModule(IModule):
     def register(self, app: App) -> None:
         pass
+
     def boot(self, app: App) -> None:
         pass
 
@@ -78,6 +84,7 @@ def test_integration_cli_flow():
         original_receive = port_in.receive
 
         call_count = 0
+
         def side_effect_receive():
             nonlocal call_count
             if call_count == 0:

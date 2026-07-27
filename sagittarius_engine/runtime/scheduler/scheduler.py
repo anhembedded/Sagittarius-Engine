@@ -163,9 +163,7 @@ class Scheduler:
                             job.fn, name=f"ScheduledJob_{job.fn.__name__}"
                         )
                     except Exception as e:
-                        self._logger.error(
-                            f"Failed to spawn scheduled job: {e}"
-                        )
+                        self._logger.error(f"Failed to spawn scheduled job: {e}")
 
                     job.runs += 1
                     if job.max_runs is None or job.runs < job.max_runs:

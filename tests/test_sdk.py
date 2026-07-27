@@ -77,9 +77,7 @@ def test_project_generator(tmp_path):
     # We must prepend the current workspace to PYTHONPATH so the generated project can import sagittarius_engine
     env = os.environ.copy()
     current_workspace = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    env["PYTHONPATH"] = (
-        f"{current_workspace}{os.pathsep}{env.get('PYTHONPATH', '')}"
-    )
+    env["PYTHONPATH"] = f"{current_workspace}{os.pathsep}{env.get('PYTHONPATH', '')}"
 
     result = subprocess.run(
         [sys.executable, "main.py"],

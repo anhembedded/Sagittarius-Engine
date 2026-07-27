@@ -3,7 +3,9 @@ import sys
 from typing import Any
 
 from sagittarius_engine.infrastructure.logging.logger_config import LoggerConfig
-from sagittarius_engine.infrastructure.logging.tcp_log_viewer_handler import TcpLogViewerHandler
+from sagittarius_engine.infrastructure.logging.tcp_log_viewer_handler import (
+    TcpLogViewerHandler,
+)
 from sagittarius_engine.interfaces import IConfig, ILogger
 
 
@@ -25,7 +27,9 @@ class StdLogger(ILogger):
         # Parse all logger settings from IConfig via the dedicated config type.
         # Falls back to LoggerConfig defaults (INFO level, no file, viewer disabled)
         # when no IConfig is provided (e.g. in tests or minimal setups).
-        cfg: LoggerConfig = LoggerConfig.from_iconfig(config) if config else LoggerConfig()
+        cfg: LoggerConfig = (
+            LoggerConfig.from_iconfig(config) if config else LoggerConfig()
+        )
 
         # setLevel sets the MINIMUM threshold for this logger.
         # Calling info() labels the record as INFO; setLevel decides whether that level is allowed through.

@@ -1,7 +1,11 @@
-from examples.student_management.application.contracts.student_repository import IStudentRepository
+from examples.student_management.application.contracts.student_repository import (
+    IStudentRepository,
+)
 from examples.student_management.application.dtos.queries import GetStudentQuery
 from examples.student_management.domain.student import Student, StudentNotFoundError
-from examples.student_management.application.contracts.use_case_ports import IGetStudentUseCase
+from examples.student_management.application.contracts.use_case_ports import (
+    IGetStudentUseCase,
+)
 
 
 class GetStudentUseCase(IGetStudentUseCase):

@@ -3,6 +3,7 @@ import json
 from typing import Any
 from sagittarius_engine.infrastructure.config.config_source import ConfigSource
 
+
 class JsonSource(ConfigSource):
     """
     @brief Configuration source from a JSON file.

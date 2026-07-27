@@ -14,6 +14,7 @@ class TemplateRenderer:
         """
         @brief Replaces all occurrences of {{ placeholder }} in content with matching values.
         """
+
         def replacer(match):
             key = match.group(1)
             if key in placeholders:

@@ -32,7 +32,6 @@ class ModuleExtensionAdapter(IExtension):
             enabled=enabled if isinstance(enabled, bool) else True,
         )
 
-
     @property
     def descriptor(self) -> ExtensionDescriptor:
         return self._descriptor
@@ -115,9 +114,7 @@ class ExtensionManager:
         """
         @brief Scans and initializes deferred extensions whose dependencies have been registered and initialized.
         """
-        initialized_names = {
-            ext.descriptor.name for ext in self.initialized_extensions
-        }
+        initialized_names = {ext.descriptor.name for ext in self.initialized_extensions}
         enabled_exts = [
             ext for ext in self.registered_extensions if ext.descriptor.enabled
         ]

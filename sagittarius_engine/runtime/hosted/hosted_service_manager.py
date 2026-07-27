@@ -84,6 +84,4 @@ class HostedServiceManager:
 
         self.started_services.clear()
         if errors:
-            raise RuntimeError(
-                f"Multiple errors stopping hosted services: {errors}"
-            )
+            raise RuntimeError(f"Multiple errors stopping hosted services: {errors}")

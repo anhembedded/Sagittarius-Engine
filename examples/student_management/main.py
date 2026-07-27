@@ -15,7 +15,10 @@ from sagittarius_engine.interfaces import IEventBus, IConfig, IContainer  # noqa
 
 from examples.student_management.student_module import StudentModule  # noqa: E402
 from examples.student_management.presentation.cli.terminal_menu import TerminalMenu  # noqa: E402
-from examples.student_management.presentation.ui.desktop_window import EventBridge, MainWindow  # noqa: E402
+from examples.student_management.presentation.ui.desktop_window import (
+    EventBridge,
+    MainWindow,
+)  # noqa: E402
 
 
 def main() -> None:
@@ -42,12 +45,14 @@ def main() -> None:
 
     # 3. Add Logger Module
     from sagittarius_engine.extensions.logger_module import LoggerExtension
+
     app.use(LoggerExtension())
 
     # 4. Use Student Module & Health Extension
     app.use(StudentModule())
 
     from sagittarius_engine.extensions.health_module import HealthExtension
+
     app.use(HealthExtension())
 
     # 5. Register TerminalMenu Hosted Service
@@ -56,19 +61,24 @@ def main() -> None:
 
     # 6. Initialize PySide6 GUI & Thread-Safe EventBridge
     from PySide6.QtWidgets import QApplication
+
     qt_app = QApplication(sys.argv)
     bridge = EventBridge()
 
     # Intercept all EventBus events to log them universally to PySide6 UI log panel
     original_emit = event_bus.emit
+
     def logging_emit(event_name: str, data: Any = None):
         try:
             qt_inst = QApplication.instance()
             if qt_inst is not None:
-                bridge.all_events_logged.emit(event_name, str(data) if data is not None else "")
+                bridge.all_events_logged.emit(
+                    event_name, str(data) if data is not None else ""
+                )
         except Exception:
             pass
         original_emit(event_name, data)
+
     setattr(event_bus, "emit", logging_emit)
 
     # Wire Sagittarius EventBus signals to Qt EventBridge

@@ -1,8 +1,6 @@
 import time
 
 
-
-
 def test_thread_pool_event_bus_execution(thread_pool_bus_factory):
     bus = thread_pool_bus_factory(max_workers=2)
     results = []

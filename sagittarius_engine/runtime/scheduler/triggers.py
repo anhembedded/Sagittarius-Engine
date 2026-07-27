@@ -37,7 +37,5 @@ class CronTrigger(ITrigger):
 
     def get_next_run(self, from_time: datetime) -> datetime:
         # Align to the next minute boundary for basic simulation
-        next_min = from_time.replace(second=0, microsecond=0) + timedelta(
-            minutes=1
-        )
+        next_min = from_time.replace(second=0, microsecond=0) + timedelta(minutes=1)
         return next_min

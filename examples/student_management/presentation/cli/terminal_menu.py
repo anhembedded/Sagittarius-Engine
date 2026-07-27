@@ -2,7 +2,10 @@
 from typing import Any, List
 from sagittarius_engine import App
 from sagittarius_engine.runtime import IHostedService, CancellationToken
-from sagittarius_engine.extensions.health_check_query import HealthCheckQuery, HealthCheckDTO
+from sagittarius_engine.extensions.health_check_query import (
+    HealthCheckQuery,
+    HealthCheckDTO,
+)
 
 from examples.student_management.domain.student import Student, StudentException
 from examples.student_management.application.dtos.commands import (
@@ -89,13 +92,16 @@ class TerminalMenu(IHostedService):
                 print("Goodbye!")
                 from PySide6.QtWidgets import QApplication
                 from PySide6.QtCore import QMetaObject, Qt
+
                 instance = QApplication.instance()
                 if instance:
-                    QMetaObject.invokeMethod(instance, "quit", Qt.ConnectionType.QueuedConnection)
+                    QMetaObject.invokeMethod(
+                        instance, "quit", Qt.ConnectionType.QueuedConnection
+                    )
                 break
             else:
                 print("❌ Invalid selection. Please choose between 1 and 9.")
-            
+
             try:
                 input("\nPress Enter to continue...")
             except EOFError:
@@ -132,7 +138,7 @@ class TerminalMenu(IHostedService):
         try:
             student_id = input("Student ID (e.g. STD001): ").strip()
             full_name = input("Full Name: ").strip()
-            
+
             age_str = input("Age: ").strip()
             try:
                 age = int(age_str)
@@ -246,9 +252,13 @@ class TerminalMenu(IHostedService):
                 print("❌ Student not found.")
                 return
 
-            confirm = input(
-                f"Are you sure you want to delete {student.full_name} ({student.student_id})? (y/N): "
-            ).strip().lower()
+            confirm = (
+                input(
+                    f"Are you sure you want to delete {student.full_name} ({student.student_id})? (y/N): "
+                )
+                .strip()
+                .lower()
+            )
             if confirm == "y":
                 cmd = DeleteStudentCommand(id=student.id)
                 self.app.dispatch(IDeleteStudentUseCase, cmd)
@@ -313,5 +323,7 @@ class TerminalMenu(IHostedService):
             print(f"❌ Health query failed: {e}")
 
     def _on_health_updated(self, status: dict) -> None:
-        print(f"\n🔔 [Scheduler] Periodic Health check: {status.get('status', 'unknown').upper()}")
+        print(
+            f"\n🔔 [Scheduler] Periodic Health check: {status.get('status', 'unknown').upper()}"
+        )
         print("Select: ", end="", flush=True)
