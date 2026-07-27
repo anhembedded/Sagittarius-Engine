@@ -106,7 +106,7 @@ def test_std_logger_structured_logging():
         })
 
         logger = StdLogger(config)
-        logger.info("User created", extra={"user_id": 99, "role": "admin"})
+        logger.info("User created", extra={"user_id": 99, "role": "admin", "submodule": "UserService"})
 
         time.sleep(0.5)
 
@@ -114,6 +114,7 @@ def test_std_logger_structured_logging():
         log_data = server.received_logs[-1]
         assert log_data["message"] == "User created"
         assert log_data["module"] == "student-test-app"
+        assert log_data["submodule"] == "UserService"
         assert log_data["extra"] == {"user_id": 99, "role": "admin"}
     finally:
         server.stop()

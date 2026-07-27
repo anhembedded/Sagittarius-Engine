@@ -44,17 +44,35 @@ class TcpLogViewerHandler(logging.Handler):
         @brief Formats and enqueues a log record for non-blocking TCP transmission.
         """
         try:
-            extra_data = getattr(record, "extra", {})
-            if not isinstance(extra_data, dict):
-                extra_data = {"raw_extra": str(extra_data)}
+            raw_extra = getattr(record, "extra", {})
+            if isinstance(raw_extra, dict):
+                extra_data = raw_extra.copy()
+            else:
+                extra_data = {"raw_extra": str(raw_extra)} if raw_extra else {}
+
+            submodule = extra_data.pop("submodule", None)
+            if not submodule and hasattr(record, "submodule") and getattr(record, "submodule"):
+                submodule = getattr(record, "submodule")
+
+            msg = record.getMessage()
+
+            # Automatic inference if message starts with [SubmoduleName]
+            if not submodule and msg.startswith("[") and "]" in msg:
+                bracket_content = msg[1:msg.find("]")]
+                if " " not in bracket_content:
+                    submodule = bracket_content
+
+            if not submodule and record.name and record.name != "App":
+                submodule = record.name
 
             dt = datetime.fromtimestamp(record.created, tz=timezone.utc)
 
             payload: dict[str, Any] = {
                 "timestamp": dt.isoformat(),
                 "level": record.levelname,
-                "message": record.getMessage(),
+                "message": msg,
                 "module": self.module_name,
+                "submodule": submodule,
                 "extra": extra_data,
             }
 
