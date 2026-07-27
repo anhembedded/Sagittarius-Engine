@@ -1,10 +1,11 @@
-from typing import Any, TypeVar
+from typing import Any, Generic, TypeVar
 from sagittarius_engine.extensions.persistence.i_session import ISession
 
 T = TypeVar("T")
+TId = TypeVar("TId", bound=Any)
 
 
-class BaseRepository[T]:
+class BaseRepository(Generic[T, TId]):
     """
     @brief Base generic Repository for entity CRUD operations.
 
@@ -28,7 +29,7 @@ class BaseRepository[T]:
         """
         self.session.add(entity)
 
-    def get_by_id(self, entity_id: Any) -> T | None:
+    def get_by_id(self, entity_id: TId) -> T | None:
         """
         @brief Retrieves an entity by its ID.
         @param entity_id The ID of the entity.

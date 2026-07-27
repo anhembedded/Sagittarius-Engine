@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, TypeVar
 from sagittarius_engine.exceptions import ModuleRegistrationError
 from sagittarius_engine.kernel.context import EngineContext
 from sagittarius_engine.interfaces import (
@@ -10,6 +10,9 @@ from sagittarius_engine.interfaces import (
     IModule,
     IQuery,
 )
+
+TInput = TypeVar("TInput")
+TOutput = TypeVar("TOutput")
 
 
 class App:
@@ -73,7 +76,7 @@ class App:
         """
         self.context.bootstrap.boot(auto_discover)
 
-    def dispatch(self, handler_class: type, input_dto: Any = None) -> Any:
+    def dispatch(self, handler_class: type[Any], input_dto: TInput = None) -> TOutput:
         """
         @brief Dispatches a command or query through the Middleware Pipeline.
         """

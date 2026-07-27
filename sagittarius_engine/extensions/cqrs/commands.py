@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Generic, TypeVar
+
+TInput = TypeVar("TInput", bound=Any)
+TOutput = TypeVar("TOutput", bound=Any)
 
 
-class ICommand(ABC):
+class ICommand(Generic[TInput, TOutput], ABC):
     """
     @brief Interface for Commands in the CQRS architecture.
 
@@ -11,7 +14,7 @@ class ICommand(ABC):
     """
 
     @abstractmethod
-    def execute(self, input_dto: Any) -> Any:
+    def execute(self, input_dto: TInput) -> TOutput:
         """
         @brief Executes the command.
         @param input_dto The input Data Transfer Object to be processed.

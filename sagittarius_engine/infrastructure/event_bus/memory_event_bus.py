@@ -38,46 +38,62 @@ class MemoryEventBus(IEventBus):
         self._lock = threading.Lock()
         self.logger = logger
 
-    def emit(self, event_name: str, data: Any = None) -> None:
+    def _get_event_key(self, event_name_or_type: str | type | Any) -> str:
+        if isinstance(event_name_or_type, str):
+            return event_name_or_type
+        if isinstance(event_name_or_type, type):
+            return event_name_or_type.__qualname__
+        return event_name_or_type.__class__.__qualname__
+
+    def emit(self, event_name_or_obj: str | Any, data: Any = None) -> None:
         """
         @brief Synchronously emits an event to all listening handlers.
 
-        @param event_name The name of the event.
-        @param data The data payload.
+        @param event_name_or_obj Event string name or BaseEvent object instance.
+        @param data The data payload (if event_name string is used).
         """
+        if isinstance(event_name_or_obj, str):
+            event_name = event_name_or_obj
+            payload = data
+        else:
+            event_name = self._get_event_key(event_name_or_obj)
+            payload = data if data is not None else event_name_or_obj
+
         if self.logger:
-            self.logger.info(f"Emitting event: {event_name} with data: {data}")
+            self.logger.info(f"Emitting event: {event_name} with data: {payload}")
 
         with self._lock:
             handlers_snapshot = list(self._handlers.get(event_name, []))
 
         for handler in handlers_snapshot:
             try:
-                handler(data)
+                handler(payload)
             except Exception as e:
                 if self.logger:
                     self.logger.error(f"Error in handler {handler}: {e}")
 
-    def on(self, event_name: str, handler: Callable) -> None:
+    def on(self, event_name_or_type: str | type | Any, handler: Callable) -> None:
         """
         @brief Registers a handler.
 
-        @param event_name The name of the event.
+        @param event_name_or_type The name or class type of the event.
         @param handler The callback function.
         """
+        key = self._get_event_key(event_name_or_type)
         with self._lock:
-            if event_name not in self._handlers:
-                self._handlers[event_name] = []
-            if handler not in self._handlers[event_name]:
-                self._handlers[event_name].append(handler)
+            if key not in self._handlers:
+                self._handlers[key] = []
+            if handler not in self._handlers[key]:
+                self._handlers[key].append(handler)
 
-    def off(self, event_name: str, handler: Callable) -> None:
+    def off(self, event_name_or_type: str | type | Any, handler: Callable) -> None:
         """
         @brief Unregisters a handler.
 
-        @param event_name The name of the event.
+        @param event_name_or_type The name or class type of the event.
         @param handler The callback function to remove.
         """
+        key = self._get_event_key(event_name_or_type)
         with self._lock:
-            if event_name in self._handlers and handler in self._handlers[event_name]:
-                self._handlers[event_name].remove(handler)
+            if key in self._handlers and handler in self._handlers[key]:
+                self._handlers[key].remove(handler)

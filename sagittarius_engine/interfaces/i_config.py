@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, TypeVar
+
+T = TypeVar("T")
 
 
 class IConfig(ABC):
@@ -8,13 +10,14 @@ class IConfig(ABC):
     """
 
     @abstractmethod
-    def get(self, key: str, default: Any = None) -> Any:
+    def get(self, key: str, default: T = None, cast: type[T] | None = None) -> T:
         """
-        @brief Gets a configuration value.
+        @brief Gets a configuration value with generic type inference and optional type casting.
 
         @param key The configuration key.
         @param default The default value if the key is not found.
-        @return The configuration value.
+        @param cast Optional target type to cast the configuration value.
+        @return The configuration value as type T.
         """
         ...
 

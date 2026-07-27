@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Generic, TypeVar
+
+TInput = TypeVar("TInput", bound=Any)
+TOutput = TypeVar("TOutput", bound=Any)
 
 
-class IQuery(ABC):
+class IQuery(Generic[TInput, TOutput], ABC):
     """
     @brief Interface for Queries in the CQRS architecture.
 
@@ -11,7 +14,7 @@ class IQuery(ABC):
     """
 
     @abstractmethod
-    def execute(self, input_dto: Any) -> Any:
+    def execute(self, input_dto: TInput) -> TOutput:
         """
         @brief Executes the query.
         @param input_dto The query parameters.

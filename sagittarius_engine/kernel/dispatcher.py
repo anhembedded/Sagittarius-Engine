@@ -1,6 +1,9 @@
-from typing import Any
+from typing import Any, TypeVar
 import warnings
 from sagittarius_engine.interfaces import ILogger
+
+TInput = TypeVar("TInput")
+TOutput = TypeVar("TOutput")
 
 
 class Dispatcher:
@@ -12,7 +15,11 @@ class Dispatcher:
     def _get_logger(self) -> ILogger | None:
         return self.context.logger
 
-    def dispatch(self, handler_class: type, input_dto: Any = None) -> Any:
+    def dispatch(
+        self,
+        handler_class: type[Any],
+        input_dto: TInput = None,
+    ) -> TOutput:
         """
         @brief Dispatches a handler (command, query, etc.) through the middleware pipeline.
         """
