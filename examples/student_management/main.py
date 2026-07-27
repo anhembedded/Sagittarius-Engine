@@ -7,15 +7,15 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from sagittarius_engine import App
-from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
-from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
-from sagittarius_engine.infrastructure.config.dict_config import DictConfig
-from sagittarius_engine.interfaces import IEventBus, IConfig, IContainer
+from sagittarius_engine import App  # noqa: E402
+from sagittarius_engine.infrastructure.container.std_container import StdLibContainer  # noqa: E402
+from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus  # noqa: E402
+from sagittarius_engine.infrastructure.config.dict_config import DictConfig  # noqa: E402
+from sagittarius_engine.interfaces import IEventBus, IConfig, IContainer  # noqa: E402
 
-from examples.student_management.student_module import StudentModule
-from examples.student_management.presentation.cli.terminal_menu import TerminalMenu
-from examples.student_management.presentation.ui.desktop_window import EventBridge, MainWindow
+from examples.student_management.student_module import StudentModule  # noqa: E402
+from examples.student_management.presentation.cli.terminal_menu import TerminalMenu  # noqa: E402
+from examples.student_management.presentation.ui.desktop_window import EventBridge, MainWindow  # noqa: E402
 
 
 def main() -> None:
