@@ -29,13 +29,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-lint-${{ hashFiles('requirements-dev.txt') }}
-          restore-keys: ${{ runner.os }}-pip-lint-
+          cache: "pip"
 
       - name: Install dev tools
         run: |
@@ -52,7 +46,7 @@ jobs:
         run: mypy sagittarius_engine tests --ignore-missing-imports --follow-imports=skip
 
   # ──────────────────────────────────────────────────────────────
-  # Job 2: Test Matrix (Python 3.10 → 3.13 stable + 3.14 dev)
+  # Job 2: Test Matrix (Python 3.14 dev on Linux & Windows)
   # ──────────────────────────────────────────────────────────────
   test:
     name: Test (Python ${{ matrix.python-version }} on ${{ matrix.os }})
@@ -73,13 +67,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
-          restore-keys: ${{ runner.os }}-pip-${{ matrix.python-version }}-
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -109,7 +97,7 @@ jobs:
   # ──────────────────────────────────────────────────────────────
   architecture:
     name: Architecture Guard
-    needs: [lint, test]   # Wait for unit tests: no point guarding arch if tests already fail
+    needs: [lint, test]
     runs-on: ubuntu-latest
 
     steps:
@@ -119,13 +107,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-arch-${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
-          restore-keys: ${{ runner.os }}-pip-arch-
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -141,7 +123,7 @@ jobs:
   # ──────────────────────────────────────────────────────────────
   examples:
     name: Reference Applications
-    needs: [test, architecture]   # Both unit tests AND arch guard must pass first
+    needs: [test, architecture]
     runs-on: ubuntu-latest
 
     steps:
@@ -151,13 +133,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-examples-${{ hashFiles('requirements.txt') }}
-          restore-keys: ${{ runner.os }}-pip-examples-
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -184,13 +160,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-bench-${{ hashFiles('requirements.txt') }}
-          restore-keys: ${{ runner.os }}-pip-bench-
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -215,13 +185,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-security-${{ hashFiles('requirements-dev.txt') }}
-          restore-keys: ${{ runner.os }}-pip-security-
+          cache: "pip"
 
       - name: Install security tools
         run: |
@@ -250,13 +214,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-package-${{ hashFiles('pyproject.toml') }}
-          restore-keys: ${{ runner.os }}-pip-package-
+          cache: "pip"
 
       - name: Install build tools
         run: |
@@ -268,4 +226,3 @@ jobs:
 
       - name: Validate distribution metadata with Twine
         run: twine check dist/*
-
