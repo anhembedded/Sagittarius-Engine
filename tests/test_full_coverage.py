@@ -123,6 +123,37 @@ def test_container__singleton_factory__called_once():
     assert call_count == 1
 
 
+def test_container__singleton_class__returns_instance_not_class():
+    """singleton(I, ConcreteClass) must return an *instance*, not the class itself."""
+    container = StdLibContainer()
+    container.singleton(DummyInterface, DummyImplementation)
+    resolved = container.resolve(DummyInterface)
+    assert isinstance(resolved, DummyImplementation), (
+        "singleton() with a class should resolve to an instance, not the class"
+    )
+
+
+def test_container__singleton_class__returns_same_instance_on_repeated_resolve():
+    """singleton(I, ConcreteClass) must be a true singleton — same object every call."""
+    container = StdLibContainer()
+    container.singleton(DummyInterface, DummyImplementation)
+    resolved1 = container.resolve(DummyInterface)
+    resolved2 = container.resolve(DummyInterface)
+    assert resolved1 is resolved2
+
+
+def test_container__singleton_class__auto_injects_dependencies():
+    """singleton(I, ConcreteClass) must auto-inject constructor dependencies."""
+    container = StdLibContainer()
+    dep_instance = DummyImplementation()
+    container.singleton(DummyInterface, dep_instance)
+    # SingleDependencyClass requires DummyInterface in __init__
+    container.singleton(SingleDependencyClass, SingleDependencyClass)
+    resolved = container.resolve(SingleDependencyClass)
+    assert isinstance(resolved, SingleDependencyClass)
+    assert resolved.dep is dep_instance
+
+
 def test_container__resolve_class_no_dependency__success():
     container = StdLibContainer()
     instance = container.resolve(NoDependencyClass)

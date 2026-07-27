@@ -76,7 +76,15 @@ class StdLibContainer(IContainer):
                 # This allows: singleton(IRepo, ConcreteRepo)
                 # instead of:  singleton(IRepo, lambda c: c.resolve(ConcreteRepo))
                 concrete = instance_or_factory
-                self._factories[abstract] = lambda c: c._resolve(concrete, set())
+
+                def _lazy_factory(c, _abstract=abstract, _cls=concrete):
+                    # Pop ourselves FIRST to break the cycle when abstract == concrete.
+                    # After this factory returns, the caller (_resolve) will store the
+                    # result in _instances, so the factory is never invoked again.
+                    c._factories.pop(_abstract, None)
+                    return c._resolve(_cls, set())
+
+                self._factories[abstract] = _lazy_factory
             elif callable(instance_or_factory):
                 # Factory function / lambda — call once and cache the result.
                 self._factories[abstract] = instance_or_factory
