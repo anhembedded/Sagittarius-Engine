@@ -199,4 +199,4 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Run benchmarks
-        run: python tests/benchmark_runtime.py
+        run: PYTHONPATH=. python tests/benchmark_runtime.py
