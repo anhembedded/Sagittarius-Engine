@@ -128,7 +128,7 @@ class SqliteStudentRepository(IStudentRepository):
     def search(self, term: str) -> Sequence[Student]:
         with self._connection() as conn:
             cursor = conn.execute(
-                "SELECT id, student_id, full_name, age, gender, major, gpa FROM students WHERE full_name LIKE ? OR student_id LIKE ?",
-                (f"%{term}%", f"%{term}%"),
+                "SELECT id, student_id, full_name, age, gender, major, gpa FROM students WHERE full_name LIKE ? OR student_id LIKE ? OR major LIKE ?",
+                (f"%{term}%", f"%{term}%", f"%{term}%"),
             )
             return [self._row_to_student(row) for row in cursor.fetchall()]
