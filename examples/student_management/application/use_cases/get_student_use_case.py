@@ -1,7 +1,6 @@
 from examples.student_management.application.contracts.student_repository import IStudentRepository
 from examples.student_management.application.dtos.queries import GetStudentQuery
 from examples.student_management.domain.student import Student, StudentNotFoundError
-from sagittarius_engine.extensions.cqrs import IQuery
 from examples.student_management.application.contracts.use_case_ports import IGetStudentUseCase
 
 

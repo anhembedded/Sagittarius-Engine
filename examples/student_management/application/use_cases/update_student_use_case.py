@@ -2,7 +2,6 @@
 from examples.student_management.application.contracts.student_repository import IStudentRepository
 from examples.student_management.application.dtos.commands import UpdateStudentCommand
 from examples.student_management.domain.student import Student, StudentNotFoundError, DuplicateStudentIDError
-from sagittarius_engine.extensions.cqrs import ICommand
 from sagittarius_engine.interfaces import IEventBus
 from examples.student_management.application.contracts.use_case_ports import IUpdateStudentUseCase
 

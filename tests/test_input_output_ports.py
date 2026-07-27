@@ -171,9 +171,8 @@ def test_application_runner():
         {"command": "unknown", "id": "3"},
         {"command": "exit"}
     ]
-
-    mock_app.execute.return_value = "Added"
-    mock_app.query.return_value = "Found"
+    # Setup App returns
+    mock_app.dispatch.side_effect = ["Added", "Found"]
 
     runner = ApplicationRunner(app=mock_app, input_port=mock_input_port, output_port=mock_output_port)
 
@@ -189,8 +188,8 @@ def test_application_runner():
     runner.run_cli_loop(command_map, query_map)
 
     # Assert App was called properly
-    mock_app.execute.assert_called_once_with(DummyCommand, {"command": "add", "id": "1"})
-    mock_app.query.assert_called_once_with(DummyQuery, {"command": "get", "id": "2"})
+    mock_app.dispatch.assert_any_call(DummyCommand, {"command": "add", "id": "1"})
+    mock_app.dispatch.assert_any_call(DummyQuery, {"command": "get", "id": "2"})
 
     # Assert Output Port was called
     mock_output_port.present.assert_any_call("Added")
@@ -213,7 +212,7 @@ def test_application_runner_exception():
         {"command": "add", "id": "1"},
         {"command": "exit"}
     ]
-    mock_app.execute.side_effect = Exception("Crash")
+    mock_app.dispatch.side_effect = Exception("Crash")
 
     runner = ApplicationRunner(app=mock_app, input_port=mock_input_port, output_port=mock_output_port)
 

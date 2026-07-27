@@ -37,19 +37,3 @@ class ThreadManagerExtension(IExtension):
 
     def shutdown(self, context: "EngineContext") -> None:
         pass
-
-
-class ThreadManagerModule(ThreadManagerExtension):
-    """
-    @brief Deprecated wrapper for ThreadManagerExtension.
-    """
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        import warnings
-
-        warnings.warn(
-            "ThreadManagerModule is deprecated. Use ThreadManagerExtension instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        super().__init__(*args, **kwargs)

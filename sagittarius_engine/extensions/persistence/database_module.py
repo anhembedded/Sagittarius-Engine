@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 import os
 
 if TYPE_CHECKING:
@@ -94,22 +94,6 @@ class DatabaseExtension(IExtension):
             return context.container.resolve(ILogger)
         except Exception:
             return None
-
-
-class DatabaseModule(DatabaseExtension):
-    """
-    @brief Deprecated wrapper for DatabaseExtension.
-    """
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        import warnings
-
-        warnings.warn(
-            "DatabaseModule is deprecated. Use DatabaseExtension (or SqlAlchemyExtension) instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        super().__init__(*args, **kwargs)
 
 
 SqlAlchemyExtension = DatabaseExtension

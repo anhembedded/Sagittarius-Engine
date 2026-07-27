@@ -85,7 +85,7 @@ def main():
     from sagittarius_engine.infrastructure.event_bus.memory_event_bus import (
         MemoryEventBus,
     )
-    from sagittarius_engine.extensions.logger_module import LoggerModule
+    from sagittarius_engine.extensions.logger_module import LoggerExtension
 
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -95,7 +95,7 @@ def main():
     container.bind(CreateUserCommand, CreateUserCommand)
 
     # Register logger
-    app.use(LoggerModule())
+    app.use(LoggerExtension())
 
     # Create and register HttpHostedService on custom port
     http_service = HttpHostedService(app, port=9090)

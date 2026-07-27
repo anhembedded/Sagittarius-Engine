@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sagittarius_engine.kernel.context import EngineContext
@@ -23,19 +23,3 @@ class HealthExtension(IExtension):
     def shutdown(self, context: "EngineContext") -> None:
         """@brief Shuts down the Health Extension."""
         pass
-
-
-class HealthModule(HealthExtension):
-    """
-    @brief Deprecated wrapper for HealthExtension.
-    """
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        import warnings
-
-        warnings.warn(
-            "HealthModule is deprecated. Use HealthExtension instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        super().__init__(*args, **kwargs)

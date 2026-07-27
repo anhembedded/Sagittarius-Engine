@@ -33,7 +33,7 @@ def test_middleware_pipeline_execution_order():
 def test_transaction_middleware_commits_on_success():
     from sagittarius_engine.middleware.transaction_middleware import TransactionMiddleware
     from sagittarius_engine.interfaces import IContainer
-    from sagittarius_engine.infrastructure.persistence.i_session import ISession
+    from sagittarius_engine.extensions.persistence import ISession
     from unittest.mock import MagicMock
 
     mock_container = MagicMock(spec=IContainer)
@@ -54,7 +54,7 @@ def test_transaction_middleware_commits_on_success():
 def test_transaction_middleware_rollbacks_on_exception():
     from sagittarius_engine.middleware.transaction_middleware import TransactionMiddleware
     from sagittarius_engine.interfaces import IContainer
-    from sagittarius_engine.infrastructure.persistence.i_session import ISession
+    from sagittarius_engine.extensions.persistence import ISession
     from unittest.mock import MagicMock
     import pytest
 

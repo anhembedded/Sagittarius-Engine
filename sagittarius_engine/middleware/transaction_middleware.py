@@ -2,7 +2,7 @@ from collections.abc import Callable
 from typing import Any
 
 from sagittarius_engine.interfaces import IContainer, IMiddleware
-from sagittarius_engine.infrastructure.persistence.i_session import ISession
+from sagittarius_engine.extensions.persistence import ISession
 
 
 class TransactionMiddleware(IMiddleware):

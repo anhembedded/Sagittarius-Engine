@@ -39,7 +39,6 @@ from examples.student_management.application.use_cases.generate_report_use_case 
 
 # Infrastructure Adapters
 from examples.student_management.infrastructure.sqlite_student_repo import SqliteStudentRepository
-from examples.student_management.infrastructure.in_memory_student_repo import InMemoryStudentRepository
 
 
 from typing import Generator

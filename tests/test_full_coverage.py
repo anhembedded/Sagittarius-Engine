@@ -1,4 +1,4 @@
-from sagittarius_engine.infrastructure.persistence.i_session import ISession
+from sagittarius_engine.extensions.persistence import ISession
 
 import asyncio
 import os
@@ -22,18 +22,16 @@ from sagittarius_engine.infrastructure.event_bus.resilient_event_bus import Resi
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.logging.std_logger import StdLogger
 from sagittarius_engine.infrastructure.event_bus.thread_pool_event_bus import ThreadPoolEventBus
+from sagittarius_engine.extensions.cqrs import ICommand, IQuery
 from sagittarius_engine.interfaces import (
-    ICommand,
     IContainer,
     IEventBus,
     ILogger,
     IMiddleware,
     IModule,
-    IQuery,
-
 )
 from sagittarius_engine.extensions.health_check_query import HealthCheckQuery
-from sagittarius_engine.extensions.health_module import HealthModule
+from sagittarius_engine.extensions.health_module import HealthExtension
 from tests.helpers import assert_event_emitted
 
 try:
@@ -875,7 +873,7 @@ def test_health_module__without_database(event_bus):
     container.singleton(IContainer, container)
     container.singleton(IEventBus, event_bus)
     app = App(container=container, event_bus=event_bus)
-    app.use(HealthModule())
+    app.use(HealthExtension())
     app.boot()
 
     # After boot, container has IEventBus bound. Let's make sure App has its own container setup.
@@ -907,7 +905,7 @@ def test_health_module__with_database(event_bus):
     app.container.singleton(ISession, mock_session)
 
     with patch.dict("sys.modules", {"sqlalchemy": mock_sa}):
-        app.use(HealthModule())
+        app.use(HealthExtension())
         app.boot()
 
         result = app.query(HealthCheckQuery)

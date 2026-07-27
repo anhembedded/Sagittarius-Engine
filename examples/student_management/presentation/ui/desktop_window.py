@@ -1,7 +1,6 @@
 # Clean Architecture - MVP Passive View Implementation
 from typing import Any, Sequence
-import sys
-from PySide6.QtCore import Slot, Qt
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QMainWindow,
     QWidget,
@@ -14,7 +13,7 @@ from PySide6.QtWidgets import (
     QListWidget,
     QHeaderView,
 )
-from PySide6.QtGui import QFont, QColor
+from PySide6.QtGui import QFont
 from sagittarius_engine import App
 from examples.student_management.application.contracts.student_monitor_view import IStudentMonitorView
 from examples.student_management.domain.student import Student

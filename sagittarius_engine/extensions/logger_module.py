@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sagittarius_engine.kernel.context import EngineContext
@@ -27,19 +27,3 @@ class LoggerExtension(IExtension):
 
     def shutdown(self, context: "EngineContext") -> None:
         pass
-
-
-class LoggerModule(LoggerExtension):
-    """
-    @brief Deprecated wrapper for LoggerExtension.
-    """
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        import warnings
-
-        warnings.warn(
-            "LoggerModule is deprecated. Use LoggerExtension instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        super().__init__(*args, **kwargs)

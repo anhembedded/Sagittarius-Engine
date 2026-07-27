@@ -43,14 +43,15 @@ def main():
     from sagittarius_engine.infrastructure.event_bus.memory_event_bus import (
         MemoryEventBus,
     )
-    from sagittarius_engine.extensions.logger_module import LoggerModule
+    from sagittarius_engine.extensions.logger_module import LoggerExtension
 
+    # 1. Initialize core container and event bus
     container = StdLibContainer()
     event_bus = MemoryEventBus()
-    app = App(container, event_bus)
+    app = App(container=container, event_bus=event_bus)
 
-    # Use logging
-    app.use(LoggerModule())
+    # 2. Add extensions
+    app.use(LoggerExtension())
 
     # Boot engine before UI launches
     app.boot()

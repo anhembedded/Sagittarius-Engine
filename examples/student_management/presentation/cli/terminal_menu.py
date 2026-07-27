@@ -1,5 +1,4 @@
 # Clean Architecture - Presentation Layer (CLI Hosted Service Adapter)
-import sys
 from typing import Any, List
 from sagittarius_engine import App
 from sagittarius_engine.runtime import IHostedService, CancellationToken
@@ -298,7 +297,7 @@ class TerminalMenu(IHostedService):
             print(f"❌ Error: {e}")
 
     def _on_report_completed(self, report_content: str) -> None:
-        print(f"\n\n🔔 [Notification] Async GPA Report Generation Completed!")
+        print("\n\n🔔 [Notification] Async GPA Report Generation Completed!")
         print(f"📄 {report_content}")
         print("\nSelect: ", end="", flush=True)
 

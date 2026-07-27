@@ -1,7 +1,6 @@
 import ast
 import glob
 import os
-import sys
 import pytest
 from sagittarius_engine.kernel.app import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
@@ -34,10 +33,6 @@ def check_forbidden_imports(directory: str, forbidden_prefixes: list[str]) -> li
     for filepath in py_files:
         # Ignore tests, temp files
         if "tests" in filepath or "temp" in filepath:
-            continue
-        # Ignore legacy shim files that are explicitly deprecated and redirect to extensions
-        filename = os.path.basename(filepath)
-        if filename in ("i_command.py", "i_query.py"):
             continue
 
         imports = get_imports_in_file(filepath)
@@ -134,29 +129,3 @@ def test_deprecation_warnings():
 
         container.bind(DummyQuery, DummyQuery)
         app.query(DummyQuery, {})
-
-    # Clear sys.modules shims to force re-evaluation
-    shim_modules = [
-        "sagittarius_engine.interfaces.i_command",
-        "sagittarius_engine.interfaces.i_query",
-        "sagittarius_engine.base.base_repository",
-    ]
-    for mod in shim_modules:
-        if mod in sys.modules:
-            del sys.modules[mod]
-
-    # Test deprecated interfaces shims
-    with pytest.warns(
-        DeprecationWarning, match="Importing ICommand from.*is deprecated"
-    ):
-        from sagittarius_engine.interfaces.i_command import ICommand  # noqa: F401
-
-    with pytest.warns(
-        DeprecationWarning, match="Importing IQuery from.*is deprecated"
-    ):
-        from sagittarius_engine.interfaces.i_query import IQuery  # noqa: F401
-
-    with pytest.warns(
-        DeprecationWarning, match="Importing BaseRepository from.*is deprecated"
-    ):
-        from sagittarius_engine.base.base_repository import BaseRepository  # noqa: F401

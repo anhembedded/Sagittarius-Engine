@@ -1,5 +1,3 @@
-from .i_command import ICommand
-from .i_query import IQuery
 from .i_module import IModule
 from .i_extension import IExtension
 from .i_event_bus import IEventBus
@@ -18,8 +16,6 @@ from .events import (
 )
 
 __all__ = [
-    "ICommand",
-    "IQuery",
     "IModule",
     "IExtension",
     "IEventBus",
@@ -35,4 +31,3 @@ __all__ = [
     "ExtensionStopped",
     "ExtensionDisposed",
 ]
-

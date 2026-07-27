@@ -1,13 +1,12 @@
 from .repository import BaseRepository
 from .i_session import ISession
 from .sqlalchemy_session_adapter import SQLAlchemySessionAdapter
-from .database_module import DatabaseExtension, DatabaseModule, SqlAlchemyExtension
+from .database_module import DatabaseExtension, SqlAlchemyExtension
 
 __all__ = [
     "BaseRepository",
     "ISession",
     "SQLAlchemySessionAdapter",
     "DatabaseExtension",
-    "DatabaseModule",
     "SqlAlchemyExtension",
 ]

@@ -9,7 +9,8 @@ from sagittarius_engine.kernel.app_runner import ApplicationRunner
 from sagittarius_engine.adapters.cli import CLIInputPort, CLIOutputPort
 from sagittarius_engine.adapters.batch import BatchInputPort, BatchOutputPort
 from sagittarius_engine.adapters.batch.const import FILE_TYPE_CSV
-from sagittarius_engine.interfaces import ICommand, IQuery, IModule, IContainer, IEventBus
+from sagittarius_engine.extensions.cqrs import ICommand, IQuery
+from sagittarius_engine.interfaces import IModule, IContainer, IEventBus
 
 # Dummy implementations of required interfaces for the in-memory app
 

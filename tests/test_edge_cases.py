@@ -7,7 +7,7 @@ from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
-from sagittarius_engine.infrastructure.persistence.i_session import ISession
+from sagittarius_engine.extensions.persistence import ISession
 
 from sagittarius_engine.kernel import App, MiddlewarePipeline
 from sagittarius_engine.exceptions import DependencyResolutionError
@@ -17,17 +17,16 @@ from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryE
 from sagittarius_engine.infrastructure.event_bus.resilient_event_bus import ResilientEventBus
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.thread_pool_event_bus import ThreadPoolEventBus
+from sagittarius_engine.extensions.cqrs import ICommand
 from sagittarius_engine.interfaces import (
-    ICommand,
     IContainer,
     IEventBus,
     ILogger,
     IMiddleware,
     IModule,
-
 )
 from sagittarius_engine.extensions.health_check_query import HealthCheckQuery
-from sagittarius_engine.extensions.health_module import HealthModule
+from sagittarius_engine.extensions.health_module import HealthExtension
 
 
 # --- Fixtures ---
@@ -383,7 +382,7 @@ def test_module_autodiscovery__no_imodule_class__does_not_crash(app, tmp_path):
 
 
 def test_health_module__db_session_raises__returns_unhealthy(app, container, event_bus):
-    module = HealthModule()
+    module = HealthExtension()
     module.register(app)
 
     class ThrowingSession(ISession):
@@ -432,7 +431,7 @@ def test_health_module__db_session_raises__returns_unhealthy(app, container, eve
 def test_health_module__no_isession_configured__returns_not_configured(
     app, container, event_bus
 ):
-    module = HealthModule()
+    module = HealthExtension()
     module.register(app)
 
     # Don't bind
@@ -689,7 +688,7 @@ def test_session_context_manager():
 @patch('sagittarius_engine.extensions.persistence.database_module.SQLALCHEMY_INSTALLED', True)
 def test_database_module_production_failure(app, monkeypatch):
     from sagittarius_engine.interfaces import IConfig
-    from sagittarius_engine.extensions.persistence.database_module import DatabaseModule
+    from sagittarius_engine.extensions.persistence.database_module import DatabaseExtension
 
     monkeypatch.setenv("ENV", "production")
 
@@ -697,9 +696,9 @@ def test_database_module_production_failure(app, monkeypatch):
     mock_config.get.return_value = None  # No database url
     app.container.singleton(IConfig, lambda c: mock_config)
 
-    module = DatabaseModule()
+    extension = DatabaseExtension()
     with pytest.raises(ValueError) as excinfo:
-        module.register(app)
+        extension.register(app)
 
     assert "production environment" in str(excinfo.value)
 

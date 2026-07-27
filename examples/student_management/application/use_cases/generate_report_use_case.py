@@ -1,7 +1,6 @@
 import asyncio
 from sagittarius_engine.runtime.tasks.task_manager import TaskManager
 from sagittarius_engine.interfaces import IEventBus
-from sagittarius_engine.extensions.cqrs import ICommand
 from examples.student_management.application.contracts.use_case_ports import IGenerateReportUseCase
 from examples.student_management.application.contracts.student_repository import IStudentRepository
 from examples.student_management.application.dtos.commands import GenerateReportCommand

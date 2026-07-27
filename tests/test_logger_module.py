@@ -2,7 +2,7 @@ from sagittarius_engine.kernel import App
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.interfaces import IConfig, ILogger
-from sagittarius_engine.extensions.logger_module import LoggerModule
+from sagittarius_engine.extensions.logger_module import LoggerExtension
 from sagittarius_engine.infrastructure.logging.logger_config import LoggerConfig
 import logging
 
@@ -12,8 +12,8 @@ def test_logger_module_registers_logger():
     event_bus = MemoryEventBus()
     app = App(container=container, event_bus=event_bus)
 
-    module = LoggerModule()
-    app.use(module)
+    extension = LoggerExtension()
+    app.use(extension)
 
     logger = container.resolve(ILogger)
     assert logger is not None
@@ -34,8 +34,8 @@ def test_logger_module_with_config():
 
     container.singleton(IConfig, FakeConfig())
 
-    module = LoggerModule()
-    app.use(module)
+    extension = LoggerExtension()
+    app.use(extension)
 
     logger = container.resolve(ILogger)
     assert logger is not None

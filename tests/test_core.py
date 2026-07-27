@@ -7,7 +7,8 @@ from sagittarius_engine.base import BaseModule
 from sagittarius_engine.exceptions import ModuleRegistrationError
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 from sagittarius_engine.infrastructure.container.std_container import DependencyResolutionError, StdLibContainer
-from sagittarius_engine.interfaces import ICommand, IEventBus, IQuery
+from sagittarius_engine.extensions.cqrs import ICommand, IQuery
+from sagittarius_engine.interfaces import IEventBus
 
 
 def test_event_bus_emit_on_off():
