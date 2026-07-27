@@ -1,5 +1,5 @@
 import warnings
-from sagittarius_engine.extensions.cqrs.queries import IQuery
+from sagittarius_engine.extensions.cqrs.queries import IQuery as IQuery
 
 # Emit deprecation warning when imported
 warnings.warn(

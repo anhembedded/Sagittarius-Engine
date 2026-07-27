@@ -1,18 +1,8 @@
-import asyncio
 import time
 import pytest
 from sagittarius_engine.kernel.app import App
 from sagittarius_engine.runtime.hosted.hosted_service import IHostedService
 from sagittarius_engine.runtime.tasks.cancellation_token import CancellationToken
-from sagittarius_engine.interfaces.events import (
-    HostedServiceStarted,
-    HostedServiceStopped,
-    TaskStarted,
-    TaskCompleted,
-    TaskFailed,
-    SchedulerStarted,
-    SchedulerStopped,
-)
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 

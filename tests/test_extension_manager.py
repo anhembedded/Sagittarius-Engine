@@ -8,8 +8,6 @@ from sagittarius_engine.exceptions import (
 from sagittarius_engine.interfaces.events import (
     ExtensionInitializing,
     ExtensionStarted,
-    ExtensionStopped,
-    ExtensionDisposed,
 )
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
@@ -216,7 +214,6 @@ def test_extension_manager_lifecycle_events():
 
 
 def test_extension_attribute_dependencies_topological_sort():
-    from sagittarius_engine.base import BaseModule
 
     history = []
 

@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 from sagittarius_engine.interfaces.i_extension import IExtension, ExtensionDescriptor
 from sagittarius_engine.interfaces.i_module import IModule
 from sagittarius_engine.interfaces.events import (
@@ -10,7 +10,6 @@ from sagittarius_engine.interfaces.events import (
 from sagittarius_engine.exceptions import (
     ExtensionDependencyError,
     ExtensionCircularDependencyError,
-    ModuleRegistrationError,
 )
 
 
@@ -122,7 +121,6 @@ class ExtensionManager:
         enabled_exts = [
             ext for ext in self.registered_extensions if ext.descriptor.enabled
         ]
-        ext_by_name = {ext.descriptor.name: ext for ext in enabled_exts}
 
         while True:
             initialized_any = False

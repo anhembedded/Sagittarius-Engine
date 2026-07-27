@@ -45,7 +45,7 @@ class HealthCheckQuery(IQuery):
             except ImportError:
                 status['components']['database'] = 'sqlalchemy not installed'
                 status['status'] = 'unhealthy'
-            except Exception as e:
+            except Exception:
                 status['components']['database'] = 'database connection failed'
                 status['status'] = 'unhealthy'
         except Exception:

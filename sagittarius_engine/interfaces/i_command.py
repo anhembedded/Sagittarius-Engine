@@ -1,5 +1,5 @@
 import warnings
-from sagittarius_engine.extensions.cqrs.commands import ICommand
+from sagittarius_engine.extensions.cqrs.commands import ICommand as ICommand
 
 # Emit deprecation warning when imported
 warnings.warn(

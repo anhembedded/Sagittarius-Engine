@@ -1,5 +1,4 @@
 import sys
-import os
 import argparse
 from sagittarius_engine.sdk.template_loader import TemplateLoader
 from sagittarius_engine.sdk.template_renderer import TemplateRenderer

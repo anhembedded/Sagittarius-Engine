@@ -176,9 +176,11 @@ class TaskManager:
             try:
                 sig = inspect.signature(callable_or_coro)
                 if "token" in sig.parameters:
-                    fn = lambda: callable_or_coro(token=bg_task.token)
+                    def fn():
+                        return callable_or_coro(token=bg_task.token)
                 else:
-                    fn = lambda: callable_or_coro()
+                    def fn():
+                        return callable_or_coro()
 
                 target_executor = (
                     self.critical_executor if critical else self.background_executor

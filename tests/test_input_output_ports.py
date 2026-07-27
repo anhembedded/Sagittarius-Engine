@@ -177,8 +177,11 @@ def test_application_runner():
 
     runner = ApplicationRunner(app=mock_app, input_port=mock_input_port, output_port=mock_output_port)
 
-    class DummyCommand: pass
-    class DummyQuery: pass
+    class DummyCommand:
+        pass
+
+    class DummyQuery:
+        pass
 
     command_map = {"add": DummyCommand}
     query_map = {"get": DummyQuery}
@@ -214,7 +217,8 @@ def test_application_runner_exception():
 
     runner = ApplicationRunner(app=mock_app, input_port=mock_input_port, output_port=mock_output_port)
 
-    class DummyCommand: pass
+    class DummyCommand:
+        pass
     command_map = {"add": DummyCommand}
 
     runner.run_cli_loop(command_map, {})

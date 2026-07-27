@@ -1,6 +1,6 @@
 import warnings
 from sagittarius_engine.extensions.persistence.sqlalchemy_session_adapter import (
-    SQLAlchemySessionAdapter,
+    SQLAlchemySessionAdapter as SQLAlchemySessionAdapter,
 )
 
 # Emit deprecation warning when imported

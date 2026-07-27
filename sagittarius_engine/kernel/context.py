@@ -4,7 +4,6 @@ from sagittarius_engine.interfaces import (
     IEventBus,
     ILogger,
     IConfig,
-    IModule,
 )
 from sagittarius_engine.kernel.middleware_pipeline import MiddlewarePipeline
 from sagittarius_engine.kernel.lifecycle import EngineLifecycle

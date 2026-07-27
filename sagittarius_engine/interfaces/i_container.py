@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from collections.abc import Callable
 from typing import Any, TypeVar
 
 T = TypeVar("T", bound=Any)

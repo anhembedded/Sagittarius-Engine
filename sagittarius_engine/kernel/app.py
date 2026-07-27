@@ -2,13 +2,10 @@ from typing import Any, TypeVar
 from sagittarius_engine.exceptions import ModuleRegistrationError
 from sagittarius_engine.kernel.context import EngineContext
 from sagittarius_engine.interfaces import (
-    ICommand,
     IContainer,
     IEventBus,
     ILogger,
     IMiddleware,
-    IModule,
-    IQuery,
 )
 
 TInput = TypeVar("TInput")

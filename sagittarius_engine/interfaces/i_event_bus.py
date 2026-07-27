@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from typing import Any, TypeVar, overload
+from typing import Any, TypeVar
 
 from sagittarius_engine.domain.base_event import BaseEvent
 

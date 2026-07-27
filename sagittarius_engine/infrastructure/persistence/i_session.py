@@ -1,5 +1,5 @@
 import warnings
-from sagittarius_engine.extensions.persistence.i_session import ISession
+from sagittarius_engine.extensions.persistence.i_session import ISession as ISession
 
 # Emit deprecation warning when imported
 warnings.warn(

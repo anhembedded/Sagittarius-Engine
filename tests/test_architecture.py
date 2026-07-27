@@ -59,7 +59,7 @@ def test_architectural_dependency_rules():
         kernel_dir,
         ["sagittarius_engine.extensions", "sagittarius_engine.sdk"],
     )
-    assert not violations, f"Kernel dependency violations found:\n" + "\n".join(
+    assert not violations, "Kernel dependency violations found:\n" + "\n".join(
         violations
     )
 
@@ -70,7 +70,7 @@ def test_architectural_dependency_rules():
         ["sagittarius_engine.extensions", "sagittarius_engine.sdk"],
     )
     assert not violations, (
-        f"Interfaces dependency violations found:\n" + "\n".join(violations)
+        "Interfaces dependency violations found:\n" + "\n".join(violations)
     )
 
     # Rule 3: Extensions must NOT import sdk
@@ -80,14 +80,14 @@ def test_architectural_dependency_rules():
     )
     assert (
         not violations
-    ), f"Extensions dependency violations found:\n" + "\n".join(violations)
+    ), "Extensions dependency violations found:\n" + "\n".join(violations)
 
     # Rule 4: SDK must NOT import extensions
     sdk_dir = os.path.join(base_dir, "sdk")
     violations = check_forbidden_imports(
         sdk_dir, ["sagittarius_engine.extensions"]
     )
-    assert not violations, f"SDK dependency violations found:\n" + "\n".join(
+    assert not violations, "SDK dependency violations found:\n" + "\n".join(
         violations
     )
 
@@ -159,6 +159,4 @@ def test_deprecation_warnings():
     with pytest.warns(
         DeprecationWarning, match="Importing BaseRepository from.*is deprecated"
     ):
-        from sagittarius_engine.base.base_repository import (
-            BaseRepository,
-        )  # noqa: F401
+        from sagittarius_engine.base.base_repository import BaseRepository  # noqa: F401
