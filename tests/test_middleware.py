@@ -133,3 +133,24 @@ def test_middleware_pipeline_concurrent_execution():
     assert len(results) == num_requests
     # Assert no state contamination (all IDs are unique)
     assert len(set(results)) == num_requests
+
+
+def test_validation_middleware_none_dto(caplog):
+    import logging
+    from sagittarius_engine.middleware.validation_middleware import ValidationMiddleware
+
+    middleware = ValidationMiddleware()
+
+    def next_handler():
+        return "success"
+
+    class DummyCommand:
+        pass
+
+    cmd = DummyCommand()
+
+    with caplog.at_level(logging.WARNING):
+        result = middleware.process(cmd, None, next_handler)
+
+    assert result == "success"
+    assert "Warning: DTO is None!" in caplog.text
