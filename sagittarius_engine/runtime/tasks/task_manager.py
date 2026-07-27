@@ -210,7 +210,9 @@ class TaskManager:
         @details Critical tasks are given up to `timeout` seconds to complete gracefully.
                  Background daemon tasks are non-blockingly cancelled and shut down.
         """
+        print("[DEBUG] [task_manager.py] TaskManager.shutdown() started...", flush=True)
         self.cancel_all()
+        print("[DEBUG] [task_manager.py] All tasks cancelled.", flush=True)
 
         with self._lock:
             critical_futures = [
@@ -220,12 +222,15 @@ class TaskManager:
             ]
 
         if critical_futures:
+            print(f"[DEBUG] [task_manager.py] Waiting up to {timeout}s for {len(critical_futures)} critical futures...", flush=True)
             from concurrent.futures import wait
             wait(critical_futures, timeout=timeout)
 
+        print("[DEBUG] [task_manager.py] Shutting down executors...", flush=True)
         try:
             self.critical_executor.shutdown(wait=False, cancel_futures=True)
             self.background_executor.shutdown(wait=False, cancel_futures=True)
         except TypeError:
             self.critical_executor.shutdown(wait=False)
             self.background_executor.shutdown(wait=False)
+        print("[DEBUG] [task_manager.py] TaskManager.shutdown() completed.", flush=True)

@@ -134,10 +134,16 @@ def main() -> None:
 
     # Run the Qt Event Loop on the Main Thread
     try:
-        sys.exit(qt_app.exec())
+        print("[DEBUG] [main.py] Main thread starting qt_app.exec()...", flush=True)
+        ret_code = qt_app.exec()
+        print(f"[DEBUG] [main.py] qt_app.exec() returned {ret_code}", flush=True)
+    except Exception as exc:
+        print(f"[DEBUG] [main.py] qt_app.exec() raised exception: {exc}", flush=True)
     finally:
-        # 8. Graceful Shutdown
+        print("[DEBUG] [main.py] Entering finally block, calling app.stop()...", flush=True)
         app.stop()
+        print("[DEBUG] [main.py] app.stop() completed. Exiting process.", flush=True)
+        sys.exit(0)
 
 
 

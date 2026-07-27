@@ -39,9 +39,11 @@ class TerminalMenu(IHostedService):
         )
 
     def stop(self, context: Any) -> None:
+        print("[DEBUG] [terminal_menu.py] TerminalMenu.stop() called.", flush=True)
         self.app.event_bus.off("report.completed", self._on_report_completed)
         self.app.event_bus.off("health.updated", self._on_health_updated)
         self.token.cancel()
+        print("[DEBUG] [terminal_menu.py] TerminalMenu.stop() completed.", flush=True)
 
     def wait_for_exit(self) -> None:
         if self.task and self.task.future:
@@ -86,11 +88,15 @@ class TerminalMenu(IHostedService):
             elif choice == "8":
                 self._check_system_health()
             elif choice == "9":
-                print("Goodbye!")
+                print("Goodbye!", flush=True)
+                print("[DEBUG] [terminal_menu.py] Choice 9 selected. Quitting QApplication...", flush=True)
                 from PySide6.QtWidgets import QApplication
                 instance = QApplication.instance()
                 if instance:
+                    print("[DEBUG] [terminal_menu.py] Calling instance.quit()...", flush=True)
                     instance.quit()
+                    print("[DEBUG] [terminal_menu.py] instance.quit() called.", flush=True)
+                print("[DEBUG] [terminal_menu.py] Exiting _run_loop via break.", flush=True)
                 break
             else:
                 print("❌ Invalid selection. Please choose between 1 and 9.")
