@@ -118,7 +118,7 @@ def test_integration_batch_flow():
         out_tmp_path = out_tmp.name
 
     try:
-        port_in = BatchInputPort(file_path=in_tmp_path, file_type=FILE_TYPE_CSV)
+        port_in = BatchInputPort(file_path=in_tmp_path, base_path=os.path.dirname(in_tmp_path), file_type=FILE_TYPE_CSV)
         port_out = BatchOutputPort(output_path=out_tmp_path)
 
         runner = ApplicationRunner(app, port_in, port_out)

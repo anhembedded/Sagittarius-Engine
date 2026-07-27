@@ -12,30 +12,45 @@ class BatchInputPort(BaseInputPort):
     @brief Batch Input Port that reads data from CSV or JSON files.
     """
 
-    def __init__(self, file_path: str, file_type: str = FILE_TYPE_CSV) -> None:
+    def __init__(self, file_path: str, file_type: str = FILE_TYPE_CSV, base_path: str = ".") -> None:
         super().__init__()
         self.file_path = file_path
+        self.base_path = base_path
         self.file_type = file_type
         self._iterator: Optional[Iterator[dict[str, Any]]] = None
         self._initialized = False
+
+
+
+    def _get_full_path(self) -> str:
+        from sagittarius_engine.exceptions import PathTraversalError
+        base_path_real = os.path.realpath(self.base_path)
+        full_path = os.path.join(self.base_path, self.file_path)
+        full_path_real = os.path.realpath(full_path)
+
+        # Path validation must be performed before checking if the path exists
+        if os.path.commonpath([base_path_real, full_path_real]) != base_path_real:
+            raise PathTraversalError(f"Path traversal detected: {self.file_path}")
+
+        return full_path_real
 
     def _init_iterator(self) -> None:
         if self._initialized:
             return
         self._initialized = True
-        if not os.path.exists(self.file_path):
+        if not os.path.exists(self._get_full_path()):
             if self.logger:
                 self.logger.error(f"File not found: {self.file_path}")
             self._iterator = iter([])
             return
         try:
             if self.file_type == FILE_TYPE_CSV:
-                with open(self.file_path, newline="", encoding="utf-8") as f:
+                with open(self._get_full_path(), newline="", encoding="utf-8") as f:
                     reader = csv.DictReader(f)
                     data = list(reader)
                     self._iterator = iter(data)
             elif self.file_type == FILE_TYPE_JSON:
-                with open(self.file_path, encoding="utf-8") as f:
+                with open(self._get_full_path(), encoding="utf-8") as f:
                     data = json.load(f)
                     if isinstance(data, list):
                         self._iterator = iter(data)
