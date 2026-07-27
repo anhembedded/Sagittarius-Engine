@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any
 
 from sagittarius_engine.kernel import App
@@ -21,11 +22,16 @@ class ApplicationRunner:
         self.output_port = output_port
 
     def run_cli_loop(
-        self, command_map: dict[str, type], query_map: dict[str, type]
+        self,
+        command_map: Mapping[str, type[Any]] | None = None,
+        query_map: Mapping[str, type[Any]] | None = None,
     ) -> None:
         """
         @brief Runs a loop processing commands from input_port and presenting to output_port.
         """
+        cmd_map = command_map or {}
+        q_map = query_map or {}
+
         while True:
             try:
                 data = self.input_port.receive()
@@ -33,15 +39,15 @@ class ApplicationRunner:
                     break
 
                 command_name = data.get(COMMAND_KEY)
-                if command_name == EXIT_COMMAND:
+                if not isinstance(command_name, str) or command_name == EXIT_COMMAND:
                     break
 
-                if command_name in command_map:
-                    cmd_class = command_map[command_name]
+                if command_name in cmd_map:
+                    cmd_class = cmd_map[command_name]
                     result = self.execute(cmd_class, data)
                     self.output_port.present(result)
-                elif command_name in query_map:
-                    query_class = query_map[command_name]
+                elif command_name in q_map:
+                    query_class = q_map[command_name]
                     result = self.query(query_class, data)
                     self.output_port.present(result)
                 else:

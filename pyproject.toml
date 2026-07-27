@@ -59,7 +59,8 @@ ignore_missing_imports = true
 follow_imports = "skip"
 show_error_codes = true
 pretty = true
-files = ["src"]
+disable_error_code = ["annotation-unchecked"]
+files = ["sagittarius_engine", "tests"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
