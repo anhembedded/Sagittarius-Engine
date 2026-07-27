@@ -43,9 +43,23 @@ def main() -> None:
     from sagittarius_engine.extensions.persistence.i_session import ISession
     from examples.student_management.app.infrastructure.mock_session import MockSession
 
+    config = DictConfig(
+        initial_data={
+            "database.path": "students.db",
+            "log.viewer.enabled": True,
+            "log.viewer.host": "localhost",
+            "log.viewer.port": 9999,
+            "log.viewer.module": "student-management",
+        }
+    )
     container.singleton(IContainer, container)
-    container.singleton(IConfig, DictConfig(initial_data={"database.path": "students.db"}))
+    container.singleton(IConfig, config)
     container.singleton(IEventBus, event_bus)
+
+    from sagittarius_engine.interfaces import ILogger
+    from sagittarius_engine.infrastructure.logging.std_logger import StdLogger
+    container.singleton(ILogger, StdLogger(config))
+
     container.singleton(IStudentRepository, lambda c: c.resolve(SqliteStudentRepository))
     container.singleton(ISession, MockSession())
 

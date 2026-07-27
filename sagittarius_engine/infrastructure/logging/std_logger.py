@@ -1,6 +1,8 @@
 import logging
 import sys
+from typing import Any
 
+from sagittarius_engine.infrastructure.logging.tcp_log_viewer_handler import TcpLogViewerHandler
 from sagittarius_engine.interfaces import IConfig, ILogger
 
 
@@ -8,18 +10,8 @@ class StdLogger(ILogger):
     """
     @brief Implementation of ILogger using the default Python `logging` module.
 
-    @details Automatically reads the IConfig (if provided) to set the log level and log file.
-
-    @par Tutorial / Usage Example:
-    @code
-    config = DictConfig()
-    config.set("log.level", "DEBUG")
-    config.set("log.file", "app.log")
-
-    logger = StdLogger(config)
-    logger.info("System initializing")
-    logger.error("DB connection error")
-    @endcode
+    @details Automatically reads the IConfig (if provided) to set log level, log file,
+    and optional TcpLogViewerHandler to stream logs to Sagittarius LogViewer.
     """
 
     def __init__(self, config: IConfig | None = None):
@@ -31,11 +23,19 @@ class StdLogger(ILogger):
 
         log_level = logging.INFO
         log_file = None
+        viewer_enabled = False
+        viewer_host = "localhost"
+        viewer_port = 9999
+        viewer_module = "sagittarius-app"
 
         if config:
             level_str = config.get("log.level", "INFO").upper()
             log_level = getattr(logging, level_str, logging.INFO)
             log_file = config.get("log.file")
+            viewer_enabled = config.get("log.viewer.enabled", False)
+            viewer_host = config.get("log.viewer.host", "localhost")
+            viewer_port = config.get("log.viewer.port", 9999)
+            viewer_module = config.get("log.viewer.module", "sagittarius-app")
 
         self._logger.setLevel(log_level)
 
@@ -59,30 +59,37 @@ class StdLogger(ILogger):
             fh.setFormatter(formatter)
             self._logger.addHandler(fh)
 
-    def info(self, message: str) -> None:
-        """
-        @brief Logs an informational message.
-        @param message The message to log.
-        """
-        self._logger.info(message)
+        if viewer_enabled:
+            vh = TcpLogViewerHandler(
+                host=viewer_host,
+                port=viewer_port,
+                module_name=viewer_module,
+            )
+            self._logger.addHandler(vh)
 
-    def warning(self, message: str) -> None:
-        """
-        @brief Logs a warning message.
-        @param message The message to log.
-        """
-        self._logger.warning(message)
+    def _format_extra(self, extra: dict[str, Any] | None) -> dict[str, Any]:
+        return {"extra": extra} if extra is not None else {}
 
-    def error(self, message: str) -> None:
+    def info(self, message: str, extra: dict[str, Any] | None = None) -> None:
         """
-        @brief Logs an error message.
-        @param message The message to log.
+        @brief Logs an informational message with optional structured metadata.
         """
-        self._logger.error(message)
+        self._logger.info(message, extra=self._format_extra(extra))
 
-    def debug(self, message: str) -> None:
+    def warning(self, message: str, extra: dict[str, Any] | None = None) -> None:
         """
-        @brief Logs a debug message.
-        @param message The message to log.
+        @brief Logs a warning message with optional structured metadata.
         """
-        self._logger.debug(message)
+        self._logger.warning(message, extra=self._format_extra(extra))
+
+    def error(self, message: str, extra: dict[str, Any] | None = None) -> None:
+        """
+        @brief Logs an error message with optional structured metadata.
+        """
+        self._logger.error(message, extra=self._format_extra(extra))
+
+    def debug(self, message: str, extra: dict[str, Any] | None = None) -> None:
+        """
+        @brief Logs a debug message with optional structured metadata.
+        """
+        self._logger.debug(message, extra=self._format_extra(extra))
