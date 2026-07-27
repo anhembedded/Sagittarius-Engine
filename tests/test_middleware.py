@@ -133,3 +133,28 @@ def test_middleware_pipeline_concurrent_execution():
     assert len(results) == num_requests
     # Assert no state contamination (all IDs are unique)
     assert len(set(results)) == num_requests
+
+
+def test_logging_middleware_fallback_on_missing_logger(capsys):
+    from sagittarius_engine.middleware.logging_middleware import LoggingMiddleware
+    from sagittarius_engine.interfaces import IContainer
+    from unittest.mock import MagicMock
+
+    mock_container = MagicMock(spec=IContainer)
+    mock_container.resolve.side_effect = Exception("Logger not found")
+
+    middleware = LoggingMiddleware(mock_container)
+
+    class DummyCommand:
+        pass
+
+    def next_handler():
+        return "success"
+
+    result = middleware.process(DummyCommand(), None, next_handler)
+
+    assert result == "success"
+
+    captured = capsys.readouterr()
+    assert "[LoggingMiddleware] Starting DummyCommand" in captured.out
+    assert "[LoggingMiddleware] Finished DummyCommand" in captured.out
