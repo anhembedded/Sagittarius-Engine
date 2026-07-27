@@ -18,8 +18,8 @@ class Dispatcher:
     def dispatch(
         self,
         handler_class: type[Any],
-        input_dto: TInput = None,
-    ) -> TOutput:
+        input_dto: Any = None,
+    ) -> Any:
         """
         @brief Dispatches a handler (command, query, etc.) through the middleware pipeline.
         """

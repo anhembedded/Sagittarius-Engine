@@ -105,7 +105,7 @@ class MainWindow(QMainWindow, IStudentMonitorView):
         left_layout.setContentsMargins(0, 0, 0, 0)
 
         table_title = QLabel("📂 STUDENT DATABASE")
-        table_title.setFont(QFont("Segoe UI", 14, QFont.Bold))
+        table_title.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
         table_title.setStyleSheet("color: #61afef; margin-bottom: 5px;")
         left_layout.addWidget(table_title)
 
@@ -114,15 +114,13 @@ class MainWindow(QMainWindow, IStudentMonitorView):
         self.table.setHorizontalHeaderLabels(
             ["Internal UUID", "Student ID", "Full Name", "Age", "Gender", "Major", "GPA"]
         )
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
-        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
-        self.table.setSelectionBehavior(QTableWidget.SelectRows)
-        left_layout.addWidget(self.table)
-
-        main_layout.addWidget(left_widget, stretch=7)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
+        self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        left_layout.addWidget(left_widget, stretch=7)
 
         # --- RIGHT PANEL: Real-time Monitor Logs & Progress ---
         right_widget = QWidget()
@@ -132,7 +130,7 @@ class MainWindow(QMainWindow, IStudentMonitorView):
 
         # Log Header
         log_title = QLabel("⚡ UNIVERSAL EVENT BUS LOGS")
-        log_title.setFont(QFont("Segoe UI", 12, QFont.Bold))
+        log_title.setFont(QFont("Segoe UI", 12, QFont.Weight.Bold))
         log_title.setStyleSheet("color: #61afef;")
         right_layout.addWidget(log_title)
 
@@ -141,7 +139,7 @@ class MainWindow(QMainWindow, IStudentMonitorView):
 
         # Progress Header
         progress_title = QLabel("📊 GPA ANALYTICS REPORT (ASYNC)")
-        progress_title.setFont(QFont("Segoe UI", 12, QFont.Bold))
+        progress_title.setFont(QFont("Segoe UI", 12, QFont.Weight.Bold))
         progress_title.setStyleSheet("color: #e5c07b;")
         right_layout.addWidget(progress_title)
 
@@ -153,9 +151,7 @@ class MainWindow(QMainWindow, IStudentMonitorView):
         self.report_label = QLabel("Waiting for report generation task...")
         self.report_label.setWordWrap(True)
         self.report_label.setStyleSheet("color: #abb2bf; font-style: italic; background-color: #282c34; padding: 10px; border-radius: 4px;")
-        right_layout.addWidget(self.report_label)
-
-        main_layout.addWidget(right_widget, stretch=4)
+        right_layout.addWidget(right_widget, stretch=4)
 
         # Footer Status Bar
         self.health_label = QLabel("Health Check: INITIALIZING...")
@@ -181,7 +177,8 @@ class MainWindow(QMainWindow, IStudentMonitorView):
     def update_student_row(self, s: Student) -> None:
         row_idx = -1
         for i in range(self.table.rowCount()):
-            if self.table.item(i, 0).text() == s.id:
+            item = self.table.item(i, 0)
+            if item is not None and item.text() == s.id:
                 row_idx = i
                 break
 
@@ -197,12 +194,13 @@ class MainWindow(QMainWindow, IStudentMonitorView):
         self.table.setItem(row_idx, 5, QTableWidgetItem(s.major))
         
         gpa_item = QTableWidgetItem(f"{s.gpa:.2f}")
-        gpa_item.setTextAlignment(Qt.AlignCenter)
+        gpa_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         self.table.setItem(row_idx, 6, gpa_item)
 
     def remove_student_row(self, uuid: str) -> None:
         for i in range(self.table.rowCount()):
-            if self.table.item(i, 0).text() == uuid:
+            item = self.table.item(i, 0)
+            if item is not None and item.text() == uuid:
                 self.table.removeRow(i)
                 break
 

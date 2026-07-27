@@ -25,15 +25,14 @@ class DictConfig(IConfig):
         """
         self._config: dict[str, Any] = initial_data if initial_data is not None else {}
 
-    def get(self, key: str, default: Any = None) -> Any:
-        """
-        @brief Gets a configuration value.
-
-        @param key The configuration key.
-        @param default The default value if the key is not found.
-        @return The configuration value.
-        """
-        return self._config.get(key, default)
+    def get(self, key: str, default: Any = None, cast: type[Any] | None = None) -> Any:
+        val = self._config.get(key, default)
+        if cast is not None and val is not None and not isinstance(val, cast):
+            try:
+                return cast(val)
+            except (ValueError, TypeError):
+                return val
+        return val
 
     def set(self, key: str, value: Any) -> None:
         """

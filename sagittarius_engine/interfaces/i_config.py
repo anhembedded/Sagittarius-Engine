@@ -10,7 +10,7 @@ class IConfig(ABC):
     """
 
     @abstractmethod
-    def get(self, key: str, default: T = None, cast: type[T] | None = None) -> T:
+    def get(self, key: str, default: Any = None, cast: type[T] | None = None) -> Any:
         """
         @brief Gets a configuration value with generic type inference and optional type casting.
 

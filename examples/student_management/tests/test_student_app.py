@@ -42,8 +42,11 @@ from examples.student_management.infrastructure.sqlite_student_repo import Sqlit
 from examples.student_management.infrastructure.in_memory_student_repo import InMemoryStudentRepository
 
 
+from typing import Generator
+
+
 @pytest.fixture
-def app() -> App:
+def app() -> Generator[App, None, None]:
     import os
 
     db_file = "test_students.db"
@@ -210,7 +213,7 @@ def test_async_report_generation(app: App) -> None:
     # Wait for background task to complete (timeout 6.0s since we sleep 4.0s)
     success = event_received.wait(timeout=6.0)
     assert success, "Async report generation timed out"
-    assert "Average GPA = 4.00" in report_result
+    assert report_result is not None and "Average GPA = 4.00" in report_result
 
 
 def test_persistence_across_app_lifecycle() -> None:

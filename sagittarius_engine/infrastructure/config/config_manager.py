@@ -50,16 +50,15 @@ class ConfigManager(IConfig):
                 pass
         self._loaded = True
 
-    def get(self, key: str, default: Any=None) -> Any:
-        """
-        @brief Gets a configuration value.
-
-        @param key The configuration key.
-        @param default The default value if the key is not found.
-        @return The configuration value.
-        """
+    def get(self, key: str, default: Any = None, cast: type[Any] | None = None) -> Any:
         self._load()
-        return self._cache.get(key, default)
+        val = self._cache.get(key, default)
+        if cast is not None and val is not None and not isinstance(val, cast):
+            try:
+                return cast(val)
+            except (ValueError, TypeError):
+                return val
+        return val
 
     def set(self, key: str, value: Any) -> None:
         """

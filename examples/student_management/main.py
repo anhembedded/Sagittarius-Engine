@@ -69,7 +69,7 @@ def main() -> None:
         except Exception:
             pass
         original_emit(event_name, data)
-    event_bus.emit = logging_emit
+    setattr(event_bus, "emit", logging_emit)
 
     # Wire Sagittarius EventBus signals to Qt EventBridge
     event_bus.on("student.added", lambda s: bridge.student_added.emit(s))

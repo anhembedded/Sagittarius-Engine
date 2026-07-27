@@ -26,25 +26,30 @@ class ThreadPoolEventBus(IEventBus):
         self._executor = concurrent.futures.ThreadPoolExecutor(max_workers=max_workers)
         self.logger = logger
 
-    def emit(self, event_name: str, data: Any = None) -> None:
+    def emit(self, event_name_or_obj: str | Any, data: Any = None) -> None:
         """
         @brief Emits an event, executing its handlers concurrently in a thread pool.
 
-        @param event_name The name of the event.
+        @param event_name_or_obj The name of the event or BaseEvent object.
         @param data The data payload.
         """
+        if isinstance(event_name_or_obj, str):
+            event_name = event_name_or_obj
+            payload = data
+        else:
+            event_name = type(event_name_or_obj).__qualname__
+            payload = data if data is not None else event_name_or_obj
         if self.logger:
             self.logger.info(
-                f"Emitting event: {event_name} to ThreadPoolEventBus with data: {data}"
+                f"Emitting event: {event_name} to ThreadPoolEventBus with data: {payload}"
             )
 
-        # Snapshot handlers using inner bus lock
         with self._inner_bus._lock:
             handlers_snapshot = list(self._inner_bus._handlers.get(event_name, []))
 
         futures = []
         for handler in handlers_snapshot:
-            futures.append(self._executor.submit(handler, data))
+            futures.append(self._executor.submit(handler, payload))
 
         for future in futures:
 
@@ -59,23 +64,23 @@ class ThreadPoolEventBus(IEventBus):
 
             future.add_done_callback(_log_error)
 
-    def on(self, event_name: str, handler: Callable) -> None:
+    def on(self, event_name_or_type: str | Any, handler: Callable[..., Any]) -> None:
         """
         @brief Registers a handler.
 
-        @param event_name The name of the event.
+        @param event_name_or_type The name of the event or event type.
         @param handler The callback function.
         """
-        self._inner_bus.on(event_name, handler)
+        self._inner_bus.on(event_name_or_type, handler)
 
-    def off(self, event_name: str, handler: Callable) -> None:
+    def off(self, event_name_or_type: str | Any, handler: Callable[..., Any]) -> None:
         """
         @brief Unregisters a handler.
 
-        @param event_name The name of the event.
+        @param event_name_or_type The name of the event or event type.
         @param handler The callback function to remove.
         """
-        self._inner_bus.off(event_name, handler)
+        self._inner_bus.off(event_name_or_type, handler)
 
     def shutdown(self, wait: bool = True) -> None:
         """

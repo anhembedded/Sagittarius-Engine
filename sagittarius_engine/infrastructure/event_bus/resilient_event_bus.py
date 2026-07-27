@@ -46,50 +46,58 @@ class ResilientEventBus(IEventBus):
 
         self._handlers: dict[str, list[Callable]] = {}
 
-    def emit(self, event_name: str, data: Any = None) -> None:
+    def emit(self, event_name_or_obj: str | Any, data: Any = None) -> None:
         """
         @brief Emits an event with a built-in retry mechanism.
 
-        @param event_name The name of the event.
+        @param event_name_or_obj The name of the event or BaseEvent object.
         @param data The data payload.
         """
+        if isinstance(event_name_or_obj, str):
+            event_name = event_name_or_obj
+            payload = data
+        else:
+            event_name = type(event_name_or_obj).__qualname__
+            payload = data if data is not None else event_name_or_obj
         if self.logger:
             self.logger.info(
-                f"Emitting resilient event: {event_name} with data: {data}"
+                f"Emitting resilient event: {event_name} with data: {payload}"
             )
 
         for handler in self._handlers.get(event_name, []):
             for attempt in range(self.max_retries + 1):
                 try:
-                    handler(data)
+                    handler(payload)
                     break
                 except Exception as e:
                     if attempt == self.max_retries:
-                        self._dlq.append((event_name, data, handler, e))
+                        self._dlq.append((event_name, payload, handler, e))
 
-    def on(self, event_name: str, handler: Callable) -> None:
+    def on(self, event_name_or_type: str | Any, handler: Callable[..., Any]) -> None:
         """
         @brief Registers a handler.
 
-        @param event_name The name of the event.
+        @param event_name_or_type The name of the event or event class type.
         @param handler The callback function.
         """
+        event_name = event_name_or_type if isinstance(event_name_or_type, str) else getattr(event_name_or_type, "__name__", str(event_name_or_type))
         if event_name not in self._handlers:
             self._handlers[event_name] = []
         if handler not in self._handlers[event_name]:
             self._handlers[event_name].append(handler)
-        self.inner_bus.on(event_name, handler)
+        self.inner_bus.on(event_name_or_type, handler)
 
-    def off(self, event_name: str, handler: Callable) -> None:
+    def off(self, event_name_or_type: str | Any, handler: Callable[..., Any]) -> None:
         """
         @brief Unregisters a handler.
 
-        @param event_name The name of the event.
+        @param event_name_or_type The name of the event or event class type.
         @param handler The callback function.
         """
+        event_name = event_name_or_type if isinstance(event_name_or_type, str) else getattr(event_name_or_type, "__name__", str(event_name_or_type))
         if event_name in self._handlers and handler in self._handlers[event_name]:
             self._handlers[event_name].remove(handler)
-        self.inner_bus.off(event_name, handler)
+        self.inner_bus.off(event_name_or_type, handler)
 
     def get_dlq(self) -> list[tuple[str, Any, Callable, Exception]]:
         """

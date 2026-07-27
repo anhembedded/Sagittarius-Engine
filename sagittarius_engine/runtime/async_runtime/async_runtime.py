@@ -30,8 +30,9 @@ class AsyncRuntime:
         self._logger.info("AsyncRuntime event loop started on background thread.")
 
     def _run_loop(self) -> None:
-        asyncio.set_event_loop(self.loop)
-        self.loop.run_forever()
+        if self.loop is not None:
+            asyncio.set_event_loop(self.loop)
+            self.loop.run_forever()
 
     def run_coroutine(self, coro: Coroutine) -> Any:
         """

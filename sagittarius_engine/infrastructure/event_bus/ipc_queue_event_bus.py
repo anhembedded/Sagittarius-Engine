@@ -21,10 +21,16 @@ class IPCQueueEventBus(IEventBus):
         self._stop_event = threading.Event()
         self._thread: threading.Thread | None = None
 
-    def emit(self, event_name: str, data: Any=None) -> None:
+    def emit(self, event_name_or_obj: str | Any, data: Any = None) -> None:
         """
         @brief Publishes an event to the shared publish queue.
         """
+        if isinstance(event_name_or_obj, str):
+            event_name = event_name_or_obj
+            payload = data
+        else:
+            event_name = type(event_name_or_obj).__qualname__
+            payload = data if data is not None else event_name_or_obj
         if not self._publish_queue:
             if self._logger:
                 self._logger.warning(f"Cannot emit '{event_name}': publish_queue is None.")
@@ -32,27 +38,29 @@ class IPCQueueEventBus(IEventBus):
                 logging.warning(f"Cannot emit '{event_name}': publish_queue is None.")
             return
         try:
-            self._publish_queue.put((event_name, data))
+            self._publish_queue.put((event_name, payload))
         except Exception as e:
             if self._logger:
                 self._logger.error(f"Failed to emit event '{event_name}' to publish_queue: {e}")
             else:
                 logging.error(f"Failed to emit event '{event_name}' to publish_queue: {e}")
 
-    def on(self, event_name: str, handler: Callable) -> None:
+    def on(self, event_name_or_type: str | Any, handler: Callable[..., Any]) -> None:
         """
         @brief Subscribes a local handler to an event.
         """
+        event_name = event_name_or_type if isinstance(event_name_or_type, str) else getattr(event_name_or_type, "__name__", str(event_name_or_type))
         with self._handlers_lock:
             if event_name not in self._handlers:
                 self._handlers[event_name] = []
             if handler not in self._handlers[event_name]:
                 self._handlers[event_name].append(handler)
 
-    def off(self, event_name: str, handler: Callable) -> None:
+    def off(self, event_name_or_type: str | Any, handler: Callable[..., Any]) -> None:
         """
         @brief Unsubscribes a local handler from an event.
         """
+        event_name = event_name_or_type if isinstance(event_name_or_type, str) else getattr(event_name_or_type, "__name__", str(event_name_or_type))
         with self._handlers_lock:
             if event_name in self._handlers and handler in self._handlers[event_name]:
                 self._handlers[event_name].remove(handler)

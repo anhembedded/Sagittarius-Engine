@@ -17,7 +17,7 @@ class ProjectGenerator:
         project_name: str,
         template_name: str,
         output_dir: str,
-        extra_placeholders: dict[str, str] = None,
+        extra_placeholders: dict[str, str] | None = None,
     ) -> str:
         """
         @brief Generates a new application structure under output_dir/project_name/

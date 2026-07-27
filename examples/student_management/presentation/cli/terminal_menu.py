@@ -28,7 +28,7 @@ class TerminalMenu(IHostedService):
     def __init__(self, app: App) -> None:
         self.app = app
         self.token = CancellationToken()
-        self.task = None
+        self.task: Any = None
 
     def start(self, context: Any) -> None:
         self.app.event_bus.on("report.completed", self._on_report_completed)
@@ -90,7 +90,7 @@ class TerminalMenu(IHostedService):
                 from PySide6.QtCore import QMetaObject, Qt
                 instance = QApplication.instance()
                 if instance:
-                    QMetaObject.invokeMethod(instance, "quit", Qt.QueuedConnection)
+                    QMetaObject.invokeMethod(instance, "quit", Qt.ConnectionType.QueuedConnection)
                 break
             else:
                 print("❌ Invalid selection. Please choose between 1 and 9.")

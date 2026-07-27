@@ -26,14 +26,8 @@ class IEventBus(ABC):
     @endcode
     """
 
-    @overload
-    def emit(self, event_name: str, data: Any = None) -> None: ...
-
-    @overload
-    def emit(self, event: BaseEvent) -> None: ...
-
     @abstractmethod
-    def emit(self, event_name_or_obj: str | BaseEvent, data: Any = None) -> None:
+    def emit(self, event_name_or_obj: str | BaseEvent | Any, data: Any = None) -> None:
         """
         @brief Publishes an event along with optional data.
 
@@ -42,14 +36,8 @@ class IEventBus(ABC):
         """
         ...
 
-    @overload
-    def on(self, event_name: str, handler: Callable[[Any], None]) -> None: ...
-
-    @overload
-    def on(self, event_type: type[E], handler: Callable[[E], None]) -> None: ...
-
     @abstractmethod
-    def on(self, event_name_or_type: str | type[E], handler: Callable) -> None:
+    def on(self, event_name_or_type: str | type[E] | Any, handler: Callable[..., Any]) -> None:
         """
         @brief Subscribes a handler function to an event.
 
@@ -58,14 +46,8 @@ class IEventBus(ABC):
         """
         ...
 
-    @overload
-    def off(self, event_name: str, handler: Callable[[Any], None]) -> None: ...
-
-    @overload
-    def off(self, event_type: type[E], handler: Callable[[E], None]) -> None: ...
-
     @abstractmethod
-    def off(self, event_name_or_type: str | type[E], handler: Callable) -> None:
+    def off(self, event_name_or_type: str | type[E] | Any, handler: Callable[..., Any]) -> None:
         """
         @brief Unsubscribes a handler function from an event.
 

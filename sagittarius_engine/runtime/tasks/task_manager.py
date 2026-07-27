@@ -26,10 +26,10 @@ class DaemonThreadPoolExecutor(ThreadPoolExecutor):
             return t
 
         try:
-            threading.Thread = daemon_thread  # type: ignore[assignment]
+            threading.Thread = daemon_thread  # type: ignore
             super()._adjust_thread_count()
         finally:
-            threading.Thread = original_thread  # type: ignore[assignment]
+            threading.Thread = original_thread  # type: ignore
 
 
 class TaskManager:

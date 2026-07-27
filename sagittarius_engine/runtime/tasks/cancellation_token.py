@@ -6,7 +6,7 @@ class CancellationToken:
     @brief Thread-safe cooperative cancellation token using threading.Event.
     """
 
-    def __init__(self, event: threading.Event = None) -> None:
+    def __init__(self, event: threading.Event | None = None) -> None:
         self._event = event if event is not None else threading.Event()
 
     def is_cancelled(self) -> bool:
@@ -28,7 +28,7 @@ class CancellationToken:
         """
         self._event.set()
 
-    def wait(self, timeout: float = None) -> bool:
+    def wait(self, timeout: float | None = None) -> bool:
         """
         @brief Blocks until the token is cancelled or the timeout expires.
         @return True if the token was cancelled, False if the timeout expired.

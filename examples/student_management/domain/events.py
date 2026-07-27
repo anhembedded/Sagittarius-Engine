@@ -1,5 +1,5 @@
 # Clean Architecture - Domain Events
-from sagittarius_engine.base import BaseEvent
+from sagittarius_engine.domain import BaseEvent
 from examples.student_management.domain.student import Student
 
 

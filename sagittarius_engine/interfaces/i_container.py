@@ -24,7 +24,7 @@ class IContainer(ABC):
     """
 
     @abstractmethod
-    def bind(self, abstract: type[T], concrete: type[T]) -> None:
+    def bind(self, abstract: type[Any], concrete: type[Any]) -> None:
         """
         @brief Binds an Interface to a specific Implementation.
         @details A new instance is created every time it is resolved (Transient).
@@ -37,8 +37,8 @@ class IContainer(ABC):
     @abstractmethod
     def singleton(
         self,
-        abstract: type[T],
-        instance_or_factory: T | Callable[..., T] | type[T],
+        abstract: type[Any],
+        instance_or_factory: Any,
     ) -> None:
         """
         @brief Registers a Singleton.
@@ -50,7 +50,7 @@ class IContainer(ABC):
         ...
 
     @abstractmethod
-    def resolve(self, abstract: type[T]) -> T:
+    def resolve(self, abstract: type[Any]) -> Any:
         """
         @brief Resolves and returns an instance of the requested type.
 
