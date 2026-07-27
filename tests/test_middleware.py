@@ -133,3 +133,19 @@ def test_middleware_pipeline_concurrent_execution():
     assert len(results) == num_requests
     # Assert no state contamination (all IDs are unique)
     assert len(set(results)) == num_requests
+
+
+def test_validation_middleware_valid_dto():
+    from sagittarius_engine.middleware.validation_middleware import ValidationMiddleware
+
+    middleware = ValidationMiddleware()
+
+    class DummyCommand:
+        pass
+
+    def next_handler():
+        return "success"
+
+    result = middleware.process(DummyCommand(), {"key": "value"}, next_handler)
+
+    assert result == "success"
