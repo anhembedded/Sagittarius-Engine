@@ -17,11 +17,11 @@ class MockExtension(IExtension):
     def __init__(
         self,
         name: str,
-        dependencies: list[str] = None,
-        optional_dependencies: list[str] = None,
+        dependencies: list[str] | None = None,
+        optional_dependencies: list[str] | None = None,
         priority: int = 0,
         enabled: bool = True,
-        history: list = None,
+        history: list | None = None,
     ):
         self._descriptor = ExtensionDescriptor(
             name=name,

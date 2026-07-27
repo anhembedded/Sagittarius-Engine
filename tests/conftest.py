@@ -1,4 +1,5 @@
 import pytest
+from typing import Any
 
 from sagittarius_engine.kernel import App
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
@@ -14,9 +15,9 @@ class TrackedMemoryEventBus(MemoryEventBus):
         super().__init__(*args, **kwargs)
         self.emitted_events = []
 
-    def emit(self, event_name: str, data=None) -> None:
-        self.emitted_events.append((event_name, data))
-        super().emit(event_name, data)
+    def emit(self, event_name_or_obj: str | Any, data: Any = None) -> None:
+        self.emitted_events.append((event_name_or_obj, data))
+        super().emit(event_name_or_obj, data)
 
 
 @pytest.fixture
