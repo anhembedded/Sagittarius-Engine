@@ -91,11 +91,12 @@ class TerminalMenu(IHostedService):
                 print("Goodbye!", flush=True)
                 print("[DEBUG] [terminal_menu.py] Choice 9 selected. Quitting QApplication...", flush=True)
                 from PySide6.QtWidgets import QApplication
+                from PySide6.QtCore import QMetaObject, Qt
                 instance = QApplication.instance()
                 if instance:
-                    print("[DEBUG] [terminal_menu.py] Calling instance.quit()...", flush=True)
-                    instance.quit()
-                    print("[DEBUG] [terminal_menu.py] instance.quit() called.", flush=True)
+                    print("[DEBUG] [terminal_menu.py] Invoking instance.quit() via QMetaObject.invokeMethod (QueuedConnection)...", flush=True)
+                    QMetaObject.invokeMethod(instance, "quit", Qt.QueuedConnection)
+                    print("[DEBUG] [terminal_menu.py] instance.quit() queued successfully.", flush=True)
                 print("[DEBUG] [terminal_menu.py] Exiting _run_loop via break.", flush=True)
                 break
             else:
