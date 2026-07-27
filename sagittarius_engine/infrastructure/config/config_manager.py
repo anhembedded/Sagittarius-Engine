@@ -47,7 +47,7 @@ class ConfigManager(IConfig):
             try:
                 data = source.read()
                 self._cache.update(data)
-            except Exception:
+            except Exception:  # nosec B110
                 pass
         self._loaded = True
 

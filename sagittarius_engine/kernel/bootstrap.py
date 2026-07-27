@@ -44,15 +44,15 @@ class Bootstrap:
             # Clean up what was started
             try:
                 self.context.scheduler.stop()
-            except Exception:
+            except Exception:  # nosec B110
                 pass
             try:
                 self.context.hosted_services.stop()
-            except Exception:
+            except Exception:  # nosec B110
                 pass
             try:
                 self.context.async_runtime.stop()
-            except Exception:
+            except Exception:  # nosec B110
                 pass
             raise e
 

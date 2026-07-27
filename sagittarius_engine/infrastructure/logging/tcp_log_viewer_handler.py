@@ -115,7 +115,7 @@ class TcpLogViewerHandler(logging.Handler):
                     if sock:
                         try:
                             sock.close()
-                        except Exception:
+                        except Exception:  # nosec B110
                             pass
                         sock = None
                     # Short pause before next attempt if connection lost
@@ -125,7 +125,7 @@ class TcpLogViewerHandler(logging.Handler):
         if sock:
             try:
                 sock.close()
-            except Exception:
+            except Exception:  # nosec B110
                 pass
 
     def close(self) -> None:

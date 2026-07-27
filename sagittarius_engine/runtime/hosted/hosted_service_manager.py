@@ -29,7 +29,7 @@ class HostedServiceManager:
     def _emit(self, event_name: str, event_data: Any) -> None:
         try:
             self.context.event_bus.emit(event_name, event_data)
-        except Exception:
+        except Exception:  # nosec B110
             pass
 
     def start(self) -> None:

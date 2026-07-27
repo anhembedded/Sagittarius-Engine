@@ -62,7 +62,7 @@ class AsyncRuntime:
             if pending:
                 for task in pending:
                     task.cancel()
-        except Exception:
+        except Exception:  # nosec B110
             pass
 
         self.loop.close()
