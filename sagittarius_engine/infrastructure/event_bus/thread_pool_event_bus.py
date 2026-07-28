@@ -44,8 +44,8 @@ class ThreadPoolEventBus(IEventBus):
                 f"Emitting event: {event_name} to ThreadPoolEventBus with data: {payload}"
             )
 
-        with self._inner_bus._lock:
-            handlers_snapshot = list(self._inner_bus._handlers.get(event_name, []))
+        # ⚡ Bolt: Lock-free read using Copy-On-Write pattern to reduce contention
+        handlers_snapshot = self._inner_bus._handlers.get(event_name, ())
 
         futures = []
         for handler in handlers_snapshot:

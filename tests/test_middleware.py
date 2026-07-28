@@ -139,6 +139,15 @@ def test_timing_middleware_process(capsys):
     from sagittarius_engine.middleware.timing_middleware import TimingMiddleware
 
     middleware = TimingMiddleware()
+def test_logging_middleware_fallback_on_missing_logger(capsys):
+    from sagittarius_engine.middleware.logging_middleware import LoggingMiddleware
+    from sagittarius_engine.interfaces import IContainer
+    from unittest.mock import MagicMock
+
+    mock_container = MagicMock(spec=IContainer)
+    mock_container.resolve.side_effect = Exception("Logger not found")
+
+    middleware = LoggingMiddleware(mock_container)
 
     class DummyCommand:
         pass
