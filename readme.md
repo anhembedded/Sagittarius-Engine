@@ -30,15 +30,24 @@ Your architecture. Your domain. Your database. Your UI framework. Sagittarius En
 
 ---
 
+## Requirements
+
+- Python **3.12** or higher (3.12, 3.13, 3.14)
+- Zero mandatory external dependencies (built on the Python Standard Library)
+
+---
+
 ## Features
 
 - **Zero mandatory external dependencies** — built on the Python Standard Library core.
-- **Extension-based architecture** — extend the Engine at runtime with isolated, reusable plugins.
+- **Extension-based architecture** — extend the Engine at runtime with isolated, reusable plugins (`IExtension` | `IModule`).
 - **Full lifecycle management** — deterministic startup and shutdown with ordered extension resolution.
-- **Cooperative cancellation** — cancel long-running tasks gracefully using `CancellationToken`.
+- **Multi-layer Configuration** — `ConfigManager` with chainable `from_json()`, `load_json()`, `load_env()`, and `load_dict()`.
+- **Domain Event System** — `IDomainEvent` and `BaseEvent` providing automatic UUID `event_id` and UTC `occurred_on` metadata.
+- **Cooperative cancellation** — cancel long-running background tasks gracefully using `CancellationToken`.
 - **Unified dispatcher** — route commands and queries through a single `app.dispatch()` call.
 - **Multiple Event Bus strategies** — synchronous, thread-pool, and asyncio variants.
-- **SDK templates** — scaffold new projects with `minimal`, `clean`, `ddd`, or `mvc` templates.
+- **SDK templates** — scaffold new Clean Architecture projects with `minimal`, `clean`, `ddd`, or `mvc` templates.
 
 ---
 
@@ -54,7 +63,7 @@ pip install git+https://github.com/anhembedded/Sagittarius-Engine.git
 pip install -e .
 ```
 
-### Option 3: Scaffold New Project Structure
+### Option 3: Scaffold New Clean Architecture Project
 ```bash
 python -m sagittarius_engine.tools.scaffold my_new_app
 ```
@@ -64,28 +73,25 @@ python -m sagittarius_engine.tools.scaffold my_new_app
 ## Quick Start
 
 ```python
-from sagittarius_engine import App, IExtension, IHostedService, EngineContext
+from sagittarius_engine import App
+from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
+from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+from sagittarius_engine.infrastructure.config.config_manager import ConfigManager
+from sagittarius_engine.interfaces import IConfig, IContainer, IEventBus
 
-# Define a simple Hosted Service
-class GreeterService(IHostedService):
-    async def start(self, ctx: EngineContext) -> None:
-        print("Greeter started.")
+# 1. Initialize core infrastructure
+container = StdLibContainer()
+event_bus = MemoryEventBus()
+app = App(container, event_bus)
 
-    async def stop(self) -> None:
-        print("Greeter stopped.")
+# 2. Load configuration seamlessly from file
+config = ConfigManager().load_dict({"app.name": "My App"}).load_env()
+container.singleton(IConfig, config)
+container.singleton(IEventBus, event_bus)
 
-# Bundle it into an Extension
-class GreeterExtension(IExtension):
-    def initialize(self, ctx: EngineContext) -> None:
-        ctx.container.singleton(GreeterService, GreeterService())
-
-    def start(self, ctx: EngineContext) -> None:
-        ctx.runtime.add_hosted_service(ctx.container.resolve(GreeterService))
-
-# Wire up the application
-app = App()
-app.use(GreeterExtension())
+# 3. Boot and stop engine cleanly
 app.boot()
+print(f"Engine booted: {config.get('app.name')}")
 app.stop()
 ```
 
@@ -96,7 +102,7 @@ app.stop()
 Use the SDK to scaffold a new project:
 
 ```bash
-python -m sagittarius_engine.sdk new my_app --template minimal
+python -m sagittarius_engine.sdk new my_app --template clean
 ```
 
 Available templates:
@@ -118,6 +124,7 @@ The `examples/` directory contains reference applications that demonstrate real-
 
 | Project | Directory | Description |
 |---|---|---|
+| Student Management | `examples/student_management/` | Full Clean Architecture MVP Desktop (PySide6) & CLI App with SQLite persistence, ConfigManager, and BaseEvent domain events. |
 | Desktop Application | `examples/desktop/` | Event-driven PySide6 desktop app with thread-safe UI updates. |
 | Worker Service | `examples/worker/` | Background queue consumer with cooperative cancellation. |
 | Trading Bot | `examples/trading_bot/` | Long-running strategy loop using `HostedService`, `Scheduler`, and `TaskManager`. |
