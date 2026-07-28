@@ -132,6 +132,23 @@ def test_batch_input_port_json_invalid(caplog):
         os.remove(tmp_path)
 
 
+def test_batch_input_port_unsupported_file_type():
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as tmp:
+        tmp.write("dummy content")
+        tmp_path = tmp.name
+
+    try:
+        mock_logger = MagicMock()
+        port = BatchInputPort(file_path=tmp_path, file_type="UNKNOWN_TYPE")
+        port.logger = mock_logger
+        row = port.receive()
+
+        assert row == {COMMAND_KEY: EXIT_COMMAND}
+        mock_logger.error.assert_called_once_with("Unsupported file type: UNKNOWN_TYPE")
+    finally:
+        os.remove(tmp_path)
+
+
 def test_batch_input_port_file_not_found():
     mock_logger = MagicMock()
     port = BatchInputPort(file_path="nonexistent_file.csv", file_type=FILE_TYPE_CSV)
