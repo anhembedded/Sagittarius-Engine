@@ -11,3 +11,6 @@
 ## $(date +%Y-%m-%d) - O(N^2) UI table update optimization
 **Learning:** In PySide6 UI applications utilizing a `QTableWidget`, manually iterating through table rows to find and update existing items based on identifiers scales at O(N^2) complexity, quickly causing blocking behavior when tables grow large (e.g. hundreds or thousands of rows).
 **Action:** When working with large sets of items in a UI table, cache unique identifiers to their corresponding `QTableWidgetItem` objects in a dictionary. This allows O(1) row updates by calling `.row()` on the item, dropping the overall complexity to O(N).
+## 2025-03-09 - Lock Contention in High-Throughput EventBus
+**Learning:** Using locks around mutable dictionaries (`_handlers`) during event emission causes significant thread contention when handlers are frequently invoked, crippling throughput in concurrent environments.
+**Action:** Use a Copy-On-Write (COW) pattern for the `_handlers` registry. By storing handlers in immutable tuples (`tuple[Callable, ...]`), event emission (`emit()`) can perform a lock-free read `self._handlers.get(event_name, ())`, eliminating contention while moving the synchronization cost to the less frequent `on()` and `off()` operations.
