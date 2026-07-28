@@ -1,5 +1,5 @@
 # Clean Architecture - Presentation Layer (CLI Hosted Service Adapter)
-from typing import Any, List
+from typing import Any, List, Optional
 from sagittarius_engine import App
 from sagittarius_engine.runtime import IHostedService, CancellationToken
 from sagittarius_engine.extensions.health_check_query import (
@@ -28,30 +28,64 @@ from examples.student_management.application.contracts.use_case_ports import (
 )
 
 
-from sagittarius_engine.interfaces import IEngineContext
+from sagittarius_engine.interfaces import IEngineContext, ITaskHandle
 
 
 class TerminalMenu(IHostedService):
+    """
+    @brief CLI Presentation Adapter implementing IHostedService.
+    
+    @details
+    Educational Learning Notes (Architectural Patterns applied here):
+    1. Dependency Inversion Principle (DIP):
+       Notice `start(self, context: IEngineContext)` accepts `IEngineContext` interface, NOT concrete EngineContext.
+       This decouples presentation layer from engine kernel internals.
+    2. Strong Typing with `ITaskHandle`:
+       `self.task: Optional[ITaskHandle]` provides full IDE auto-completion for `.future`, `.status`, `.cancel()`.
+    3. Non-Blocking Service Startup:
+       `start()` delegates the blocking CLI loop (`_run_loop`) to `context.tasks.spawn()`, returning control 
+       immediately so other services and UI can boot in parallel.
+    """
+
     def __init__(self, app: App) -> None:
         self.app = app
         self.token = CancellationToken()
-        self.task: Any = None
+        # Strongly typed task handle: Enables IDE autocomplete for self.task.future & self.task.cancel()
+        self.task: Optional[ITaskHandle] = None
 
     def start(self, context: IEngineContext) -> None:
+        """
+        @brief Kicks off background CLI menu thread and registers domain event listeners.
+        @param context Shared engine context (access to event_bus, tasks, container, logger).
+        """
+        # Subscribe to domain events via EventBus
         context.event_bus.on("report.completed", self._on_report_completed)
         context.event_bus.on("health.updated", self._on_health_updated)
+
+        # Spawn non-blocking background task for CLI user interaction loop
         self.task = context.tasks.spawn(
             self._run_loop, name="TerminalUI", token=self.token
         )
 
     def stop(self, context: IEngineContext) -> None:
+        """
+        @brief Gracefully stops background thread and cleans up event listeners.
+        @param context Shared engine context interface.
+        """
+        # Unsubscribe event handlers to prevent memory leaks
         context.event_bus.off("report.completed", self._on_report_completed)
         context.event_bus.off("health.updated", self._on_health_updated)
+        
+        # Signal cooperative cancellation to background CLI loop
         self.token.cancel()
 
     def wait_for_exit(self) -> None:
+        """
+        @brief Blocks main thread until CLI execution finishes or user exits.
+        """
         if self.task and self.task.future:
             try:
+                # Safely wait for background thread future execution to complete
                 self.task.future.result()
             except Exception:
                 pass

@@ -256,3 +256,95 @@ def test_graceful_shutdown():
         getattr(app.context.async_runtime, "_thread", None) is None
         or not app.context.async_runtime._thread.is_alive()
     )
+
+
+def test_engine_context_and_task_handle_interfaces():
+    """
+    [Unit Test - UT]
+    Verifies that EngineContext, TaskManager, and BackgroundTask correctly implement
+    their abstract interfaces (IEngineContext, ITaskManager, ITaskHandle) for DIP compliance.
+    """
+    from sagittarius_engine.interfaces import (
+        IEngineContext,
+        ITaskManager,
+        ITaskHandle,
+    )
+
+    container = StdLibContainer()
+    event_bus = MemoryEventBus()
+    app = App(container, event_bus)
+
+    # 1. Verify EngineContext implements IEngineContext interface
+    assert isinstance(app.context, IEngineContext)
+    assert app.context.container is container
+    assert app.context.event_bus is event_bus
+
+    # 2. Verify TaskManager implements ITaskManager interface
+    assert isinstance(app.context.tasks, ITaskManager)
+
+    # 3. Verify spawned BackgroundTask implements ITaskHandle interface
+    handle = app.context.tasks.spawn(lambda: time.sleep(0.01), name="UnitTestTask")
+    assert isinstance(handle, ITaskHandle)
+    assert handle.id is not None
+    assert handle.name == "UnitTestTask"
+    assert handle.token is not None
+    assert handle.status in ("pending", "running", "completed")
+
+    if handle.future:
+        handle.future.result()
+    app.stop()
+
+
+def test_hosted_service_integration_with_itask_handle():
+    """
+    [Integration Test - IT]
+    Verifies full integration flow: HostedService receiving IEngineContext,
+    subscribing to EventBus events, spawning background task via ITaskManager,
+    and returning ITaskHandle with strong-typed .future access.
+    """
+    from sagittarius_engine.interfaces import IEngineContext, ITaskHandle
+
+    executed = False
+    event_received = False
+
+    class IntegrationHostedService(IHostedService):
+        def __init__(self) -> None:
+            self.task_handle: ITaskHandle | None = None
+
+        def start(self, context: IEngineContext) -> None:
+            context.event_bus.on("custom.event", self._on_event)
+
+            def bg_job():
+                nonlocal executed
+                executed = True
+
+            self.task_handle = context.tasks.spawn(bg_job, name="IntegrationJob")
+
+        def _on_event(self, data):
+            nonlocal event_received
+            event_received = True
+
+        def stop(self, context: IEngineContext) -> None:
+            context.event_bus.off("custom.event", self._on_event)
+
+    container = StdLibContainer()
+    event_bus = MemoryEventBus()
+    app = App(container, event_bus)
+
+    service = IntegrationHostedService()
+    app.context.hosted_services.register(service)
+
+    app.boot()
+
+    # Emit event to test EventBus integration
+    event_bus.emit("custom.event", {"msg": "hello"})
+    assert event_received is True
+
+    # Check task handle execution
+    assert service.task_handle is not None
+    if service.task_handle.future:
+        service.task_handle.future.result()
+
+    assert executed is True
+
+    app.stop()

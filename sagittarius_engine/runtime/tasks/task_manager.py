@@ -3,6 +3,7 @@ import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Dict, Optional, Union
+from sagittarius_engine.interfaces.i_task_manager import ITaskManager
 from sagittarius_engine.runtime.tasks.background_task import BackgroundTask
 from sagittarius_engine.runtime.tasks.cancellation_token import CancellationToken
 from sagittarius_engine.interfaces.events import (
@@ -32,7 +33,7 @@ class DaemonThreadPoolExecutor(ThreadPoolExecutor):
             threading.Thread = original_thread  # type: ignore
 
 
-class TaskManager:
+class TaskManager(ITaskManager):
     """
     @brief Unified manager for spawning, tracking, and coordinating sync and async tasks.
     """

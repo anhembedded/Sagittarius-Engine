@@ -27,6 +27,11 @@ Với cấu trúc hiện tại của **Sagittarius_ForkBoy**, đây là cách fr
 
 * **End-to-End Async Pipeline:** Cập nhật interface `ICommand` và `IQuery` để hỗ trợ trả về Awaitable (Coroutine). Trading bot cực kỳ khát I/O (I/O bound), việc bắt toàn bộ pipeline chạy đồng bộ sẽ làm lãng phí chu kỳ CPU khi chờ API phản hồi.
 * **State Management Module:** Cả Trading Bot (theo dõi trạng thái vị thế/số dư) và UI App (quản lý trạng thái giao diện) đều cần một nơi lưu trữ trạng thái tập trung. Bạn có thể xây dựng một `StateStore` hoạt động như một Single Source of Truth, và mỗi khi trạng thái thay đổi, nó sẽ trigger một `IDomainEvent` qua EventBus để các thành phần khác (như UI) tự động cập nhật.
-* **Graceful Teardown / Lifecycle Hooks:** Các ứng dụng general-purpose cần cơ chế tắt an toàn. Khi đóng PySide app hay ngắt Trading bot, bạn cần các hàm hook (như `module.shutdown(app)`) để đóng kết nối database, giải phóng thread pool, và xả các event còn tồn đọng trong queue.
+---
 
-Bạn muốn chúng ta đi sâu vào việc thiết kế giải pháp **xử lý luồng Async xuyên suốt (End-to-End Async) cho Trading Bot**, hay thiết kế **cơ chế giao tiếp an toàn giữa framework và Qt Event Loop (PySide)** trước?
+### 3. Planned Refactoring Tasks
+
+#### 🚀 `BackgroundService` Pattern for Hosted Services (`Tasks/background_service_pattern.md`)
+* **Objective:** Introduce `BackgroundService(IHostedService)` base class in `sagittarius_engine.runtime` to automate background thread spawning via `context.tasks.spawn()`, `CancellationToken` tracking, and graceful shutdown.
+* **Benefits:** Removes repetitive boilerplate code from long-running services like `TerminalMenu`, Queue Consumers, and Polling Workers.
+* **Status:** Documented in [background_service_pattern.md](file:///c:/Users/hoang/Documents/Sagittarius_ForkBoy/Tasks/background_service_pattern.md) for future implementation.
