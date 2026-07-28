@@ -103,7 +103,12 @@ def test_add_student_workflow(app: App) -> None:
     assert student.student_id == "STD001"
     assert student.full_name == "John Doe"
     assert len(added_events) == 1
-    assert added_events[0].student_id == "STD001"
+    event_student = (
+        added_events[0].student
+        if hasattr(added_events[0], "student")
+        else added_events[0]
+    )
+    assert event_student.student_id == "STD001"
 
     # 2. Duplicate Student ID
     with pytest.raises(DuplicateStudentIDError):
@@ -168,7 +173,12 @@ def test_update_and_delete_workflows(app: App) -> None:
     del_cmd = DeleteStudentCommand(student.id)
     app.dispatch(IDeleteStudentUseCase, del_cmd)
     assert len(deleted_events) == 1
-    assert deleted_events[0] == student.id
+    deleted_payload = (
+        deleted_events[0].student_id
+        if hasattr(deleted_events[0], "student_id")
+        else deleted_events[0]
+    )
+    assert deleted_payload == student.id
 
     # Verify student is gone
     with pytest.raises(StudentNotFoundError):
@@ -181,7 +191,12 @@ def test_async_report_generation(app: App) -> None:
     completed_reports = []
     progress_updates = []
 
-    app.event_bus.on("report.completed", lambda r: completed_reports.append(r))
+    app.event_bus.on(
+        "report.completed",
+        lambda r: completed_reports.append(
+            r.report_content if hasattr(r, "report_content") else str(r)
+        ),
+    )
     app.event_bus.on("report.progress", lambda p: progress_updates.append(p))
 
     app.dispatch(

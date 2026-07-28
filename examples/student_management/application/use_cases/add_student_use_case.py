@@ -4,6 +4,7 @@ from examples.student_management.application.contracts.student_repository import
     IStudentRepository,
 )
 from examples.student_management.application.dtos.commands import AddStudentCommand
+from examples.student_management.domain.events import StudentAddedEvent
 from examples.student_management.domain.student import Student, DuplicateStudentIDError
 from sagittarius_engine.interfaces import IEventBus, ILogger
 from examples.student_management.application.contracts.use_case_ports import (
@@ -46,7 +47,7 @@ class AddStudentUseCase(IAddStudentUseCase):
             gpa=command.gpa,
         )
         self.repo.add(student)
-        self.event_bus.emit("student.added", student)
+        self.event_bus.emit(StudentAddedEvent(student))
         self.logger.info(
             f"Student added successfully: id='{student.id}' student_id='{student.student_id}'"
         )

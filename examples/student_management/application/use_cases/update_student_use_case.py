@@ -3,6 +3,7 @@ from examples.student_management.application.contracts.student_repository import
     IStudentRepository,
 )
 from examples.student_management.application.dtos.commands import UpdateStudentCommand
+from examples.student_management.domain.events import StudentUpdatedEvent
 from examples.student_management.domain.student import (
     Student,
     StudentNotFoundError,
@@ -43,7 +44,7 @@ class UpdateStudentUseCase(IUpdateStudentUseCase):
         )
 
         self.repo.update(updated_student)
-        self.event_bus.emit("student.updated", updated_student)
+        self.event_bus.emit(StudentUpdatedEvent(updated_student))
         return updated_student
 
 

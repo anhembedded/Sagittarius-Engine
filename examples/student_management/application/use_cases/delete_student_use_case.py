@@ -3,6 +3,7 @@ from examples.student_management.application.contracts.student_repository import
     IStudentRepository,
 )
 from examples.student_management.application.dtos.commands import DeleteStudentCommand
+from examples.student_management.domain.events import StudentDeletedEvent
 from examples.student_management.domain.student import StudentNotFoundError
 from sagittarius_engine.interfaces import IEventBus
 from examples.student_management.application.contracts.use_case_ports import (
@@ -21,7 +22,7 @@ class DeleteStudentUseCase(IDeleteStudentUseCase):
             raise StudentNotFoundError(f"Student with ID '{command.id}' not found.")
 
         self.repo.delete(command.id)
-        self.event_bus.emit("student.deleted", command.id)
+        self.event_bus.emit(StudentDeletedEvent(command.id))
 
 
 # Alias for backward compatibility

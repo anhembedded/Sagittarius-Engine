@@ -306,7 +306,12 @@ class TerminalMenu(IHostedService):
         except Exception as e:
             print(f"❌ Error: {e}")
 
-    def _on_report_completed(self, report_content: str) -> None:
+    def _on_report_completed(self, data: Any) -> None:
+        report_content = (
+            data.report_content
+            if hasattr(data, "report_content")
+            else str(data)
+        )
         print("\n\n🔔 [Notification] Async GPA Report Generation Completed!")
         print(f"📄 {report_content}")
         print("\nSelect: ", end="", flush=True)

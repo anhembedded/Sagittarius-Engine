@@ -21,6 +21,14 @@ from examples.student_management.presentation.ui.desktop_window import (  # noqa
 )
 
 
+from examples.student_management.domain.events import (  # noqa: E402
+    StudentAddedEvent,
+    StudentUpdatedEvent,
+    StudentDeletedEvent,
+    ReportCompletedEvent,
+)
+
+
 def main() -> None:
     # 1. Initialize Composition Root Core
     container = StdLibContainer()
@@ -81,11 +89,35 @@ def main() -> None:
 
     setattr(event_bus, "emit", logging_emit)
 
-    # Wire Sagittarius EventBus signals to Qt EventBridge
+    # Wire Sagittarius EventBus signals to Qt EventBridge (handles both string payloads & BaseEvent objects)
+    event_bus.on(
+        StudentAddedEvent,
+        lambda e: bridge.student_added.emit(
+            e.student if isinstance(e, StudentAddedEvent) else e
+        ),
+    )
     event_bus.on("student.added", lambda s: bridge.student_added.emit(s))
+    event_bus.on(
+        StudentUpdatedEvent,
+        lambda e: bridge.student_updated.emit(
+            e.student if isinstance(e, StudentUpdatedEvent) else e
+        ),
+    )
     event_bus.on("student.updated", lambda s: bridge.student_updated.emit(s))
+    event_bus.on(
+        StudentDeletedEvent,
+        lambda e: bridge.student_deleted.emit(
+            e.student_id if isinstance(e, StudentDeletedEvent) else e
+        ),
+    )
     event_bus.on("student.deleted", lambda s_id: bridge.student_deleted.emit(s_id))
     event_bus.on("report.progress", lambda p: bridge.report_progress.emit(p))
+    event_bus.on(
+        ReportCompletedEvent,
+        lambda e: bridge.report_completed.emit(
+            e.report_content if isinstance(e, ReportCompletedEvent) else e
+        ),
+    )
     event_bus.on("report.completed", lambda r: bridge.report_completed.emit(r))
     event_bus.on("health.updated", lambda status: bridge.health_updated.emit(status))
 

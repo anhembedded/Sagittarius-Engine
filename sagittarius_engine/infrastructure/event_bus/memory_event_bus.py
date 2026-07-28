@@ -41,6 +41,9 @@ class MemoryEventBus(IEventBus):
     def _get_event_key(self, event_name_or_type: str | type | Any) -> str:
         if isinstance(event_name_or_type, str):
             return event_name_or_type
+        key = getattr(event_name_or_type, "event_name", None)
+        if key:
+            return key
         if isinstance(event_name_or_type, type):
             return event_name_or_type.__qualname__
         return event_name_or_type.__class__.__qualname__

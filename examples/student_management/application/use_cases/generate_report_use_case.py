@@ -7,6 +7,7 @@ from examples.student_management.application.contracts.use_case_ports import (
 from examples.student_management.application.contracts.student_repository import (
     IStudentRepository,
 )
+from examples.student_management.domain.events import ReportCompletedEvent
 from examples.student_management.application.dtos.commands import GenerateReportCommand
 
 
@@ -46,7 +47,7 @@ class GenerateReportUseCase(IGenerateReportUseCase):
             avg_gpa = sum(s.gpa for s in students) / len(students)
             report_content = f"Report Summary: Total students = {len(students)}, Average GPA = {avg_gpa:.2f}"
 
-        self.event_bus.emit("report.completed", report_content)
+        self.event_bus.emit(ReportCompletedEvent(report_content))
 
 
 # Alias for backward compatibility
