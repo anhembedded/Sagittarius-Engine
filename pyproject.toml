@@ -10,7 +10,7 @@ readme = "readme.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
-    {name = "AnhEmbedded Team", email = "contact@anhembedded.com"}
+    {name = "AnhEmbedded Team", email = "Anh.Embedded@gmail.com"}
 ]
 keywords = ["clean-architecture", "framework", "event-driven", "cqrs", "dependency-injection"]
 classifiers = [
