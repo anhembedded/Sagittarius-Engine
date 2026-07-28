@@ -28,22 +28,25 @@ from examples.student_management.application.contracts.use_case_ports import (
 )
 
 
+from sagittarius_engine.interfaces import IEngineContext
+
+
 class TerminalMenu(IHostedService):
     def __init__(self, app: App) -> None:
         self.app = app
         self.token = CancellationToken()
         self.task: Any = None
 
-    def start(self, context: Any) -> None:
-        self.app.event_bus.on("report.completed", self._on_report_completed)
-        self.app.event_bus.on("health.updated", self._on_health_updated)
-        self.task = self.app.context.tasks.spawn(
+    def start(self, context: IEngineContext) -> None:
+        context.event_bus.on("report.completed", self._on_report_completed)
+        context.event_bus.on("health.updated", self._on_health_updated)
+        self.task = context.tasks.spawn(
             self._run_loop, name="TerminalUI", token=self.token
         )
 
-    def stop(self, context: Any) -> None:
-        self.app.event_bus.off("report.completed", self._on_report_completed)
-        self.app.event_bus.off("health.updated", self._on_health_updated)
+    def stop(self, context: IEngineContext) -> None:
+        context.event_bus.off("report.completed", self._on_report_completed)
+        context.event_bus.off("health.updated", self._on_health_updated)
         self.token.cancel()
 
     def wait_for_exit(self) -> None:

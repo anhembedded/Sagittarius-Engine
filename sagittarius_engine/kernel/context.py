@@ -4,6 +4,7 @@ from sagittarius_engine.interfaces import (
     IEventBus,
     ILogger,
     IConfig,
+    IEngineContext,
 )
 from sagittarius_engine.kernel.middleware_pipeline import MiddlewarePipeline
 from sagittarius_engine.kernel.lifecycle import EngineLifecycle
@@ -15,7 +16,7 @@ from sagittarius_engine.kernel.dispatcher import Dispatcher
 from sagittarius_engine.kernel.extension_manager import ExtensionManager
 
 
-class EngineContext:
+class EngineContext(IEngineContext):
     """The runtime composition root of the Sagittarius Engine.
 
     It owns every engine service and coordinates communication between engine subsystems.
@@ -24,8 +25,8 @@ class EngineContext:
 
     def __init__(self, app: Any, container: IContainer, event_bus: IEventBus) -> None:
         self.app = app
-        self.container = container
-        self.event_bus = event_bus
+        self._container = container
+        self._event_bus = event_bus
         self.middleware_pipeline = MiddlewarePipeline()
         self.extension_manager = ExtensionManager(self)
 
@@ -44,15 +45,39 @@ class EngineContext:
         )
 
         self.async_runtime = AsyncRuntime(self)
-        self.tasks = TaskManager(self)
+        self._tasks = TaskManager(self)
         self.scheduler = Scheduler(self)
         self.hosted_services = HostedServiceManager(self)
 
         # Register runtime in container as singletons
-        self.container.singleton(AsyncRuntime, self.async_runtime)
-        self.container.singleton(TaskManager, self.tasks)
-        self.container.singleton(Scheduler, self.scheduler)
-        self.container.singleton(HostedServiceManager, self.hosted_services)
+        self._container.singleton(AsyncRuntime, self.async_runtime)
+        self._container.singleton(TaskManager, self._tasks)
+        self._container.singleton(Scheduler, self.scheduler)
+        self._container.singleton(HostedServiceManager, self.hosted_services)
+
+    @property
+    def container(self) -> IContainer:
+        return self._container
+
+    @container.setter
+    def container(self, value: IContainer) -> None:
+        self._container = value
+
+    @property
+    def event_bus(self) -> IEventBus:
+        return self._event_bus
+
+    @event_bus.setter
+    def event_bus(self, value: IEventBus) -> None:
+        self._event_bus = value
+
+    @property
+    def tasks(self) -> Any:
+        return self._tasks
+
+    @tasks.setter
+    def tasks(self, value: Any) -> None:
+        self._tasks = value
 
     @property
     def modules(self) -> list[Any]:

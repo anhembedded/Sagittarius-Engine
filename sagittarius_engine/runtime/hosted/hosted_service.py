@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from sagittarius_engine.interfaces.i_engine_context import IEngineContext
 
 
 class IHostedService(ABC):
@@ -8,14 +8,14 @@ class IHostedService(ABC):
     """
 
     @abstractmethod
-    def start(self, context: Any) -> None:
+    def start(self, context: IEngineContext) -> None:
         """
         @brief Starts the service.
         """
         pass
 
     @abstractmethod
-    def stop(self, context: Any) -> None:
+    def stop(self, context: IEngineContext) -> None:
         """
         @brief Stops the service.
         """
