@@ -348,3 +348,37 @@ def test_hosted_service_integration_with_itask_handle():
     assert executed is True
 
     app.stop()
+
+
+def test_background_service_pattern():
+    """
+    [Unit Test - UT]
+    Verifies that BackgroundService automatically spawns background thread,
+    manages CancellationToken, and provides graceful shutdown without manual task spawning.
+    """
+    from sagittarius_engine.runtime import BackgroundService, CancellationToken
+
+    loop_count = 0
+
+    class MyLoopWorker(BackgroundService):
+        def run(self, token: CancellationToken) -> None:
+            nonlocal loop_count
+            while not token.is_cancelled():
+                loop_count += 1
+                time.sleep(0.01)
+
+    container = StdLibContainer()
+    event_bus = MemoryEventBus()
+    app = App(container, event_bus)
+
+    worker = MyLoopWorker()
+    app.context.hosted_services.register(worker)
+
+    app.boot()
+    time.sleep(0.03)
+
+    assert worker.task is not None
+    assert loop_count >= 1
+
+    app.stop()
+    assert worker.token.is_cancelled() is True
