@@ -135,6 +135,10 @@ def test_middleware_pipeline_concurrent_execution():
     assert len(set(results)) == num_requests
 
 
+def test_timing_middleware_process(capsys):
+    from sagittarius_engine.middleware.timing_middleware import TimingMiddleware
+
+    middleware = TimingMiddleware()
 def test_logging_middleware_fallback_on_missing_logger(capsys):
     from sagittarius_engine.middleware.logging_middleware import LoggingMiddleware
     from sagittarius_engine.interfaces import IContainer
@@ -148,13 +152,15 @@ def test_logging_middleware_fallback_on_missing_logger(capsys):
     class DummyCommand:
         pass
 
+    cmd = DummyCommand()
+
     def next_handler():
-        return "success"
+        return "success_result"
 
-    result = middleware.process(DummyCommand(), None, next_handler)
+    result = middleware.process(cmd, None, next_handler)
 
-    assert result == "success"
+    assert result == "success_result"
 
     captured = capsys.readouterr()
-    assert "[LoggingMiddleware] Starting DummyCommand" in captured.out
-    assert "[LoggingMiddleware] Finished DummyCommand" in captured.out
+    assert "[TimingMiddleware] DummyCommand executed in" in captured.out
+    assert "ms" in captured.out
