@@ -11,7 +11,6 @@ from sagittarius_engine import App  # noqa: E402
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer  # noqa: E402
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus  # noqa: E402
 from sagittarius_engine.infrastructure.config.config_manager import ConfigManager  # noqa: E402
-from sagittarius_engine.infrastructure.config.json_source import JsonSource  # noqa: E402
 from sagittarius_engine.interfaces import IEventBus, IConfig, IContainer  # noqa: E402
 
 from examples.student_management.student_module import StudentModule  # noqa: E402
@@ -37,9 +36,8 @@ def main() -> None:
     app = App(container, event_bus)
 
     # 2. Bind Infrastructure Core Singletons (Load from config.json file)
-    config = ConfigManager()
     config_file_path = os.path.join(os.path.dirname(__file__), "config.json")
-    config.add_source(JsonSource(config_file_path))
+    config = ConfigManager.from_json(config_file_path)
     container.singleton(IConfig, config)
     container.singleton(IEventBus, event_bus)
     container.singleton(IContainer, container)

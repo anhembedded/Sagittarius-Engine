@@ -38,6 +38,44 @@ class ConfigManager(IConfig):
         self._sources.append(source)
         self._loaded = False
 
+    def load_json(self, filepath: str) -> "ConfigManager":
+        """
+        @brief Convenience method to add a JSON file source.
+        @param filepath Path to the JSON configuration file.
+        """
+        from sagittarius_engine.infrastructure.config.json_source import JsonSource
+
+        self.add_source(JsonSource(filepath))
+        return self
+
+    def load_env(self, prefix: str = "") -> "ConfigManager":
+        """
+        @brief Convenience method to add an environment variables source.
+        @param prefix Optional environment variable prefix.
+        """
+        from sagittarius_engine.infrastructure.config.env_source import EnvSource
+
+        self.add_source(EnvSource(prefix=prefix))
+        return self
+
+    def load_dict(self, data: dict[str, Any]) -> "ConfigManager":
+        """
+        @brief Convenience method to add a dictionary source.
+        @param data Dictionary containing configuration.
+        """
+        from sagittarius_engine.infrastructure.config.dict_source import DictSource
+
+        self.add_source(DictSource(data))
+        return self
+
+    @classmethod
+    def from_json(cls, filepath: str) -> "ConfigManager":
+        """
+        @brief Factory method creating a ConfigManager initialized with a JSON file.
+        @param filepath Path to the JSON configuration file.
+        """
+        return cls().load_json(filepath)
+
     def _load(self) -> None:
         """@brief Loads and merges configurations from all sources."""
         if self._loaded:
