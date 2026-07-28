@@ -1,11 +1,15 @@
 from typing import Any, TypeVar
 from sagittarius_engine.exceptions import ModuleRegistrationError
 from sagittarius_engine.kernel.context import EngineContext
+from sagittarius_engine.kernel.middleware_pipeline import MiddlewarePipeline
+from sagittarius_engine.kernel.lifecycle import EngineLifecycle
 from sagittarius_engine.interfaces import (
     IContainer,
     IEventBus,
+    IExtension,
     ILogger,
     IMiddleware,
+    IModule,
 )
 
 TInput = TypeVar("TInput")
@@ -37,18 +41,18 @@ class App:
         return self.context.event_bus
 
     @property
-    def modules(self) -> list[Any]:
+    def modules(self) -> list[IExtension]:
         return self.context.modules
 
     @property
-    def pipeline(self) -> Any:
+    def pipeline(self) -> MiddlewarePipeline:
         return self.context.middleware_pipeline
 
     @property
-    def lifecycle(self) -> Any:
+    def lifecycle(self) -> EngineLifecycle:
         return self.context.lifecycle
 
-    def use(self, extension_or_module: Any) -> None:
+    def use(self, extension_or_module: IExtension | IModule) -> None:
         """
         @brief Manually adds an Extension or Module to the App.
         """

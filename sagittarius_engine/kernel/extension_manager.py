@@ -70,7 +70,7 @@ class ExtensionManager:
         self.sorted_extensions: list[IExtension] = []
         self.initialized_extensions: list[IExtension] = []
 
-    def register(self, extension_or_module: Any) -> None:
+    def register(self, extension_or_module: IExtension | IModule | Any) -> None:
         """
         @brief Registers an extension or adapts a legacy module.
         """
