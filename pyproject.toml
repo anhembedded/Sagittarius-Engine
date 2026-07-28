@@ -6,9 +6,30 @@ build-backend = "setuptools.build_meta"
 name = "sagittarius-engine"
 version = "1.0.0"
 description = "A lightweight, modular Python Application Engine"
+readme = "readme.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
-readme = "readme.md"
+authors = [
+    {name = "AnhEmbedded Team", email = "contact@anhembedded.com"}
+]
+keywords = ["clean-architecture", "framework", "event-driven", "cqrs", "dependency-injection"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
+
+[project.urls]
+Homepage = "https://github.com/anhembedded/Sagittarius-Engine"
+Repository = "https://github.com/anhembedded/Sagittarius-Engine.git"
+Documentation = "https://github.com/anhembedded/Sagittarius-Engine/tree/main/docs"
 
 [project.scripts]
 sagittarius = "sagittarius_engine.sdk.cli:main"
