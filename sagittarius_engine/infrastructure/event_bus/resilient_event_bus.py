@@ -1,3 +1,4 @@
+import threading
 from collections.abc import Callable
 from typing import Any
 
@@ -44,7 +45,8 @@ class ResilientEventBus(IEventBus):
         self._dlq: list[tuple[str, Any, Callable, Exception]] = []
         self.logger = logger
 
-        self._handlers: dict[str, list[Callable]] = {}
+        self._handlers: dict[str, tuple[Callable, ...]] = {}
+        self._lock = threading.Lock()
 
     def emit(self, event_name_or_obj: str | Any, data: Any = None) -> None:
         """
@@ -64,7 +66,8 @@ class ResilientEventBus(IEventBus):
                 f"Emitting resilient event: {event_name} with data: {payload}"
             )
 
-        for handler in self._handlers.get(event_name, []):
+        # ⚡ Bolt: Lock-free read using Copy-On-Write pattern to reduce contention
+        for handler in self._handlers.get(event_name, ()):
             for attempt in range(self.max_retries + 1):
                 try:
                     handler(payload)
@@ -85,10 +88,10 @@ class ResilientEventBus(IEventBus):
             if isinstance(event_name_or_type, str)
             else getattr(event_name_or_type, "__name__", str(event_name_or_type))
         )
-        if event_name not in self._handlers:
-            self._handlers[event_name] = []
-        if handler not in self._handlers[event_name]:
-            self._handlers[event_name].append(handler)
+        with self._lock:
+            current_handlers = self._handlers.get(event_name, ())
+            if handler not in current_handlers:
+                self._handlers[event_name] = current_handlers + (handler,)
         self.inner_bus.on(event_name_or_type, handler)
 
     def off(self, event_name_or_type: str | Any, handler: Callable[..., Any]) -> None:
@@ -103,8 +106,9 @@ class ResilientEventBus(IEventBus):
             if isinstance(event_name_or_type, str)
             else getattr(event_name_or_type, "__name__", str(event_name_or_type))
         )
-        if event_name in self._handlers and handler in self._handlers[event_name]:
-            self._handlers[event_name].remove(handler)
+        with self._lock:
+            if event_name in self._handlers and handler in self._handlers[event_name]:
+                self._handlers[event_name] = tuple(h for h in self._handlers[event_name] if h != handler)
         self.inner_bus.off(event_name_or_type, handler)
 
     def get_dlq(self) -> list[tuple[str, Any, Callable, Exception]]:
