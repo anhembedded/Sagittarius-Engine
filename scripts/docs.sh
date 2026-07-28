@@ -4,5 +4,5 @@ if [ "$1" = "serve" ]; then
 elif [ "$1" = "build" ]; then
     .venv/bin/python -m mkdocs build --strict
 else
-    echo "Usage: ./docs.sh [serve|build]"
+    echo "Usage: ./scripts/docs.sh [serve|build]"
 fi
