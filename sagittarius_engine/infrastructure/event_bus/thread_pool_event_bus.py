@@ -37,11 +37,14 @@ class ThreadPoolEventBus(IEventBus):
             event_name = event_name_or_obj
             payload = data
         else:
-            event_name = getattr(
-                event_name_or_obj,
-                "event_name",
-                type(event_name_or_obj).__qualname__,
-            ) or type(event_name_or_obj).__qualname__
+            event_name = (
+                getattr(
+                    event_name_or_obj,
+                    "event_name",
+                    type(event_name_or_obj).__qualname__,
+                )
+                or type(event_name_or_obj).__qualname__
+            )
             payload = data if data is not None else event_name_or_obj
         if self.logger:
             self.logger.info(
