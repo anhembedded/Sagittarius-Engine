@@ -44,10 +44,7 @@ class LoggingMiddleware(IMiddleware):
 
         try:
             logger: ILogger = self.container.resolve(ILogger)
-            logger.info(
-                f"[LoggingMiddleware] Starting {name}",
-                extra={"submodule": "LoggingMiddleware"},
-            )
+            logger.info(f"[LoggingMiddleware] Starting {name}")
         except Exception:
             logger = None  # type: ignore[assignment]
             print(f"[LoggingMiddleware] Starting {name}")
@@ -55,10 +52,7 @@ class LoggingMiddleware(IMiddleware):
         result = next_handler()
 
         if logger:
-            logger.info(
-                f"[LoggingMiddleware] Finished {name}",
-                extra={"submodule": "LoggingMiddleware"},
-            )
+            logger.info(f"[LoggingMiddleware] Finished {name}")
         else:
             print(f"[LoggingMiddleware] Finished {name}")
 
