@@ -1,6 +1,7 @@
 # TASK-002: `AuditExtension` Framework Observability & Diagnostics Dashboard
 
-- **Status**: 📝 Planned (Backlog)
+- **Status**: ✅ Completed
+- **Completion Date**: 2026-07-28
 - **Priority**: P1 - High
 - **Category**: Observability / Diagnostics
 
@@ -28,13 +29,13 @@ Location: `sagittarius_engine/extensions/audit/audit_extension.py`
 ```python
 from sagittarius_engine.interfaces import IEngineContext, IExtension
 
-
 class AuditExtension(IExtension):
-    def initialize(self, ctx: IEngineContext) -> None:
+    def register(self, ctx: IEngineContext) -> None:
         ctx.container.singleton(AuditService, AuditService(ctx))
 
-    def start(self, ctx: IEngineContext) -> None:
-        pass
+    def boot(self, ctx: IEngineContext) -> None:
+        if self.enable_dashboard:
+            ctx.container.resolve(AuditService).start_server()
 ```
 
 ### 2. `AuditService` Core Inspector
@@ -46,18 +47,13 @@ Gathers telemetry directly from `IEngineContext`:
 - `get_active_tasks() -> list[dict]` (Iterates `context.tasks.tasks` returning ID, Name, Status, Runtime)
 - `get_system_health() -> dict` (Dispatches `HealthCheckQuery`)
 
-### 3. `AuditTerminalDashboard` (CLI Inspector)
+### 3. `AuditTerminalDashboard` (Remote Client TUI)
 Location: `sagittarius_engine/extensions/audit/terminal_dashboard.py`
 
-Provides a clean ANSI-formatted Terminal UI:
-```text
-================================================================================
-                    SAGITTARIUS ENGINE - AUDIT DASHBOARD
-================================================================================
- 🟢 Health: OK | ⏱️ Uptime: 00:08:15 | 🧵 Active Tasks: 3
---------------------------------------------------------------------------------
- 📦 EXTENSIONS: LoggerExtension, DatabaseExtension, HealthModule, AuditExtension
- ⚙️ HOSTED SERVICES: TerminalMenu (RUNNING), MetricsPublisher (RUNNING)
+Uses a **Client-Server Architecture**. 
+- `AuditService` hosts a background HTTP Server (port 9999) serving JSON telemetry.
+- The `AuditTerminalDashboard` is a standalone CLI client that uses the `textual` framework to render a beautiful 5-Tab TUI.
+- Users open a separate terminal to run the dashboard: `python -m sagittarius_engine.extensions.audit.terminal_dashboard`, avoiding stdout log overlap!
  🧵 TASKS:
     - [c4f81a9c] TerminalUI           (RUNNING)   [00:08:15]
     - [a1b2c3d4] AsyncGPAPipeline     (COMPLETED) [00:00:02]

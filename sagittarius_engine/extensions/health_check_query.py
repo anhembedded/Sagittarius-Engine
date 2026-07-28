@@ -61,5 +61,5 @@ class HealthCheckQuery(IQuery):
                 status["components"]["database"] = "database connection failed"
                 status["status"] = "unhealthy"
         except Exception:
-            status["components"]["database"] = "not configured or resolving failed"
+            status["components"]["database"] = "not configured"
         return status

@@ -44,8 +44,10 @@ def main() -> None:
 
     # 3. Add Logger Module
     from sagittarius_engine.extensions.logger_module import LoggerExtension
+    from sagittarius_engine.extensions.audit import AuditExtension
 
     app.use(LoggerExtension())
+    app.use(AuditExtension(enable_dashboard=True))
 
     # 4. Use Student Module & Health Extension
     app.use(StudentModule())

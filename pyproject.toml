@@ -35,6 +35,9 @@ sagittarius = "sagittarius_engine.sdk.cli:main"
 [tool.setuptools.packages.find]
 include = ["sagittarius_engine*"]
 
+[project.optional-dependencies]
+audit = ["textual>=0.38.0"]
+
 [tool.black]
 line-length = 88
 target-version = ["py314"]

@@ -1,8 +1,10 @@
 import uuid
 from typing import Any, Optional
-from sagittarius_engine.interfaces.i_task_manager import ITaskHandle
 from sagittarius_engine.runtime.tasks.cancellation_token import CancellationToken
+from datetime import datetime, timezone
 
+
+from sagittarius_engine.interfaces.i_task_manager import ITaskHandle
 
 class BackgroundTask(ITaskHandle):
     """
@@ -24,6 +26,8 @@ class BackgroundTask(ITaskHandle):
         self._future: Optional[Any] = None
         self._status: str = "pending"  # pending, running, completed, failed
         self.error: Optional[Exception] = None
+        self.start_time: Optional[datetime] = datetime.now(timezone.utc)
+        self.end_time: Optional[datetime] = None
 
     @property
     def id(self) -> str:
@@ -56,6 +60,8 @@ class BackgroundTask(ITaskHandle):
     @status.setter
     def status(self, value: str) -> None:
         self._status = value
+        if value in ("completed", "failed", "cancelled"):
+            self.end_time = datetime.now(timezone.utc)
 
     def cancel(self) -> None:
         """

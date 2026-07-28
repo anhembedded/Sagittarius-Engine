@@ -47,6 +47,7 @@ Your architecture. Your domain. Your database. Your UI framework. Sagittarius En
 - **Cooperative cancellation** — cancel long-running background tasks gracefully using `CancellationToken`.
 - **Unified dispatcher** — route commands and queries through a single `app.dispatch()` call.
 - **Multiple Event Bus strategies** — synchronous, thread-pool, and asyncio variants.
+- **Remote Audit Dashboard (TUI)** — inspect live engine telemetry (tasks, extensions, health) from a separate terminal via the built-in HTTP telemetry server.
 - **SDK templates** — scaffold new Clean Architecture projects with `minimal`, `clean`, `ddd`, or `mvc` templates.
 
 ---

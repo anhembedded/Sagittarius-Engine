@@ -134,6 +134,9 @@ def test_task_manager_sync_and_async():
 
     assert executed is True
     assert task.status == "completed"
+    assert task.start_time is not None
+    assert task.end_time is not None
+    assert (task.end_time - task.start_time).total_seconds() >= 0
 
     # 2. Async Task
     async_executed = False
@@ -149,6 +152,8 @@ def test_task_manager_sync_and_async():
     assert async_executed is True
     assert res == "async_result"
     assert task2.status == "completed"
+    assert task2.start_time is not None
+    assert task2.end_time is not None
 
     # 3. Failing Task
     def failing_work():
@@ -159,6 +164,8 @@ def test_task_manager_sync_and_async():
         task3.future.result(timeout=1.0)
 
     assert task3.status == "failed"
+    assert task3.start_time is not None
+    assert task3.end_time is not None
 
     # Wait for events to process
     time.sleep(0.05)
