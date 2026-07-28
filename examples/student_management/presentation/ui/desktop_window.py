@@ -25,12 +25,43 @@ from examples.student_management.presentation.presenters.student_monitor_present
 )
 
 
-class MainWindow(QMainWindow, IStudentMonitorView):
+class QtStudentMonitorViewAdapter(IStudentMonitorView):
     """
-    # MVP Pattern - View Implementation
-    Passive View implementing IStudentMonitorView.
-    Responsible strictly for PySide6 Qt layout, widgets creation, and styling.
-    All presentation/business logic is delegated to StudentMonitorPresenter.
+    # Adapter Pattern
+    Translates Presentation IStudentMonitorView contract calls to PySide6 Qt MainWindow GUI methods.
+    Eliminates multiple inheritance on PySide6 QMainWindow.
+    """
+
+    def __init__(self, window: "MainWindow") -> None:
+        self.window = window
+
+    def display_students(self, students: Sequence[Student]) -> None:
+        self.window.display_students(students)
+
+    def update_student_row(self, student: Student) -> None:
+        self.window.update_student_row(student)
+
+    def remove_student_row(self, uuid: str) -> None:
+        self.window.remove_student_row(uuid)
+
+    def update_report_progress(self, progress: int) -> None:
+        self.window.update_report_progress(progress)
+
+    def display_report(self, report_text: str) -> None:
+        self.window.display_report(report_text)
+
+    def add_event_log(self, event_name: str, event_data: str) -> None:
+        self.window.add_event_log(event_name, event_data)
+
+    def update_health_status(self, status: dict[str, Any]) -> None:
+        self.window.update_health_status(status)
+
+
+class MainWindow(QMainWindow):
+    """
+    # MVP Pattern - View Implementation (Single Inheritance)
+    Passive View strictly responsible for PySide6 Qt layout, widgets creation, and styling.
+    Inherits ONLY from QMainWindow (Single Inheritance).
     """
 
     def __init__(self, app: App, bridge: EventBridge) -> None:
@@ -93,7 +124,8 @@ class MainWindow(QMainWindow, IStudentMonitorView):
         )
 
         self._init_ui()
-        self.presenter = StudentMonitorPresenter(self, app)
+        self.view_adapter = QtStudentMonitorViewAdapter(self)
+        self.presenter = StudentMonitorPresenter(self.view_adapter, app)
         self._connect_signals()
         self.presenter.initialize()
 
@@ -141,7 +173,9 @@ class MainWindow(QMainWindow, IStudentMonitorView):
         )
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
-        left_layout.addWidget(left_widget, stretch=7)
+        left_layout.addWidget(self.table)
+
+        main_layout.addWidget(left_widget, stretch=7)
 
         # --- RIGHT PANEL: Real-time Monitor Logs & Progress ---
         right_widget = QWidget()
@@ -174,7 +208,9 @@ class MainWindow(QMainWindow, IStudentMonitorView):
         self.report_label.setStyleSheet(
             "color: #abb2bf; font-style: italic; background-color: #282c34; padding: 10px; border-radius: 4px;"
         )
-        right_layout.addWidget(right_widget, stretch=4)
+        right_layout.addWidget(self.report_label)
+
+        main_layout.addWidget(right_widget, stretch=4)
 
         # Footer Status Bar
         self.health_label = QLabel("Health Check: INITIALIZING...")

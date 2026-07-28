@@ -125,17 +125,16 @@ class IStudentRepository(ABC):
 * `student_monitor_view.py` (**MVP View Contract**):
 
 ```python
-from abc import ABC, abstractmethod
-from typing import Sequence
+from typing import Sequence, Any
 from examples.student_management.domain.student import Student
 
-class IStudentMonitorView(ABC):
-    @abstractmethod
-    def display_students(self, students: Sequence[Student]) -> None: ...
-    @abstractmethod
-    def update_student_row(self, student: Student) -> None: ...
-    @abstractmethod
-    def remove_student_row(self, uuid: str) -> None: ...
+class IStudentMonitorView:
+    def display_students(self, students: Sequence[Student]) -> None:
+        raise NotImplementedError
+    def update_student_row(self, student: Student) -> None:
+        raise NotImplementedError
+    def remove_student_row(self, uuid: str) -> None:
+        raise NotImplementedError
 ```
 
 #### 2.2 Define DTOs (`application/dtos/`)
@@ -161,13 +160,13 @@ Use Cases implement CQRS interfaces (`ICommand[TInput, TOutput]` or `IQuery[TInp
 
 ```python
 import uuid
-from sagittarius_engine.extensions.cqrs import ICommand
 from sagittarius_engine.interfaces import IEventBus
 from examples.student_management.application.contracts.student_repository import IStudentRepository
+from examples.student_management.application.contracts.use_case_ports import IAddStudentUseCase
 from examples.student_management.application.dtos.commands import AddStudentCommand
 from examples.student_management.domain.student import Student
 
-class AddStudentUseCase(ICommand[AddStudentCommand, Student]):
+class AddStudentUseCase(IAddStudentUseCase):
     def __init__(self, repo: IStudentRepository, event_bus: IEventBus) -> None:
         self.repo = repo
         self.event_bus = event_bus
@@ -233,16 +232,22 @@ class StudentMonitorPresenter:
 
 #### 4.2 Passive View (`presentation/ui/desktop_window.py`)
 
-`MainWindow` implements `IStudentMonitorView` and handles PySide6 layout & rendering.
+`MainWindow` inherits strictly from `QMainWindow` (Single Inheritance) and delegates `IStudentMonitorView` contract calls via `QtStudentMonitorViewAdapter`.
 
 ```python
 from PySide6.QtWidgets import QMainWindow
 from examples.student_management.application.contracts.student_monitor_view import IStudentMonitorView
 
-class MainWindow(QMainWindow, IStudentMonitorView):
+class QtStudentMonitorViewAdapter(IStudentMonitorView):
+    def __init__(self, window: "MainWindow") -> None:
+        self.window = window
+    # Delegates all contract calls to self.window
+
+class MainWindow(QMainWindow):
     def __init__(self, app, bridge) -> None:
         super().__init__()
-        self.presenter = StudentMonitorPresenter(self, app)
+        self.view_adapter = QtStudentMonitorViewAdapter(self)
+        self.presenter = StudentMonitorPresenter(self.view_adapter, app)
 
     def display_students(self, students) -> None:
         # Populate QTableWidget rows
@@ -260,15 +265,16 @@ from sagittarius_engine import App
 from sagittarius_engine.base import BaseModule
 from examples.student_management.application.contracts.student_repository import IStudentRepository
 from examples.student_management.infrastructure.sqlite_student_repo import SqliteStudentRepository
+from examples.student_management.application.contracts.use_case_ports import IAddStudentUseCase
 from examples.student_management.application.use_cases.add_student_use_case import AddStudentUseCase
 
 class StudentModule(BaseModule):
     def register(self, app: App) -> None:
-        # Bind IStudentRepository -> SqliteStudentRepository as Singleton
-        app.container.singleton(IStudentRepository, lambda c: c.resolve(SqliteStudentRepository))
+        # Bind IStudentRepository -> SqliteStudentRepository
+        app.container.singleton(IStudentRepository, SqliteStudentRepository)
 
-        # Bind UseCases as Transient
-        app.container.bind(AddStudentUseCase, AddStudentUseCase)
+        # Bind UseCase Ports -> Concrete Implementations
+        app.container.bind(IAddStudentUseCase, AddStudentUseCase)
 
     def boot(self, app: App) -> None:
         # Register event handlers / startup tasks here
