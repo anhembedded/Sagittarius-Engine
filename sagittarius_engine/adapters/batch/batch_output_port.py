@@ -10,14 +10,14 @@ class BatchOutputPort(BaseOutputPort):
     @brief Batch Output Port that appends output to a file.
     """
 
-    def __init__(self, output_path: str, allowed_dir: str = ".") -> None:
+    def __init__(self, output_path: str, base_path: str = "") -> None:
         super().__init__()
 
-        # Path traversal prevention
-        allowed_real = os.path.realpath(allowed_dir)
-        full_path_real = os.path.realpath(os.path.join(allowed_real, output_path))
+        base_path_real = os.path.realpath(base_path)
+        full_path = os.path.join(base_path, output_path) if not os.path.isabs(output_path) else output_path
+        full_path_real = os.path.realpath(full_path)
 
-        if os.path.commonpath([allowed_real, full_path_real]) != allowed_real:
+        if os.path.commonpath([base_path_real, full_path_real]) != base_path_real:
             raise PathTraversalError(f"Path traversal detected: {output_path}")
 
         self.output_path = full_path_real
