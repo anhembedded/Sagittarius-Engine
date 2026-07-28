@@ -8,7 +8,14 @@ import http.server
 import logging
 import platform
 from sagittarius_engine.interfaces import IEngineContext
+from collections import deque
 from sagittarius_engine.extensions.health_check_query import HealthCheckQuery, HealthCheckDTO
+
+try:
+    import psutil
+    PSUTIL_AVAILABLE = True
+except ImportError:
+    PSUTIL_AVAILABLE = False
 
 
 class AuditService:
@@ -23,6 +30,34 @@ class AuditService:
         self._server_thread = None
         self._httpd = None
         self._logger = logging.getLogger("AuditService")
+        self.recent_events = deque(maxlen=100)
+        self._hook_event_bus()
+
+    def _hook_event_bus(self) -> None:
+        try:
+            eb = getattr(self.context, "event_bus", None)
+            if eb and hasattr(eb, "emit"):
+                original_emit = eb.emit
+                
+                def emit_hook(event_name_or_obj: Any, data: Any = None) -> None:
+                    # Record event
+                    timestamp = datetime.now().strftime("%H:%M:%S")
+                    
+                    if isinstance(event_name_or_obj, str):
+                        name = event_name_or_obj
+                    elif hasattr(event_name_or_obj, "__class__"):
+                        name = event_name_or_obj.__class__.__name__
+                    else:
+                        name = str(event_name_or_obj)
+                        
+                    self.recent_events.append(f"[{timestamp}] {name}")
+                    
+                    # Call original emit
+                    original_emit(event_name_or_obj, data)
+                
+                eb.emit = emit_hook
+        except Exception:
+            pass
 
     def start_server(self) -> None:
         """Starts the background telemetry HTTP server."""
@@ -33,19 +68,33 @@ class AuditService:
             service_ref = self  # Reference to AuditService
 
             def do_GET(self):
+                if self.path == "/config":
+                    payload = {"config": self.service_ref.get_full_config()}
+                elif self.path == "/events":
+                    payload = {"events": list(self.service_ref.recent_events)}
+                elif self.path == "/tasks":
+                    payload = {"tasks": self.service_ref.get_all_tasks_details()}
+                elif self.path == "/":
+                    payload = {
+                        "uptime": self.service_ref.get_uptime_seconds(),
+                        "environment": self.service_ref.get_environment_info(),
+                        "health": self.service_ref.get_system_health(),
+                        "tasks": self.service_ref.get_active_tasks(),
+                        "extensions": self.service_ref.get_loaded_extensions(),
+                        "services": self.service_ref.get_running_hosted_services(),
+                        "config_bus": self.service_ref.get_config_and_event_bus_info(),
+                        "pipeline": self.service_ref.get_middleware_pipeline(),
+                        "scheduler": self.service_ref.get_scheduler_jobs(),
+                        "recent_events": list(self.service_ref.recent_events)[-10:] # Only show last 10 for summary
+                    }
+                else:
+                    self.send_response(404)
+                    self.end_headers()
+                    return
+
                 self.send_response(200)
                 self.send_header("Content-type", "application/json")
                 self.end_headers()
-                
-                payload = {
-                    "uptime": self.service_ref.get_uptime_seconds(),
-                    "environment": self.service_ref.get_environment_info(),
-                    "health": self.service_ref.get_system_health(),
-                    "tasks": self.service_ref.get_active_tasks(),
-                    "extensions": self.service_ref.get_loaded_extensions(),
-                    "services": self.service_ref.get_running_hosted_services(),
-                    "config_bus": self.service_ref.get_config_and_event_bus_info(),
-                }
                 self.wfile.write(json.dumps(payload).encode("utf-8"))
 
             def log_message(self, format, *args):
@@ -164,13 +213,25 @@ class AuditService:
 
     def get_environment_info(self) -> Dict[str, str]:
         """
-        @brief Returns basic OS and Python environment info.
+        @brief Returns basic OS, Python environment info, and System Metrics.
         """
-        return {
+        env = {
             "os": platform.system(),
             "os_release": platform.release(),
-            "python_version": platform.python_version()
+            "python_version": platform.python_version(),
+            "cpu_percent": "N/A",
+            "ram_mb": "N/A"
         }
+        
+        if PSUTIL_AVAILABLE:
+            try:
+                process = psutil.Process()
+                env["cpu_percent"] = f"{process.cpu_percent(interval=None):.1f}%"
+                env["ram_mb"] = f"{process.memory_info().rss / 1024 / 1024:.1f} MB"
+            except Exception:
+                pass
+                
+        return env
 
     def get_config_and_event_bus_info(self) -> Dict[str, Any]:
         """
@@ -190,3 +251,68 @@ class AuditService:
         except Exception:
             pass
         return info
+
+    def get_middleware_pipeline(self) -> List[str]:
+        """Returns the list of loaded middlewares."""
+        try:
+            pipeline = getattr(getattr(self.context, "app", None), "pipeline", None)
+            if pipeline and hasattr(pipeline, "middlewares"):
+                return [m.__class__.__name__ for m in pipeline.middlewares]
+        except Exception:
+            pass
+        return []
+
+    def get_scheduler_jobs(self) -> List[Dict[str, str]]:
+        """Returns scheduled jobs and next run time."""
+        jobs_data = []
+        try:
+            scheduler = getattr(self.context, "scheduler", None)
+            if scheduler and hasattr(scheduler, "jobs"):
+                for job in scheduler.jobs:
+                    job_name = getattr(job.job_func, "__name__", "anonymous_job")
+                    next_run = job.next_run.strftime("%H:%M:%S") if hasattr(job, "next_run") and job.next_run else "Unknown"
+                    jobs_data.append({
+                        "name": job_name,
+                        "interval": f"{job.interval}s",
+                        "next_run": next_run
+                    })
+        except Exception:
+            pass
+        return jobs_data
+
+    def get_full_config(self) -> Dict[str, Any]:
+        """Returns the full configuration dictionary."""
+        config = getattr(self.context, "config", None)
+        if not config:
+            return {}
+        if hasattr(config, "_cache"):
+            return getattr(config, "_cache", {})
+        if hasattr(config, "store"):
+            return getattr(config, "store", {})
+        if hasattr(config, "_store"):
+            return getattr(config, "_store", {})
+        return {"error": "Unable to extract config dictionary from implementation"}
+
+    def get_all_tasks_details(self) -> List[Dict[str, Any]]:
+        """Returns detailed information of all background tasks including errors."""
+        tasks = []
+        try:
+            tm = getattr(self.context, "tasks", None)
+            if tm and hasattr(tm, "tasks"):
+                for t in getattr(tm, "tasks", []):
+                    error_msg = None
+                    if hasattr(t, "error") and t.error:
+                        error_msg = str(t.error)
+                    elif hasattr(t, "exception") and t.exception:
+                        error_msg = str(t.exception)
+                    
+                    tasks.append({
+                        "id": t.task_id,
+                        "name": t.name,
+                        "status": t.status,
+                        "runtime": t.runtime,
+                        "error": error_msg
+                    })
+        except Exception:
+            pass
+        return tasks
