@@ -34,7 +34,7 @@ class MemoryEventBus(IEventBus):
         @brief Constructor.
         @param logger Optional logger instance.
         """
-        self._handlers: dict[str, list[Callable]] = {}
+        self._handlers: dict[str, tuple[Callable, ...]] = {}
         self._lock = threading.Lock()
         self.logger = logger
 
@@ -62,8 +62,8 @@ class MemoryEventBus(IEventBus):
         if self.logger:
             self.logger.info(f"Emitting event: {event_name} with data: {payload}")
 
-        with self._lock:
-            handlers_snapshot = list(self._handlers.get(event_name, []))
+        # ⚡ Bolt: Lock-free read using Copy-On-Write pattern to reduce contention
+        handlers_snapshot = self._handlers.get(event_name, ())
 
         for handler in handlers_snapshot:
             try:
@@ -81,10 +81,9 @@ class MemoryEventBus(IEventBus):
         """
         key = self._get_event_key(event_name_or_type)
         with self._lock:
-            if key not in self._handlers:
-                self._handlers[key] = []
-            if handler not in self._handlers[key]:
-                self._handlers[key].append(handler)
+            current_handlers = self._handlers.get(key, ())
+            if handler not in current_handlers:
+                self._handlers[key] = current_handlers + (handler,)
 
     def off(self, event_name_or_type: str | type | Any, handler: Callable) -> None:
         """
@@ -96,4 +95,4 @@ class MemoryEventBus(IEventBus):
         key = self._get_event_key(event_name_or_type)
         with self._lock:
             if key in self._handlers and handler in self._handlers[key]:
-                self._handlers[key].remove(handler)
+                self._handlers[key] = tuple(h for h in self._handlers[key] if h != handler)
