@@ -64,7 +64,7 @@ def test_batch_input_port_csv_normal():
         tmp_path = tmp.name
 
     try:
-        port = BatchInputPort(file_path=tmp_path, file_type=FILE_TYPE_CSV)
+        port = BatchInputPort(file_path=tmp_path, base_path=os.path.dirname(tmp_path), file_type=FILE_TYPE_CSV)
 
         row1 = port.receive()
         assert row1 == {"id": "1", "name": "Alice"}
@@ -84,7 +84,7 @@ def test_batch_input_port_csv_empty():
         tmp_path = tmp.name
 
     try:
-        port = BatchInputPort(file_path=tmp_path, file_type=FILE_TYPE_CSV)
+        port = BatchInputPort(file_path=tmp_path, base_path=os.path.dirname(tmp_path), file_type=FILE_TYPE_CSV)
 
         row1 = port.receive()
         assert row1 == {COMMAND_KEY: EXIT_COMMAND}
@@ -99,7 +99,7 @@ def test_batch_input_port_json_normal():
         tmp_path = tmp.name
 
     try:
-        port = BatchInputPort(file_path=tmp_path, file_type=FILE_TYPE_JSON)
+        port = BatchInputPort(file_path=tmp_path, base_path=os.path.dirname(tmp_path), file_type=FILE_TYPE_JSON)
 
         row1 = port.receive()
         assert row1 == {"id": "1", "name": "Alice"}
@@ -120,7 +120,7 @@ def test_batch_input_port_json_invalid(caplog):
 
     try:
         mock_logger = MagicMock()
-        port = BatchInputPort(file_path=tmp_path, file_type=FILE_TYPE_JSON)
+        port = BatchInputPort(file_path=tmp_path, base_path=os.path.dirname(tmp_path), file_type=FILE_TYPE_JSON)
         port.logger = mock_logger
         row1 = port.receive()
 
@@ -269,3 +269,16 @@ def test_application_runner_keyboard_interrupt():
 
     mock_output_port.present.assert_not_called()
     mock_output_port.present_error.assert_not_called()
+
+def test_batch_input_port_path_traversal(tmp_path):
+    from sagittarius_engine.exceptions import PathTraversalError
+
+    # Set a base directory
+    base_dir = tmp_path / "base"
+    base_dir.mkdir()
+
+    # Try to access a file outside the base directory using ../
+    port = BatchInputPort(file_path="../secret.csv", base_path=str(base_dir), file_type=FILE_TYPE_CSV)
+
+    with pytest.raises(PathTraversalError):
+        port.receive()
