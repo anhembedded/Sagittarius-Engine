@@ -92,7 +92,10 @@ Domain events inherit from `BaseEvent` to automatically receive metadata (UUID `
 from sagittarius_engine.domain import BaseEvent
 from examples.student_management.domain.student import Student
 
+
 class StudentAddedEvent(BaseEvent):
+    event_name = "student.added"
+
     def __init__(self, student: Student) -> None:
         super().__init__()
         self.student = student
@@ -115,6 +118,7 @@ from abc import ABC, abstractmethod
 from typing import Sequence
 from examples.student_management.domain.student import Student
 
+
 class IStudentRepository(ABC):
     @abstractmethod
     def add(self, student: Student) -> Student: ...
@@ -128,11 +132,14 @@ class IStudentRepository(ABC):
 from typing import Sequence, Any
 from examples.student_management.domain.student import Student
 
+
 class IStudentMonitorView:
     def display_students(self, students: Sequence[Student]) -> None:
         raise NotImplementedError
+
     def update_student_row(self, student: Student) -> None:
         raise NotImplementedError
+
     def remove_student_row(self, uuid: str) -> None:
         raise NotImplementedError
 ```
@@ -143,6 +150,7 @@ Immutable dataclasses used as Command & Query payloads.
 
 ```python
 from dataclasses import dataclass
+
 
 @dataclass(frozen=True)
 class AddStudentCommand:
@@ -161,10 +169,16 @@ Use Cases implement CQRS interfaces (`ICommand[TInput, TOutput]` or `IQuery[TInp
 ```python
 import uuid
 from sagittarius_engine.interfaces import IEventBus
-from examples.student_management.application.contracts.student_repository import IStudentRepository
-from examples.student_management.application.contracts.use_case_ports import IAddStudentUseCase
+from examples.student_management.application.contracts.student_repository import (
+    IStudentRepository,
+)
+from examples.student_management.application.contracts.use_case_ports import (
+    IAddStudentUseCase,
+)
 from examples.student_management.application.dtos.commands import AddStudentCommand
 from examples.student_management.domain.student import Student
+from examples.student_management.domain.events import StudentAddedEvent
+
 
 class AddStudentUseCase(IAddStudentUseCase):
     def __init__(self, repo: IStudentRepository, event_bus: IEventBus) -> None:
@@ -182,7 +196,7 @@ class AddStudentUseCase(IAddStudentUseCase):
             gpa=command.gpa,
         )
         self.repo.add(student)
-        self.event_bus.emit("student.added", student)
+        self.event_bus.emit(StudentAddedEvent(student))
         return student
 ```
 
