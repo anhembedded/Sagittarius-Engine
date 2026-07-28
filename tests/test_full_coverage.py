@@ -899,7 +899,7 @@ def test_health_module__without_database(event_bus):
     assert result["status"] == "healthy"
     assert result["components"]["container"] == "ok"
     assert result["components"]["event_bus"] == "ok"
-    assert result["components"]["database"] == "not configured or resolving failed"
+    assert result["components"]["database"] == "not configured"
 
 
 def test_health_module__with_database(event_bus):

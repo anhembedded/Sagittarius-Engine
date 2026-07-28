@@ -36,7 +36,7 @@ sagittarius = "sagittarius_engine.sdk.cli:main"
 include = ["sagittarius_engine*"]
 
 [project.optional-dependencies]
-audit = ["textual>=0.38.0"]
+audit = ["rich>=13.0.0"]
 
 [tool.black]
 line-length = 88
