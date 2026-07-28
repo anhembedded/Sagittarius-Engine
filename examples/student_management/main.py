@@ -15,10 +15,10 @@ from sagittarius_engine.interfaces import IEventBus, IConfig, IContainer  # noqa
 
 from examples.student_management.student_module import StudentModule  # noqa: E402
 from examples.student_management.presentation.cli.terminal_menu import TerminalMenu  # noqa: E402
-from examples.student_management.presentation.ui.desktop_window import (
+from examples.student_management.presentation.ui.desktop_window import (  # noqa: E402
     EventBridge,
     MainWindow,
-)  # noqa: E402
+)
 
 
 def main() -> None:

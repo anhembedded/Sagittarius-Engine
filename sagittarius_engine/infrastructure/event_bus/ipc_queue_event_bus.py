@@ -82,7 +82,9 @@ class IPCQueueEventBus(IEventBus):
         )
         with self._handlers_lock:
             if event_name in self._handlers and handler in self._handlers[event_name]:
-                self._handlers[event_name] = tuple(h for h in self._handlers[event_name] if h != handler)
+                self._handlers[event_name] = tuple(
+                    h for h in self._handlers[event_name] if h != handler
+                )
 
     def start(self) -> None:
         """

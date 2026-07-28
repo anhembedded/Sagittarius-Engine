@@ -108,7 +108,9 @@ class ResilientEventBus(IEventBus):
         )
         with self._lock:
             if event_name in self._handlers and handler in self._handlers[event_name]:
-                self._handlers[event_name] = tuple(h for h in self._handlers[event_name] if h != handler)
+                self._handlers[event_name] = tuple(
+                    h for h in self._handlers[event_name] if h != handler
+                )
         self.inner_bus.off(event_name_or_type, handler)
 
     def get_dlq(self) -> list[tuple[str, Any, Callable, Exception]]:

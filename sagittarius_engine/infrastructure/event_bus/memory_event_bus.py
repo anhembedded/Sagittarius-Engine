@@ -95,4 +95,6 @@ class MemoryEventBus(IEventBus):
         key = self._get_event_key(event_name_or_type)
         with self._lock:
             if key in self._handlers and handler in self._handlers[key]:
-                self._handlers[key] = tuple(h for h in self._handlers[key] if h != handler)
+                self._handlers[key] = tuple(
+                    h for h in self._handlers[key] if h != handler
+                )

@@ -4,12 +4,19 @@ from typing import Any
 
 from sagittarius_engine.kernel import App
 from sagittarius_engine.base import BaseModule
-from sagittarius_engine.interfaces import ICommand, IQuery, IEventBus, IContainer, IConfig
+from sagittarius_engine.interfaces import (
+    ICommand,
+    IQuery,
+    IEventBus,
+    IContainer,
+    IConfig,
+)
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 from sagittarius_engine.infrastructure.config.dict_config import DictConfig
 from sagittarius_engine.extensions.logger_module import LoggerModule
 from sagittarius_engine.middleware.logging_middleware import LoggingMiddleware
+
 
 # ========== DOMAIN ==========
 class User:
@@ -17,12 +24,18 @@ class User:
         self.id = id
         self.name = name
 
+
 # ========== INFRASTRUCTURE ==========
 class FakeUserRepository:
     def __init__(self):
         self.users: list[User] = []
-    def add(self, user: User): self.users.append(user)
-    def all(self) -> list[User]: return self.users
+
+    def add(self, user: User):
+        self.users.append(user)
+
+    def all(self) -> list[User]:
+        return self.users
+
 
 # ========== MODULE ==========
 class UserModule(BaseModule):
@@ -34,10 +47,11 @@ class UserModule(BaseModule):
         app.container.bind(ListUsersQuery, ListUsersQuery)
 
     def boot(self, app: App):
-        app.event_bus.on('user.created', self.on_user_created)
+        app.event_bus.on("user.created", self.on_user_created)
 
     def on_user_created(self, user: User):
         print(f"[EVENT] User created: {user.name}")
+
 
 # ========== COMMAND ==========
 class CreateUserCommand(ICommand):
@@ -47,10 +61,11 @@ class CreateUserCommand(ICommand):
 
     # pyrefly: ignore [bad-override]
     def execute(self, input_dto: dict) -> User:
-        user = User(id=input_dto['id'], name=input_dto['name'])
+        user = User(id=input_dto["id"], name=input_dto["name"])
         self.repo.add(user)
-        self.event_bus.emit('user.created', user)
+        self.event_bus.emit("user.created", user)
         return user
+
 
 # ========== QUERY ==========
 class ListUsersQuery(IQuery):
@@ -59,6 +74,7 @@ class ListUsersQuery(IQuery):
 
     def execute(self, input_dto: Any = None) -> list[User]:
         return self.repo.all()
+
 
 # ========== MAIN ==========
 if __name__ == "__main__":
@@ -71,8 +87,8 @@ if __name__ == "__main__":
 
     # Load configuration
     config_data = None
-    if os.path.exists('config.json'):
-        with open('config.json', 'r') as f:
+    if os.path.exists("config.json"):
+        with open("config.json", "r") as f:
             config_data = json.load(f)
     config = DictConfig(config_data)
     container.singleton(IConfig, config)
@@ -102,5 +118,3 @@ if __name__ == "__main__":
 
     # Graceful stop
     app.stop()
-
-
