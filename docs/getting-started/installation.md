@@ -13,30 +13,72 @@ This guide covers installing Sagittarius Engine and verifying your setup.
 
 ---
 
-## Install
+## Install Options
 
+### Option 1: Install from GitHub Repository (Production / Shared)
 ```bash
-pip install sagittarius-engine
+pip install git+https://github.com/anhembedded/Sagittarius-Engine.git
 ```
 
-Or install from source:
+### Option 2: Local Editable Mode (For Framework Development)
+```bash
+pip install -e /path/to/Sagittarius_ForkBoy
+```
+
+### Option 3: Build & Install Local Wheel (.whl)
+```bash
+pip install build
+python -m build
+pip install dist/sagittarius_engine-1.0.0-py3-none-any.whl
+```
+
+---
+
+## How to Use in External Projects
+
+### Step 1: Declare Framework Dependency
+In your new project's `requirements.txt` or `pyproject.toml`:
+
+```text
+# requirements.txt
+sagittarius-engine @ git+https://github.com/anhembedded/Sagittarius-Engine.git
+```
+
+### Step 2: Scaffold a New Project Structure
+Use the built-in Sagittarius CLI / Scaffold tool to generate a production-ready Clean Architecture application skeleton:
 
 ```bash
-git clone https://github.com/your-repo/sagittarius-engine.git
-cd sagittarius-engine
-pip install -e .
+# Generate a new Clean Architecture project:
+python -m sagittarius_engine.tools.scaffold my_new_app
+```
+
+Or via CLI tool:
+```bash
+sagittarius new clean my_new_app
+```
+
+Generated directory layout:
+```
+my_new_app/
+├── domain/          # Entities, Domain Events, Domain Exceptions (STDLIB only)
+├── application/     # Use Cases, Ports (Interfaces), DTOs (Commands/Queries)
+├── infrastructure/  # Repositories (SQLite, In-Memory), DB Session Adapters
+├── adapters/        # Presentation Interfaces (CLI, Web, PySide6 GUI)
+├── modules/         # Packaged Modules (Auto-discovery)
+├── config.json      # Environment configuration
+└── main.py          # Composition Root & App Kernel startup
 ```
 
 ---
 
 ## Quick Verify
 
-After installation, run the following to confirm the engine boots and stops cleanly:
+After installation, run the following script in your new project to confirm the engine boots and stops cleanly:
 
 ```python
 from sagittarius_engine import App
-from sagittarius_engine.infrastructure.container import StdLibContainer
-from sagittarius_engine.infrastructure.event_bus import MemoryEventBus
+from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
+from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
 container = StdLibContainer()
 event_bus = MemoryEventBus()
@@ -54,7 +96,7 @@ Expected output:
 Sagittarius Engine OK
 ```
 
-No errors means the engine is installed correctly.
+No errors means the engine is installed correctly and ready to host your application logic.
 
 ---
 

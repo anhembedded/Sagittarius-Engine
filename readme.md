@@ -42,16 +42,21 @@ Your architecture. Your domain. Your database. Your UI framework. Sagittarius En
 
 ---
 
-## Installation
+## Installation & Integration
 
+### Option 1: Install from GitHub
 ```bash
-pip install sagittarius-engine
+pip install git+https://github.com/anhembedded/Sagittarius-Engine.git
 ```
 
-For development (editable mode from source):
-
+### Option 2: Local Editable Mode
 ```bash
 pip install -e .
+```
+
+### Option 3: Scaffold New Project Structure
+```bash
+python -m sagittarius_engine.tools.scaffold my_new_app
 ```
 
 ---
