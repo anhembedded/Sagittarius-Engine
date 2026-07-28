@@ -14,6 +14,7 @@ from sagittarius_engine.kernel.app_runner import (
 from sagittarius_engine.adapters.cli import CLIInputPort, CLIOutputPort
 from sagittarius_engine.adapters.batch import BatchInputPort, BatchOutputPort
 from sagittarius_engine.adapters.batch.const import FILE_TYPE_CSV, FILE_TYPE_JSON
+from sagittarius_engine.exceptions import PathTraversalError
 
 
 def test_cli_input_port_normal():
@@ -146,8 +147,10 @@ def test_batch_output_port():
     with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as tmp:
         tmp_path = tmp.name
 
+    tmp_dir = os.path.dirname(tmp_path)
+
     try:
-        port = BatchOutputPort(output_path=tmp_path)
+        port = BatchOutputPort(output_path=tmp_path, base_path=tmp_dir)
 
         # Test normal present
         port.present({"id": 1, "name": "Test"})
@@ -163,6 +166,18 @@ def test_batch_output_port():
         assert lines[1].strip() == "ERROR: Failed"
     finally:
         os.remove(tmp_path)
+
+
+def test_batch_output_port_path_traversal():
+    with pytest.raises(PathTraversalError):
+        BatchOutputPort(output_path="../../../etc/passwd", base_path="/tmp")
+
+    with pytest.raises(PathTraversalError):
+        BatchOutputPort(output_path="/etc/passwd", base_path="/tmp")
+
+    # Should not raise exception
+    port = BatchOutputPort(output_path="valid.txt", base_path="/tmp")
+    assert port.output_path == "/tmp/valid.txt"
 
 
 def test_application_runner():

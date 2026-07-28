@@ -117,9 +117,11 @@ def test_integration_batch_flow():
     with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as out_tmp:
         out_tmp_path = out_tmp.name
 
+    tmp_dir = os.path.dirname(out_tmp_path)
+
     try:
-        port_in = BatchInputPort(file_path=in_tmp_path, base_path=os.path.dirname(in_tmp_path), file_type=FILE_TYPE_CSV)
-        port_out = BatchOutputPort(output_path=out_tmp_path)
+        port_in = BatchInputPort(file_path=in_tmp_path, file_type=FILE_TYPE_CSV)
+        port_out = BatchOutputPort(output_path=out_tmp_path, base_path=tmp_dir)
 
         runner = ApplicationRunner(app, port_in, port_out)
         runner.run_cli_loop(command_map, query_map)
