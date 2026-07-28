@@ -194,7 +194,7 @@ def test_batch_output_port_path_traversal():
 
     # Should not raise exception
     port = BatchOutputPort(output_path="valid.txt", base_path="/tmp")
-    assert port.output_path == "/tmp/valid.txt"
+    assert port.output_path == os.path.realpath("/tmp/valid.txt")
 
 
 def test_application_runner():
