@@ -62,9 +62,10 @@ def test_batch_input_port_csv_normal():
     with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".csv") as tmp:
         tmp.write("id,name\n1,Alice\n2,Bob\n")
         tmp_path = tmp.name
+        tmp_dir = os.path.dirname(tmp_path)
 
     try:
-        port = BatchInputPort(file_path=tmp_path, file_type=FILE_TYPE_CSV)
+        port = BatchInputPort(file_path=tmp_path, file_type=FILE_TYPE_CSV, base_path=tmp_dir)
 
         row1 = port.receive()
         assert row1 == {"id": "1", "name": "Alice"}
@@ -82,9 +83,10 @@ def test_batch_input_port_csv_empty():
     with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".csv") as tmp:
         tmp.write("")
         tmp_path = tmp.name
+        tmp_dir = os.path.dirname(tmp_path)
 
     try:
-        port = BatchInputPort(file_path=tmp_path, file_type=FILE_TYPE_CSV)
+        port = BatchInputPort(file_path=tmp_path, file_type=FILE_TYPE_CSV, base_path=tmp_dir)
 
         row1 = port.receive()
         assert row1 == {COMMAND_KEY: EXIT_COMMAND}
@@ -97,9 +99,10 @@ def test_batch_input_port_json_normal():
         data = [{"id": "1", "name": "Alice"}, {"id": "2", "name": "Bob"}]
         json.dump(data, tmp)
         tmp_path = tmp.name
+        tmp_dir = os.path.dirname(tmp_path)
 
     try:
-        port = BatchInputPort(file_path=tmp_path, file_type=FILE_TYPE_JSON)
+        port = BatchInputPort(file_path=tmp_path, file_type=FILE_TYPE_JSON, base_path=tmp_dir)
 
         row1 = port.receive()
         assert row1 == {"id": "1", "name": "Alice"}
@@ -117,10 +120,11 @@ def test_batch_input_port_json_invalid(caplog):
     with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as tmp:
         tmp.write('{"invalid": "format"}')  # not an array
         tmp_path = tmp.name
+        tmp_dir = os.path.dirname(tmp_path)
 
     try:
         mock_logger = MagicMock()
-        port = BatchInputPort(file_path=tmp_path, file_type=FILE_TYPE_JSON)
+        port = BatchInputPort(file_path=tmp_path, file_type=FILE_TYPE_JSON, base_path=tmp_dir)
         port.logger = mock_logger
         row1 = port.receive()
 
@@ -136,10 +140,11 @@ def test_batch_input_port_unsupported_file_type():
     with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as tmp:
         tmp.write("dummy content")
         tmp_path = tmp.name
+        tmp_dir = os.path.dirname(tmp_path)
 
     try:
         mock_logger = MagicMock()
-        port = BatchInputPort(file_path=tmp_path, file_type="UNKNOWN_TYPE")
+        port = BatchInputPort(file_path=tmp_path, file_type="UNKNOWN_TYPE", base_path=tmp_dir)
         port.logger = mock_logger
         row = port.receive()
 
@@ -151,13 +156,13 @@ def test_batch_input_port_unsupported_file_type():
 
 def test_batch_input_port_file_not_found():
     mock_logger = MagicMock()
-    port = BatchInputPort(file_path="nonexistent_file.csv", file_type=FILE_TYPE_CSV)
+    port = BatchInputPort(file_path="nonexistent_file.csv", file_type=FILE_TYPE_CSV, base_path="/tmp")
     port.logger = mock_logger
 
     row = port.receive()
 
     assert row == {COMMAND_KEY: EXIT_COMMAND}
-    mock_logger.error.assert_called_once_with("File not found: nonexistent_file.csv")
+    mock_logger.error.assert_called_once_with(f"File not found: {port.file_path}")
 
 
 def test_batch_output_port():
@@ -195,6 +200,18 @@ def test_batch_output_port_path_traversal():
     # Should not raise exception
     port = BatchOutputPort(output_path="valid.txt", base_path="/tmp")
     assert port.output_path == os.path.realpath("/tmp/valid.txt")
+
+
+def test_batch_input_port_path_traversal():
+    with pytest.raises(PathTraversalError):
+        BatchInputPort(file_path="../../../etc/passwd", file_type=FILE_TYPE_CSV, base_path="/tmp")
+
+    with pytest.raises(PathTraversalError):
+        BatchInputPort(file_path="/etc/passwd", file_type=FILE_TYPE_CSV, base_path="/tmp")
+
+    # Should not raise exception
+    port = BatchInputPort(file_path="valid.csv", file_type=FILE_TYPE_CSV, base_path="/tmp")
+    assert port.file_path == os.path.realpath("/tmp/valid.csv")
 
 
 def test_application_runner():
