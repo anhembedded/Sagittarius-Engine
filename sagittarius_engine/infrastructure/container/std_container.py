@@ -110,16 +110,17 @@ class StdLibContainer(IContainer):
         if abstract in self._instances:
             return self._instances[abstract]
 
-        with self._lock:
-            if abstract in self._instances:
-                return self._instances[abstract]
+        # ⚡ Bolt: Move read-only dict lookups out of the lock to reduce contention
+        concrete = self._bindings.get(abstract, abstract)
 
-            if abstract in self._factories:
-                instance = self._factories[abstract](self)
-                self._instances[abstract] = instance
-                return instance
-
-            concrete = self._bindings.get(abstract, abstract)
+        if abstract in self._factories:
+            with self._lock:
+                if abstract in self._instances:
+                    return self._instances[abstract]
+                if abstract in self._factories:
+                    instance = self._factories[abstract](self)
+                    self._instances[abstract] = instance
+                    return instance
 
         if concrete in resolving:
             raise DependencyResolutionError(f"Circular dependency detected: {concrete}")
@@ -139,8 +140,8 @@ class StdLibContainer(IContainer):
                 return concrete()
 
             # Check cache first to avoid slow inspect.signature and get_type_hints calls
-            with self._lock:
-                cached_deps = self._resolution_cache.get(concrete)
+            # ⚡ Bolt: Lock-free read to reduce contention on heavily accessed cache
+            cached_deps = self._resolution_cache.get(concrete)
 
             if cached_deps is None:
                 try:
