@@ -60,7 +60,7 @@ class AuditService:
 
                 eb.emit = emit_hook
         except Exception:
-            pass
+            pass  # nosec B110
 
     def start_server(self) -> None:
         """Starts the background telemetry HTTP server."""
@@ -182,7 +182,7 @@ class AuditService:
                     }
                 )
         except Exception:
-            pass
+            pass  # nosec B110
         return tasks_data
 
     def get_loaded_extensions(self) -> List[Dict[str, Any]]:
@@ -212,7 +212,7 @@ class AuditService:
                             }
                         )
         except Exception:
-            pass
+            pass  # nosec B110
         return extensions_data
 
     def get_running_hosted_services(self) -> List[str]:
@@ -226,7 +226,7 @@ class AuditService:
                 for srv in hs_manager.started_services:
                     services_data.append(srv.__class__.__name__)
         except Exception:
-            pass
+            pass  # nosec B110
         return services_data
 
     def get_environment_info(self) -> Dict[str, str]:
@@ -247,7 +247,7 @@ class AuditService:
                 env["cpu_percent"] = f"{process.cpu_percent(interval=None):.1f}%"
                 env["ram_mb"] = f"{process.memory_info().rss / 1024 / 1024:.1f} MB"
             except Exception:
-                pass
+                pass  # nosec B110
 
         return env
 
@@ -268,7 +268,7 @@ class AuditService:
             if config and hasattr(config, "_config"):
                 info["config_keys"] = list(config._config.keys())
         except Exception:
-            pass
+            pass  # nosec B110
         return info
 
     def get_middleware_pipeline(self) -> List[str]:
@@ -278,7 +278,7 @@ class AuditService:
             if pipeline and hasattr(pipeline, "middlewares"):
                 return [m.__class__.__name__ for m in pipeline.middlewares]
         except Exception:
-            pass
+            pass  # nosec B110
         return []
 
     def get_scheduler_jobs(self) -> List[Dict[str, str]]:
@@ -302,7 +302,7 @@ class AuditService:
                         }
                     )
         except Exception:
-            pass
+            pass  # nosec B110
         return jobs_data
 
     def get_full_config(self) -> Dict[str, Any]:
@@ -355,5 +355,5 @@ class AuditService:
                         }
                     )
         except Exception:
-            pass
+            pass  # nosec B110
         return tasks

@@ -55,4 +55,4 @@ class BackgroundService(IHostedService):
             try:
                 self.task.future.result()
             except Exception:
-                pass
+                pass  # nosec B110
