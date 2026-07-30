@@ -49,7 +49,7 @@ Use the built-in Sagittarius CLI / Scaffold tool to generate a production-ready 
 
 ```bash
 # Generate a new Clean Architecture project:
-python -m sagittarius_engine.tools.scaffold my_new_app
+python -m tools.scaffold my_new_app
 ```
 
 Or via CLI tool:

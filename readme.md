@@ -13,7 +13,7 @@ Most Python frameworks force your application into a specific architecture. Sagi
 ### What the Engine provides
 
 | Capability | Description |
-|---|---|
+| --- | --- |
 | **Extension System** | First-class runtime plugins with full lifecycle management (`initialize → start → stop → dispose`). |
 | **Dispatcher** | Unified request routing — dispatch commands and queries through registered handlers. |
 | **Hosted Services** | Long-running background services managed by the Engine lifecycle. |
@@ -55,18 +55,21 @@ Your architecture. Your domain. Your database. Your UI framework. Sagittarius En
 ## Installation & Integration
 
 ### Option 1: Install from GitHub
+
 ```bash
 pip install git+https://github.com/anhembedded/Sagittarius-Engine.git
 ```
 
 ### Option 2: Local Editable Mode
+
 ```bash
 pip install -e .
 ```
 
 ### Option 3: Scaffold New Clean Architecture Project
+
 ```bash
-python -m sagittarius_engine.tools.scaffold my_new_app
+python -m tools.scaffold my_new_app
 ```
 
 ---
@@ -109,7 +112,7 @@ python -m sagittarius_engine.sdk new my_app --template clean
 Available templates:
 
 | Template | Description |
-|---|---|
+| --- | --- |
 | `minimal` | Bare-bones App with a single Extension. |
 | `clean` | Layered architecture with Domain, Application, Infrastructure, and Adapters. |
 | `ddd` | Domain-Driven Design template with Aggregate Roots and Domain Events. |
@@ -124,7 +127,7 @@ Generated projects are immediately runnable.
 The `examples/` directory contains reference applications that demonstrate real-world Engine usage.
 
 | Project | Directory | Description |
-|---|---|---|
+| --- | --- | --- |
 | Student Management | `examples/student_management/` | Full Clean Architecture MVP Desktop (PySide6) & CLI App with SQLite persistence, ConfigManager, and BaseEvent domain events. |
 | Desktop Application | `examples/desktop/` | Event-driven PySide6 desktop app with thread-safe UI updates. |
 | Worker Service | `examples/worker/` | Background queue consumer with cooperative cancellation. |
@@ -140,7 +143,7 @@ The `examples/` directory contains reference applications that demonstrate real-
 The full documentation is available at the project docs site (built with MkDocs Material).
 
 | Section | Topics |
-|---|---|
+| --- | --- |
 | [Getting Started](docs/getting-started/installation.md) | Installation, First App, First Extension, Templates |
 | [Concepts](docs/concepts/README.md) | Engine, Runtime, Dispatcher, Event Bus, Middleware, Extensions, Lifecycle |
 | [Runtime Guides](docs/runtime/application_lifecycle.md) | Application Lifecycle, Hosted Services, Scheduler, Task Manager, Async Runtime, Cancellation Token |

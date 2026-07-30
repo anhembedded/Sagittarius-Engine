@@ -31,9 +31,10 @@ Documentation = "https://github.com/anhembedded/Sagittarius-Engine/tree/main/doc
 
 [project.scripts]
 sagittarius = "sagittarius_engine.sdk.cli:main"
+sagittarius-audit = "tools.audit_dashboard:main"
 
 [tool.setuptools.packages.find]
-include = ["sagittarius_engine*"]
+include = ["sagittarius_engine*", "tools*"]
 
 [project.optional-dependencies]
 audit = ["rich>=13.0.0"]
