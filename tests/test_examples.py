@@ -92,7 +92,7 @@ def test_stress_task_and_scheduler_under_load():
 
 def test_benchmark_runnability():
     benchmark_path = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "benchmark_runtime.py")
+        os.path.join(os.path.dirname(__file__), "runtime", "benchmark_runtime.py")
     )
     assert os.path.exists(benchmark_path)
     run_example_script(benchmark_path)
