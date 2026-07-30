@@ -8,6 +8,15 @@ from sagittarius_engine.extensions.health_check_query import (
 )
 
 from examples.student_management.domain.student import Student, StudentException
+
+from examples.student_management.domain.events import (
+    StudentAddedEvent,
+    StudentUpdatedEvent,
+    StudentDeletedEvent,
+    ReportCompletedEvent,
+    ReportProgressEvent,
+)
+from sagittarius_engine.extensions.health_module import HealthUpdatedEvent
 from examples.student_management.application.dtos.commands import (
     AddStudentCommand,
     UpdateStudentCommand,
@@ -59,8 +68,8 @@ class TerminalMenu(IHostedService):
         @param context Shared engine context (access to event_bus, tasks, container, logger).
         """
         # Subscribe to domain events via EventBus
-        context.event_bus.on("report.completed", self._on_report_completed)
-        context.event_bus.on("health.updated", self._on_health_updated)
+        context.event_bus.on(ReportCompletedEvent, self._on_report_completed)
+        context.event_bus.on(HealthUpdatedEvent, self._on_health_updated)
 
         # Spawn non-blocking background task for CLI user interaction loop
         self.task = context.tasks.spawn(
@@ -73,8 +82,8 @@ class TerminalMenu(IHostedService):
         @param context Shared engine context interface.
         """
         # Unsubscribe event handlers to prevent memory leaks
-        context.event_bus.off("report.completed", self._on_report_completed)
-        context.event_bus.off("health.updated", self._on_health_updated)
+        context.event_bus.off(ReportCompletedEvent, self._on_report_completed)
+        context.event_bus.off(HealthUpdatedEvent, self._on_health_updated)
         
         # Signal cooperative cancellation to background CLI loop
         self.token.cancel()
@@ -343,12 +352,8 @@ class TerminalMenu(IHostedService):
         except Exception as e:
             print(f"❌ Error: {e}")
 
-    def _on_report_completed(self, data: Any) -> None:
-        report_content = (
-            data.report_content
-            if hasattr(data, "report_content")
-            else str(data)
-        )
+    def _on_report_completed(self, event: ReportCompletedEvent) -> None:
+        report_content = event.report_content
         print("\n\n🔔 [Notification] Async GPA Report Generation Completed!")
         print(f"📄 {report_content}")
         print("\nSelect: ", end="", flush=True)
@@ -364,7 +369,8 @@ class TerminalMenu(IHostedService):
         except Exception as e:
             print(f"❌ Health query failed: {e}")
 
-    def _on_health_updated(self, status: dict) -> None:
+    def _on_health_updated(self, event: HealthUpdatedEvent) -> None:
+        status = event.status
         print(
             f"\n🔔 [Scheduler] Periodic Health check: {status.get('status', 'unknown').upper()}"
         )

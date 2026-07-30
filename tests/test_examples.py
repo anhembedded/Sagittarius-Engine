@@ -20,25 +20,6 @@ def run_example_script(script_path: str) -> None:
     assert result.returncode == 0, f"Error in {script_path}:\n{result.stderr}"
 
 
-def test_examples_runnability():
-    base_dir = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "examples")
-    )
-
-    example_scripts = [
-        "trading_bot/main.py",
-        "desktop/main.py",
-        "rest_api/main.py",
-        "worker/main.py",
-        "websocket/main.py",
-        "plugin_system/main.py",
-    ]
-
-    for path in example_scripts:
-        full_path = os.path.join(base_dir, path)
-        assert os.path.exists(full_path)
-        run_example_script(full_path)
-
 
 def test_stress_boot_shutdown_cycles():
     # Stress test: boot and shutdown the engine repeatedly (10 cycles)

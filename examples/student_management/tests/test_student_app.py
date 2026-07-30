@@ -11,6 +11,7 @@ from sagittarius_engine.extensions.logger_module import LoggerExtension
 from examples.student_management.student_module import StudentModule
 
 # Domain Models & Exceptions
+from examples.student_management.domain.events import ReportCompletedEvent, ReportProgressEvent
 from examples.student_management.domain.student import (
     Student,
     EmptyNameError,
@@ -192,12 +193,10 @@ def test_async_report_generation(app: App) -> None:
     progress_updates = []
 
     app.event_bus.on(
-        "report.completed",
-        lambda r: completed_reports.append(
-            r.report_content if hasattr(r, "report_content") else str(r)
-        ),
+        ReportCompletedEvent,
+        lambda e: completed_reports.append(e.report_content),
     )
-    app.event_bus.on("report.progress", lambda p: progress_updates.append(p))
+    app.event_bus.on(ReportProgressEvent, lambda e: progress_updates.append(e.progress))
 
     app.dispatch(
         IAddStudentUseCase,

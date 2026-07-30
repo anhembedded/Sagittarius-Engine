@@ -7,7 +7,7 @@ from examples.student_management.application.contracts.use_case_ports import (
 from examples.student_management.application.contracts.student_repository import (
     IStudentRepository,
 )
-from examples.student_management.domain.events import ReportCompletedEvent
+from examples.student_management.domain.events import ReportCompletedEvent, ReportProgressEvent
 from examples.student_management.application.dtos.commands import GenerateReportCommand
 
 
@@ -26,19 +26,19 @@ class GenerateReportUseCase(IGenerateReportUseCase):
 
     async def _generate_report_async(self, token) -> None:
         # Simulate heavy report generation with step-by-step progress
-        self.event_bus.emit("report.progress", 0)
+        self.event_bus.emit(ReportProgressEvent(0))
         await asyncio.sleep(1.0)
 
-        self.event_bus.emit("report.progress", 25)
+        self.event_bus.emit(ReportProgressEvent(25))
         await asyncio.sleep(1.0)
 
-        self.event_bus.emit("report.progress", 50)
+        self.event_bus.emit(ReportProgressEvent(50))
         await asyncio.sleep(1.0)
 
-        self.event_bus.emit("report.progress", 75)
+        self.event_bus.emit(ReportProgressEvent(75))
         await asyncio.sleep(1.0)
 
-        self.event_bus.emit("report.progress", 100)
+        self.event_bus.emit(ReportProgressEvent(100))
 
         students = self.repo.get_all()
         if not students:
