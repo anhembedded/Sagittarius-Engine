@@ -170,7 +170,7 @@ def run_di_resolution_benchmark():
 
     start_time = time.perf_counter()
     for _ in range(10000):
-        instance = container.resolve(DepA)
+        _ = container.resolve(DepA)
     end_time = time.perf_counter()
 
     total_duration = end_time - start_time
