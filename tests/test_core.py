@@ -140,7 +140,7 @@ def test_app_execute_command():
     container.bind(DummyCommand, DummyCommand)
     container.singleton(IEventBus, event_bus)
 
-    result = app.execute(DummyCommand, {})
+    result = app.dispatch(DummyCommand, {})
     assert result == "executed"
 
 
@@ -159,7 +159,7 @@ def test_app_execute_query():
     container.bind(DummyQuery, DummyQuery)
     container.singleton(IEventBus, event_bus)
 
-    result = app.query(DummyQuery, {})
+    result = app.dispatch(DummyQuery, {})
     assert result == "queried"
 
 

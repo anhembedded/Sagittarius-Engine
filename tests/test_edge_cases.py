@@ -273,7 +273,7 @@ def test_app__execute_command_not_in_container__raises_dependency_resolution_err
             pass
 
     with pytest.raises(DependencyResolutionError):
-        app.execute(CmdWithUnresolvedDep)
+        app.dispatch(CmdWithUnresolvedDep)
 
 
 def test_app__boot_with_nonexistent_package__does_not_crash_but_logs_warning(
@@ -579,7 +579,7 @@ def test_integration__command_emits_event_without_handlers__does_not_crash(
     container.singleton(IEventBus, event_bus)
     container.bind("cmd", EventEmittingCommand)
 
-    result = app.execute(EventEmittingCommand, "dummy_data")
+    result = app.dispatch(EventEmittingCommand, "dummy_data")
     assert result == "success"
 
 
