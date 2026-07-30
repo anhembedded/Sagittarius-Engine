@@ -1,7 +1,7 @@
 import json
 
 from sagittarius_engine.interfaces import ILogger
-from sagittarius_engine.infrastructure.ports.i_metrics import IMetrics
+from sagittarius_engine.interfaces.i_metrics import IMetrics
 
 
 class LogMetrics(IMetrics):

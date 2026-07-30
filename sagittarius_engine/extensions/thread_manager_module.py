@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 from sagittarius_engine.interfaces.i_extension import IExtension
 from sagittarius_engine.infrastructure.thread_manager import ThreadManager
 from sagittarius_engine.interfaces import IConfig
-from sagittarius_engine.infrastructure.persistence.i_thread_manager import (
+from sagittarius_engine.interfaces.i_thread_manager import (
     IThreadManager,
 )
 

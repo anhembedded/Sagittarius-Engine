@@ -36,4 +36,11 @@ __all__ = [
     "ISchedulingCapability",
     "IEventCapability",
     "ILoggingCapability",
+    "IThreadManager",
+    "IFileStorage",
+    "IMetrics",
 ]
+
+from .i_thread_manager import IThreadManager
+from .i_file_storage import IFileStorage
+from .i_metrics import IMetrics

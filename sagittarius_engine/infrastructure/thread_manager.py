@@ -3,7 +3,7 @@ import threading
 from collections.abc import Callable
 from typing import Any
 
-from sagittarius_engine.infrastructure.persistence.i_thread_manager import (
+from sagittarius_engine.interfaces.i_thread_manager import (
     IThreadManager,
 )
 
