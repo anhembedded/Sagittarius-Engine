@@ -10,3 +10,6 @@
 ## 2025-03-09 - Lock Contention in High-Throughput EventBus
 **Learning:** Using locks around mutable dictionaries (`_handlers`) during event emission causes significant thread contention when handlers are frequently invoked, crippling throughput in concurrent environments.
 **Action:** Use a Copy-On-Write (COW) pattern for the `_handlers` registry. By storing handlers in immutable tuples (`tuple[Callable, ...]`), event emission (`emit()`) can perform a lock-free read `self._handlers.get(event_name, ())`, eliminating contention while moving the synchronization cost to the less frequent `on()` and `off()` operations.
+## 2026-07-29 - [Optimized Dependency Injection Resolution]
+**Learning:** Found an optimization in `sagittarius_engine.infrastructure.container.std_container.StdLibContainer`. In highly concurrent or loop-intensive setups where identical nested dependencies are requested frequently, repeatedly acquiring the `threading.RLock()` for the read-heavy dictionary lookups in `_resolve` was creating unnecessary overhead.
+**Action:** Relocated read-only dict lookups (such as `self._bindings.get` and `self._resolution_cache.get`) outside of the `_lock` context where possible without losing atomicity guarantees for writes, taking advantage of python dictionary's thread safe reads.
