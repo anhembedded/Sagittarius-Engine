@@ -7,18 +7,21 @@ Welcome to the central task management hub for **Sagittarius Engine**. This dire
 ## 📊 Kanban Board
 
 ### 🟢 Completed (`Tasks/completed/`)
+
 | Task ID | Title | Category | Completed Date | Spec File |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | **TASK-001** | `BackgroundService` Pattern | Architecture / Hosted Services | 2026-07-28 | [TASK-001_background_service.md](completed/TASK-001_background_service.md) |
 | **TASK-002** | `AuditExtension` & CLI Inspector | Observability / Diagnostics | 2026-07-28 | [TASK-002_audit_extension.md](completed/TASK-002_audit_extension.md) |
 | **TASK-009** | Exception-Case Test Coverage Expansion | Testing & Quality Assurance | 2026-07-30 | [TASK-009_exception_case_test_coverage.md](completed/TASK-009_exception_case_test_coverage.md) |
 
 ### 🟡 In Progress (`Tasks/in_progress/`)
+
 *(No active tasks currently in progress)*
 
 ### 🔵 Backlog (`Tasks/backlog/`)
+
 | Task ID | Title | Category | Priority | Spec File |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | **TASK-003** | End-to-End Async Pipeline | Core Engine / Trading Domain | P1 - High | [TASK-003_async_pipeline.md](backlog/TASK-003_async_pipeline.md) |
 | **TASK-004** | Core Engine Test Coverage Suite | Testing & Quality Assurance | P2 - Medium | [TASK-004_test_coverage_suite.md](backlog/TASK-004_test_coverage_suite.md) |
 | **TASK-005** | Runtime Concurrency Hardening | Runtime / Concurrency | P1 - High | [TASK-005_runtime_concurrency_hardening.md](backlog/TASK-005_runtime_concurrency_hardening.md) |

@@ -1,6 +1,0 @@
-{
-    "app_name": "WebSocketClientReference",
-    "version": "1.0.0",
-    "ws_url": "ws://127.0.0.1:8080/feed",
-    "heartbeat_interval_seconds": 0.03
-}
