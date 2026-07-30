@@ -6,6 +6,7 @@ from typing import Any
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
+from sagittarius_engine.extensions.health_module import HealthUpdatedEvent  # noqa: E402
 
 from sagittarius_engine import App  # noqa: E402
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer  # noqa: E402
@@ -28,7 +29,6 @@ from examples.student_management.domain.events import (  # noqa: E402
     ReportCompletedEvent,
     ReportProgressEvent,
 )
-from sagittarius_engine.extensions.health_module import HealthUpdatedEvent
 
 
 def main() -> None:

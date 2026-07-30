@@ -7,7 +7,7 @@ from sagittarius_engine.runtime.scheduler.triggers import (
     IntervalTrigger,
     CronTrigger,
 )
-from sagittarius_engine.interfaces.events import (
+from sagittarius_engine.runtime.scheduler.events import (
     SchedulerStarted,
     SchedulerStopped,
 )

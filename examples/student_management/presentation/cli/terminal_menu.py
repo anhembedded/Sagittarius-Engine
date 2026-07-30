@@ -10,13 +10,10 @@ from sagittarius_engine.extensions.health_check_query import (
 from examples.student_management.domain.student import Student, StudentException
 
 from examples.student_management.domain.events import (
-    StudentAddedEvent,
-    StudentUpdatedEvent,
-    StudentDeletedEvent,
     ReportCompletedEvent,
 )
 from sagittarius_engine.extensions.health_module import HealthUpdatedEvent
-from sagittarius_engine.interfaces.events import TaskProgressUpdated
+from sagittarius_engine.runtime.tasks.events import TaskProgressUpdated
 from examples.student_management.application.dtos.commands import (
     AddStudentCommand,
     UpdateStudentCommand,

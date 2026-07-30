@@ -11,7 +11,7 @@ from sagittarius_engine.extensions.logger_module import LoggerExtension
 from examples.student_management.student_module import StudentModule
 
 from examples.student_management.domain.events import ReportCompletedEvent
-from sagittarius_engine.interfaces.events import TaskProgressUpdated
+from sagittarius_engine.runtime.tasks.events import TaskProgressUpdated
 from examples.student_management.domain.student import (
     Student,
     EmptyNameError,

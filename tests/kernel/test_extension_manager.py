@@ -5,7 +5,7 @@ from sagittarius_engine.exceptions import (
     ExtensionDependencyError,
     ExtensionCircularDependencyError,
 )
-from sagittarius_engine.interfaces.events import (
+from sagittarius_engine.kernel.events import (
     ExtensionInitializing,
     ExtensionStarted,
 )

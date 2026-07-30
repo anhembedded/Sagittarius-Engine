@@ -1,7 +1,7 @@
 from typing import Any
 from sagittarius_engine.interfaces.i_extension import IExtension, ExtensionDescriptor
 from sagittarius_engine.interfaces.i_module import IModule
-from sagittarius_engine.interfaces.events import (
+from sagittarius_engine.kernel.events import (
     ExtensionInitializing,
     ExtensionStarted,
     ExtensionStopped,

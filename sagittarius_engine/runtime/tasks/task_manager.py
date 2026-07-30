@@ -7,7 +7,7 @@ from typing import Any, Callable, Dict, Optional, Union
 from sagittarius_engine.interfaces.i_task_manager import ITaskManager
 from sagittarius_engine.runtime.tasks.background_task import BackgroundTask
 from sagittarius_engine.runtime.tasks.cancellation_token import CancellationToken
-from sagittarius_engine.interfaces.events import (
+from sagittarius_engine.runtime.tasks.events import (
     TaskStarted,
     TaskCompleted,
     TaskFailed,

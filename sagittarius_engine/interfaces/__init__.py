@@ -10,12 +10,6 @@ from .i_logger import ILogger
 from .i_config import IConfig
 from .i_input_port import IInputPort
 from .i_output_port import IOutputPort
-from .events import (
-    ExtensionInitializing,
-    ExtensionStarted,
-    ExtensionStopped,
-    ExtensionDisposed,
-)
 
 from .i_capabilities import (
     ITaskCapability,
@@ -42,8 +36,4 @@ __all__ = [
     "ISchedulingCapability",
     "IEventCapability",
     "ILoggingCapability",
-    "ExtensionInitializing",
-    "ExtensionStarted",
-    "ExtensionStopped",
-    "ExtensionDisposed",
 ]

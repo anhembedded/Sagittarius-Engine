@@ -1,7 +1,7 @@
 import logging
 from typing import Any, List
 from sagittarius_engine.runtime.hosted.hosted_service import IHostedService
-from sagittarius_engine.interfaces.events import (
+from sagittarius_engine.runtime.hosted.events import (
     HostedServiceStarted,
     HostedServiceStopped,
 )
