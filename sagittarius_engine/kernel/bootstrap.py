@@ -39,21 +39,30 @@ class Bootstrap:
         except Exception as e:
             if logger:
                 logger.error(
-                    f"Error during boot sequence: {e}. Shutting down runtime..."
+                    f"[Bootstrap] Error during boot sequence: {e}. Shutting down runtime..."
                 )
             # Clean up what was started
             try:
                 self.context.scheduler.stop()
-            except Exception:  # nosec B110
-                pass
+            except Exception as se:
+                if logger:
+                    logger.warning(
+                        f"[Bootstrap] Error stopping scheduler during boot cleanup: {se}"
+                    )
             try:
                 self.context.hosted_services.stop()
-            except Exception:  # nosec B110
-                pass
+            except Exception as he:
+                if logger:
+                    logger.warning(
+                        f"[Bootstrap] Error stopping hosted services during boot cleanup: {he}"
+                    )
             try:
                 self.context.async_runtime.stop()
-            except Exception:  # nosec B110
-                pass
+            except Exception as ae:
+                if logger:
+                    logger.warning(
+                        f"[Bootstrap] Error stopping async runtime during boot cleanup: {ae}"
+                    )
             raise e
 
         self.context.lifecycle.set_booted()

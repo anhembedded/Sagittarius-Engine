@@ -170,4 +170,4 @@ If your architecture feels tangled, see the [Troubleshooting](troubleshooting.md
 
 - [Concepts: Dependency Injection](../concepts/dependency_injection.md)
 
-> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/advanced/best_practices.md)
+> [Found an issue? Edit this page on GitHub.](https://github.com/anhembedded/Sagittarius-Engine/edit/main/docs/advanced/best_practices.md)

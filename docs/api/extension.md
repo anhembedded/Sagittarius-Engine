@@ -27,4 +27,4 @@ Implement `IExtension` to register concrete adapters, configure services in the 
 
 ---
 
-> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/api/extension.md)
+> [Found an issue? Edit this page on GitHub.](https://github.com/anhembedded/Sagittarius-Engine/edit/main/docs/api/extension.md)

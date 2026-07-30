@@ -62,8 +62,10 @@ class AsyncRuntime:
             if pending:
                 for task in pending:
                     task.cancel()
-        except Exception:  # nosec B110
-            pass
+        except Exception as e:
+            self._logger.warning(
+                f"[AsyncRuntime] Error cancelling pending tasks during stop: {e}"
+            )
 
         self.loop.close()
         self.loop = None

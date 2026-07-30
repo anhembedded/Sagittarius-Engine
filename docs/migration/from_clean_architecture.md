@@ -92,4 +92,4 @@ You do not need to rewrite your business logic. You only need to change how that
 - Review the [Deprecated APIs](deprecated_apis.md) guide.
 - Follow the [Upgrading to v1.0](upgrading.md) step-by-step tutorial.
 
-> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/migration/from_clean_architecture.md)
+> [Found an issue? Edit this page on GitHub.](https://github.com/anhembedded/Sagittarius-Engine/edit/main/docs/migration/from_clean_architecture.md)

@@ -61,4 +61,4 @@ Use this checklist before marking any documentation phase as complete.
 
 ---
 
-> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/DOC_REVIEW_CHECKLIST.md)
+> [Found an issue? Edit this page on GitHub.](https://github.com/anhembedded/Sagittarius-Engine/edit/main/docs/DOC_REVIEW_CHECKLIST.md)

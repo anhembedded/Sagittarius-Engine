@@ -18,4 +18,4 @@ Each tutorial starts from an empty project and builds a working application step
 
 ---
 
-> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/tutorials/README.md)
+> [Found an issue? Edit this page on GitHub.](https://github.com/anhembedded/Sagittarius-Engine/edit/main/docs/tutorials/README.md)

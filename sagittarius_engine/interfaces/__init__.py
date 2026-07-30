@@ -17,6 +17,13 @@ from .events import (
     ExtensionDisposed,
 )
 
+from .i_capabilities import (
+    ITaskCapability,
+    ISchedulingCapability,
+    IEventCapability,
+    ILoggingCapability,
+)
+
 __all__ = [
     "IModule",
     "IExtension",
@@ -31,6 +38,10 @@ __all__ = [
     "IConfig",
     "IInputPort",
     "IOutputPort",
+    "ITaskCapability",
+    "ISchedulingCapability",
+    "IEventCapability",
+    "ILoggingCapability",
     "ExtensionInitializing",
     "ExtensionStarted",
     "ExtensionStopped",

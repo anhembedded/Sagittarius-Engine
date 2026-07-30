@@ -175,6 +175,8 @@ pytest --cov=sagittarius_engine
 
 ## Contributing
 
+Please review our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on branch strategy, coding standards, testing requirements, and PR workflows.
+
 1. Fork the repository.
 2. Create a feature branch: `git checkout -b feature/your-feature`.
 3. Commit your changes following the existing code style.

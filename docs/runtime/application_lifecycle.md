@@ -160,4 +160,4 @@ def main():
 - [App](../api/app.md)
 - [EngineContext](../api/engine_context.md)
 
-> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/runtime/application_lifecycle.md)
+> [Found an issue? Edit this page on GitHub.](https://github.com/anhembedded/Sagittarius-Engine/edit/main/docs/runtime/application_lifecycle.md)

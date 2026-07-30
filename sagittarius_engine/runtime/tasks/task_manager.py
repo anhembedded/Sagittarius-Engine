@@ -1,6 +1,7 @@
 import inspect
 import logging
 import threading
+import weakref
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Dict, Optional, Union
 from sagittarius_engine.interfaces.i_task_manager import ITaskManager
@@ -15,22 +16,34 @@ from sagittarius_engine.interfaces.events import (
 
 class DaemonThreadPoolExecutor(ThreadPoolExecutor):
     """
-    @brief ThreadPoolExecutor subclass that creates daemon worker threads.
+    @brief ThreadPoolExecutor subclass that creates daemon worker threads safely without global monkey patching.
     """
 
     def _adjust_thread_count(self) -> None:
-        original_thread = threading.Thread
+        num_threads = len(self._threads)
+        if num_threads < self._max_workers:
+            thread_name = (
+                f"{self._thread_name_prefix or 'ThreadPoolExecutor'}_{num_threads}"
+            )
+            try:
+                import concurrent.futures.thread
 
-        def daemon_thread(*args: Any, **kwargs: Any) -> threading.Thread:
-            t = original_thread(*args, **kwargs)
-            t.daemon = True
-            return t
-
-        try:
-            threading.Thread = daemon_thread  # type: ignore
-            super()._adjust_thread_count()
-        finally:
-            threading.Thread = original_thread  # type: ignore
+                t = threading.Thread(
+                    name=thread_name,
+                    target=concurrent.futures.thread._worker,
+                    args=(
+                        weakref.ref(self),
+                        self._work_queue,
+                        self._initializer,
+                        self._initargs,
+                    ),
+                    daemon=True,
+                )
+                t.start()
+                self._threads.add(t)
+                concurrent.futures.thread._threads_queues[t] = self._work_queue
+            except Exception:
+                super()._adjust_thread_count()
 
 
 class TaskManager(ITaskManager):
@@ -45,7 +58,7 @@ class TaskManager(ITaskManager):
             max_workers=20,
             thread_name_prefix="SagittariusBgTask",
         )
-        self.critical_executor = DaemonThreadPoolExecutor(
+        self.critical_executor = ThreadPoolExecutor(
             max_workers=10,
             thread_name_prefix="SagittariusCriticalTask",
         )

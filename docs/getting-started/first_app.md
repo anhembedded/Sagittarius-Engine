@@ -123,4 +123,4 @@ from sagittarius_engine import App
 
 ---
 
-> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/getting-started/first_app.md)
+> [Found an issue? Edit this page on GitHub.](https://github.com/anhembedded/Sagittarius-Engine/edit/main/docs/getting-started/first_app.md)

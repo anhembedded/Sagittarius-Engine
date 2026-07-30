@@ -101,3 +101,12 @@ class MemoryEventBus(IEventBus):
                 self._handlers[key] = tuple(
                     h for h in self._handlers[key] if h != handler
                 )
+
+    def get_handlers(
+        self, event_name_or_type: str | type | Any
+    ) -> tuple[Callable, ...]:
+        """
+        @brief Returns registered handlers for an event.
+        """
+        key = self._get_event_key(event_name_or_type)
+        return self._handlers.get(key, ())

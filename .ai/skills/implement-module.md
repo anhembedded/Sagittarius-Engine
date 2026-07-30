@@ -48,6 +48,9 @@ When implementing a module, your output must include:
 * **Integration Instructions:** How to wire this module into the existing DI container or orchestration layer.
 * **Testing Strategy:** Unit tests for both the "happy path" and specifically for failure modes, resource cleanup, and invalid inputs.
 
+## 5.5 run static check
+make sure cicd pass in [cicd](../../.github/workflows/ci.yml)
+
 ## 6. Golden Rule
 
 If the requirements are ambiguous regarding how the module should handle edge cases (e.g., network timeout, memory constraints), STOP and ask the user. Never silently assume default behaviors.

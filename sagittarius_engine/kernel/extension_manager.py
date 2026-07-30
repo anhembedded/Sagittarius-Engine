@@ -137,7 +137,7 @@ class ExtensionManager:
                         deps_satisfied = False
                         break
 
-                # Check if registered optional dependencies are initialized
+                # Check if registered or pending optional dependencies are initialized
                 if deps_satisfied:
                     for dep in ext.descriptor.optional_dependencies:
                         if dep not in initialized_names:

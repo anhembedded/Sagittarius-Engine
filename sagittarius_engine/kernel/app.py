@@ -158,6 +158,17 @@ class App:
             if logger:
                 logger.error(f"Error stopping async runtime: {e}")
 
+        # 6. Shutdown Event Bus (if supported)
+        try:
+            bus = self.context.event_bus
+            if hasattr(bus, "shutdown") and callable(getattr(bus, "shutdown")):
+                bus.shutdown()
+            elif hasattr(bus, "dispose") and callable(getattr(bus, "dispose")):
+                bus.dispose()
+        except Exception as e:
+            if logger:
+                logger.error(f"Error shutting down event bus: {e}")
+
         self.context.lifecycle.set_stopped()
         if logger:
             logger.info("App stopped.")

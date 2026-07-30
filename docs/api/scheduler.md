@@ -22,4 +22,4 @@ Use the `Scheduler` to register periodic jobs, cron-based automation steps, or t
 
 ---
 
-> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/api/scheduler.md)
+> [Found an issue? Edit this page on GitHub.](https://github.com/anhembedded/Sagittarius-Engine/edit/main/docs/api/scheduler.md)

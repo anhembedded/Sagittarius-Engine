@@ -59,3 +59,11 @@ class IEventBus(ABC):
         @param handler The function to remove.
         """
         ...
+
+    def get_handlers(
+        self, event_name_or_type: str | type[E] | Any
+    ) -> tuple[Callable[..., Any], ...]:
+        """
+        @brief Returns registered handlers for an event.
+        """
+        return ()

@@ -119,7 +119,7 @@ Every page must start with:
 Every page must end with:
 
 ```markdown
-> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/STYLE_GUIDE.md)
+> [Found an issue? Edit this page on GitHub.](https://github.com/anhembedded/Sagittarius-Engine/edit/main/docs/STYLE_GUIDE.md)
 ```
 
 ---
@@ -143,4 +143,4 @@ Do not use consecutive admonitions. Separate them with prose.
 
 ---
 
-> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/STYLE_GUIDE.md)
+> [Found an issue? Edit this page on GitHub.](https://github.com/anhembedded/Sagittarius-Engine/edit/main/docs/STYLE_GUIDE.md)

@@ -45,12 +45,12 @@ class ResilientEventBus(IEventBus):
         self._dlq: list[tuple[str, Any, Callable, Exception]] = []
         self.logger = logger
 
-        self._handlers: dict[str, tuple[Callable, ...]] = {}
+        self._wrapper_map: dict[tuple[str, Callable], Callable] = {}
         self._lock = threading.Lock()
 
     def emit(self, event_name_or_obj: str | Any, data: Any = None) -> None:
         """
-        @brief Emits an event with a built-in retry mechanism.
+        @brief Emits an event through the inner event bus.
 
         @param event_name_or_obj The name of the event or BaseEvent object.
         @param data The data payload.
@@ -59,26 +59,23 @@ class ResilientEventBus(IEventBus):
             event_name = event_name_or_obj
             payload = data
         else:
-            event_name = type(event_name_or_obj).__qualname__
+            event_name = getattr(
+                event_name_or_obj,
+                "event_name",
+                type(event_name_or_obj).__qualname__,
+            ) or type(event_name_or_obj).__qualname__
             payload = data if data is not None else event_name_or_obj
+
         if self.logger:
             self.logger.info(
                 f"Emitting resilient event: {event_name} with data: {payload}"
             )
 
-        # ⚡ Bolt: Lock-free read using Copy-On-Write pattern to reduce contention
-        for handler in self._handlers.get(event_name, ()):
-            for attempt in range(self.max_retries + 1):
-                try:
-                    handler(payload)
-                    break
-                except Exception as e:
-                    if attempt == self.max_retries:
-                        self._dlq.append((event_name, payload, handler, e))
+        self.inner_bus.emit(event_name_or_obj, data)
 
     def on(self, event_name_or_type: str | Any, handler: Callable[..., Any]) -> None:
         """
-        @brief Registers a handler.
+        @brief Registers a handler with retry and DLQ protection on the inner bus.
 
         @param event_name_or_type The name of the event or event class type.
         @param handler The callback function.
@@ -88,15 +85,29 @@ class ResilientEventBus(IEventBus):
             if isinstance(event_name_or_type, str)
             else getattr(event_name_or_type, "__name__", str(event_name_or_type))
         )
+
         with self._lock:
-            current_handlers = self._handlers.get(event_name, ())
-            if handler not in current_handlers:
-                self._handlers[event_name] = current_handlers + (handler,)
-        self.inner_bus.on(event_name_or_type, handler)
+            key = (event_name, handler)
+            if key in self._wrapper_map:
+                return
+
+            def resilient_wrapper(data: Any) -> None:
+                for attempt in range(self.max_retries + 1):
+                    try:
+                        handler(data)
+                        break
+                    except Exception as e:
+                        if attempt == self.max_retries:
+                            with self._lock:
+                                self._dlq.append((event_name, data, handler, e))
+
+            self._wrapper_map[key] = resilient_wrapper
+
+        self.inner_bus.on(event_name_or_type, resilient_wrapper)
 
     def off(self, event_name_or_type: str | Any, handler: Callable[..., Any]) -> None:
         """
-        @brief Unregisters a handler.
+        @brief Unregisters a handler from the inner bus.
 
         @param event_name_or_type The name of the event or event class type.
         @param handler The callback function.
@@ -106,12 +117,13 @@ class ResilientEventBus(IEventBus):
             if isinstance(event_name_or_type, str)
             else getattr(event_name_or_type, "__name__", str(event_name_or_type))
         )
+
         with self._lock:
-            if event_name in self._handlers and handler in self._handlers[event_name]:
-                self._handlers[event_name] = tuple(
-                    h for h in self._handlers[event_name] if h != handler
-                )
-        self.inner_bus.off(event_name_or_type, handler)
+            key = (event_name, handler)
+            wrapper = self._wrapper_map.pop(key, None)
+
+        if wrapper:
+            self.inner_bus.off(event_name_or_type, wrapper)
 
     def get_dlq(self) -> list[tuple[str, Any, Callable, Exception]]:
         """

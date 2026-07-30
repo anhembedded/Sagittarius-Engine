@@ -51,8 +51,11 @@ class ThreadPoolEventBus(IEventBus):
                 f"Emitting event: {event_name} to ThreadPoolEventBus with data: {payload}"
             )
 
-        # ⚡ Bolt: Lock-free read using Copy-On-Write pattern to reduce contention
-        handlers_snapshot = self._inner_bus._handlers.get(event_name, ())
+        # Public handler access without inspecting private state
+        if hasattr(self._inner_bus, "get_handlers"):
+            handlers_snapshot = self._inner_bus.get_handlers(event_name_or_obj if not isinstance(event_name_or_obj, str) else event_name)
+        else:
+            handlers_snapshot = getattr(self._inner_bus, "_handlers", {}).get(event_name, ())
 
         futures = []
         for handler in handlers_snapshot:
@@ -96,3 +99,13 @@ class ThreadPoolEventBus(IEventBus):
         @param wait Whether to wait for pending futures to complete.
         """
         self._executor.shutdown(wait=wait)
+
+    def get_handlers(
+        self, event_name_or_type: str | Any
+    ) -> tuple[Callable[..., Any], ...]:
+        """
+        @brief Returns registered handlers for an event.
+        """
+        if hasattr(self._inner_bus, "get_handlers"):
+            return self._inner_bus.get_handlers(event_name_or_type)
+        return ()

@@ -22,4 +22,4 @@ Sagittarius Engine exposes a stable public API surface that covers application l
 
 ---
 
-> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/api/index.md)
+> [Found an issue? Edit this page on GitHub.](https://github.com/anhembedded/Sagittarius-Engine/edit/main/docs/api/index.md)

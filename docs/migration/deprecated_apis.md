@@ -76,4 +76,4 @@ warnings.filterwarnings("ignore", category=DeprecationWarning, module="sagittari
 
 - Review the [Upgrading to v1.0](upgrading.md) guide to update your project step-by-step.
 
-> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/migration/deprecated_apis.md)
+> [Found an issue? Edit this page on GitHub.](https://github.com/anhembedded/Sagittarius-Engine/edit/main/docs/migration/deprecated_apis.md)

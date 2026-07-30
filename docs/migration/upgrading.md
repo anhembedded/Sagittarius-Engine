@@ -95,4 +95,4 @@ By using `-W error`, Python will treat any remaining `DeprecationWarning`s as ha
 
 If you encounter unexpected errors during migration, consult the [Troubleshooting](../advanced/troubleshooting.md) guide or read the detailed explanation of the [Architectural Shifts](from_clean_architecture.md).
 
-> [Found an issue? Edit this page on GitHub.](https://github.com/your-repo/edit/main/docs/migration/upgrading.md)
+> [Found an issue? Edit this page on GitHub.](https://github.com/anhembedded/Sagittarius-Engine/edit/main/docs/migration/upgrading.md)

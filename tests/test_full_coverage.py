@@ -618,7 +618,7 @@ def test_app__execute_command__resolves_and_executes():
     container = StdLibContainer()
     app = App(container=container, event_bus=MemoryEventBus())
 
-    result = app.execute(DummyCommand, "data")
+    result = app.dispatch(DummyCommand, "data")
     assert result == "Executed cmd with data"
 
 
@@ -629,7 +629,7 @@ def test_app__execute_command_with_middleware():
     middleware = DummyMiddleware("app_mw")
     app.use_middleware(middleware)
 
-    result = app.execute(DummyCommand, "data")
+    result = app.dispatch(DummyCommand, "data")
     assert result == "Executed cmd with data"
     assert middleware.calls == ["app_mw_before", "app_mw_after"]
 
@@ -638,7 +638,7 @@ def test_app__execute_query__resolves_and_executes():
     container = StdLibContainer()
     app = App(container=container, event_bus=MemoryEventBus())
 
-    result = app.query(DummyQuery, "query_data")
+    result = app.dispatch(DummyQuery, "query_data")
     assert result == "Executed query with query_data"
 
 
@@ -677,7 +677,7 @@ def test_app__logger_behavior_on_boot():
     app = App(container=container, event_bus=MemoryEventBus())
 
     # Execute something to trigger logging
-    app.execute(DummyCommand, "data")
+    app.dispatch(DummyCommand, "data")
 
     # Verify the mock logger was called
     mock_logger.info.assert_called()
@@ -894,7 +894,7 @@ def test_health_module__without_database(event_bus):
 
     # After boot, container has IEventBus bound. Let's make sure App has its own container setup.
     # Health check should return OK for container and event_bus
-    result = app.query(HealthCheckQuery)
+    result = app.dispatch(HealthCheckQuery)
 
     assert result["status"] == "healthy"
     assert result["components"]["container"] == "ok"
@@ -924,7 +924,7 @@ def test_health_module__with_database(event_bus):
         app.use(HealthExtension())
         app.boot()
 
-        result = app.query(HealthCheckQuery)
+        result = app.dispatch(HealthCheckQuery)
 
         assert result["status"] == "healthy"
         assert result["components"]["database"] == "ok"
@@ -1060,11 +1060,11 @@ def test_integration__end_to_end_flow():
     app.boot()
 
     # Execute Command
-    cmd_result = app.execute(MiniCommand, "test_data")
+    cmd_result = app.dispatch(MiniCommand, "test_data")
     assert cmd_result == "mini_command_done"
 
     # Execute Query
-    query_result = app.query(MiniQuery, "test")
+    query_result = app.dispatch(MiniQuery, "test")
     assert query_result == "mini_query_test"
 
     # Assert Event was emitted and handled
