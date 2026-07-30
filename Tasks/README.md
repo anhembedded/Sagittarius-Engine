@@ -11,6 +11,7 @@ Welcome to the central task management hub for **Sagittarius Engine**. This dire
 |---|---|---|---|---|
 | **TASK-001** | `BackgroundService` Pattern | Architecture / Hosted Services | 2026-07-28 | [TASK-001_background_service.md](completed/TASK-001_background_service.md) |
 | **TASK-002** | `AuditExtension` & CLI Inspector | Observability / Diagnostics | 2026-07-28 | [TASK-002_audit_extension.md](completed/TASK-002_audit_extension.md) |
+| **TASK-009** | Exception-Case Test Coverage Expansion | Testing & Quality Assurance | 2026-07-30 | [TASK-009_exception_case_test_coverage.md](completed/TASK-009_exception_case_test_coverage.md) |
 
 ### 🟡 In Progress (`Tasks/in_progress/`)
 *(No active tasks currently in progress)*
@@ -40,9 +41,11 @@ Tasks/
 │   ├── TASK-007_kernel_reliability_oss_readiness.md
 │   └── TASK-008_context_decoupling_program.md
 ├── issue-report/                       # High-impact Architecture Issue Report
-│   └── issue.md
+│   ├── issue.md
+│   └── exception_case.md
 ├── in_progress/                        # Actively Worked On Specifications
 ├── completed/                          # Finished Tasks & Historical Docs
 │   ├── TASK-001_background_service.md
-│   └── TASK-002_audit_extension.md
+│   ├── TASK-002_audit_extension.md
+│   └── TASK-009_exception_case_test_coverage.md
 ```
