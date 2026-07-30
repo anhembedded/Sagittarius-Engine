@@ -3,6 +3,7 @@ import pytest
 from sagittarius_engine.kernel.app import App
 from sagittarius_engine.runtime.hosted.hosted_service import IHostedService
 from sagittarius_engine.runtime.tasks.cancellation_token import CancellationToken
+from sagittarius_engine.runtime.tasks.background_task import TaskState
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
@@ -133,7 +134,7 @@ def test_task_manager_sync_and_async():
     task.future.result(timeout=1.0)
 
     assert executed is True
-    assert task.status == "completed"
+    assert task.status == TaskState.COMPLETED
     assert task.start_time is not None
     assert task.end_time is not None
     assert (task.end_time - task.start_time).total_seconds() >= 0
@@ -151,7 +152,7 @@ def test_task_manager_sync_and_async():
 
     assert async_executed is True
     assert res == "async_result"
-    assert task2.status == "completed"
+    assert task2.status == TaskState.COMPLETED
     assert task2.start_time is not None
     assert task2.end_time is not None
 
@@ -163,7 +164,7 @@ def test_task_manager_sync_and_async():
     with pytest.raises(Exception):
         task3.future.result(timeout=1.0)
 
-    assert task3.status == "failed"
+    assert task3.status == TaskState.FAILED
     assert task3.start_time is not None
     assert task3.end_time is not None
 
@@ -295,7 +296,7 @@ def test_engine_context_and_task_handle_interfaces():
     assert handle.id is not None
     assert handle.name == "UnitTestTask"
     assert handle.token is not None
-    assert handle.status in ("pending", "running", "completed")
+    assert handle.status in (TaskState.PENDING, TaskState.RUNNING, TaskState.COMPLETED)
 
     if handle.future:
         handle.future.result()

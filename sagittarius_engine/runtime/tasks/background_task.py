@@ -1,10 +1,20 @@
+from enum import Enum
 import uuid
-from typing import Any, Optional
+from typing import Any, Optional, Callable
 from sagittarius_engine.runtime.tasks.cancellation_token import CancellationToken
 from datetime import datetime, timezone
 
 
 from sagittarius_engine.interfaces.i_task_manager import ITaskHandle
+
+
+class TaskState(Enum):
+    PENDING = "pending"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+
 
 class BackgroundTask(ITaskHandle):
     """
@@ -16,6 +26,7 @@ class BackgroundTask(ITaskHandle):
         name: str,
         token: Optional[CancellationToken] = None,
         critical: bool = False,
+        on_progress_update: Optional[Callable[[float, str], None]] = None,
     ) -> None:
         self._id: str = str(uuid.uuid4())
         self._name: str = name
@@ -24,7 +35,11 @@ class BackgroundTask(ITaskHandle):
             token if token is not None else CancellationToken()
         )
         self._future: Optional[Any] = None
-        self._status: str = "pending"  # pending, running, completed, failed
+        self._status: TaskState = TaskState.PENDING
+        self._progress: float = 0.0
+        self._on_progress_update: Optional[Callable[[float, str], None]] = (
+            on_progress_update
+        )
         self.error: Optional[Exception] = None
         self.start_time: Optional[datetime] = datetime.now(timezone.utc)
         self.end_time: Optional[datetime] = None
@@ -54,14 +69,28 @@ class BackgroundTask(ITaskHandle):
         self._future = value
 
     @property
-    def status(self) -> str:
+    def status(self) -> TaskState:
         return self._status
 
     @status.setter
-    def status(self, value: str) -> None:
+    def status(self, value: TaskState) -> None:
         self._status = value
-        if value in ("completed", "failed", "cancelled"):
+        if value in (TaskState.COMPLETED, TaskState.FAILED, TaskState.CANCELLED):
             self.end_time = datetime.now(timezone.utc)
+
+    @property
+    def progress(self) -> float:
+        return self._progress
+
+    def update_progress(self, value: float, message: str = "") -> None:
+        """
+        @brief Updates the task's progress (0.0 to 100.0) and emits an event if configured.
+        """
+        if not (0.0 <= value <= 100.0):
+            raise ValueError("Progress must be between 0.0 and 100.0")
+        self._progress = value
+        if self._on_progress_update:
+            self._on_progress_update(value, message)
 
     def cancel(self) -> None:
         """
@@ -69,5 +98,5 @@ class BackgroundTask(ITaskHandle):
         """
         self.token.cancel()
         if self.future is not None:
-            self.future.cancel()
-            self.status = "cancelled"
+            self.future.cancel()  # type: ignore
+            self.status = TaskState.CANCELLED

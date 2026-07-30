@@ -34,9 +34,3 @@ class ReportCompletedEvent(BaseEvent):
         super().__init__()
         self.report_content: str = report_content
 
-class ReportProgressEvent(BaseEvent):
-    event_name = "report.progress"
-
-    def __init__(self, progress: int) -> None:
-        super().__init__()
-        self.progress: int = progress

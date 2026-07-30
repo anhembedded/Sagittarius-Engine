@@ -12,8 +12,7 @@ class ITaskCapability(ABC):
 
     @property
     @abstractmethod
-    def tasks(self) -> ITaskManager:
-        ...
+    def tasks(self) -> ITaskManager: ...
 
 
 class ISchedulingCapability(ABC):
@@ -23,8 +22,7 @@ class ISchedulingCapability(ABC):
 
     @property
     @abstractmethod
-    def scheduler(self) -> Any:
-        ...
+    def scheduler(self) -> Any: ...
 
 
 class IEventCapability(ABC):
@@ -34,8 +32,7 @@ class IEventCapability(ABC):
 
     @property
     @abstractmethod
-    def event_bus(self) -> IEventBus:
-        ...
+    def event_bus(self) -> IEventBus: ...
 
 
 class ILoggingCapability(ABC):
@@ -45,5 +42,4 @@ class ILoggingCapability(ABC):
 
     @property
     @abstractmethod
-    def logger(self) -> ILogger | None:
-        ...
+    def logger(self) -> ILogger | None: ...

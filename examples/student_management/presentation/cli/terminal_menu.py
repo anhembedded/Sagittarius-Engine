@@ -14,9 +14,9 @@ from examples.student_management.domain.events import (
     StudentUpdatedEvent,
     StudentDeletedEvent,
     ReportCompletedEvent,
-    ReportProgressEvent,
 )
 from sagittarius_engine.extensions.health_module import HealthUpdatedEvent
+from sagittarius_engine.interfaces.events import TaskProgressUpdated
 from examples.student_management.application.dtos.commands import (
     AddStudentCommand,
     UpdateStudentCommand,
@@ -70,6 +70,7 @@ class TerminalMenu(IHostedService):
         # Subscribe to domain events via EventBus
         context.event_bus.on(ReportCompletedEvent, self._on_report_completed)
         context.event_bus.on(HealthUpdatedEvent, self._on_health_updated)
+        context.event_bus.on(TaskProgressUpdated, self._on_task_progress)
 
         # Spawn non-blocking background task for CLI user interaction loop
         self.task = context.tasks.spawn(
@@ -84,6 +85,7 @@ class TerminalMenu(IHostedService):
         # Unsubscribe event handlers to prevent memory leaks
         context.event_bus.off(ReportCompletedEvent, self._on_report_completed)
         context.event_bus.off(HealthUpdatedEvent, self._on_health_updated)
+        context.event_bus.off(TaskProgressUpdated, self._on_task_progress)
         
         # Signal cooperative cancellation to background CLI loop
         self.token.cancel()
@@ -375,3 +377,6 @@ class TerminalMenu(IHostedService):
             f"\n🔔 [Scheduler] Periodic Health check: {status.get('status', 'unknown').upper()}"
         )
         print("Select: ", end="", flush=True)
+
+    def _on_task_progress(self, event: TaskProgressUpdated) -> None:
+        print(f"\r⏳ [Task Progress] {event.progress}% : {event.message}", end="", flush=True)

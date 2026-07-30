@@ -20,7 +20,6 @@ def run_example_script(script_path: str) -> None:
     assert result.returncode == 0, f"Error in {script_path}:\n{result.stderr}"
 
 
-
 def test_stress_boot_shutdown_cycles():
     # Stress test: boot and shutdown the engine repeatedly (10 cycles)
     # This verifies that resources, ports, event listeners, and threads are cleared cleanly

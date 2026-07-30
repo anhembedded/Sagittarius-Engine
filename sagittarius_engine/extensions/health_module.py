@@ -8,6 +8,7 @@ from sagittarius_engine.extensions.health_check_query import HealthCheckQuery
 from sagittarius_engine.domain.base_event import BaseEvent
 from typing import Any
 
+
 class HealthUpdatedEvent(BaseEvent):
     event_name = "health.updated"
 

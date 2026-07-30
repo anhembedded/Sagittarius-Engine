@@ -1,19 +1,19 @@
 import threading
 import pytest
-from unittest.mock import Mock, MagicMock
 
 from sagittarius_engine.kernel.app import App
-from sagittarius_engine.kernel.context import EngineContext
-from sagittarius_engine.kernel.extension_manager import ExtensionManager
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
-from sagittarius_engine.infrastructure.event_bus.thread_pool_event_bus import ThreadPoolEventBus
-from sagittarius_engine.infrastructure.event_bus.resilient_event_bus import ResilientEventBus
-from sagittarius_engine.runtime.tasks.task_manager import TaskManager, DaemonThreadPoolExecutor
+from sagittarius_engine.infrastructure.event_bus.thread_pool_event_bus import (
+    ThreadPoolEventBus,
+)
+from sagittarius_engine.infrastructure.event_bus.resilient_event_bus import (
+    ResilientEventBus,
+)
+from sagittarius_engine.runtime.tasks.task_manager import DaemonThreadPoolExecutor
 from sagittarius_engine.interfaces.i_extension import IExtension, ExtensionDescriptor
 from sagittarius_engine.interfaces.i_capabilities import (
     ITaskCapability,
-    ISchedulingCapability,
     IEventCapability,
     ILoggingCapability,
 )
@@ -35,7 +35,9 @@ def test_issue_001_global_thread_identity_never_mutated_during_concurrency():
         DaemonThreadPoolExecutor(max_workers=2, thread_name_prefix=f"BgPool_{i}")
         for i in range(5)
     ]
-    futures = [ex.submit(lambda: threading.Thread is original_thread_cls) for ex in executors]
+    futures = [
+        ex.submit(lambda: threading.Thread is original_thread_cls) for ex in executors
+    ]
     for fut in futures:
         assert fut.result(timeout=2.0) is True
     assert threading.Thread is original_thread_cls
@@ -68,14 +70,30 @@ def test_issue_003_optional_dependencies_do_not_block_initialization():
     class ExtA(IExtension):
         @property
         def descriptor(self) -> ExtensionDescriptor:
-            return ExtensionDescriptor(name="ExtA", optional_dependencies=["NonExistentExt"])
-        def register(self, context): pass
-        def boot(self, context): pass
-        def initialize(self, context): self.initialized = True
-        def start(self, context): pass
-        def stop(self, context): pass
-        def shutdown(self, context): pass
-        def dispose(self, context): pass
+            return ExtensionDescriptor(
+                name="ExtA", optional_dependencies=["NonExistentExt"]
+            )
+
+        def register(self, context):
+            pass
+
+        def boot(self, context):
+            pass
+
+        def initialize(self, context):
+            self.initialized = True
+
+        def start(self, context):
+            pass
+
+        def stop(self, context):
+            pass
+
+        def shutdown(self, context):
+            pass
+
+        def dispose(self, context):
+            pass
 
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -92,6 +110,7 @@ def test_issue_004_resilient_event_bus_no_split_paths():
     resilient_bus = ResilientEventBus(inner_bus=inner_bus, max_retries=1)
 
     calls = []
+
     def handler(data):
         calls.append(data)
 
@@ -109,6 +128,7 @@ def test_issue_004_nested_three_tier_event_bus_decoration():
     resilient_bus = ResilientEventBus(inner_bus=tp_bus, max_retries=2)
 
     calls = []
+
     def handler(data):
         calls.append(data)
 
@@ -117,6 +137,7 @@ def test_issue_004_nested_three_tier_event_bus_decoration():
 
     # Give thread pool time to execute
     import time
+
     time.sleep(0.1)
 
     assert "data" in calls
@@ -127,7 +148,9 @@ def test_issue_005_thread_pool_event_bus_public_get_handlers():
     memory_bus = MemoryEventBus()
     tp_bus = ThreadPoolEventBus(max_workers=2)
 
-    def dummy(data): pass
+    def dummy(data):
+        pass
+
     memory_bus.on("evt", dummy)
 
     handlers = memory_bus.get_handlers("evt")
@@ -137,29 +160,58 @@ def test_issue_005_thread_pool_event_bus_public_get_handlers():
 
 def test_issue_006_extension_rollback_disposes_in_reverse_order():
     history = []
+
     class Ext1(IExtension):
         @property
         def descriptor(self) -> ExtensionDescriptor:
             return ExtensionDescriptor(name="Ext1")
-        def register(self, c): pass
-        def boot(self, c): pass
-        def initialize(self, c): history.append("init_1")
-        def start(self, c): pass
-        def stop(self, c): pass
-        def shutdown(self, c): pass
-        def dispose(self, c): history.append("dispose_1")
+
+        def register(self, c):
+            pass
+
+        def boot(self, c):
+            pass
+
+        def initialize(self, c):
+            history.append("init_1")
+
+        def start(self, c):
+            pass
+
+        def stop(self, c):
+            pass
+
+        def shutdown(self, c):
+            pass
+
+        def dispose(self, c):
+            history.append("dispose_1")
 
     class ExtFailing(IExtension):
         @property
         def descriptor(self) -> ExtensionDescriptor:
             return ExtensionDescriptor(name="ExtFailing", dependencies=["Ext1"])
-        def register(self, c): pass
-        def boot(self, c): pass
-        def initialize(self, c): raise RuntimeError("Init Boom")
-        def start(self, c): pass
-        def stop(self, c): pass
-        def shutdown(self, c): pass
-        def dispose(self, c): pass
+
+        def register(self, c):
+            pass
+
+        def boot(self, c):
+            pass
+
+        def initialize(self, c):
+            raise RuntimeError("Init Boom")
+
+        def start(self, c):
+            pass
+
+        def stop(self, c):
+            pass
+
+        def shutdown(self, c):
+            pass
+
+        def dispose(self, c):
+            pass
 
     container = StdLibContainer()
     event_bus = MemoryEventBus()

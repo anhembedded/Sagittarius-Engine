@@ -53,9 +53,15 @@ class ThreadPoolEventBus(IEventBus):
 
         # Public handler access without inspecting private state
         if hasattr(self._inner_bus, "get_handlers"):
-            handlers_snapshot = self._inner_bus.get_handlers(event_name_or_obj if not isinstance(event_name_or_obj, str) else event_name)
+            handlers_snapshot = self._inner_bus.get_handlers(
+                event_name_or_obj
+                if not isinstance(event_name_or_obj, str)
+                else event_name
+            )
         else:
-            handlers_snapshot = getattr(self._inner_bus, "_handlers", {}).get(event_name, ())
+            handlers_snapshot = getattr(self._inner_bus, "_handlers", {}).get(
+                event_name, ()
+            )
 
         futures = []
         for handler in handlers_snapshot:

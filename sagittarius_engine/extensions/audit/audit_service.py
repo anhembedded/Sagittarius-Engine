@@ -1,18 +1,21 @@
 from datetime import datetime, timezone
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 import platform
 import json
 import threading
 import socketserver
 import http.server
 import logging
-import platform
 from sagittarius_engine.interfaces import IEngineContext
 from collections import deque
-from sagittarius_engine.extensions.health_check_query import HealthCheckQuery, HealthCheckDTO
+from sagittarius_engine.extensions.health_check_query import (
+    HealthCheckQuery,
+    HealthCheckDTO,
+)
 
 try:
     import psutil
+
     PSUTIL_AVAILABLE = True
 except ImportError:
     PSUTIL_AVAILABLE = False
@@ -24,13 +27,13 @@ class AuditService:
     """
 
     def __init__(self, context: IEngineContext, port: int = 9999) -> None:
-        self.context = context
-        self.port = port
-        self.start_time = datetime.now(timezone.utc)
-        self._server_thread = None
-        self._httpd = None
-        self._logger = logging.getLogger("AuditService")
-        self.recent_events = deque(maxlen=100)
+        self.context: IEngineContext = context
+        self.port: int = port
+        self.start_time: datetime = datetime.now(timezone.utc)
+        self._server_thread: Optional[threading.Thread] = None
+        self._httpd: Optional[socketserver.TCPServer] = None
+        self._logger: logging.Logger = logging.getLogger("AuditService")
+        self.recent_events: deque = deque(maxlen=100)
         self._hook_event_bus()
 
     def _hook_event_bus(self) -> None:
@@ -38,23 +41,23 @@ class AuditService:
             eb = getattr(self.context, "event_bus", None)
             if eb and hasattr(eb, "emit"):
                 original_emit = eb.emit
-                
+
                 def emit_hook(event_name_or_obj: Any, data: Any = None) -> None:
                     # Record event
                     timestamp = datetime.now().strftime("%H:%M:%S")
-                    
+
                     if isinstance(event_name_or_obj, str):
                         name = event_name_or_obj
                     elif hasattr(event_name_or_obj, "__class__"):
                         name = event_name_or_obj.__class__.__name__
                     else:
                         name = str(event_name_or_obj)
-                        
+
                     self.recent_events.append(f"[{timestamp}] {name}")
-                    
+
                     # Call original emit
                     original_emit(event_name_or_obj, data)
-                
+
                 eb.emit = emit_hook
         except Exception:
             pass
@@ -85,7 +88,9 @@ class AuditService:
                         "config_bus": self.service_ref.get_config_and_event_bus_info(),
                         "pipeline": self.service_ref.get_middleware_pipeline(),
                         "scheduler": self.service_ref.get_scheduler_jobs(),
-                        "recent_events": list(self.service_ref.recent_events)[-10:] # Only show last 10 for summary
+                        "recent_events": list(self.service_ref.recent_events)[
+                            -10:
+                        ],  # Only show last 10 for summary
                     }
                 else:
                     self.send_response(404)
@@ -105,9 +110,13 @@ class AuditService:
             # Allow port reuse
             socketserver.TCPServer.allow_reuse_address = True
             self._httpd = socketserver.TCPServer(("", self.port), TelemetryHandler)
-            self._server_thread = threading.Thread(target=self._httpd.serve_forever, daemon=True)
+            self._server_thread = threading.Thread(
+                target=self._httpd.serve_forever, daemon=True
+            )
             self._server_thread.start()
-            self._logger.info(f"Audit Telemetry Server listening on http://localhost:{self.port}")
+            self._logger.info(
+                f"Audit Telemetry Server listening on http://localhost:{self.port}"
+            )
         except Exception as e:
             self._logger.error(f"Failed to start Audit Telemetry Server: {e}")
 
@@ -136,12 +145,12 @@ class AuditService:
             app = getattr(self.context, "app", None)
             if app and hasattr(app, "query"):
                 return app.query(HealthCheckQuery, HealthCheckDTO())
-            
+
             # Fallback if dispatcher is accessible directly
             dispatcher = getattr(self.context, "dispatcher", None)
             if dispatcher:
                 return dispatcher.query(HealthCheckQuery, HealthCheckDTO())
-                
+
         except Exception as e:
             return {"status": "error", "message": str(e), "components": {}}
 
@@ -160,13 +169,18 @@ class AuditService:
                 if hasattr(task, "start_time") and task.start_time:
                     end = task.end_time or datetime.now(timezone.utc)
                     runtime = f"{(end - task.start_time).total_seconds():.1f}s"
-                
-                tasks_data.append({
-                    "id": task_id[:8],
-                    "name": getattr(task, "name", "Unknown"),
-                    "status": getattr(task, "status", "Unknown"),
-                    "runtime": runtime
-                })
+
+                tasks_data.append(
+                    {
+                        "id": task_id[:8],
+                        "name": getattr(task, "name", "Unknown"),
+                        "status": task.status.value
+                        if hasattr(task.status, "value")
+                        else str(task.status),
+                        "progress": getattr(task, "progress", 0.0),
+                        "runtime": runtime,
+                    }
+                )
         except Exception:
             pass
         return tasks_data
@@ -182,17 +196,21 @@ class AuditService:
                 for ext in ext_manager.registered_extensions:
                     desc = getattr(ext, "descriptor", None)
                     if desc:
-                        extensions_data.append({
-                            "name": desc.name,
-                            "version": desc.version,
-                            "enabled": desc.enabled
-                        })
+                        extensions_data.append(
+                            {
+                                "name": desc.name,
+                                "version": desc.version,
+                                "enabled": desc.enabled,
+                            }
+                        )
                     else:
-                        extensions_data.append({
-                            "name": ext.__class__.__name__,
-                            "version": "unknown",
-                            "enabled": True
-                        })
+                        extensions_data.append(
+                            {
+                                "name": ext.__class__.__name__,
+                                "version": "unknown",
+                                "enabled": True,
+                            }
+                        )
         except Exception:
             pass
         return extensions_data
@@ -220,9 +238,9 @@ class AuditService:
             "os_release": platform.release(),
             "python_version": platform.python_version(),
             "cpu_percent": "N/A",
-            "ram_mb": "N/A"
+            "ram_mb": "N/A",
         }
-        
+
         if PSUTIL_AVAILABLE:
             try:
                 process = psutil.Process()
@@ -230,21 +248,22 @@ class AuditService:
                 env["ram_mb"] = f"{process.memory_info().rss / 1024 / 1024:.1f} MB"
             except Exception:
                 pass
-                
+
         return env
 
     def get_config_and_event_bus_info(self) -> Dict[str, Any]:
         """
         @brief Returns high-level config keys and event bus subscriptions.
         """
-        info = {"event_bus_handlers": {}, "config_keys": []}
+        info: Dict[str, Any] = {"event_bus_handlers": {}, "config_keys": []}
         try:
             eb = getattr(self.context, "event_bus", None)
             if eb and hasattr(eb, "_handlers"):
                 for event_name, handlers in eb._handlers.items():
                     info["event_bus_handlers"][event_name] = len(handlers)
-            
+
             from sagittarius_engine.interfaces import IConfig
+
             config = self.context.container.resolve(IConfig)
             if config and hasattr(config, "_config"):
                 info["config_keys"] = list(config._config.keys())
@@ -270,12 +289,18 @@ class AuditService:
             if scheduler and hasattr(scheduler, "jobs"):
                 for job in scheduler.jobs:
                     job_name = getattr(job.job_func, "__name__", "anonymous_job")
-                    next_run = job.next_run.strftime("%H:%M:%S") if hasattr(job, "next_run") and job.next_run else "Unknown"
-                    jobs_data.append({
-                        "name": job_name,
-                        "interval": f"{job.interval}s",
-                        "next_run": next_run
-                    })
+                    next_run = (
+                        job.next_run.strftime("%H:%M:%S")
+                        if hasattr(job, "next_run") and job.next_run
+                        else "Unknown"
+                    )
+                    jobs_data.append(
+                        {
+                            "name": job_name,
+                            "interval": f"{job.interval}s",
+                            "next_run": next_run,
+                        }
+                    )
         except Exception:
             pass
         return jobs_data
@@ -299,20 +324,36 @@ class AuditService:
         try:
             tm = getattr(self.context, "tasks", None)
             if tm and hasattr(tm, "tasks"):
-                for t in getattr(tm, "tasks", []):
+                tasks_dict = getattr(tm, "tasks", {})
+                if isinstance(tasks_dict, dict):
+                    task_items = tasks_dict.values()
+                else:
+                    task_items = tasks_dict
+
+                for t in task_items:
                     error_msg = None
                     if hasattr(t, "error") and t.error:
                         error_msg = str(t.error)
                     elif hasattr(t, "exception") and t.exception:
                         error_msg = str(t.exception)
-                    
-                    tasks.append({
-                        "id": t.task_id,
-                        "name": t.name,
-                        "status": t.status,
-                        "runtime": t.runtime,
-                        "error": error_msg
-                    })
+
+                    runtime = "N/A"
+                    if hasattr(t, "start_time") and t.start_time:
+                        end = getattr(t, "end_time", None) or datetime.now(timezone.utc)
+                        runtime = f"{(end - t.start_time).total_seconds():.1f}s"
+
+                    tasks.append(
+                        {
+                            "id": getattr(t, "id", getattr(t, "task_id", "Unknown")),
+                            "name": getattr(t, "name", "Unknown"),
+                            "status": t.status.value
+                            if hasattr(t, "status") and hasattr(t.status, "value")
+                            else str(getattr(t, "status", "Unknown")),
+                            "progress": getattr(t, "progress", 0.0),
+                            "runtime": runtime,
+                            "error": error_msg,
+                        }
+                    )
         except Exception:
             pass
         return tasks

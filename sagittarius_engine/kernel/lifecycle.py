@@ -1,11 +1,13 @@
 from enum import Enum
 from typing import Any
 
+
 class EngineState(Enum):
     STOPPED = "stopped"
     BOOTING = "booting"
     BOOTED = "booted"
     STOPPING = "stopping"
+
 
 class EngineLifecycle:
     """Responsible for managing engine state."""

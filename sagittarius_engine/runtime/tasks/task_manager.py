@@ -11,7 +11,9 @@ from sagittarius_engine.interfaces.events import (
     TaskStarted,
     TaskCompleted,
     TaskFailed,
+    TaskProgressUpdated,
 )
+from sagittarius_engine.runtime.tasks.background_task import TaskState
 
 
 class DaemonThreadPoolExecutor(ThreadPoolExecutor):
@@ -28,20 +30,40 @@ class DaemonThreadPoolExecutor(ThreadPoolExecutor):
             try:
                 import concurrent.futures.thread
 
-                t = threading.Thread(
-                    name=thread_name,
-                    target=concurrent.futures.thread._worker,
-                    args=(
-                        weakref.ref(self),
-                        self._work_queue,
-                        self._initializer,
-                        self._initargs,
-                    ),
-                    daemon=True,
-                )
+                def weakref_cb(_, q=self._work_queue):
+                    pass
+
+                if hasattr(self, "_create_worker_context"):
+                    t = threading.Thread(
+                        name=thread_name,
+                        target=concurrent.futures.thread._worker,
+                        args=(
+                            weakref.ref(self, weakref_cb),
+                            self._create_worker_context(),  # type: ignore
+                            self._work_queue,
+                        ),
+                    )
+                elif hasattr(self, "_initializer") and hasattr(self, "_initargs"):
+                    t = threading.Thread(
+                        name=thread_name,
+                        target=concurrent.futures.thread._worker,
+                        args=(
+                            weakref.ref(self, weakref_cb),
+                            self._work_queue,
+                            self._initializer,  # type: ignore
+                            self._initargs,  # type: ignore
+                        ),
+                    )
+                else:
+                    t = threading.Thread(
+                        name=thread_name,
+                        target=concurrent.futures.thread._worker,
+                        args=(weakref.ref(self, weakref_cb), self._work_queue),
+                    )
+                t.daemon = True
                 t.start()
-                self._threads.add(t)
-                concurrent.futures.thread._threads_queues[t] = self._work_queue
+                self._threads.add(t)  # type: ignore
+                concurrent.futures.thread._threads_queues[t] = self._work_queue  # type: ignore
             except Exception:
                 super()._adjust_thread_count()
 
@@ -80,7 +102,8 @@ class TaskManager(ITaskManager):
                 finished_ids = [
                     tid
                     for tid, t in self.tasks.items()
-                    if t.status in ("completed", "failed", "cancelled")
+                    if t.status
+                    in (TaskState.COMPLETED, TaskState.FAILED, TaskState.CANCELLED)
                 ]
                 # Remove oldest finished tasks, keeping only the most recent 50
                 for tid in finished_ids[:-50]:
@@ -92,14 +115,14 @@ class TaskManager(ITaskManager):
         def wrapper():
             try:
                 res = fn()
-                bg_task.status = "completed"
+                bg_task.status = TaskState.COMPLETED
                 self._emit(
                     "runtime.tasks.completed",
                     TaskCompleted(bg_task.id, bg_task.name),
                 )
                 return res
             except Exception as e:
-                bg_task.status = "failed"
+                bg_task.status = TaskState.FAILED
                 bg_task.error = e
                 self._logger.error(f"Task '{bg_task.name}' failed: {e}")
                 self._emit(
@@ -115,13 +138,13 @@ class TaskManager(ITaskManager):
     async def _wrap_coro(self, bg_task: BackgroundTask, coro: Any) -> Any:
         try:
             res = await coro
-            bg_task.status = "completed"
+            bg_task.status = TaskState.COMPLETED
             self._emit(
                 "runtime.tasks.completed", TaskCompleted(bg_task.id, bg_task.name)
             )
             return res
         except Exception as e:
-            bg_task.status = "failed"
+            bg_task.status = TaskState.FAILED
             bg_task.error = e
             self._logger.error(f"Async task '{bg_task.name}' failed: {e}")
             self._emit("runtime.tasks.failed", TaskFailed(bg_task.id, bg_task.name, e))
@@ -149,7 +172,15 @@ class TaskManager(ITaskManager):
             if hasattr(callable_or_coro, "__name__")
             else "UnnamedTask"
         )
-        bg_task = BackgroundTask(task_name, token, critical=critical)
+
+        def _on_progress(val: float, msg: str):
+            self._emit(
+                "runtime.tasks.progress", TaskProgressUpdated(bg_task.id, val, msg)
+            )
+
+        bg_task = BackgroundTask(
+            task_name, token, critical=critical, on_progress_update=_on_progress
+        )
 
         with self._lock:
             self.tasks[bg_task.id] = bg_task
@@ -166,20 +197,20 @@ class TaskManager(ITaskManager):
                 if inspect.iscoroutine(callable_or_coro)
                 else callable_or_coro(bg_task.token)
             )
-            bg_task.status = "running"
+            bg_task.status = TaskState.RUNNING
             try:
                 future = self.context.async_runtime.run_coroutine(
                     self._wrap_coro(bg_task, coro)
                 )
                 bg_task.future = future
             except Exception as e:
-                bg_task.status = "failed"
+                bg_task.status = TaskState.FAILED
                 bg_task.error = e
                 self._emit("runtime.tasks.failed", TaskFailed(bg_task.id, task_name, e))
                 raise e
         else:
             # It's sync
-            bg_task.status = "running"
+            bg_task.status = TaskState.RUNNING
             try:
                 sig = inspect.signature(callable_or_coro)
                 if "token" in sig.parameters:
@@ -197,7 +228,7 @@ class TaskManager(ITaskManager):
                 future = target_executor.submit(self._wrap_sync(bg_task, fn))
                 bg_task.future = future
             except Exception as e:
-                bg_task.status = "failed"
+                bg_task.status = TaskState.FAILED
                 bg_task.error = e
                 self._emit("runtime.tasks.failed", TaskFailed(bg_task.id, task_name, e))
                 raise e
@@ -210,7 +241,7 @@ class TaskManager(ITaskManager):
         """
         with self._lock:
             for task in self.tasks.values():
-                if task.status == "running":
+                if task.status == TaskState.RUNNING:
                     task.cancel()
 
     def shutdown(self, timeout: float = 5.0) -> None:
@@ -225,7 +256,7 @@ class TaskManager(ITaskManager):
             critical_futures = [
                 t.future
                 for t in self.tasks.values()
-                if t.critical and t.status == "running" and t.future is not None
+                if t.critical and t.status == TaskState.RUNNING and t.future is not None
             ]
 
         if critical_futures:

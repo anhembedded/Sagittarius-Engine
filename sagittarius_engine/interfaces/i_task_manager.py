@@ -3,17 +3,18 @@ from typing import TYPE_CHECKING, Any, Callable, Optional
 
 if TYPE_CHECKING:
     from sagittarius_engine.runtime.tasks.cancellation_token import CancellationToken
+    from sagittarius_engine.runtime.tasks.background_task import TaskState
 
 
 class ITaskHandle(ABC):
     """
     @brief Abstract Interface for background task handles spawned by the Engine.
-    
+
     @details
     Why this interface is important for developers:
     1. Strong Typing: Replaces `Any` type annotations when holding task references.
     2. IDE Auto-Complete: Enables auto-completion for `.future`, `.status`, `.token`, and `.cancel()`.
-    3. Decoupling: High-level application adapters can check task execution state without depending on 
+    3. Decoupling: High-level application adapters can check task execution state without depending on
        concrete task implementation classes.
     """
 
@@ -52,9 +53,17 @@ class ITaskHandle(ABC):
 
     @property
     @abstractmethod
-    def status(self) -> str:
+    def status(self) -> "TaskState":
         """
         @brief Current lifecycle status of the task ('pending', 'running', 'completed', 'failed', 'cancelled').
+        """
+        ...
+
+    @property
+    @abstractmethod
+    def progress(self) -> float:
+        """
+        @brief Current progress of the task, from 0.0 to 100.0.
         """
         ...
 
@@ -81,7 +90,7 @@ class ITaskManager(ABC):
     ) -> ITaskHandle:
         """
         @brief Spawns a synchronous callable function or asynchronous coroutine in the engine background pool.
-        
+
         @param callable_or_coro Function or coroutine object to run in background.
         @param name Optional descriptive name for task tracking/logging.
         @param token Optional CancellationToken to allow caller to trigger cancellation externally.

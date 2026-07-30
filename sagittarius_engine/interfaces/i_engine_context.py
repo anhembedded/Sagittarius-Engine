@@ -13,11 +13,11 @@ from sagittarius_engine.interfaces.i_capabilities import (
 class IEngineContext(ITaskCapability, IEventCapability, ILoggingCapability, ABC):
     """
     @brief Core Abstract Interface (Port) for the shared Engine Context.
-    
+
     @details
     Clean Architecture Principle:
-    According to the Dependency Inversion Principle (DIP), high-level modules 
-    (such as IHostedService or IExtension) must not depend on low-level concrete classes 
+    According to the Dependency Inversion Principle (DIP), high-level modules
+    (such as IHostedService or IExtension) must not depend on low-level concrete classes
     (like EngineContext in the kernel). Instead, both must depend on abstractions (this IEngineContext interface).
 
     By passing IEngineContext to Hosted Services and Extensions:
