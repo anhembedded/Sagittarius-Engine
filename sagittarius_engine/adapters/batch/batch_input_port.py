@@ -5,6 +5,7 @@ from typing import Any, Iterator, Optional
 from sagittarius_engine.kernel.app_runner import COMMAND_KEY, EXIT_COMMAND
 from sagittarius_engine.base.base_input_port import BaseInputPort
 from sagittarius_engine.adapters.batch.const import FILE_TYPE_CSV, FILE_TYPE_JSON
+from sagittarius_engine.exceptions import PathTraversalError
 
 
 class BatchInputPort(BaseInputPort):
@@ -12,9 +13,28 @@ class BatchInputPort(BaseInputPort):
     @brief Batch Input Port that reads data from CSV or JSON files.
     """
 
-    def __init__(self, file_path: str, file_type: str = FILE_TYPE_CSV) -> None:
+    def __init__(
+        self,
+        file_path: str,
+        file_type: str = FILE_TYPE_CSV,
+        base_path: Optional[str] = None,
+    ) -> None:
         super().__init__()
-        self.file_path = file_path
+
+        if base_path is not None:
+            base_path_real = os.path.realpath(base_path)
+            full_path = (
+                os.path.join(base_path, file_path)
+                if not os.path.isabs(file_path)
+                else file_path
+            )
+            full_path_real = os.path.realpath(full_path)
+            if os.path.commonpath([base_path_real, full_path_real]) != base_path_real:
+                raise PathTraversalError(f"Path traversal detected: {file_path}")
+            self.file_path = full_path_real
+        else:
+            self.file_path = file_path
+
         self.file_type = file_type
         self._iterator: Optional[Iterator[dict[str, Any]]] = None
         self._initialized = False
