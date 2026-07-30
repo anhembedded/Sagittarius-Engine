@@ -10,3 +10,6 @@
 ## 2025-03-09 - Lock Contention in High-Throughput EventBus
 **Learning:** Using locks around mutable dictionaries (`_handlers`) during event emission causes significant thread contention when handlers are frequently invoked, crippling throughput in concurrent environments.
 **Action:** Use a Copy-On-Write (COW) pattern for the `_handlers` registry. By storing handlers in immutable tuples (`tuple[Callable, ...]`), event emission (`emit()`) can perform a lock-free read `self._handlers.get(event_name, ())`, eliminating contention while moving the synchronization cost to the less frequent `on()` and `off()` operations.
+## 2025-07-30 - Lock Contention in StdLibContainer Resolution
+**Learning:** During highly concurrent requests, `StdLibContainer.resolve` suffered from lock contention because `threading.RLock()` was acquired around every factory check (`_factories`) and constructor cache check (`_resolution_cache`), even though CPython dictionary reads are atomic and thread-safe due to the GIL.
+**Action:** Remove unnecessary locks around read-only dictionary operations like `_resolution_cache.get(concrete)`. For factory resolution, perform a lock-free dictionary read `factory = self._factories.get(abstract)` first, and only acquire the lock to perform double-checked instantiation if a factory actually exists.
