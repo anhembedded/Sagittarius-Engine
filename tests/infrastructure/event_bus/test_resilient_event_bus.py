@@ -76,7 +76,7 @@ def test_resilient_event_bus_reprocess():
 
     assert len(bus.get_dlq()) == 1
 
-    # Fix the issue and reprocess
+    # Simulate resolving the underlying cause of failure and reprocess
     fail = False
     bus.reprocess()
 
