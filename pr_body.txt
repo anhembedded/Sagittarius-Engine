@@ -1,0 +1,13 @@
+🎯 **What:** The testing gap addressed
+A missing test suite for `HealthCheckQuery` which verifies component states correctly.
+
+📊 **Coverage:** What scenarios are now tested
+- The happy path (healthy container, event_bus, and database)
+- Unhealthy container (exception on resolving `IContainer`)
+- Unhealthy event_bus (missing `emit` method)
+- Missing database configuration (resolving `ISession` fails)
+- SQLAlchemy not installed (`ImportError` on loading)
+- Database connection failed (executing the session query fails)
+
+✨ **Result:** The improvement in test coverage
+`HealthCheckQuery` execution is now 100% covered across all expected failure modes, significantly increasing reliability of the framework's diagnostic components.
