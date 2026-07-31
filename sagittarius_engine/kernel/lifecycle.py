@@ -2,6 +2,11 @@ from enum import Enum
 from typing import Any
 
 
+class Lifecycle:
+    def __init__(self, context: Any) -> None:
+        self._state = 'created'
+
+
 class EngineState(Enum):
     STOPPED = "stopped"
     BOOTING = "booting"
