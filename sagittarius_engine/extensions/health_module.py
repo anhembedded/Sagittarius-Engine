@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+from typing import Any
 
 if TYPE_CHECKING:
     from sagittarius_engine.kernel.context import EngineContext
@@ -6,7 +7,7 @@ if TYPE_CHECKING:
 from sagittarius_engine.interfaces.i_extension import IExtension
 from sagittarius_engine.extensions.health_check_query import HealthCheckQuery
 from sagittarius_engine.domain.base_event import BaseEvent
-from typing import Any
+from sagittarius_engine.interfaces.i_module import IModule
 
 
 class HealthUpdatedEvent(BaseEvent):
@@ -15,6 +16,11 @@ class HealthUpdatedEvent(BaseEvent):
     def __init__(self, status: dict[str, Any]) -> None:
         super().__init__()
         self.status: dict[str, Any] = status
+
+
+class HealthModule(IModule):
+    def register(self, context: 'EngineContext') -> None:
+        pass
 
 
 class HealthExtension(IExtension):
