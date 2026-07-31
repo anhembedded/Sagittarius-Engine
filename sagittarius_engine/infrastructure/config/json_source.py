@@ -23,5 +23,5 @@ class JsonSource(ConfigSource):
         try:
             with open(self.filepath) as f:
                 return json.load(f)
-        except json.JSONDecodeError:
+        except (FileNotFoundError, json.JSONDecodeError):
             return {}
