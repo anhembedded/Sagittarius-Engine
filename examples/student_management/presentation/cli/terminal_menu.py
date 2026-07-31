@@ -363,8 +363,10 @@ class TerminalMenu(IHostedService):
             status = self.app.dispatch(HealthCheckQuery, HealthCheckDTO())
             print(f"Overall Status: {status.get('status', 'unknown').upper()}")
             print("Component States:")
-            for comp, state in status.get("components", {}).items():
-                print(f" - {comp.capitalize()}: {state}")
+            components = status.get("components", {})
+            if components:
+                # Optimized: batch print syscalls using string join
+                print("\n".join(f" - {comp.capitalize()}: {state}" for comp, state in components.items()))
         except Exception as e:
             print(f"❌ Health query failed: {e}")
 
