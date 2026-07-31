@@ -13,6 +13,9 @@ class BatchInputPort(BaseInputPort):
     @brief Batch Input Port that reads data from CSV or JSON files.
     """
 
+    def process(self, filepath: str) -> None:
+        pass
+
     def __init__(self, file_path: str, file_type: str = FILE_TYPE_CSV, base_path: Optional[str] = None) -> None:
         super().__init__()
 
