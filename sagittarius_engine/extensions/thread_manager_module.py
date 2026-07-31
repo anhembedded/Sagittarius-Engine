@@ -9,6 +9,8 @@ from sagittarius_engine.interfaces import IConfig
 from sagittarius_engine.interfaces.i_thread_manager import (
     IThreadManager,
 )
+from sagittarius_engine.interfaces.i_module import IModule
+from sagittarius_engine.interfaces.i_engine_context import IEngineContext
 
 
 class ThreadManagerExtension(IExtension):
@@ -36,4 +38,9 @@ class ThreadManagerExtension(IExtension):
         pass
 
     def shutdown(self, context: "EngineContext") -> None:
+        pass
+
+
+class ThreadManagerModule(IModule):
+    def register(self, context: IEngineContext) -> None:
         pass
