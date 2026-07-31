@@ -1,4 +1,4 @@
-from sagittarius_engine.kernel.lifecycle import EngineLifecycle, EngineState
+from sagittarius_engine.kernel.lifecycle import EngineLifecycle, EngineState, Lifecycle
 
 
 def test_engine_lifecycle_states():
@@ -41,3 +41,8 @@ def test_engine_state_enum_values():
     assert EngineState.BOOTING.value == "booting"
     assert EngineState.BOOTED.value == "booted"
     assert EngineState.STOPPING.value == "stopping"
+
+
+def test_lifecycle_initial_state():
+    lifecycle = Lifecycle(context=None)
+    assert lifecycle._state == 'created'
