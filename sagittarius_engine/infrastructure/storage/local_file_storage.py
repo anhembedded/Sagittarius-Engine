@@ -24,7 +24,13 @@ class LocalFileStorage(IFileStorage):
         full_path = os.path.join(self.base_path, path)
         full_path_real = os.path.realpath(full_path)
 
-        if os.path.commonpath([base_path_real, full_path_real]) != base_path_real:
+        base_path_strict = os.path.join(base_path_real, "")
+        is_confined = (
+            os.path.commonpath([base_path_real, full_path_real]) == base_path_real
+            and (full_path_real == base_path_real or full_path_real.startswith(base_path_strict))
+        )
+
+        if not is_confined:
             raise PathTraversalError(f"Path traversal detected: {path}")
 
         return full_path_real
