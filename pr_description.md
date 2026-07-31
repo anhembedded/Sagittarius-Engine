@@ -1,0 +1,3 @@
+🎯 **What:** Added a missing test suite for `PydanticValidationMiddleware` and fixed the constructor signature to properly accommodate a dependency injection container.
+📊 **Coverage:** The new tests cover successful validation logic for dictionaries, object instances, Pydantic model inputs, None values, validation failure cases (value error mapping), fallback paths for Pydantic V1 models without `model_validate`, and handling of `ImportError` when `pydantic` is missing.
+✨ **Result:** Test coverage for `sagittarius_engine.middleware.pydantic_validation_middleware` is significantly increased, providing confidence in its functionality across varying inputs and framework patterns.

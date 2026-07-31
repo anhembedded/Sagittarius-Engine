@@ -943,7 +943,7 @@ def test_pydantic_validation_middleware__validate_success():
         name: str
         age: int
 
-    middleware = PydanticValidationMiddleware(MyDTO)
+    middleware = PydanticValidationMiddleware(model_class=MyDTO)
 
     handler_called = False
 
@@ -969,7 +969,7 @@ def test_pydantic_validation_middleware__validate_failure_blocks_execution():
         name: str
         age: int
 
-    middleware = PydanticValidationMiddleware(MyDTO)
+    middleware = PydanticValidationMiddleware(model_class=MyDTO)
 
     handler_called = False
 
