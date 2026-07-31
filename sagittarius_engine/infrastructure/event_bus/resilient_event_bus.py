@@ -133,14 +133,16 @@ class ResilientEventBus(IEventBus):
         @brief Retrieves the Dead Letter Queue.
         @return A list of failed events stored in the DLQ.
         """
-        return list(self._dlq)
+        with self._lock:
+            return list(self._dlq)
 
     def reprocess(self) -> None:
         """
         @brief Attempts to reprocess all events currently in the DLQ.
         """
-        current_dlq = self._dlq
-        self._dlq = []
+        with self._lock:
+            current_dlq = self._dlq
+            self._dlq = []
         for event_name, data, handler, _ in current_dlq:
             for attempt in range(self.max_retries + 1):
                 try:
@@ -148,4 +150,5 @@ class ResilientEventBus(IEventBus):
                     break
                 except Exception as e:
                     if attempt == self.max_retries:
-                        self._dlq.append((event_name, data, handler, e))
+                        with self._lock:
+                            self._dlq.append((event_name, data, handler, e))
