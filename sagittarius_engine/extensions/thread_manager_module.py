@@ -37,3 +37,13 @@ class ThreadManagerExtension(IExtension):
 
     def shutdown(self, context: "EngineContext") -> None:
         pass
+
+from sagittarius_engine.interfaces.i_module import IModule
+from sagittarius_engine.interfaces.i_engine_context import IEngineContext
+
+class ThreadManagerModule(IModule):
+    def register(self, context: IEngineContext) -> None:
+        pass
+
+    def boot(self, app) -> None:
+        pass
