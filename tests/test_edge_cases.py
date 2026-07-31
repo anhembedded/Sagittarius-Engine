@@ -489,7 +489,7 @@ def test_pydantic_middleware__missing_pydantic__raises_import_error():
             ImportError,
             match="pydantic is not installed. Please install it using `pip install pydantic`.",
         ):
-            pydantic_validation_middleware.PydanticValidationMiddleware(None)
+            pydantic_validation_middleware.PydanticValidationMiddleware(model_class=None)
 
     # Restore the module state for subsequent tests
     importlib.reload(pydantic_validation_middleware)
@@ -504,7 +504,7 @@ def test_pydantic_middleware__dto_is_none__raises_exception():
     class MyDTO(pydantic.BaseModel):
         name: str
 
-    middleware = PydanticValidationMiddleware(MyDTO)
+    middleware = PydanticValidationMiddleware(model_class=MyDTO)
 
     class DummyCommand:
         pass
@@ -526,7 +526,7 @@ def test_pydantic_middleware__dto_missing_required_field__raises_exception():
     class MyDTO(pydantic.BaseModel):
         name: str
 
-    middleware = PydanticValidationMiddleware(MyDTO)
+    middleware = PydanticValidationMiddleware(model_class=MyDTO)
 
     class DummyCommand:
         pass
@@ -742,7 +742,7 @@ def test_pydantic_validation_middleware_v2():
         name: str
         age: int
 
-    middleware = PydanticValidationMiddleware(TestDTO)
+    middleware = PydanticValidationMiddleware(model_class=TestDTO)
 
     class DummyCommand:
         pass

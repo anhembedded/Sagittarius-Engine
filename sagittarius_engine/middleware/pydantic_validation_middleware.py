@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from typing import Any
 
-from sagittarius_engine.interfaces import IMiddleware
+from sagittarius_engine.interfaces import IMiddleware, IContainer
 
 try:
     # pyrefly: ignore [missing-import]
@@ -34,7 +34,7 @@ class PydanticValidationMiddleware(IMiddleware):
     @endcode
     """
 
-    def __init__(self, model_class: Any) -> None:
+    def __init__(self, container: IContainer | None = None, model_class: Any = None) -> None:
         """
         @brief Constructor.
         @param model_class The Pydantic BaseModel class used for validation.
@@ -43,6 +43,7 @@ class PydanticValidationMiddleware(IMiddleware):
             raise ImportError(
                 "pydantic is not installed. Please install it using `pip install pydantic`."
             )
+        self.container = container
         self.model_class = model_class
 
     def process(
