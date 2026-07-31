@@ -27,7 +27,11 @@ def create_project(project_name: str, base_path: str = ".") -> None:
 
     # Initialize directories
     for dir_name in ["domain", "application", "infrastructure", "adapters", "modules"]:
-        os.makedirs(os.path.join(project_dir, dir_name), exist_ok=True)
+        target_dir = os.path.join(project_dir, dir_name)
+        try:
+            os.makedirs(target_dir)
+        except Exception as e:
+            print(f'Error creating project: {e}')
         # Mark as python package
         with open(os.path.join(project_dir, dir_name, "__init__.py"), "w") as f:
             pass
