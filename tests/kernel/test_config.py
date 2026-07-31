@@ -35,6 +35,27 @@ def test_config_manager_json_source(tmp_path):
     assert manager.get("json_key") == "json_value"
 
 
+def test_json_source_invalid_json(tmp_path):
+    config_file = tmp_path / "config.json"
+    config_file.write_text("invalid json {")
+
+    source = JsonSource(str(config_file))
+    assert source.read() == {}
+
+
+def test_json_source_file_not_found_mock(tmp_path, monkeypatch):
+    config_file = tmp_path / "config.json"
+    config_file.write_text('{"key": "value"}')
+
+    def mock_open(*args, **kwargs):
+        raise FileNotFoundError("Mocked file not found")
+
+    monkeypatch.setattr("builtins.open", mock_open)
+
+    source = JsonSource(str(config_file))
+    assert source.read() == {}
+
+
 def test_config_manager_source_override():
     manager = ConfigManager()
     manager.add_source(DictSource({"shared_key": "from_dict"}))
