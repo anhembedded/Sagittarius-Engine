@@ -1,5 +1,6 @@
 import sys
 import os
+import logging
 from typing import Any
 
 # Ensure project root is in python path
@@ -78,8 +79,8 @@ def main() -> None:
                 bridge.all_events_logged.emit(
                     event_name, str(data) if data is not None else ""
                 )
-        except Exception:
-            pass
+        except Exception as e:
+            logging.getLogger(__name__).warning("Failed to emit UI log event: %s", e)
         original_emit(event_name, data)
 
     setattr(event_bus, "emit", logging_emit)
