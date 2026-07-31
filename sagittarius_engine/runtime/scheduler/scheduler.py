@@ -2,6 +2,7 @@ import logging
 import threading
 from datetime import datetime, timedelta
 from typing import Any, Callable, List, Optional
+from sagittarius_engine.interfaces import IEngineContext
 from sagittarius_engine.runtime.scheduler.triggers import (
     ITrigger,
     IntervalTrigger,
@@ -57,7 +58,7 @@ class Scheduler:
     @brief Lightweight, thread-safe, non-blocking Task Scheduler using Condition variables.
     """
 
-    def __init__(self, context: Any) -> None:
+    def __init__(self, context: IEngineContext) -> None:
         self.context = context
         self.jobs: List[ScheduledJob] = []
         self._lock = threading.Lock()
