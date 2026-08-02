@@ -1,5 +1,6 @@
 from typing import TypeVar, Any
 from sagittarius_engine.exceptions import ModuleRegistrationError
+from sagittarius_engine.interfaces.i_dispatchable import IDispatchable
 
 from sagittarius_engine.kernel.context import EngineContext
 from sagittarius_engine.kernel.middleware_pipeline import MiddlewarePipeline
@@ -78,9 +79,13 @@ class App:
         """
         self.context.bootstrap.boot(auto_discover)
 
-    def dispatch(self, handler_class: type, input_dto: object | None = None) -> Any:
+    def dispatch(self, handler_class: type[IDispatchable], input_dto: object | None = None) -> Any:
         """
         @brief Dispatches a command or query through the Middleware Pipeline.
+
+        @param handler_class Any class implementing IDispatchable (ICommand, IQuery, or custom handler).
+        @param input_dto Optional DTO to pass to the handler's execute() method.
+        @return The result of the dispatched handler.
         """
         return self.context.dispatcher.dispatch(handler_class, input_dto)
 

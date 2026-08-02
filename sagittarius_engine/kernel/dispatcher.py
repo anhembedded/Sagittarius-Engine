@@ -4,6 +4,7 @@ if TYPE_CHECKING:
     from sagittarius_engine.kernel.i_kernel_context import IKernelContext
 import warnings
 from sagittarius_engine.interfaces import ILogger
+from sagittarius_engine.interfaces.i_dispatchable import IDispatchable
 
 
 class Dispatcher:
@@ -17,11 +18,15 @@ class Dispatcher:
 
     def dispatch(
         self,
-        handler_class: type,
+        handler_class: type[IDispatchable],
         input_dto: object | None = None,
     ) -> Any:
         """
         @brief Dispatches a handler (command, query, etc.) through the middleware pipeline.
+
+        @param handler_class Any class implementing IDispatchable (ICommand, IQuery, or custom handler).
+        @param input_dto Optional DTO to pass to the handler's execute() method.
+        @return The result of handler.execute(input_dto).
         """
         logger = self._get_logger()
         if logger:

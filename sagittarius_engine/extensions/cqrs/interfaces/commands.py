@@ -1,20 +1,26 @@
 from abc import ABC, abstractmethod
 from typing import Any, Generic, TypeVar
 
-TInput = TypeVar("TInput", bound=Any)
-TOutput = TypeVar("TOutput", bound=Any)
+from sagittarius_engine.interfaces.i_dispatchable import IDispatchable
+
+TInput = TypeVar("TInput")
+TOutput = TypeVar("TOutput")
 
 
-class ICommand(Generic[TInput, TOutput], ABC):
+class ICommand(Generic[TInput, TOutput], IDispatchable, ABC):
     """
     @brief Interface for Commands in the CQRS architecture.
 
     @details A Command is responsible for executing operations that change the system's state
     (Write operations), such as Create, Update, or Delete.
+
+    Generic parameters:
+        TInput: The DTO type accepted by execute().
+        TOutput: The result type returned by execute().
     """
 
     @abstractmethod
-    def execute(self, input_dto: TInput) -> TOutput:
+    def execute(self, input_dto: TInput) -> TOutput:  # type: ignore[override]
         """
         @brief Executes the command.
         @param input_dto The input Data Transfer Object to be processed.
