@@ -3,14 +3,7 @@ from sagittarius_engine.interfaces.i_container import IContainer
 from sagittarius_engine.interfaces.i_event_bus import IEventBus
 from sagittarius_engine.interfaces.i_logger import ILogger
 from sagittarius_engine.interfaces.i_task_manager import ITaskManager
-from sagittarius_engine.interfaces.i_capabilities import (
-    ITaskCapability,
-    IEventCapability,
-    ILoggingCapability,
-)
-
-
-class IEngineContext(ITaskCapability, IEventCapability, ILoggingCapability, ABC):
+class IEngineContext(ABC):
     """
     @brief Core Abstract Interface (Port) for the shared Engine Context.
 

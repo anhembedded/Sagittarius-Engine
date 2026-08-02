@@ -11,12 +11,6 @@ from .i_config import IConfig
 from .i_input_port import IInputPort
 from .i_output_port import IOutputPort
 
-from .i_capabilities import (
-    ITaskCapability,
-    ISchedulingCapability,
-    IEventCapability,
-    ILoggingCapability,
-)
 
 __all__ = [
     "IModule",
@@ -32,10 +26,6 @@ __all__ = [
     "IConfig",
     "IInputPort",
     "IOutputPort",
-    "ITaskCapability",
-    "ISchedulingCapability",
-    "IEventCapability",
-    "ILoggingCapability",
     "IThreadManager",
     "IFileStorage",
     "IMetrics",

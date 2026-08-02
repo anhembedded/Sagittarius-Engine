@@ -12,11 +12,6 @@ from sagittarius_engine.infrastructure.event_bus.resilient_event_bus import (
 )
 from sagittarius_engine.runtime.tasks.task_manager import DaemonThreadPoolExecutor
 from sagittarius_engine.interfaces.i_extension import IExtension, ExtensionDescriptor
-from sagittarius_engine.interfaces.i_capabilities import (
-    ITaskCapability,
-    IEventCapability,
-    ILoggingCapability,
-)
 
 
 def test_issue_001_daemon_executor_no_global_monkey_patch():
@@ -224,14 +219,11 @@ def test_issue_006_extension_rollback_disposes_in_reverse_order():
     assert history == ["init_1", "dispose_1"]
 
 
-def test_issue_007_engine_context_capability_interfaces():
+def test_issue_007_engine_context_properties():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
 
     ctx = app.context
-    assert isinstance(ctx, ITaskCapability)
-    assert isinstance(ctx, IEventCapability)
-    assert isinstance(ctx, ILoggingCapability)
     assert ctx.tasks is not None
     assert ctx.event_bus is event_bus

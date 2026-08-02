@@ -14,6 +14,7 @@ trigger: always_on
    - Define explicit abstractions using `abc.ABC` or `typing.Protocol` for repositories, services, and external clients.
    - Adhere strictly to the Dependency Inversion Principle (DIP). High-level business logic must depend on abstractions, not concrete implementations.
    - Prefer Dependency Injection (DI) over hardcoded class instantiations inside domain logic.
+   - **NO Multiple Inheritance:** Strictly avoid multiple inheritance. Use composition over inheritance, and flatten interfaces where necessary to avoid complex method resolution orders (MRO).
 
 3. **Readability & Clean Code (Over Brevity):**
    - Follow PEP 8 guidelines. Prioritize explicit and self-documenting code over short one-liners.
