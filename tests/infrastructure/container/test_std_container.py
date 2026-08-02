@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import inspect
-import threading
 from abc import ABC, abstractmethod
 
+from unittest.mock import patch
 import pytest
 from sagittarius_engine.exceptions import DependencyResolutionError
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
@@ -193,8 +192,6 @@ def test_resolve_caching():
     assert isinstance(first_instance, ComplexService)
     assert isinstance(second_instance, ComplexService)
     assert first_instance is not second_instance
-
-from unittest.mock import patch
 
 def test_resolve_value_error_signature():
     container = StdLibContainer()

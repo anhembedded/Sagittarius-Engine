@@ -36,7 +36,8 @@ class TestScheduler(unittest.TestCase):
         # Arrange
         mock_context = MagicMock(spec=IEngineContext)
         scheduler = Scheduler(context=mock_context)
-        dummy_fn = lambda: None
+        def dummy_fn():
+            return None
 
         # Act
         job = scheduler.every(seconds=5).do(dummy_fn)
@@ -52,7 +53,8 @@ class TestScheduler(unittest.TestCase):
         # Arrange
         mock_context = MagicMock(spec=IEngineContext)
         scheduler = Scheduler(context=mock_context)
-        dummy_fn = lambda: None
+        def dummy_fn():
+            return None
 
         # Act
         job = scheduler.after(minutes=2).do(dummy_fn)
@@ -67,7 +69,8 @@ class TestScheduler(unittest.TestCase):
         # Arrange
         mock_context = MagicMock(spec=IEngineContext)
         scheduler = Scheduler(context=mock_context)
-        dummy_fn = lambda: None
+        def dummy_fn():
+            return None
 
         # Act
         job = scheduler.cron("* * * * *").do(dummy_fn)

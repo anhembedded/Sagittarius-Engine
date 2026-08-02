@@ -28,7 +28,7 @@ async def test_audit_broadcaster_sends_updates():
     # 1. Setup Backend Engine
     container = StdLibContainer()
     event_bus = MemoryEventBus()
-    app = App(container, event_bus)
+    App(container, event_bus)
 
     # Mock context since we only need event_bus for this test
     context = MagicMock()

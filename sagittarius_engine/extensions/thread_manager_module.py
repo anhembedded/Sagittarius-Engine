@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from sagittarius_engine.kernel.context import EngineContext
+    from sagittarius_engine.kernel.app import App
 
 from sagittarius_engine.interfaces.i_extension import IExtension
 from sagittarius_engine.infrastructure.thread_manager import ThreadManager
@@ -42,5 +43,5 @@ class ThreadManagerExtension(IExtension):
 
 
 class ThreadManagerModule(IModule):
-    def register(self, context: IEngineContext) -> None:
+    def register(self, app: "App") -> None:
         pass

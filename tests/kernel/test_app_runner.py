@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 
 try:
-    from sagittarius_engine.kernel.app_runner import AppRunner
+    from sagittarius_engine.kernel.app_runner import AppRunner  # type: ignore
 except ImportError:
     AppRunner = None  # type: ignore
 

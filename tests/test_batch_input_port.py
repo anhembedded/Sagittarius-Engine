@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch, mock_open
 from sagittarius_engine.adapters.batch.batch_input_port import BatchInputPort
 

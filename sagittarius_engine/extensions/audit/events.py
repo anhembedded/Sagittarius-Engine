@@ -1,9 +1,4 @@
-try:
-    from sagittarius_engine.base_event import BaseEvent
-except ImportError:
-    class BaseEvent:
-        pass
-
+from sagittarius_engine.domain.base_event import BaseEvent
 from typing import Dict, Any
 
 class SystemStateChangedEvent(BaseEvent):

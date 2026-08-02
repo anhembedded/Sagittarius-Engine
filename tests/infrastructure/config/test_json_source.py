@@ -1,6 +1,4 @@
 import json
-import os
-import pytest
 
 from sagittarius_engine.infrastructure.config.json_source import JsonSource
 

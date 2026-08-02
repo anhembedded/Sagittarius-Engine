@@ -1,9 +1,8 @@
 import time
-from unittest.mock import MagicMock
-import pytest
-
-from sagittarius_engine.runtime.scheduler.scheduler import Scheduler, ScheduledJob
-from sagittarius_engine.runtime.scheduler.triggers import IntervalTrigger, CronTrigger
+from unittest.mock import MagicMock, patch
+from datetime import datetime, timedelta
+from sagittarius_engine.runtime.scheduler.scheduler import Scheduler
+from sagittarius_engine.runtime.scheduler.triggers import CronTrigger
 from sagittarius_engine.runtime.scheduler.events import SchedulerStarted, SchedulerStopped
 
 def test_scheduler_start_stop():
@@ -128,9 +127,6 @@ def test_scheduler_job_execution_exception():
     # It should not crash the scheduler thread, and it should call spawn
     assert context.tasks.spawn.call_count == 1
 
-
-from unittest.mock import patch
-from datetime import datetime, timedelta
 
 def test_scheduler_sleep_time_fallback():
     context = MagicMock()

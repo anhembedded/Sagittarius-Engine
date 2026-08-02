@@ -1,4 +1,3 @@
-import pytest
 from sagittarius_engine.infrastructure.config.dict_config import DictConfig
 
 

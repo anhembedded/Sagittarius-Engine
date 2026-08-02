@@ -7,7 +7,6 @@ from typing import Any, Dict, Set, Callable, Optional
 from ..ports import ITelemetryBroadcaster
 
 try:
-    import websockets
     try:
         from websockets.asyncio.server import serve
     except ImportError:
