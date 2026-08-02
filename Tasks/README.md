@@ -13,6 +13,11 @@ Welcome to the central task management hub for **Sagittarius Engine**. This dire
 | **TASK-001** | `BackgroundService` Pattern | Architecture / Hosted Services | 2026-07-28 | [TASK-001_background_service.md](completed/TASK-001_background_service.md) |
 | **TASK-002** | `AuditExtension` & CLI Inspector | Observability / Diagnostics | 2026-07-28 | [TASK-002_audit_extension.md](completed/TASK-002_audit_extension.md) |
 | **TASK-009** | Exception-Case Test Coverage Expansion | Testing & Quality Assurance | 2026-07-30 | [TASK-009_exception_case_test_coverage.md](completed/TASK-009_exception_case_test_coverage.md) |
+| **TASK-010** | Async Lifecycle Support | Core Architecture / Concurrency | 2026-08-02 | [TASK-010_async_lifecycle_support.md](completed/TASK-010_async_lifecycle_support.md) |
+| **TASK-011** | Strict Extension Adapter Typing | Core Architecture / Robustness | 2026-08-02 | [TASK-011_strict_extension_adapter_typing.md](completed/TASK-011_strict_extension_adapter_typing.md) |
+| **TASK-012** | DI Container Scoped Lifecycle | Infrastructure / Dependency Injection | 2026-08-02 | [TASK-012_di_container_scoped_lifecycle.md](completed/TASK-012_di_container_scoped_lifecycle.md) |
+| **TASK-013** | Engine Context God Object Prevention | Core Architecture / Clean Architecture | 2026-08-02 | [TASK-013_engine_context_god_object_prevention.md](completed/TASK-013_engine_context_god_object_prevention.md) |
+| **TASK-014** | CQRS Dispatcher Type Safety (TOutput Resolution) | Core Architecture / Type Safety | 2026-08-02 | [TASK-014_cqrs_type_safety_overload.md](completed/TASK-014_cqrs_type_safety_overload.md) |
 
 ### 🟡 In Progress (`Tasks/in_progress/`)
 
@@ -28,11 +33,7 @@ Welcome to the central task management hub for **Sagittarius Engine**. This dire
 | **TASK-006** | Extension and Event Bus Contract Consistency | Architecture / Event Bus & Extensions | P1 - High | [TASK-006_extension_eventbus_contracts.md](backlog/TASK-006_extension_eventbus_contracts.md) |
 | **TASK-007** | Kernel Reliability and OSS Readiness | Reliability / Open Source Polish | P2 - Medium | [TASK-007_kernel_reliability_oss_readiness.md](backlog/TASK-007_kernel_reliability_oss_readiness.md) |
 | **TASK-008** | Context Decoupling Program | Core Architecture / Service Boundaries | P2 - Medium | [TASK-008_context_decoupling_program.md](backlog/TASK-008_context_decoupling_program.md) |
-| **TASK-010** | Async Lifecycle Support | Core Architecture / Concurrency | P2 - Medium | [TASK-010_async_lifecycle_support.md](backlog/TASK-010_async_lifecycle_support.md) |
-| **TASK-011** | Strict Extension Adapter Typing | Core Architecture / Robustness | P3 - Low | [TASK-011_strict_extension_adapter_typing.md](backlog/TASK-011_strict_extension_adapter_typing.md) |
-| **TASK-012** | DI Container Scoped Lifecycle | Infrastructure / Dependency Injection | P2 - Medium | [TASK-012_di_container_scoped_lifecycle.md](backlog/TASK-012_di_container_scoped_lifecycle.md) |
-| **TASK-013** | Engine Context God Object Prevention | Core Architecture / Clean Architecture | P3 - Low | [TASK-013_engine_context_god_object_prevention.md](backlog/TASK-013_engine_context_god_object_prevention.md) |
-| **TASK-014** | CQRS Dispatcher Type Safety (TOutput Resolution) | Core Architecture / Type Safety | P3 - Low | [TASK-014_cqrs_type_safety_overload.md](backlog/TASK-014_cqrs_type_safety_overload.md) |
+
 ---
 
 ## 📂 Directory Layout
@@ -46,12 +47,7 @@ Tasks/
 │   ├── TASK-005_runtime_concurrency_hardening.md
 │   ├── TASK-006_extension_eventbus_contracts.md
 │   ├── TASK-007_kernel_reliability_oss_readiness.md
-│   ├── TASK-008_context_decoupling_program.md
-│   ├── TASK-010_async_lifecycle_support.md
-│   ├── TASK-011_strict_extension_adapter_typing.md
-│   ├── TASK-012_di_container_scoped_lifecycle.md
-│   ├── TASK-013_engine_context_god_object_prevention.md
-│   └── TASK-014_cqrs_type_safety_overload.md
+│   └── TASK-008_context_decoupling_program.md
 ├── issue-report/                       # High-impact Architecture Issue Report
 │   ├── issue.md
 │   └── exception_case.md
@@ -59,5 +55,10 @@ Tasks/
 ├── completed/                          # Finished Tasks & Historical Docs
 │   ├── TASK-001_background_service.md
 │   ├── TASK-002_audit_extension.md
-│   └── TASK-009_exception_case_test_coverage.md
+│   ├── TASK-009_exception_case_test_coverage.md
+│   ├── TASK-010_async_lifecycle_support.md
+│   ├── TASK-011_strict_extension_adapter_typing.md
+│   ├── TASK-012_di_container_scoped_lifecycle.md
+│   ├── TASK-013_engine_context_god_object_prevention.md
+│   └── TASK-014_cqrs_type_safety_overload.md
 ```
