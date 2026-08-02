@@ -42,9 +42,9 @@ Supported architectures include:
 |--------|----------------|
 | Kernel | Host, Context, Dispatcher, Lifecycle, Bootstrap |
 | Runtime | Hosted Services, Scheduler, Tasks, Async, Cancellation |
-| Extensions | SQLAlchemy, CQRS, Persistence, Logging, Metrics |
-| SDK | Templates, Generator |
-| Application | Business Logic, Domain, UI |
+| Extensions | SQLAlchemy, CQRS, Persistence, Logging, Metrics, Audit (Telemetry) |
+| SDK | Templates, Generator, Project Setup |
+| Tools / Apps | Business Logic, Domain, UI (e.g. `audit_dashboard` using PySide6) |
 
 ---
 
@@ -64,17 +64,17 @@ Documentation must:
 
 - DI Container
 - Dispatcher
-- Event Bus
+- Event Bus (Sync/Async/IPC)
 - Middleware
 - Extension Runtime
-- Hosted Services
-- Scheduler
-- Task Manager
+- Hosted Services (Daemon processes)
+- Scheduler (Cron/Interval)
+- Task Manager (Async/Sync execution)
 - Async Runtime
 - Cancellation Tokens
 - Configuration
 - Logging
-- Metrics
+- Metrics & Telemetry (WebSockets via Audit)
 - Storage
 - Persistence
 
@@ -164,7 +164,7 @@ Avoid
 ## Target Applications
 
 - Trading Bots
-- Desktop Apps
+- Desktop Apps (e.g. PySide6 / PyQt)
 - Background Workers
 - Automation
 - ETL
@@ -186,7 +186,7 @@ Sagittarius is not intended to replace:
 - APScheduler
 - PySide
 
-Instead, it integrates with them through Extensions.
+Instead, it integrates with them through Extensions and custom Adapters.
 
 ---
 

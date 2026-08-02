@@ -1,3 +1,7 @@
+---
+trigger: model_decision
+---
+
 # Rules: Knowledge Base Update
 
 > Context: Keep the project's brain up-to-date. Documentation is part of the deliverable.

@@ -1,3 +1,7 @@
+---
+trigger: model_decision
+---
+
 # Rules: Documentation
 
 > Context: Universal constraints for structuring, writing, and updating project documentation.

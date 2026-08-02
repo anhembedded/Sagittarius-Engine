@@ -1,3 +1,0 @@
-# Rules: Commit
-
-TBD

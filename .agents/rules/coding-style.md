@@ -1,3 +1,7 @@
+---
+trigger: model_decision
+---
+
 # Rules: Coding Style
 
 > Context: Absolute constraints. Apply to ALL generated code. Readability > Cleverness.
