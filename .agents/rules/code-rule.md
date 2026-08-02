@@ -26,3 +26,9 @@ trigger: always_on
    - Never mutate passed arguments in-place. Return new instances or modified copies instead.
    - Strictly avoid mutable default arguments (e.g., NEVER use `def func(items=[]):`).
    - Isolate side effects (I/O, DB calls, network requests) inside dedicated adapter/boundary classes.
+
+5. **Strict Code Quality Rules:**
+   - **No Magic Numbers:** Strictly avoid using raw numbers (magic numbers) in code. Define them as constants with descriptive names at the top of the file or in a dedicated configuration class.
+   - **No Nested Loops:** Avoid deep nesting of loops (e.g. `for` inside `for` inside `while`). Extract nested logic into separate helper functions to reduce cyclomatic complexity and improve testability.
+   - **No God Objects:** Strictly avoid creating massive classes or modules (like an overloaded `main.py` or a giant `Manager` class) that know too much or do too much. Delegate responsibilities (e.g. CLI parsing, bootstrapping, event handling) into dedicated modules.
+   - **Abstract Low-Level Logic:** Do not write verbose, low-level OS/File system operations (like deep `os.path` joins or byte-level manipulation) directly in application or composition root layers. Extract them into common utility classes (e.g., `PathUtils`) inside the `sagittarius_engine.utils` directory if they are reusable across the framework.
