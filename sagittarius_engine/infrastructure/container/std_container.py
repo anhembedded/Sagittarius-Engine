@@ -5,6 +5,7 @@ from typing import Any, TypeVar
 
 from sagittarius_engine.exceptions import DependencyResolutionError
 from sagittarius_engine.interfaces import IContainer
+from sagittarius_engine.infrastructure.container.scope_context import ScopeContext
 
 T = TypeVar("T")
 
@@ -44,6 +45,8 @@ class StdLibContainer(IContainer):
         self._bindings: dict[type, type] = {}
         self._instances: dict[type, Any] = {}
         self._factories: dict[type, Callable] = {}
+        self._scoped_registry: dict[type, type] = {}
+        self._scope_context: ScopeContext = ScopeContext(self._scoped_registry)
         # Cache for parsed __init__ dependencies to speed up resolution
         self._resolution_cache: dict[type, dict[str, dict[str, Any]]] = {}
 
@@ -101,7 +104,41 @@ class StdLibContainer(IContainer):
         @return An instance of the requested type.
         @exception DependencyResolutionError If the container cannot resolve a dependency.
         """
+        # Check scoped registry first
+        scoped_instance = self._scope_context.resolve(abstract)
+        if scoped_instance is not None:
+            return scoped_instance
         return self._resolve(abstract, set())
+
+    def scoped(self, abstract: type[Any], concrete: type[Any]) -> None:
+        """
+        @brief Registers a Scoped dependency.
+
+        @details A scoped instance is created once per active scope (e.g., per HTTP request).
+        Different scopes receive different instances; same scope reuses one instance.
+        Resolving a scoped dependency outside an active scope falls back to Transient.
+
+        @param abstract The abstract interface or class type.
+        @param concrete The concrete class to instantiate within each scope.
+        """
+        with self._lock:
+            self._scoped_registry[abstract] = concrete
+
+    def create_scope(self) -> ScopeContext:
+        """
+        @brief Creates a new scope context manager.
+
+        @details Use as a context manager to isolate scoped dependency resolution:
+
+            with container.create_scope():
+                session = container.resolve(ISession)  # scoped instance
+                # same session returned within this block
+            # scope is released; next create_scope() produces a fresh set
+
+        @return A ScopeContext that activates a new isolated resolution scope.
+        """
+        return ScopeContext(self._scoped_registry)
+
 
     def _resolve(self, abstract: type[T] | Any, resolving: set[type]) -> T:  # noqa: C901
         """
