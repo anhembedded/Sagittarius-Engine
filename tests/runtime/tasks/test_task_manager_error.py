@@ -2,10 +2,12 @@ import pytest
 from unittest.mock import Mock
 from sagittarius_engine.runtime.tasks.task_manager import TaskManager
 
+
 class MockContext:
     def __init__(self):
         self.event_bus = Mock()
         self.async_runtime = Mock()
+
 
 def test_task_manager_error_logging():
     # Setup

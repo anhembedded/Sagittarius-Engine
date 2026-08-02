@@ -34,7 +34,9 @@ class PydanticValidationMiddleware(IMiddleware):
     @endcode
     """
 
-    def __init__(self, container: IContainer | None = None, model_class: Any = None) -> None:
+    def __init__(
+        self, container: IContainer | None = None, model_class: Any = None
+    ) -> None:
         """
         @brief Constructor.
         @param model_class The Pydantic BaseModel class used for validation.

@@ -7,7 +7,7 @@ from sagittarius_engine.infrastructure.container.std_container import StdLibCont
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 from sagittarius_engine.interfaces import IConfig, IEventBus
 from sagittarius_engine.infrastructure.config.dict_config import DictConfig
-from sagittarius_engine.extensions.logger_module import LoggerExtension
+from sagittarius_engine.extensions.logger.logger_module import LoggerExtension
 from examples.student_management.student_module import StudentModule
 
 from examples.student_management.domain.events import ReportCompletedEvent

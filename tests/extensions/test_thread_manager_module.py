@@ -1,6 +1,8 @@
 from unittest.mock import MagicMock
 from sagittarius_engine.interfaces.i_engine_context import IEngineContext
-from sagittarius_engine.extensions.thread_manager_module import ThreadManagerModule
+from sagittarius_engine.extensions.thread_manager.thread_manager_module import (
+    ThreadManagerModule,
+)
 
 
 class ConcreteThreadManagerModule(ThreadManagerModule):

@@ -1,5 +1,6 @@
-from typing import Any, TypeVar
+from typing import TypeVar, Any
 from sagittarius_engine.exceptions import ModuleRegistrationError
+
 from sagittarius_engine.kernel.context import EngineContext
 from sagittarius_engine.kernel.middleware_pipeline import MiddlewarePipeline
 from sagittarius_engine.kernel.lifecycle import EngineLifecycle
@@ -77,13 +78,13 @@ class App:
         """
         self.context.bootstrap.boot(auto_discover)
 
-    def dispatch(self, handler_class: type[Any], input_dto: Any = None) -> Any:
+    def dispatch(self, handler_class: type, input_dto: object | None = None) -> Any:
         """
         @brief Dispatches a command or query through the Middleware Pipeline.
         """
         return self.context.dispatcher.dispatch(handler_class, input_dto)
 
-    def execute(self, command_class: type, input_dto: Any = None) -> Any:
+    def execute(self, command_class: type, input_dto: object | None = None) -> Any:
         """
         @brief Deprecated. Use dispatch instead.
         """
@@ -96,7 +97,7 @@ class App:
         )
         return self.dispatch(command_class, input_dto)
 
-    def query(self, query_class: type, input_dto: Any = None) -> Any:
+    def query(self, query_class: type, input_dto: object | None = None) -> Any:
         """
         @brief Deprecated. Use dispatch instead.
         """

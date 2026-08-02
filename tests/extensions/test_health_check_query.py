@@ -1,7 +1,8 @@
 from unittest.mock import MagicMock, patch
-from sagittarius_engine.extensions.health_check_query import HealthCheckQuery
+from sagittarius_engine.extensions.health.health_check_query import HealthCheckQuery
 from sagittarius_engine.interfaces import IContainer, IEventBus
 from sagittarius_engine.extensions.persistence import ISession
+
 
 def test_health_check_query_healthy():
     mock_container = MagicMock(spec=IContainer)
@@ -30,6 +31,7 @@ def test_health_check_query_healthy():
         assert result["components"]["database"] == "ok"
         mock_session.execute.assert_called_once()
 
+
 def test_health_check_query_unhealthy_container():
     mock_container = MagicMock(spec=IContainer)
     mock_event_bus = MagicMock(spec=IEventBus)
@@ -54,9 +56,10 @@ def test_health_check_query_unhealthy_container():
         assert result["components"]["event_bus"] == "ok"
         assert result["components"]["database"] == "ok"
 
+
 def test_health_check_query_unhealthy_event_bus():
     mock_container = MagicMock(spec=IContainer)
-    mock_event_bus = object() # No emit method
+    mock_event_bus = object()  # No emit method
     mock_session = MagicMock(spec=ISession)
 
     def resolve_side_effect(interface):
@@ -77,6 +80,7 @@ def test_health_check_query_unhealthy_event_bus():
         assert result["components"]["event_bus"] == "error: event bus check failed"
         assert result["components"]["database"] == "ok"
 
+
 def test_health_check_query_database_not_configured():
     mock_container = MagicMock(spec=IContainer)
     mock_event_bus = MagicMock(spec=IEventBus)
@@ -95,10 +99,13 @@ def test_health_check_query_database_not_configured():
         query = HealthCheckQuery(container=mock_container, event_bus=mock_event_bus)
         result = query.execute()
 
-        assert result["status"] == "healthy" # Overall status doesn't change on exception for DB configuration
+        assert (
+            result["status"] == "healthy"
+        )  # Overall status doesn't change on exception for DB configuration
         assert result["components"]["container"] == "ok"
         assert result["components"]["event_bus"] == "ok"
         assert result["components"]["database"] == "not configured"
+
 
 def test_health_check_query_sqlalchemy_not_installed():
     mock_container = MagicMock(spec=IContainer)
@@ -124,6 +131,7 @@ def test_health_check_query_sqlalchemy_not_installed():
         assert result["components"]["container"] == "ok"
         assert result["components"]["event_bus"] == "ok"
         assert result["components"]["database"] == "sqlalchemy not installed"
+
 
 def test_health_check_query_database_connection_failed():
     mock_container = MagicMock(spec=IContainer)

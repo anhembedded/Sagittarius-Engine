@@ -6,27 +6,35 @@ from sagittarius_engine.middleware.pydantic_validation_middleware import (
     PydanticValidationMiddleware,
 )
 
+
 class MyDTO(BaseModel):
     name: str
     age: int
+
 
 class DummyObj:
     def __init__(self, name: str, age: int):
         self.name = name
         self.age = age
 
+
 class DummyCommand:
     pass
 
+
 def test_init_raises_import_error_when_pydantic_missing():
-    with patch("sagittarius_engine.middleware.pydantic_validation_middleware.BaseModel", None):
+    with patch(
+        "sagittarius_engine.middleware.pydantic_validation_middleware.BaseModel", None
+    ):
         with pytest.raises(ImportError, match="pydantic is not installed"):
             PydanticValidationMiddleware(container=None)
+
 
 def test_successful_validation_with_dict():
     middleware = PydanticValidationMiddleware(container=None)
     middleware.model_class = MyDTO
     called = False
+
     def next_handler():
         nonlocal called
         called = True
@@ -38,6 +46,7 @@ def test_successful_validation_with_dict():
     assert called
     assert result == "success"
 
+
 def test_successful_validation_with_none():
     class OptionalDTO(BaseModel):
         name: str = "default"
@@ -46,6 +55,7 @@ def test_successful_validation_with_none():
     middleware = PydanticValidationMiddleware(container=None)
     middleware.model_class = OptionalDTO
     called = False
+
     def next_handler():
         nonlocal called
         called = True
@@ -56,10 +66,12 @@ def test_successful_validation_with_none():
     assert called
     assert result == "success"
 
+
 def test_successful_validation_with_model_instance():
     middleware = PydanticValidationMiddleware(container=None)
     middleware.model_class = MyDTO
     called = False
+
     def next_handler():
         nonlocal called
         called = True
@@ -71,10 +83,12 @@ def test_successful_validation_with_model_instance():
     assert called
     assert result == "success"
 
+
 def test_successful_validation_with_object_dict():
     middleware = PydanticValidationMiddleware(container=None)
     middleware.model_class = MyDTO
     called = False
+
     def next_handler():
         nonlocal called
         called = True
@@ -86,16 +100,19 @@ def test_successful_validation_with_object_dict():
     assert called
     assert result == "success"
 
+
 def test_validation_failure_raises_value_error():
     middleware = PydanticValidationMiddleware(container=None)
     middleware.model_class = MyDTO
+
     def next_handler():
         pass
 
-    data = {"name": "Dave"} # Missing age
+    data = {"name": "Dave"}  # Missing age
 
     with pytest.raises(ValueError, match="Validation failed for DummyCommand"):
         middleware.process(DummyCommand(), data, next_handler)
+
 
 def test_v1_fallback_dict():
     # Create a mock V1 model class
@@ -112,6 +129,7 @@ def test_v1_fallback_dict():
     middleware = PydanticValidationMiddleware(container=None)
     middleware.model_class = V1DTO
     called = False
+
     def next_handler():
         nonlocal called
         called = True
@@ -123,6 +141,7 @@ def test_v1_fallback_dict():
     assert called
     assert result == "success"
 
+
 def test_v1_fallback_none():
     class V1DTO:
         def __init__(self):
@@ -132,6 +151,7 @@ def test_v1_fallback_none():
     middleware = PydanticValidationMiddleware(container=None)
     middleware.model_class = V1DTO
     called = False
+
     def next_handler():
         nonlocal called
         called = True
@@ -142,6 +162,7 @@ def test_v1_fallback_none():
     assert called
     assert result == "success"
 
+
 def test_v1_fallback_object_dict():
     class V1DTO:
         def __init__(self, **kwargs):
@@ -151,6 +172,7 @@ def test_v1_fallback_object_dict():
     middleware = PydanticValidationMiddleware(container=None)
     middleware.model_class = V1DTO
     called = False
+
     def next_handler():
         nonlocal called
         called = True
@@ -162,6 +184,7 @@ def test_v1_fallback_object_dict():
     assert called
     assert result == "success"
 
+
 def test_v1_fallback_model_instance():
     class V1DTO:
         def __init__(self, **kwargs):
@@ -171,6 +194,7 @@ def test_v1_fallback_model_instance():
     middleware = PydanticValidationMiddleware(container=None)
     middleware.model_class = V1DTO
     called = False
+
     def next_handler():
         nonlocal called
         called = True

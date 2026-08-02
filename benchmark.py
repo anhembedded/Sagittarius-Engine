@@ -1,6 +1,4 @@
 import timeit
-import io
-import sys
 
 setup = """
 import io

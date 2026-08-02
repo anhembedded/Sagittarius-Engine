@@ -31,8 +31,8 @@ from sagittarius_engine.interfaces import (
     IMiddleware,
     IModule,
 )
-from sagittarius_engine.extensions.health_check_query import HealthCheckQuery
-from sagittarius_engine.extensions.health_module import HealthExtension
+from sagittarius_engine.extensions.health.health_check_query import HealthCheckQuery
+from sagittarius_engine.extensions.health.health_module import HealthExtension
 
 
 # --- Fixtures ---
@@ -489,7 +489,9 @@ def test_pydantic_middleware__missing_pydantic__raises_import_error():
             ImportError,
             match="pydantic is not installed. Please install it using `pip install pydantic`.",
         ):
-            pydantic_validation_middleware.PydanticValidationMiddleware(model_class=None)
+            pydantic_validation_middleware.PydanticValidationMiddleware(
+                model_class=None
+            )
 
     # Restore the module state for subsequent tests
     importlib.reload(pydantic_validation_middleware)
@@ -718,7 +720,7 @@ def test_database_module_production_failure(app, monkeypatch):
 
 
 def test_health_check_query_dto(app, container, event_bus):
-    from sagittarius_engine.extensions.health_check_query import (
+    from sagittarius_engine.extensions.health.health_check_query import (
         HealthCheckDTO,
         HealthCheckQuery,
     )

@@ -58,11 +58,11 @@ Search your codebase for any classes implementing `IModule` or ending in `Module
 
 ```diff
 from sagittarius_engine import App
-- from sagittarius_engine.extensions.logger_module import LoggerModule
+- from sagittarius_engine.extensions.logger.logger_module import LoggerModule
 
 app = App(container, event_bus)
 - app.use(LoggerModule())
-+ from sagittarius_engine.extensions.logger_module import LoggerExtension
++ from sagittarius_engine.extensions.logger.logger_module import LoggerExtension
 + app.use(LoggerExtension())
 ```
 

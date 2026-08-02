@@ -28,8 +28,8 @@ The `ICommand` and `IQuery` interfaces are no longer considered part of the bare
 
 - **Deprecated:** `sagittarius_engine.interfaces.ICommand`
 - **Deprecated:** `sagittarius_engine.interfaces.IQuery`
-- **Replacement:** `sagittarius_engine.extensions.cqrs.ICommand`
-- **Replacement:** `sagittarius_engine.extensions.cqrs.IQuery`
+- **Replacement:** `sagittarius_engine.extensions.cqrs.interfaces.commands.ICommand`
+- **Replacement:** `sagittarius_engine.extensions.cqrs.interfaces.queries.IQuery`
 
 ### Persistence Interfaces
 

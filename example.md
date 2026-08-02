@@ -96,7 +96,7 @@ def main():
     from sagittarius_engine.infrastructure.event_bus.memory_event_bus import (
         MemoryEventBus,
     )
-    from sagittarius_engine.extensions.logger_module import LoggerModule
+    from sagittarius_engine.extensions.logger.logger_module import LoggerModule
 
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -308,7 +308,7 @@ def main():
     from sagittarius_engine.infrastructure.event_bus.memory_event_bus import (
         MemoryEventBus,
     )
-    from sagittarius_engine.extensions.logger_module import LoggerModule
+    from sagittarius_engine.extensions.logger.logger_module import LoggerModule
 
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -409,7 +409,7 @@ def main():
     from sagittarius_engine.infrastructure.event_bus.memory_event_bus import (
         MemoryEventBus,
     )
-    from sagittarius_engine.extensions.logger_module import LoggerModule
+    from sagittarius_engine.extensions.logger.logger_module import LoggerModule
 
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -522,7 +522,7 @@ def main():
     from sagittarius_engine.infrastructure.event_bus.memory_event_bus import (
         MemoryEventBus,
     )
-    from sagittarius_engine.extensions.logger_module import LoggerModule
+    from sagittarius_engine.extensions.logger.logger_module import LoggerModule
 
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -634,7 +634,7 @@ def main():
     from sagittarius_engine.infrastructure.event_bus.memory_event_bus import (
         MemoryEventBus,
     )
-    from sagittarius_engine.extensions.logger_module import LoggerModule
+    from sagittarius_engine.extensions.logger.logger_module import LoggerModule
 
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -714,7 +714,7 @@ def main():
     from sagittarius_engine.infrastructure.event_bus.memory_event_bus import (
         MemoryEventBus,
     )
-    from sagittarius_engine.extensions.logger_module import LoggerModule
+    from sagittarius_engine.extensions.logger.logger_module import LoggerModule
 
     container = StdLibContainer()
     event_bus = MemoryEventBus()

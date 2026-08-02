@@ -8,7 +8,7 @@ class StudentAddedEvent(BaseEvent):
 
     def __init__(self, student: Student) -> None:
         super().__init__()
-        self.student : Student = student
+        self.student: Student = student
 
 
 class StudentUpdatedEvent(BaseEvent):
@@ -16,7 +16,7 @@ class StudentUpdatedEvent(BaseEvent):
 
     def __init__(self, student: Student) -> None:
         super().__init__()
-        self.student : Student = student
+        self.student: Student = student
 
 
 class StudentDeletedEvent(BaseEvent):
@@ -24,7 +24,7 @@ class StudentDeletedEvent(BaseEvent):
 
     def __init__(self, student_id: str) -> None:
         super().__init__()
-        self.student_id : str = student_id
+        self.student_id: str = student_id
 
 
 class ReportCompletedEvent(BaseEvent):
@@ -33,4 +33,3 @@ class ReportCompletedEvent(BaseEvent):
     def __init__(self, report_content: str) -> None:
         super().__init__()
         self.report_content: str = report_content
-

@@ -1,4 +1,9 @@
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sagittarius_engine.kernel.i_kernel_context import IKernelContext
+    from sagittarius_engine.interfaces.i_engine_context import IEngineContext
+    from sagittarius_engine.interfaces.i_logger import ILogger
 from sagittarius_engine.interfaces.i_extension import IExtension, ExtensionDescriptor
 from sagittarius_engine.interfaces.i_module import IModule
 from sagittarius_engine.kernel.events import (
@@ -18,7 +23,7 @@ class ModuleExtensionAdapter(IExtension):
     @brief Adapts a legacy IModule to the IExtension interface.
     """
 
-    def __init__(self, legacy_module: Any):
+    def __init__(self, legacy_module: IModule):
         self.legacy_module = legacy_module
         deps = getattr(legacy_module, "dependencies", [])
         opt_deps = getattr(legacy_module, "optional_dependencies", [])
@@ -36,20 +41,26 @@ class ModuleExtensionAdapter(IExtension):
     def descriptor(self) -> ExtensionDescriptor:
         return self._descriptor
 
-    def register(self, context: Any) -> None:
-        self.legacy_module.register(context.app)
+    def register(self, context: "IEngineContext") -> None:
+        from typing import cast
 
-    def boot(self, context: Any) -> None:
-        self.legacy_module.boot(context.app)
+        kernel_ctx = cast("IKernelContext", context)
+        self.legacy_module.register(kernel_ctx.app)
 
-    def shutdown(self, context: Any) -> None:
+    def boot(self, context: "IEngineContext") -> None:
+        from typing import cast
+
+        kernel_ctx = cast("IKernelContext", context)
+        self.legacy_module.boot(kernel_ctx.app)
+
+    def shutdown(self, context: "IEngineContext") -> None:
         pass
 
-    def __getattr__(self, name: str) -> Any:
+    def __getattr__(self, name: str) -> object:
         return getattr(self.legacy_module, name)
 
 
-def create_module_extension_adapter(legacy_module: Any) -> Any:
+def create_module_extension_adapter(legacy_module: IModule) -> ModuleExtensionAdapter:
     """
     @brief Dynamically creates an adapter class that retains the original class name.
     """
@@ -64,13 +75,13 @@ class ExtensionManager:
     @brief Orchestrates the extension lifecycle with dependency awareness.
     """
 
-    def __init__(self, context: Any) -> None:
+    def __init__(self, context: "IKernelContext") -> None:
         self.context = context
         self.registered_extensions: list[IExtension] = []
         self.sorted_extensions: list[IExtension] = []
         self.initialized_extensions: list[IExtension] = []
 
-    def register(self, extension_or_module: IExtension | IModule | Any) -> None:
+    def register(self, extension_or_module: IExtension | IModule | object) -> None:
         """
         @brief Registers an extension or adapts a legacy module.
         """
@@ -83,7 +94,11 @@ class ExtensionManager:
             if hasattr(extension_or_module, "register") and hasattr(
                 extension_or_module, "boot"
             ):
-                ext = create_module_extension_adapter(extension_or_module)
+                from typing import cast
+
+                ext = create_module_extension_adapter(
+                    cast(IModule, extension_or_module)
+                )
             else:
                 raise TypeError(
                     "Registered object must implement IExtension or IModule"
@@ -98,13 +113,13 @@ class ExtensionManager:
             self._rollback()
             raise e
 
-    def _get_logger(self) -> Any:
+    def _get_logger(self) -> "ILogger | None":
         try:
             return self.context.logger
         except Exception:
             return None
 
-    def _emit(self, event_name: str, event_data: Any) -> None:
+    def _emit(self, event_name: str, event_data: object) -> None:
         try:
             self.context.event_bus.emit(event_name, event_data)
         except Exception:  # nosec B110

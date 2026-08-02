@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from typing import List, Dict
 
+
 @dataclass(frozen=True)
 class SystemHealth:
-    status: str            # "healthy", "unhealthy"
-    components: Dict[str, str] # {"database": "ok", "container": "ok"}
+    status: str  # "healthy", "unhealthy"
+    components: Dict[str, str]  # {"database": "ok", "container": "ok"}
+
 
 @dataclass(frozen=True)
 class EnvironmentMetrics:
@@ -14,19 +16,22 @@ class EnvironmentMetrics:
     memory_usage_mb: float
     cpu_cores: int
 
+
 @dataclass(frozen=True)
 class TaskDetail:
     id: str
     name: str
-    status: str            # "PENDING", "RUNNING", "DONE"
+    status: str  # "PENDING", "RUNNING", "DONE"
     cancelled: bool
     progress: float
     progress_message: str
+
 
 @dataclass(frozen=True)
 class ExtensionInfo:
     name: str
     is_active: bool
+
 
 # Entity Root - Gom tất cả mọi thứ lại
 @dataclass(frozen=True)

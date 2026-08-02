@@ -31,7 +31,7 @@ def create_project(project_name: str, base_path: str = ".") -> None:
         try:
             os.makedirs(target_dir)
         except Exception as e:
-            print(f'Error creating project: {e}')
+            print(f"Error creating project: {e}")
         # Mark as python package
         with open(os.path.join(project_dir, dir_name, "__init__.py"), "w") as f:
             pass
@@ -50,9 +50,9 @@ from sagittarius_engine.kernel import App
 from sagittarius_engine.interfaces import IContainer, IEventBus, IConfig
 
 # Framework Modules
-from sagittarius_engine.extensions.logger_module import LoggerModule
+from sagittarius_engine.extensions.logger.logger_module import LoggerModule
 from sagittarius_engine.infrastructure.persistence.database_module import DatabaseModule
-from sagittarius_engine.extensions.health_module import HealthModule
+from sagittarius_engine.extensions.health.health_module import HealthModule
 
 def main():
     container = StdLibContainer()

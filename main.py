@@ -14,7 +14,7 @@ from sagittarius_engine.interfaces import (
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 from sagittarius_engine.infrastructure.config.dict_config import DictConfig
-from sagittarius_engine.extensions.logger_module import LoggerModule
+from sagittarius_engine.extensions.logger.logger_module import LoggerModule
 from sagittarius_engine.middleware.logging_middleware import LoggingMiddleware
 
 

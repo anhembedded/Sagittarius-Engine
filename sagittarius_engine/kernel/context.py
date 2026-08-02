@@ -1,29 +1,31 @@
-from typing import Any
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sagittarius_engine.kernel.app import App
 from sagittarius_engine.interfaces import (
     IContainer,
     IEventBus,
     ILogger,
     IConfig,
-    IEngineContext,
+    ITaskManager,
 )
 from sagittarius_engine.kernel.middleware_pipeline import MiddlewarePipeline
 from sagittarius_engine.kernel.lifecycle import EngineLifecycle
 from sagittarius_engine.kernel.module_loader import ModuleLoader
 from sagittarius_engine.kernel.bootstrap import Bootstrap
 from sagittarius_engine.kernel.dispatcher import Dispatcher
-
-
+from sagittarius_engine.kernel.i_kernel_context import IKernelContext
 from sagittarius_engine.kernel.extension_manager import ExtensionManager
 
 
-class EngineContext(IEngineContext):
+class EngineContext(IKernelContext):
     """The runtime composition root of the Sagittarius Engine.
 
     It owns every engine service and coordinates communication between engine subsystems.
     It does not contain application or business logic.
     """
 
-    def __init__(self, app: Any, container: IContainer, event_bus: IEventBus) -> None:
+    def __init__(self, app: "App", container: IContainer, event_bus: IEventBus) -> None:
         self.app = app
         self._container = container
         self._event_bus = event_bus
@@ -45,7 +47,7 @@ class EngineContext(IEngineContext):
         )
 
         self.async_runtime = AsyncRuntime(self)
-        self._tasks = TaskManager(self)
+        self._tasks: ITaskManager = TaskManager(self)
         self.scheduler = Scheduler(self)
         self.hosted_services = HostedServiceManager(self)
 
@@ -72,11 +74,11 @@ class EngineContext(IEngineContext):
         self._event_bus = value
 
     @property
-    def tasks(self) -> Any:
+    def tasks(self) -> ITaskManager:
         return self._tasks
 
     @tasks.setter
-    def tasks(self, value: Any) -> None:
+    def tasks(self, value: ITaskManager) -> None:
         self._tasks = value
 
     @property

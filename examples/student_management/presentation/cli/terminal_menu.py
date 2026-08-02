@@ -2,7 +2,7 @@
 from typing import Any, List, Optional
 from sagittarius_engine import App
 from sagittarius_engine.runtime import IHostedService, CancellationToken
-from sagittarius_engine.extensions.health_check_query import (
+from sagittarius_engine.extensions.health.health_check_query import (
     HealthCheckQuery,
     HealthCheckDTO,
 )
@@ -12,7 +12,7 @@ from examples.student_management.domain.student import Student, StudentException
 from examples.student_management.domain.events import (
     ReportCompletedEvent,
 )
-from sagittarius_engine.extensions.health_module import HealthUpdatedEvent
+from sagittarius_engine.extensions.health.health_module import HealthUpdatedEvent
 from sagittarius_engine.runtime.tasks.events import TaskProgressUpdated
 from examples.student_management.application.dtos.commands import (
     AddStudentCommand,
@@ -40,7 +40,7 @@ from sagittarius_engine.interfaces import IEngineContext, ITaskHandle
 class TerminalMenu(IHostedService):
     """
     @brief CLI Presentation Adapter implementing IHostedService.
-    
+
     @details
     Educational Learning Notes (Architectural Patterns applied here):
     1. Dependency Inversion Principle (DIP):
@@ -49,7 +49,7 @@ class TerminalMenu(IHostedService):
     2. Strong Typing with `ITaskHandle`:
        `self.task: Optional[ITaskHandle]` provides full IDE auto-completion for `.future`, `.status`, `.cancel()`.
     3. Non-Blocking Service Startup:
-       `start()` delegates the blocking CLI loop (`_run_loop`) to `context.tasks.spawn()`, returning control 
+       `start()` delegates the blocking CLI loop (`_run_loop`) to `context.tasks.spawn()`, returning control
        immediately so other services and UI can boot in parallel.
     """
 
@@ -83,7 +83,7 @@ class TerminalMenu(IHostedService):
         context.event_bus.off(ReportCompletedEvent, self._on_report_completed)
         context.event_bus.off(HealthUpdatedEvent, self._on_health_updated)
         context.event_bus.off(TaskProgressUpdated, self._on_task_progress)
-        
+
         # Signal cooperative cancellation to background CLI loop
         self.token.cancel()
 
@@ -366,7 +366,12 @@ class TerminalMenu(IHostedService):
             components = status.get("components", {})
             if components:
                 # Optimized: batch print syscalls using string join
-                print("\n".join(f" - {comp.capitalize()}: {state}" for comp, state in components.items()))
+                print(
+                    "\n".join(
+                        f" - {comp.capitalize()}: {state}"
+                        for comp, state in components.items()
+                    )
+                )
         except Exception as e:
             print(f"❌ Health query failed: {e}")
 
@@ -378,4 +383,8 @@ class TerminalMenu(IHostedService):
         print("Select: ", end="", flush=True)
 
     def _on_task_progress(self, event: TaskProgressUpdated) -> None:
-        print(f"\r⏳ [Task Progress] {event.progress}% : {event.message}", end="", flush=True)
+        print(
+            f"\r⏳ [Task Progress] {event.progress}% : {event.message}",
+            end="",
+            flush=True,
+        )

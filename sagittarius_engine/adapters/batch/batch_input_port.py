@@ -16,7 +16,12 @@ class BatchInputPort(BaseInputPort):
     def process(self, filepath: str) -> None:
         pass
 
-    def __init__(self, file_path: str, file_type: str = FILE_TYPE_CSV, base_path: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        file_path: str,
+        file_type: str = FILE_TYPE_CSV,
+        base_path: Optional[str] = None,
+    ) -> None:
         super().__init__()
 
         if base_path is not None:

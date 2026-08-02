@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from sagittarius_engine.kernel.context import EngineContext
+    from sagittarius_engine.interfaces.i_engine_context import IEngineContext
 
 from sagittarius_engine.interfaces.i_extension import IExtension
-from sagittarius_engine.extensions.health_check_query import HealthCheckQuery
+from sagittarius_engine.extensions.health.health_check_query import HealthCheckQuery
 from sagittarius_engine.domain.base_event import BaseEvent
 from typing import Any
 
@@ -22,14 +22,14 @@ class HealthExtension(IExtension):
     @brief Extension for Application Health Checks.
     """
 
-    def register(self, context: "EngineContext") -> None:
+    def register(self, context: "IEngineContext") -> None:
         """@brief Registers the HealthCheckQuery in the container."""
         context.container.bind(HealthCheckQuery, HealthCheckQuery)
 
-    def boot(self, context: "EngineContext") -> None:
+    def boot(self, context: "IEngineContext") -> None:
         """@brief Boots the Health Extension."""
         pass
 
-    def shutdown(self, context: "EngineContext") -> None:
+    def shutdown(self, context: "IEngineContext") -> None:
         """@brief Shuts down the Health Extension."""
         pass

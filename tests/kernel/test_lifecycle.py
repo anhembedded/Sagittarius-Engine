@@ -45,4 +45,4 @@ def test_engine_state_enum_values():
 
 def test_lifecycle_initial_state():
     lifecycle = Lifecycle(context=None)
-    assert lifecycle._state == 'created'
+    assert lifecycle._state == "created"

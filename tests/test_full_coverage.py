@@ -46,8 +46,8 @@ from sagittarius_engine.interfaces import (
     IMiddleware,
     IModule,
 )
-from sagittarius_engine.extensions.health_check_query import HealthCheckQuery
-from sagittarius_engine.extensions.health_module import HealthExtension
+from sagittarius_engine.extensions.health.health_check_query import HealthCheckQuery
+from sagittarius_engine.extensions.health.health_module import HealthExtension
 from tests.helpers import assert_event_emitted
 
 try:

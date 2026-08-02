@@ -5,6 +5,7 @@ from sagittarius_engine.kernel import App
 from sagittarius_engine.interfaces.i_input_port import IInputPort
 from sagittarius_engine.interfaces.i_output_port import IOutputPort
 
+
 COMMAND_KEY = "command"
 EXIT_COMMAND = "exit"
 
@@ -23,8 +24,8 @@ class ApplicationRunner:
 
     def run_cli_loop(
         self,
-        command_map: Mapping[str, type[Any]] | None = None,
-        query_map: Mapping[str, type[Any]] | None = None,
+        command_map: Mapping[str, type] | None = None,
+        query_map: Mapping[str, type] | None = None,
     ) -> None:
         """
         @brief Runs a loop processing commands from input_port and presenting to output_port.
@@ -60,13 +61,13 @@ class ApplicationRunner:
             except Exception as e:
                 self.output_port.present_error(e)
 
-    def execute(self, command_class: type[Any], dto: Any = None) -> Any:
+    def execute(self, command_class: type, dto: object | None = None) -> Any:
         """
         @brief Convenience method for executing a command via the app.
         """
         return self.app.dispatch(command_class, dto)
 
-    def query(self, query_class: type[Any], dto: Any = None) -> Any:
+    def query(self, query_class: type, dto: object | None = None) -> Any:
         """
         @brief Convenience method for executing a query via the app.
         """

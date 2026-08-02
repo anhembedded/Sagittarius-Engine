@@ -4,7 +4,7 @@ import platform
 import logging
 from collections import deque
 from sagittarius_engine.interfaces import IEngineContext
-from sagittarius_engine.extensions.health_check_query import (
+from sagittarius_engine.extensions.health.health_check_query import (
     HealthCheckQuery,
     HealthCheckDTO,
 )
@@ -12,6 +12,7 @@ from .infra.websocket_broadcaster import WebsocketBroadcaster
 
 try:
     import psutil
+
     PSUTIL_AVAILABLE = True
 except ImportError:
     PSUTIL_AVAILABLE = False
@@ -28,11 +29,11 @@ class AuditService:
         self.start_time: datetime = datetime.now(timezone.utc)
         self._logger: logging.Logger = logging.getLogger("AuditService")
         self.recent_events: deque = deque(maxlen=100)
-        
+
         # Initialize the broadcaster
         self.broadcaster = WebsocketBroadcaster(port=self.port)
         self.broadcaster.on_new_client_callback = self._get_full_state
-        
+
         self._subscribe_events()
 
     def _get_full_state(self) -> Dict[str, Any]:
@@ -62,21 +63,26 @@ class AuditService:
                     event_name = event
                 timestamp = datetime.now().strftime("%H:%M:%S")
                 self.recent_events.append(f"[{timestamp}] {event_name}")
-                
+
                 # Push state update
                 state = self._get_full_state()
                 self.broadcaster.broadcast("state_update", state)
 
-            from sagittarius_engine.runtime.tasks.events import TaskStarted, TaskCompleted, TaskFailed
+            from sagittarius_engine.runtime.tasks.events import (
+                TaskStarted,
+                TaskCompleted,
+                TaskFailed,
+            )
+
             # Subscribe to specific important events using their class (EventBus handles mapping)
             eb.on(TaskStarted, on_state_changed)
             eb.on(TaskCompleted, on_state_changed)
             eb.on(TaskFailed, on_state_changed)
-            
+
             # Keep string fallbacks for events that might not have classes available in all contexts
             eb.on("ExtensionLoaded", on_state_changed)
             eb.on("SystemStateChangedEvent", on_state_changed)
-            
+
             # Application specific events (for Student Management Demo)
             eb.on("student.added", on_state_changed)
             eb.on("student.updated", on_state_changed)
@@ -107,13 +113,13 @@ class AuditService:
         # Since IEngineContext doesn't expose dispatcher directly, we cast/duck-type
         try:
             app = getattr(self.context, "app", None)
-            if app and hasattr(app, "query"):
-                return app.query(HealthCheckQuery, HealthCheckDTO())
+            if app and hasattr(app, "dispatch"):
+                return app.dispatch(HealthCheckQuery, HealthCheckDTO())
 
             # Fallback if dispatcher is accessible directly
             dispatcher = getattr(self.context, "dispatcher", None)
             if dispatcher:
-                return dispatcher.query(HealthCheckQuery, HealthCheckDTO())
+                return dispatcher.dispatch(HealthCheckQuery, HealthCheckDTO())
 
         except Exception as e:
             return {"status": "error", "message": str(e), "components": {}}

@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from sagittarius_engine.kernel.context import EngineContext
+    from sagittarius_engine.interfaces.i_engine_context import IEngineContext
 
 
 @dataclass
@@ -43,7 +43,7 @@ class IExtension(ABC):
         )
 
     @abstractmethod
-    def register(self, context: "EngineContext") -> None:
+    def register(self, context: "IEngineContext") -> None:
         """
         @brief Called first when the extension is registered to bind dependencies.
         @param context The EngineContext instance.
@@ -51,7 +51,7 @@ class IExtension(ABC):
         ...
 
     @abstractmethod
-    def boot(self, context: "EngineContext") -> None:
+    def boot(self, context: "IEngineContext") -> None:
         """
         @brief Called after all extensions have been registered to trigger startup logic.
         @param context The EngineContext instance.
@@ -59,32 +59,32 @@ class IExtension(ABC):
         ...
 
     @abstractmethod
-    def shutdown(self, context: "EngineContext") -> None:
+    def shutdown(self, context: "IEngineContext") -> None:
         """
         @brief Called when the engine is stopping to release resources.
         @param context The EngineContext instance.
         """
         ...
 
-    def initialize(self, context: "EngineContext") -> None:
+    def initialize(self, context: "IEngineContext") -> None:
         """
         @brief Orchestrator initialization step. Defaults to calling register.
         """
         self.register(context)
 
-    def start(self, context: "EngineContext") -> None:
+    def start(self, context: "IEngineContext") -> None:
         """
         @brief Orchestrator start step. Defaults to calling boot.
         """
         self.boot(context)
 
-    def stop(self, context: "EngineContext") -> None:
+    def stop(self, context: "IEngineContext") -> None:
         """
         @brief Orchestrator stop step. Defaults to calling shutdown.
         """
         self.shutdown(context)
 
-    def dispose(self, context: "EngineContext") -> None:
+    def dispose(self, context: "IEngineContext") -> None:
         """
         @brief Orchestrator cleanup/release step. Defaults to no-op.
         """

@@ -41,7 +41,9 @@ class GenerateReportUseCase(IGenerateReportUseCase):
 
             students = self.repo.get_all()
             if not students:
-                report_content = "Report Summary: No students registered in the database."
+                report_content = (
+                    "Report Summary: No students registered in the database."
+                )
             else:
                 avg_gpa = sum(s.gpa for s in students) / len(students)
                 report_content = f"Report Summary: Total students = {len(students)}, Average GPA = {avg_gpa:.2f}"

@@ -1,11 +1,14 @@
-from typing import Any, Optional
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sagittarius_engine.kernel.i_kernel_context import IKernelContext
 from sagittarius_engine.interfaces import ILogger
 
 
 class Bootstrap:
     """Responsible for bootstrapping the engine."""
 
-    def __init__(self, context: Any) -> None:
+    def __init__(self, context: "IKernelContext") -> None:
         self.context = context
 
     def _get_logger(self) -> ILogger | None:

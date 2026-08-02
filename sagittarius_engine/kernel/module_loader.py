@@ -1,7 +1,11 @@
 import importlib
 import inspect
 import pkgutil
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sagittarius_engine.kernel.app import App
+    from sagittarius_engine.kernel.i_kernel_context import IKernelContext
 from sagittarius_engine.base.base_module import BaseModule
 from sagittarius_engine.interfaces import IModule, ILogger
 
@@ -9,11 +13,11 @@ from sagittarius_engine.interfaces import IModule, ILogger
 class ModuleLoader:
     """Responsible for discovering and loading engine extensions."""
 
-    def __init__(self, context_or_app: Any) -> None:
+    def __init__(self, context_or_app: "App | IKernelContext") -> None:
         self.context_or_app = context_or_app
 
     @property
-    def context(self) -> Any:
+    def context(self) -> "IKernelContext":
         if hasattr(self.context_or_app, "context"):
             return self.context_or_app.context
         return self.context_or_app

@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from sagittarius_engine.kernel.context import EngineContext
+    from sagittarius_engine.interfaces.i_engine_context import IEngineContext
 
 from sagittarius_engine.interfaces.i_extension import IExtension
 from sagittarius_engine.infrastructure.logging.std_logger import StdLogger
@@ -13,7 +13,7 @@ class LoggerExtension(IExtension):
     @brief Extension for Logger setup.
     """
 
-    def register(self, context: "EngineContext") -> None:
+    def register(self, context: "IEngineContext") -> None:
         try:
             config: IConfig = context.container.resolve(IConfig)
         except Exception:
@@ -22,8 +22,8 @@ class LoggerExtension(IExtension):
         logger_instance = StdLogger(config)
         context.container.singleton(ILogger, logger_instance)
 
-    def boot(self, context: "EngineContext") -> None:
+    def boot(self, context: "IEngineContext") -> None:
         pass
 
-    def shutdown(self, context: "EngineContext") -> None:
+    def shutdown(self, context: "IEngineContext") -> None:
         pass

@@ -5,6 +5,7 @@ from sagittarius_engine.interfaces import IEngineContext
 from sagittarius_engine.runtime.scheduler.scheduler import Scheduler, ScheduledJob
 from sagittarius_engine.runtime.scheduler.triggers import IntervalTrigger
 
+
 class TestScheduler(unittest.TestCase):
     def test_scheduler_initialization(self):
         # Arrange
@@ -36,6 +37,7 @@ class TestScheduler(unittest.TestCase):
         # Arrange
         mock_context = MagicMock(spec=IEngineContext)
         scheduler = Scheduler(context=mock_context)
+
         def dummy_fn():
             return None
 
@@ -53,6 +55,7 @@ class TestScheduler(unittest.TestCase):
         # Arrange
         mock_context = MagicMock(spec=IEngineContext)
         scheduler = Scheduler(context=mock_context)
+
         def dummy_fn():
             return None
 
@@ -69,6 +72,7 @@ class TestScheduler(unittest.TestCase):
         # Arrange
         mock_context = MagicMock(spec=IEngineContext)
         scheduler = Scheduler(context=mock_context)
+
         def dummy_fn():
             return None
 
@@ -121,6 +125,7 @@ class TestScheduler(unittest.TestCase):
         scheduler.start()
         # let thread run a little
         import time
+
         time.sleep(0.05)
         scheduler.stop()
 
@@ -135,10 +140,10 @@ class TestScheduler(unittest.TestCase):
         # Act
         scheduler.start()
         thread = scheduler._thread
-        scheduler.start() # Should return immediately
+        scheduler.start()  # Should return immediately
 
         self.assertEqual(scheduler._thread, thread)
 
         scheduler.stop()
-        scheduler.stop() # Should return immediately
+        scheduler.stop()  # Should return immediately
         self.assertFalse(scheduler._running)

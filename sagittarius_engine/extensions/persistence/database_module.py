@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 import os
 
 if TYPE_CHECKING:
-    from sagittarius_engine.kernel.context import EngineContext
+    from sagittarius_engine.interfaces.i_engine_context import IEngineContext
 
 from sagittarius_engine.interfaces.i_extension import IExtension
 from sagittarius_engine.interfaces import IConfig, ILogger
@@ -25,7 +25,7 @@ class DatabaseExtension(IExtension):
     @brief Extension for setting up the Database connection and Session.
     """
 
-    def register(self, context: "EngineContext") -> None:
+    def register(self, context: "IEngineContext") -> None:
         logger = self._get_logger(context)
         if not SQLALCHEMY_INSTALLED:
             if logger:
@@ -83,13 +83,13 @@ class DatabaseExtension(IExtension):
             if logger:
                 logger.error(f"DatabaseExtension: Failed to initialize database - {e}")
 
-    def boot(self, context: "EngineContext") -> None:
+    def boot(self, context: "IEngineContext") -> None:
         pass
 
-    def shutdown(self, context: "EngineContext") -> None:
+    def shutdown(self, context: "IEngineContext") -> None:
         pass
 
-    def _get_logger(self, context: "EngineContext") -> ILogger | None:
+    def _get_logger(self, context: "IEngineContext") -> ILogger | None:
         try:
             return context.container.resolve(ILogger)
         except Exception:

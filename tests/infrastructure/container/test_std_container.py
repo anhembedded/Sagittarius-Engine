@@ -41,12 +41,12 @@ class AbstractService(ABC):
 
 
 class CircularA:
-    def __init__(self, b: 'CircularB') -> None:
+    def __init__(self, b: "CircularB") -> None:
         pass
 
 
 class CircularB:
-    def __init__(self, a: 'CircularA') -> None:
+    def __init__(self, a: "CircularA") -> None:
         pass
 
 
@@ -135,7 +135,9 @@ def test_missing_type_hints_raises_error():
 
 def test_abstract_class_raises_error():
     container = StdLibContainer()
-    with pytest.raises(DependencyResolutionError, match="Cannot instantiate abstract class"):
+    with pytest.raises(
+        DependencyResolutionError, match="Cannot instantiate abstract class"
+    ):
         container.resolve(AbstractService)
 
 
@@ -163,7 +165,7 @@ def test_unresolvable_dependency_with_default():
     container = StdLibContainer()
 
     class ResilientService:
-        def __init__(self, unknown: AbstractService = None): # type: ignore
+        def __init__(self, unknown: AbstractService = None):  # type: ignore
             self.unknown = unknown
 
     instance = container.resolve(ResilientService)
@@ -172,7 +174,7 @@ def test_unresolvable_dependency_with_default():
 
 def test_not_a_class_raises_error():
     container = StdLibContainer()
-    container.bind(IService, "not_a_class") # type: ignore
+    container.bind(IService, "not_a_class")  # type: ignore
 
     with pytest.raises(DependencyResolutionError, match="Cannot resolve"):
         container.resolve(IService)
@@ -193,6 +195,7 @@ def test_resolve_caching():
     assert isinstance(second_instance, ComplexService)
     assert first_instance is not second_instance
 
+
 def test_resolve_value_error_signature():
     container = StdLibContainer()
 
@@ -209,6 +212,7 @@ def test_resolve_value_error_signature():
 
 def test_resolve_type_hints_exception():
     container = StdLibContainer()
+
     class WeirdHintsService:
         def __init__(self, weird):
             pass
@@ -217,17 +221,21 @@ def test_resolve_type_hints_exception():
         with pytest.raises(DependencyResolutionError, match="Missing type hint"):
             container.resolve(WeirdHintsService)
 
+
 def test_type_hint_parameter_empty():
     container = StdLibContainer()
+
     class MissingHintService2:
         def __init__(self, missing):
             pass
+
     with pytest.raises(DependencyResolutionError, match="Missing type hint"):
-         container.resolve(MissingHintService2)
+        container.resolve(MissingHintService2)
 
 
 def test_kwarg_args_self_ignored():
     container = StdLibContainer()
+
     class IgnoreArgsService:
         def __init__(self, *args, **kwargs):
             pass

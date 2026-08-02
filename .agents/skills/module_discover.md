@@ -30,15 +30,17 @@ The document **must** follow this strict structure:
 
 #### Document Structure Template
 1. **Overview**: What the module is, its responsibility in the Clean Architecture, and why it exists.
-2. **How it works**: Deep dive into the internal mechanics, dependency injection bindings, caching behaviors, thread safety, or runtime lifecycles.
-3. **Components & API**: 
+2. **Terminology**: Define any domain-specific terms, acronyms, or concepts unique to this module to ensure readers share a common vocabulary before diving deeper.
+3. **Use Cases**: Detail specific real-world scenarios or workflows where this module should be used (e.g., When and why to use this module to solve a specific problem).
+4. **How it works**: Deep dive into the internal mechanics, dependency injection bindings, caching behaviors, thread safety, or runtime lifecycles.
+5. **Components & API**: 
    - Detail the primary Interface(s) and their methods.
    - Detail the concrete Implementations and when to use which (e.g., use X for Production, Y for Testing).
-4. **Usage Guide**: 
-   - Provide concrete, copy-pasteable Python code blocks showing how to initialize, configure, and use the module. 
+6. **Code Examples & Usage Guide**: 
+   - Provide concrete, copy-pasteable Python code blocks showing how to initialize, configure, and use the module for the specific Use Cases identified above. 
    - Show both simple usage and advanced usage.
-5. **Common Misconceptions**: 
-   - List at least 3-4 misconceptions or "gotchas" developers might have about this module (e.g., performance assumptions, blocking behaviors, tight coupling) and explicitly state the **Truth**.
+7. **Common Misconceptions (Module & Use Cases)**: 
+   - List at least 3-4 misconceptions or "gotchas" developers might have about this module or **its use cases** (e.g., using it for the wrong problem, performance assumptions, blocking behaviors) and explicitly state the **Truth**.
 
 ### 5. Finalize
 - Provide a summary to the user outlining the key discoveries you made.

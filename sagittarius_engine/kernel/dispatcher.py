@@ -1,15 +1,15 @@
-from typing import Any, TypeVar
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sagittarius_engine.kernel.i_kernel_context import IKernelContext
 import warnings
 from sagittarius_engine.interfaces import ILogger
-
-TInput = TypeVar("TInput")
-TOutput = TypeVar("TOutput")
 
 
 class Dispatcher:
     """Responsible for executing handlers through the middleware pipeline."""
 
-    def __init__(self, context: Any) -> None:
+    def __init__(self, context: "IKernelContext") -> None:
         self.context = context
 
     def _get_logger(self) -> ILogger | None:
@@ -17,8 +17,8 @@ class Dispatcher:
 
     def dispatch(
         self,
-        handler_class: type[Any],
-        input_dto: Any = None,
+        handler_class: type,
+        input_dto: object | None = None,
     ) -> Any:
         """
         @brief Dispatches a handler (command, query, etc.) through the middleware pipeline.
@@ -37,7 +37,7 @@ class Dispatcher:
 
         return self.context.middleware_pipeline.execute(handler, input_dto, final)
 
-    def execute(self, command_class: type, input_dto: Any = None) -> Any:
+    def execute(self, command_class: type, input_dto: object | None = None) -> Any:
         """
         @brief Deprecated. Use dispatch instead.
         """
@@ -48,7 +48,7 @@ class Dispatcher:
         )
         return self.dispatch(command_class, input_dto)
 
-    def query(self, query_class: type, input_dto: Any = None) -> Any:
+    def query(self, query_class: type, input_dto: object | None = None) -> Any:
         """
         @brief Deprecated. Use dispatch instead.
         """

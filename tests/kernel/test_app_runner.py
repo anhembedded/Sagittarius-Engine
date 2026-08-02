@@ -11,10 +11,12 @@ pytestmark = pytest.mark.skipif(
     reason="AppRunner snippet not present in local evaluation environment",
 )
 
+
 def test_app_runner_init():
     mock_app = MagicMock()
     runner = AppRunner(app=mock_app)
     assert runner.app == mock_app
+
 
 def test_app_runner_run_cli_loop():
     mock_app = MagicMock()

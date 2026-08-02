@@ -9,8 +9,10 @@ def test_scaffold_create_project_error(capsys, tmp_path):
     project_name = "test_project_error"
     base_path = str(tmp_path)
 
-    with patch("os.makedirs", side_effect=Exception("Test error")), \
-         patch("builtins.open"):
+    with (
+        patch("os.makedirs", side_effect=Exception("Test error")),
+        patch("builtins.open"),
+    ):
         create_project(project_name, base_path)
 
     captured = capsys.readouterr()

@@ -1,7 +1,9 @@
 import functools
 from collections.abc import Callable
-from typing import Any
+from typing import TypeVar
 from sagittarius_engine.interfaces import IMiddleware
+
+TOutput = TypeVar("TOutput")
 
 
 class MiddlewarePipeline:
@@ -19,8 +21,11 @@ class MiddlewarePipeline:
         self.middlewares.append(middleware)
 
     def execute(
-        self, cmd_or_query: Any, dto: Any, final_handler: Callable[[], Any]
-    ) -> Any:
+        self,
+        cmd_or_query: object,
+        dto: object | None,
+        final_handler: Callable[[], TOutput],
+    ) -> TOutput:
         """
         Execute the entire middleware chain.
 

@@ -2,7 +2,7 @@ from sagittarius_engine.kernel import App
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.interfaces import IConfig, ILogger
-from sagittarius_engine.extensions.logger_module import LoggerExtension
+from sagittarius_engine.extensions.logger.logger_module import LoggerExtension
 from sagittarius_engine.infrastructure.logging.logger_config import LoggerConfig
 import logging
 

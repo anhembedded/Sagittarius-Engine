@@ -98,3 +98,10 @@ class ITaskManager(ABC):
         @return ITaskHandle Strong-typed handle representing the running background task.
         """
         ...
+
+    @abstractmethod
+    def shutdown(self, timeout: float = 5.0) -> None:
+        """
+        @brief Gracefully shuts down all background tasks.
+        """
+        ...

@@ -42,12 +42,14 @@ def test_config_manager_load_exception():
 
 def test_config_manager_get_casting():
     manager = ConfigManager()
-    manager.load_dict({
-        "int_str": "123",
-        "float_str": "1.23",
-        "invalid_int": "abc",
-        "already_int": 456
-    })
+    manager.load_dict(
+        {
+            "int_str": "123",
+            "float_str": "1.23",
+            "invalid_int": "abc",
+            "already_int": 456,
+        }
+    )
 
     # Test successful cast
     assert manager.get("int_str", cast=int) == 123

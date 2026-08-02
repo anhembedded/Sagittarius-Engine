@@ -1,10 +1,13 @@
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sagittarius_engine.kernel.i_kernel_context import IKernelContext
 
 
 class Lifecycle:
-    def __init__(self, context: Any) -> None:
-        self._state = 'created'
+    def __init__(self, context: "IKernelContext") -> None:
+        self._state = "created"
 
 
 class EngineState(Enum):
@@ -17,7 +20,7 @@ class EngineState(Enum):
 class EngineLifecycle:
     """Responsible for managing engine state."""
 
-    def __init__(self, context: Any) -> None:
+    def __init__(self, context: "IKernelContext") -> None:
         self.context = context
         self.state = EngineState.STOPPED
 
