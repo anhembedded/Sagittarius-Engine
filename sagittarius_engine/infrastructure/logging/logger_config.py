@@ -26,6 +26,9 @@ class LoggerConfig:
     # Optional path to a log file; None means file logging is disabled.
     log_file: str | None = None
 
+    # Enable console logging (stdout). Default is True.
+    console_enabled: bool = True
+
     # TCP LogViewer settings — only active when viewer_enabled is True.
     viewer_enabled: bool = False
     viewer_host: str = "localhost"
@@ -47,6 +50,7 @@ class LoggerConfig:
         return LoggerConfig(
             log_level=log_level,
             log_file=config.get("log.file"),
+            console_enabled=config.get("log.console.enabled", True),
             viewer_enabled=config.get("log.viewer.enabled", False),
             viewer_host=config.get("log.viewer.host", "localhost"),
             viewer_port=config.get("log.viewer.port", 9999),

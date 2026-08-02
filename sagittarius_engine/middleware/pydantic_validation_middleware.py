@@ -60,18 +60,38 @@ class PydanticValidationMiddleware(IMiddleware):
         @return The result of the operation.
         @exception ValueError if validation fails.
         """
+        import typing
+        model_class = self.model_class
+
+        if model_class is None:
+            # Dynamically infer from the handler's execute method
+            try:
+                type_hints = typing.get_type_hints(cmd_or_query.execute)
+                for hint in type_hints.values():
+                    if isinstance(hint, type) and issubclass(hint, BaseModel):
+                        model_class = hint
+                        break
+            except Exception:
+                pass
+
+            if model_class is None:
+                if isinstance(data_transfer_obj, BaseModel):
+                    model_class = type(data_transfer_obj)
+                else:
+                    return next_handler()
+
         try:
-            if hasattr(self.model_class, "model_validate"):
+            if hasattr(model_class, "model_validate"):
                 # Pydantic V2
                 if data_transfer_obj is None:
-                    validated_dto = self.model_class()
+                    validated_dto = model_class()
                 elif isinstance(data_transfer_obj, dict):
-                    validated_dto = self.model_class.model_validate(data_transfer_obj)
-                elif isinstance(data_transfer_obj, self.model_class):
+                    validated_dto = model_class.model_validate(data_transfer_obj)
+                elif isinstance(data_transfer_obj, model_class):
                     validated_dto = data_transfer_obj
                 else:
                     try:
-                        validated_dto = self.model_class.model_validate(
+                        validated_dto = model_class.model_validate(
                             data_transfer_obj
                         )
                     except Exception:
@@ -80,14 +100,14 @@ class PydanticValidationMiddleware(IMiddleware):
                             if hasattr(data_transfer_obj, "__dict__")
                             else {}
                         )
-                        validated_dto = self.model_class.model_validate(dto_dict)
+                        validated_dto = model_class.model_validate(dto_dict)
             else:
                 # Pydantic V1 fallback
                 if data_transfer_obj is None:
-                    validated_dto = self.model_class()
+                    validated_dto = model_class()
                 elif isinstance(data_transfer_obj, dict):
-                    validated_dto = self.model_class(**data_transfer_obj)
-                elif isinstance(data_transfer_obj, self.model_class):
+                    validated_dto = model_class(**data_transfer_obj)
+                elif isinstance(data_transfer_obj, model_class):
                     validated_dto = data_transfer_obj
                 else:
                     dto_dict = (
@@ -95,7 +115,7 @@ class PydanticValidationMiddleware(IMiddleware):
                         if hasattr(data_transfer_obj, "__dict__")
                         else {}
                     )
-                    validated_dto = self.model_class(**dto_dict)
+                    validated_dto = model_class(**dto_dict)
             data_transfer_obj = validated_dto
         except ValidationError as e:
             raise ValueError(

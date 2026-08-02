@@ -47,9 +47,10 @@ class StdLogger(ILogger):
             "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
 
-        ch = logging.StreamHandler(sys.stdout)
-        ch.setFormatter(formatter)
-        self._logger.addHandler(ch)
+        if cfg.console_enabled:
+            ch = logging.StreamHandler(sys.stdout)
+            ch.setFormatter(formatter)
+            self._logger.addHandler(ch)
 
         if cfg.log_file:
             fh = logging.FileHandler(cfg.log_file)
