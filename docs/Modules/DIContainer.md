@@ -9,9 +9,11 @@ The Dependency Injection (DI) Container is a central pillar of the Sagittarius E
 In a Clean Architecture system, high-level modules should depend on abstractions (interfaces) rather than concrete implementations. However, *something* in the application has to know how to instantiate the concrete classes and pass them in. This is the DI Container's job.
 
 Instead of writing tightly-coupled code like:
+
 ```python
 controller = UserController(SqliteRepository())
 ```
+
 You simply register your implementations with the `IContainer`, and it automatically parses the dependency graph and wires everything together.
 
 ---
@@ -52,12 +54,15 @@ The default engine implementation is the `StdLibContainer` (located in `sagittar
 ## 5. Components & API
 
 ### Interfaces
+
 - **`IContainer`**: The core port interface all engine components rely on.
 
 ### Implementations
+
 - **`StdLibContainer`**: The built-in concrete implementation relying on the standard library.
 
 ### Core Methods
+
 - **`bind(abstract: type, concrete: type)`**: Registers a **Transient** binding. Every time `abstract` is requested, a *brand new instance* of `concrete` will be created.
 - **`singleton(abstract: type, instance_or_factory: Any)`**: Registers a **Singleton** binding. The container ensures that only *one* shared instance is ever created. You can pass:
   - An already initialized object (`MemoryEventBus()`)
@@ -70,6 +75,7 @@ The default engine implementation is the `StdLibContainer` (located in `sagittar
 ## 6. Code Examples & Usage Guide
 
 ### Use Case 1: Shared Infrastructure State (Singleton Binding)
+
 When you need exactly one instance shared across the entire app.
 
 ```python
@@ -88,6 +94,7 @@ assert bus1 is bus2 # True
 ```
 
 ### Use Case 2: Decoupling Business Logic (Transient Binding)
+
 When you want a new instance for every request, and want to hide the concrete implementation.
 
 ```python
@@ -100,6 +107,7 @@ controller = container.resolve(UserController)
 ```
 
 ### Use Case 3: Factory Initialization
+
 If an object requires complex setup that the container can't guess (like database credentials), use a factory function:
 
 ```python
@@ -118,13 +126,17 @@ container.singleton(DatabaseConnection, make_database)
 ## 7. Common Misconceptions (Module & Use Cases)
 
 ### ❌ Misconception 1: "Reflection is too slow, so a Python DI Container is bad for performance."
+
 ✅ **Truth**: While `inspect.signature` is slow, `StdLibContainer` utilizes a `_resolution_cache`. The reflection happens exactly *once* per class type. Every subsequent resolve reads directly from the cache dictionary, which is extremely fast in CPython.
 
-### ❌ Misconception 2: `container.bind()` shares the same instance across the app.
+### ❌ Misconception 2: `container.bind()` shares the same instance across the app
+
 ✅ **Truth**: `bind()` is transient! Every single time you call `resolve()` (or whenever a class requires it as a dependency), a brand new instance is instantiated. If you want state to be shared (like a Database connection or an Event Bus), you **must** use `singleton()`.
 
-### ❌ Misconception 3: You need special `@inject` decorators to use the Container.
+### ❌ Misconception 3: You need special `@inject` decorators to use the Container
+
 ✅ **Truth**: You do not need any decorators at all! The `StdLibContainer` relies purely on standard Python 3 type hints. As long as your `__init__` parameters are properly annotated (e.g., `def __init__(self, repo: IUserRepository):`), the container will figure it out automatically.
 
 ### ❌ Misconception 4: "I should register everything, including Data Transfer Objects (DTOs) and Entities, into the DI Container."
+
 ✅ **Truth**: The DI Container is strictly for resolving **Services**, **Repositories**, and **Behaviors**. You should *never* use the DI Container to resolve simple data classes, Domain Entities, or DTOs. Those should be instantiated directly in your code (e.g., `user = User(name="John")`).

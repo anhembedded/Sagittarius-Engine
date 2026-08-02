@@ -81,28 +81,24 @@ class ExtensionManager:
         self.sorted_extensions: list[IExtension] = []
         self.initialized_extensions: list[IExtension] = []
 
-    def register(self, extension_or_module: IExtension | IModule | object) -> None:
+    def register(self, extension_or_module: IExtension | IModule) -> None:
         """
-        @brief Registers an extension or adapts a legacy module.
+        @brief Registers an IExtension or adapts a legacy IModule.
+
+        @param extension_or_module Must be an instance of IExtension or IModule.
+            Passing any other type will raise TypeError immediately.
+        @raises TypeError If the object does not implement IExtension or IModule.
         """
         if isinstance(extension_or_module, IExtension):
             ext = extension_or_module
         elif isinstance(extension_or_module, IModule):
             ext = create_module_extension_adapter(extension_or_module)
         else:
-            # support duck-typing for objects that have register and boot methods
-            if hasattr(extension_or_module, "register") and hasattr(
-                extension_or_module, "boot"
-            ):
-                from typing import cast
-
-                ext = create_module_extension_adapter(
-                    cast(IModule, extension_or_module)
-                )
-            else:
-                raise TypeError(
-                    "Registered object must implement IExtension or IModule"
-                )
+            raise TypeError(
+                f"Cannot register '{type(extension_or_module).__name__}': "
+                "object must implement IExtension or IModule. "
+                "Wrap duck-typed objects in a ModuleExtensionAdapter manually."
+            )
 
         self.registered_extensions.append(ext)
 

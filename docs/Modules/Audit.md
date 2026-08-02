@@ -75,11 +75,14 @@ def my_diagnostic_command(context: IEngineContext):
 
 ## 5. Common Misconceptions
 
-### ❌ Misconception 1: The Audit service severely degrades engine performance by constantly calculating CPU and Memory usage.
+### ❌ Misconception 1: The Audit service severely degrades engine performance by constantly calculating CPU and Memory usage
+
 ✅ **Truth**: The `AuditService` is strictly **reactive**. It only calculates system resources and pushes state snapshots when a registered Event actually fires on the `EventBus` (e.g., a Task starts or finishes). It does not run a continuous blocking `while True` loop to poll data, ensuring negligible performance overhead.
 
-### ❌ Misconception 2: Connecting multiple clients to the telemetry server will block the main application thread.
+### ❌ Misconception 2: Connecting multiple clients to the telemetry server will block the main application thread
+
 ✅ **Truth**: The `WebsocketBroadcaster` runs entirely on an isolated background daemon thread using its own asynchronous event loop. Network I/O and client management are completely decoupled from the main Engine execution context.
 
-### ❌ Misconception 3: You must use the official PySide6 `audit_dashboard` to view the engine's telemetry.
+### ❌ Misconception 3: You must use the official PySide6 `audit_dashboard` to view the engine's telemetry
+
 ✅ **Truth**: The engine simply broadcasts standard JSON over an open WebSocket connection (default: `ws://localhost:9999`). Any standard WebSocket client—whether it's a React frontend web app, a Vue dashboard, a simple Python script, or Postman—can connect and consume the real-time `state_update` payloads.

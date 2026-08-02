@@ -42,6 +42,7 @@ graph TD
 ## 3. Components & API
 
 ### Core Interfaces
+
 - **`ITaskManager`**: The core manager.
   - `spawn(callable, name=None, token=None) -> ITaskHandle`: Spawns a background worker.
 - **`ITaskHandle`**: The strongly-typed reference to a spawned task. Provides IDE auto-completion for checking state.
@@ -51,6 +52,7 @@ graph TD
 - **`CancellationToken`**: An object passed into workers allowing them to detect cancellation requests (`.is_cancelled`).
 
 ### Concrete Implementations
+
 - **`TaskManager`**: The concrete infrastructure implementation of `ITaskManager` that lives inside the `EngineContext`.
 - **`BackgroundTask`**: The concrete class implementing `ITaskHandle`. Wraps `concurrent.futures.Future`.
 - **`DaemonThreadPoolExecutor`**: A customized thread pool for safe daemonized thread creation.
@@ -60,6 +62,7 @@ graph TD
 ## 4. Usage Guide
 
 ### Spawning a Simple Task
+
 You can spawn a task from any component that has access to the `IEngineContext`:
 
 ```python
@@ -74,6 +77,7 @@ def some_use_case(context: IEngineContext):
 ```
 
 ### Advanced Usage: Cancellation and Progress Tracking
+
 If your worker function accepts a parameter named `token` or `on_progress_update`, the `TaskManager` will automatically inject them:
 
 ```python
@@ -110,11 +114,14 @@ def some_controller(context: IEngineContext):
 
 ## 5. Common Misconceptions
 
-### ❌ Misconception 1: Calling `handle.cancel()` forcefully kills the background thread immediately.
+### ❌ Misconception 1: Calling `handle.cancel()` forcefully kills the background thread immediately
+
 ✅ **Truth**: Python does not allow forcefully killing threads safely (as it can leave locks acquired or data corrupted). `.cancel()` merely signals a `CancellationToken`. The background function *must* periodically check `token.is_cancelled` and explicitly `return` to terminate successfully. If the worker is stuck in an infinite `while True` loop and never checks the token, it will run forever.
 
-### ❌ Misconception 2: Uncaught exceptions inside a background task will crash the entire Engine.
+### ❌ Misconception 2: Uncaught exceptions inside a background task will crash the entire Engine
+
 ✅ **Truth**: The `TaskManager` intercepts all exceptions raised inside the worker function. The application will not crash. Instead, the `TaskManager` will store the exception in `handle.error`, change `handle.status` to `TaskState.FAILED`, and broadcast a `TaskFailed` event over the `EventBus` so monitors (like the Audit Dashboard) can log it.
 
-### ❌ Misconception 3: You have to manually pass the `CancellationToken` in the `args` when calling `.spawn()`.
+### ❌ Misconception 3: You have to manually pass the `CancellationToken` in the `args` when calling `.spawn()`
+
 ✅ **Truth**: You don't. The `TaskManager` uses Python's `inspect` module to dynamically read the signature of your target function. If your function requires arguments named `token` or `on_progress_update`, the engine injects them automatically behind the scenes. Just define them in your function signature!

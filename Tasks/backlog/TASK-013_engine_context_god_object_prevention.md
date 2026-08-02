@@ -8,6 +8,7 @@
 ---
 
 ## 🎯 Goal
+
 Prevent `IEngineContext` from accumulating too many utility properties (event_bus, config, container, app, etc.) and naturally evolving into a God Object Anti-Pattern.
 
 ---
