@@ -254,6 +254,43 @@ class ExtensionManager:
                 logger.info(f"Starting extension '{name}'...")
             ext.start(self.context)
             self._emit("extension.started", ExtensionStarted(name))
+            # 3. Schedule async boot hook if AsyncRuntime is available
+            self._schedule_boot_async(ext)
+
+    def _schedule_boot_async(self, ext: IExtension) -> None:
+        """
+        @brief Schedules boot_async() on the AsyncRuntime if available.
+        @details No-op if the extension's boot_async is the base class no-op.
+        """
+        try:
+            async_runtime = getattr(self.context, "async_runtime", None)
+            if async_runtime is None or not async_runtime.loop or not async_runtime.loop.is_running():
+                return
+            # Only schedule if the extension actually overrides boot_async
+            if type(ext).boot_async is IExtension.boot_async:
+                return
+            async_runtime.run_coroutine(ext.boot_async(self.context))
+        except Exception as e:
+            logger = self._get_logger()
+            if logger:
+                logger.warning(f"[AsyncLifecycle] Could not schedule boot_async for '{ext.descriptor.name}': {e}")
+
+    def _schedule_shutdown_async(self, ext: IExtension) -> None:
+        """
+        @brief Schedules shutdown_async() on the AsyncRuntime and blocks until complete.
+        """
+        try:
+            async_runtime = getattr(self.context, "async_runtime", None)
+            if async_runtime is None or not async_runtime.loop or not async_runtime.loop.is_running():
+                return
+            if type(ext).shutdown_async is IExtension.shutdown_async:
+                return
+            future = async_runtime.run_coroutine(ext.shutdown_async(self.context))
+            future.result(timeout=10.0)
+        except Exception as e:
+            logger = self._get_logger()
+            if logger:
+                logger.warning(f"[AsyncLifecycle] Could not run shutdown_async for '{ext.descriptor.name}': {e}")
 
     def _rollback(self) -> None:
         """
@@ -280,6 +317,8 @@ class ExtensionManager:
         logger = self._get_logger()
         for ext in reversed(self.sorted_extensions):
             name = ext.descriptor.name
+            # Run async shutdown before sync shutdown
+            self._schedule_shutdown_async(ext)
             if logger:
                 logger.info(f"Stopping extension '{name}'...")
             try:

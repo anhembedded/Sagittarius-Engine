@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
+from collections.abc import Coroutine
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from sagittarius_engine.interfaces.i_engine_context import IEngineContext
@@ -89,3 +90,27 @@ class IExtension(ABC):
         @brief Orchestrator cleanup/release step. Defaults to no-op.
         """
         pass
+
+    async def boot_async(self, context: "IEngineContext") -> None:
+        """
+        @brief Optional async lifecycle hook called after boot().
+
+        @details Override this method to perform heavy I/O-bound initialization
+        (e.g., pinging a database, warming up a cache, fetching remote config)
+        without blocking the main thread. The EngineLifecycle will schedule this
+        coroutine on the background AsyncRuntime event loop.
+
+        Default implementation is a no-op, so existing extensions do not need to change.
+        """
+        return
+
+    async def shutdown_async(self, context: "IEngineContext") -> None:
+        """
+        @brief Optional async lifecycle hook called before shutdown().
+
+        @details Override this method to gracefully close async resources
+        (e.g., async DB sessions, WebSocket connections) during engine shutdown.
+
+        Default implementation is a no-op, so existing extensions do not need to change.
+        """
+        return
