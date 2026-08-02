@@ -115,20 +115,21 @@ class ExtensionManager:
         @brief Scans and initializes deferred extensions whose dependencies have been registered and initialized.
         """
         initialized_names = {ext.descriptor.name for ext in self.initialized_extensions}
-        enabled_exts = [
-            ext for ext in self.registered_extensions if ext.descriptor.enabled
-        ]
 
-        while True:
+        # ⚡ Bolt: Filter out already initialized extensions and sort only once
+        # outside the loop to avoid O(N^2 log N) degradation on large extension lists
+        pending_exts = [
+            ext for ext in self.registered_extensions
+            if ext.descriptor.enabled and ext.descriptor.name not in initialized_names
+        ]
+        pending_exts.sort(key=lambda e: e.descriptor.priority, reverse=True)
+
+        while pending_exts:
             initialized_any = False
-            # Sort by priority descending to initialize higher priority items first
-            sorted_exts = sorted(
-                enabled_exts, key=lambda e: e.descriptor.priority, reverse=True
-            )
-            for ext in sorted_exts:
+            next_pending = []
+
+            for ext in pending_exts:
                 name = ext.descriptor.name
-                if name in initialized_names:
-                    continue
 
                 # Check if all required dependencies are initialized
                 deps_satisfied = True
@@ -153,9 +154,13 @@ class ExtensionManager:
                     self.initialized_extensions.append(ext)
                     initialized_names.add(name)
                     initialized_any = True
+                else:
+                    next_pending.append(ext)
 
             if not initialized_any:
                 break
+
+            pending_exts = next_pending
 
     def _build_and_sort(self) -> list[IExtension]:
         """
