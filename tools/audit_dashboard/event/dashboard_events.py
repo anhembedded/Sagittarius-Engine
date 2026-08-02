@@ -1,0 +1,15 @@
+from typing import Any, Dict
+
+try:
+    from src.base_event import BaseEvent
+except ImportError:
+    class BaseEvent: # Fallback if run standalone without src in path
+        pass
+
+class TelemetryReceivedEvent(BaseEvent):
+    """
+    Fired when telemetry data is received from the engine via the realtime connector.
+    """
+    def __init__(self, raw_data: Dict[str, Any]):
+        super().__init__()
+        self.raw_data = raw_data

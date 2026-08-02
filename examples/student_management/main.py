@@ -28,7 +28,6 @@ from examples.student_management.domain.events import (  # noqa: E402
     StudentUpdatedEvent,
     StudentDeletedEvent,
     ReportCompletedEvent,
-    ReportProgressEvent,
 )
 
 
@@ -101,9 +100,6 @@ def main() -> None:
 
         def on_report_completed(self, event: ReportCompletedEvent):
             self.bridge.report_completed.emit(event.report_content)
-
-        def on_report_progress(self, event: ReportProgressEvent):
-            self.bridge.report_progress.emit(event.progress)
             
         def on_health_updated(self, event: HealthUpdatedEvent):
             self.bridge.health_updated.emit(event.status)
@@ -114,7 +110,6 @@ def main() -> None:
     event_bus.on(StudentUpdatedEvent, adapter.on_student_updated)
     event_bus.on(StudentDeletedEvent, adapter.on_student_deleted)
     event_bus.on(ReportCompletedEvent, adapter.on_report_completed)
-    event_bus.on(ReportProgressEvent, adapter.on_report_progress)
     event_bus.on(HealthUpdatedEvent, adapter.on_health_updated)
 
     # 7. Create MVP View & Presenter (MainWindow implements IStudentMonitorView)

@@ -1,21 +1,17 @@
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 import platform
-import json
-import threading
-import socketserver
-import http.server
 import logging
-from sagittarius_engine.interfaces import IEngineContext
 from collections import deque
+from sagittarius_engine.interfaces import IEngineContext
 from sagittarius_engine.extensions.health_check_query import (
     HealthCheckQuery,
     HealthCheckDTO,
 )
+from .infra.websocket_broadcaster import WebsocketBroadcaster
 
 try:
     import psutil
-
     PSUTIL_AVAILABLE = True
 except ImportError:
     PSUTIL_AVAILABLE = False
@@ -30,105 +26,73 @@ class AuditService:
         self.context: IEngineContext = context
         self.port: int = port
         self.start_time: datetime = datetime.now(timezone.utc)
-        self._server_thread: Optional[threading.Thread] = None
-        self._httpd: Optional[socketserver.TCPServer] = None
         self._logger: logging.Logger = logging.getLogger("AuditService")
         self.recent_events: deque = deque(maxlen=100)
-        self._hook_event_bus()
+        
+        # Initialize the broadcaster
+        self.broadcaster = WebsocketBroadcaster(port=self.port)
+        self.broadcaster.on_new_client_callback = self._get_full_state
+        
+        self._subscribe_events()
 
-    def _hook_event_bus(self) -> None:
+    def _get_full_state(self) -> Dict[str, Any]:
+        return {
+            "uptime": self.get_uptime_seconds(),
+            "environment": self.get_environment_info(),
+            "health": self.get_system_health(),
+            "tasks": self.get_active_tasks(),
+            "extensions": self.get_loaded_extensions(),
+            "services": self.get_running_hosted_services(),
+            "config_bus": self.get_config_and_event_bus_info(),
+            "pipeline": self.get_middleware_pipeline(),
+            "scheduler": self.get_scheduler_jobs(),
+            "recent_events": list(self.recent_events)[-10:],
+        }
+
+    def _subscribe_events(self) -> None:
         try:
             eb = getattr(self.context, "event_bus", None)
-            if eb and hasattr(eb, "emit"):
-                original_emit = eb.emit
+            if not eb or not hasattr(eb, "on"):
+                return
 
-                def emit_hook(event_name_or_obj: Any, data: Any = None) -> None:
-                    # Record event
-                    timestamp = datetime.now().strftime("%H:%M:%S")
+            def on_state_changed(event: Any) -> None:
+                # Add to recent events
+                event_name = event.__class__.__name__
+                if isinstance(event, str):
+                    event_name = event
+                timestamp = datetime.now().strftime("%H:%M:%S")
+                self.recent_events.append(f"[{timestamp}] {event_name}")
+                
+                # Push state update
+                state = self._get_full_state()
+                self.broadcaster.broadcast("state_update", state)
 
-                    if isinstance(event_name_or_obj, str):
-                        name = event_name_or_obj
-                    elif hasattr(event_name_or_obj, "__class__"):
-                        name = event_name_or_obj.__class__.__name__
-                    else:
-                        name = str(event_name_or_obj)
+            from sagittarius_engine.runtime.tasks.events import TaskStarted, TaskCompleted, TaskFailed
+            # Subscribe to specific important events using their class (EventBus handles mapping)
+            eb.on(TaskStarted, on_state_changed)
+            eb.on(TaskCompleted, on_state_changed)
+            eb.on(TaskFailed, on_state_changed)
+            
+            # Keep string fallbacks for events that might not have classes available in all contexts
+            eb.on("ExtensionLoaded", on_state_changed)
+            eb.on("SystemStateChangedEvent", on_state_changed)
+            
+            # Application specific events (for Student Management Demo)
+            eb.on("student.added", on_state_changed)
+            eb.on("student.updated", on_state_changed)
+            eb.on("student.deleted", on_state_changed)
+            eb.on("report.completed", on_state_changed)
 
-                    self.recent_events.append(f"[{timestamp}] {name}")
-
-                    # Call original emit
-                    original_emit(event_name_or_obj, data)
-
-                eb.emit = emit_hook
-        except Exception:
-            pass  # nosec B110
+        except Exception as e:
+            self._logger.error(f"Failed to subscribe to events: {e}")
 
     def start_server(self) -> None:
-        """Starts the background telemetry HTTP server."""
-        if self._server_thread and self._server_thread.is_alive():
-            return
-
-        class TelemetryHandler(http.server.SimpleHTTPRequestHandler):
-            service_ref = self  # Reference to AuditService
-
-            def do_GET(self):
-                if self.path == "/config":
-                    payload = {"config": self.service_ref.get_full_config()}
-                elif self.path == "/events":
-                    payload = {"events": list(self.service_ref.recent_events)}
-                elif self.path == "/tasks":
-                    payload = {"tasks": self.service_ref.get_all_tasks_details()}
-                elif self.path == "/":
-                    payload = {
-                        "uptime": self.service_ref.get_uptime_seconds(),
-                        "environment": self.service_ref.get_environment_info(),
-                        "health": self.service_ref.get_system_health(),
-                        "tasks": self.service_ref.get_active_tasks(),
-                        "extensions": self.service_ref.get_loaded_extensions(),
-                        "services": self.service_ref.get_running_hosted_services(),
-                        "config_bus": self.service_ref.get_config_and_event_bus_info(),
-                        "pipeline": self.service_ref.get_middleware_pipeline(),
-                        "scheduler": self.service_ref.get_scheduler_jobs(),
-                        "recent_events": list(self.service_ref.recent_events)[
-                            -10:
-                        ],  # Only show last 10 for summary
-                    }
-                else:
-                    self.send_response(404)
-                    self.end_headers()
-                    return
-
-                self.send_response(200)
-                self.send_header("Content-type", "application/json")
-                self.end_headers()
-                self.wfile.write(json.dumps(payload).encode("utf-8"))
-
-            def log_message(self, format, *args):
-                # Suppress default HTTP server logging to avoid terminal clutter
-                pass
-
-        try:
-            # Allow port reuse
-            socketserver.TCPServer.allow_reuse_address = True
-            self._httpd = socketserver.TCPServer(("", self.port), TelemetryHandler)
-            self._server_thread = threading.Thread(
-                target=self._httpd.serve_forever, daemon=True
-            )
-            self._server_thread.start()
-            self._logger.info(
-                f"Audit Telemetry Server listening on http://localhost:{self.port}"
-            )
-        except Exception as e:
-            self._logger.error(f"Failed to start Audit Telemetry Server: {e}")
+        """Starts the background telemetry socket server."""
+        self.broadcaster.start()
 
     def stop_server(self) -> None:
-        """Stops the background HTTP server."""
-        if self._httpd:
-            self._httpd.shutdown()
-            self._httpd.server_close()
-            self._httpd = None
-        if self._server_thread:
-            self._server_thread.join(timeout=1.0)
-            self._server_thread = None
+        """Stops the background socket server."""
+        self.broadcaster.stop()
 
     def get_uptime_seconds(self) -> float:
         """
