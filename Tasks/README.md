@@ -28,7 +28,11 @@ Welcome to the central task management hub for **Sagittarius Engine**. This dire
 | **TASK-006** | Extension and Event Bus Contract Consistency | Architecture / Event Bus & Extensions | P1 - High | [TASK-006_extension_eventbus_contracts.md](backlog/TASK-006_extension_eventbus_contracts.md) |
 | **TASK-007** | Kernel Reliability and OSS Readiness | Reliability / Open Source Polish | P2 - Medium | [TASK-007_kernel_reliability_oss_readiness.md](backlog/TASK-007_kernel_reliability_oss_readiness.md) |
 | **TASK-008** | Context Decoupling Program | Core Architecture / Service Boundaries | P2 - Medium | [TASK-008_context_decoupling_program.md](backlog/TASK-008_context_decoupling_program.md) |
-
+| **TASK-010** | Async Lifecycle Support | Core Architecture / Concurrency | P2 - Medium | [TASK-010_async_lifecycle_support.md](backlog/TASK-010_async_lifecycle_support.md) |
+| **TASK-011** | Strict Extension Adapter Typing | Core Architecture / Robustness | P3 - Low | [TASK-011_strict_extension_adapter_typing.md](backlog/TASK-011_strict_extension_adapter_typing.md) |
+| **TASK-012** | DI Container Scoped Lifecycle | Infrastructure / Dependency Injection | P2 - Medium | [TASK-012_di_container_scoped_lifecycle.md](backlog/TASK-012_di_container_scoped_lifecycle.md) |
+| **TASK-013** | Engine Context God Object Prevention | Core Architecture / Clean Architecture | P3 - Low | [TASK-013_engine_context_god_object_prevention.md](backlog/TASK-013_engine_context_god_object_prevention.md) |
+| **TASK-014** | CQRS Dispatcher Type Safety (TOutput Resolution) | Core Architecture / Type Safety | P3 - Low | [TASK-014_cqrs_type_safety_overload.md](backlog/TASK-014_cqrs_type_safety_overload.md) |
 ---
 
 ## 📂 Directory Layout
@@ -42,7 +46,12 @@ Tasks/
 │   ├── TASK-005_runtime_concurrency_hardening.md
 │   ├── TASK-006_extension_eventbus_contracts.md
 │   ├── TASK-007_kernel_reliability_oss_readiness.md
-│   └── TASK-008_context_decoupling_program.md
+│   ├── TASK-008_context_decoupling_program.md
+│   ├── TASK-010_async_lifecycle_support.md
+│   ├── TASK-011_strict_extension_adapter_typing.md
+│   ├── TASK-012_di_container_scoped_lifecycle.md
+│   ├── TASK-013_engine_context_god_object_prevention.md
+│   └── TASK-014_cqrs_type_safety_overload.md
 ├── issue-report/                       # High-impact Architecture Issue Report
 │   ├── issue.md
 │   └── exception_case.md
