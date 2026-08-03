@@ -130,12 +130,14 @@ class ExtensionManager:
             ext for ext in self.registered_extensions if ext.descriptor.enabled
         ]
 
+        # Sort by priority descending to initialize higher priority items first
+        # Hoisting invariant sort outside of the loop to prevent O(M * N log N) complexity
+        sorted_exts = sorted(
+            enabled_exts, key=lambda e: e.descriptor.priority, reverse=True
+        )
+
         while True:
             initialized_any = False
-            # Sort by priority descending to initialize higher priority items first
-            sorted_exts = sorted(
-                enabled_exts, key=lambda e: e.descriptor.priority, reverse=True
-            )
             for ext in sorted_exts:
                 name = ext.descriptor.name
                 if name in initialized_names:
