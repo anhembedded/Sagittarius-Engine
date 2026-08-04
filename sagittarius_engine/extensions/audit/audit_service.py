@@ -151,8 +151,8 @@ class AuditService:
                         "runtime": runtime,
                     }
                 )
-        except Exception:
-            pass  # nosec B110
+        except Exception as e:
+            self._logger.error(f"Audit service error: {e}")
         return tasks_data
 
     def get_loaded_extensions(self) -> List[Dict[str, Any]]:
@@ -181,8 +181,8 @@ class AuditService:
                                 "enabled": True,
                             }
                         )
-        except Exception:
-            pass  # nosec B110
+        except Exception as e:
+            self._logger.error(f"Audit service error: {e}")
         return extensions_data
 
     def get_running_hosted_services(self) -> List[str]:
@@ -195,8 +195,8 @@ class AuditService:
             if hs_manager:
                 for srv in hs_manager.started_services:
                     services_data.append(srv.__class__.__name__)
-        except Exception:
-            pass  # nosec B110
+        except Exception as e:
+            self._logger.error(f"Audit service error: {e}")
         return services_data
 
     def get_environment_info(self) -> Dict[str, str]:
@@ -216,8 +216,8 @@ class AuditService:
                 process = psutil.Process()
                 env["cpu_percent"] = f"{process.cpu_percent(interval=None):.1f}%"
                 env["ram_mb"] = f"{process.memory_info().rss / 1024 / 1024:.1f} MB"
-            except Exception:
-                pass  # nosec B110
+            except Exception as e:
+                self._logger.error(f"Audit service error: {e}")
 
         return env
 
@@ -237,8 +237,8 @@ class AuditService:
             config = self.context.container.resolve(IConfig)
             if config and hasattr(config, "_config"):
                 info["config_keys"] = list(config._config.keys())
-        except Exception:
-            pass  # nosec B110
+        except Exception as e:
+            self._logger.error(f"Audit service error: {e}")
         return info
 
     def get_middleware_pipeline(self) -> List[str]:
@@ -247,8 +247,8 @@ class AuditService:
             pipeline = getattr(getattr(self.context, "app", None), "pipeline", None)
             if pipeline and hasattr(pipeline, "middlewares"):
                 return [m.__class__.__name__ for m in pipeline.middlewares]
-        except Exception:
-            pass  # nosec B110
+        except Exception as e:
+            self._logger.error(f"Audit service error: {e}")
         return []
 
     def get_scheduler_jobs(self) -> List[Dict[str, str]]:
@@ -271,8 +271,8 @@ class AuditService:
                             "next_run": next_run,
                         }
                     )
-        except Exception:
-            pass  # nosec B110
+        except Exception as e:
+            self._logger.error(f"Audit service error: {e}")
         return jobs_data
 
     def get_full_config(self) -> Dict[str, Any]:
@@ -324,6 +324,6 @@ class AuditService:
                             "error": error_msg,
                         }
                     )
-        except Exception:
-            pass  # nosec B110
+        except Exception as e:
+            self._logger.error(f"Audit service error: {e}")
         return tasks

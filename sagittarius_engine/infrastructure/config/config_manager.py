@@ -85,8 +85,9 @@ class ConfigManager(IConfig):
             try:
                 data = source.read()
                 self._cache.update(data)
-            except Exception:  # nosec B110
-                pass
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Config read error: {e}")
         self._loaded = True
 
     def get(self, key: str, default: Any = None, cast: type[Any] | None = None) -> Any:

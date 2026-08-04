@@ -115,8 +115,9 @@ class TcpLogViewerHandler(logging.Handler):
                     if sock:
                         try:
                             sock.close()
-                        except Exception:  # nosec B110
-                            pass
+                        except Exception as e:
+                            import logging
+                            logging.getLogger(__name__).error(f"Socket close error: {e}")
                         sock = None
                     # Short pause before next attempt if connection lost
                     time.sleep(1.0)
@@ -125,8 +126,9 @@ class TcpLogViewerHandler(logging.Handler):
         if sock:
             try:
                 sock.close()
-            except Exception:  # nosec B110
-                pass
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Socket close error: {e}")
 
     def close(self) -> None:
         """
