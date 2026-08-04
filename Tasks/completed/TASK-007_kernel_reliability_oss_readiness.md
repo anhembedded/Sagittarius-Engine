@@ -31,3 +31,12 @@ Harden kernel/runtime exception handling with contextual error reporting, saniti
 - [ ] Replace `your-repo` placeholders in `docs/advanced/architecture.md` and related docs.
 - [ ] Create `CONTRIBUTING.md` and link it in `readme.md`.
 - [ ] Verify test suite passes without exception swallow regressions.
+
+---
+
+## 🤖 AI Execution Guide
+If you are an AI assistant executing this task:
+1. **Context Update**: We recently added basic `logger.error` to empty `except Exception:` blocks across the framework. Your specific goal for the exception handling part is to **narrow the exception types** (e.g., catching `ImportError`, `ValueError` instead of a generic `Exception`) in `bootstrap.py`, `async_runtime.py`, and `extension_manager.py`.
+2. Implement the documentation sanitization and create the `CONTRIBUTING.md` as specified.
+3. **Tracking Update (CRITICAL):** Once all code changes are complete, you must move this file (`TASK-007_kernel_reliability_oss_readiness.md`) from `Tasks/backlog/` to `Tasks/completed/`.
+4. Open `Tasks/README.md`, remove TASK-007 from the **🔵 Backlog** table, add it to the **🟢 Completed** table with today's date, and update the Directory Layout tree to reflect the file move.

@@ -92,8 +92,8 @@ class TaskManager(ITaskManager):
     def _emit(self, event_name: str, event_data: Any) -> None:
         try:
             self.context.event_bus.emit(event_name, event_data)
-        except Exception:  # nosec B110
-            pass
+        except Exception as e:
+            self.context.logger.error(f"Failed to emit event: {e}")
 
     def _cleanup_old_tasks(self) -> None:
         with self._lock:

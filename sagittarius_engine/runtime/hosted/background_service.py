@@ -54,5 +54,6 @@ class BackgroundService(IHostedService):
         if self.task and self.task.future:
             try:
                 self.task.future.result()
-            except Exception:
-                pass  # nosec B110
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Error in background service task: {e}")

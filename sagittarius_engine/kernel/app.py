@@ -70,7 +70,7 @@ class App:
         """
         self.context.middleware_pipeline.add(middleware_instance)
 
-    def _get_logger(self) -> ILogger | None:
+    def _get_logger(self) -> ILogger:
         return self.context.logger
 
     def boot(self, auto_discover: str | None = None) -> None:
@@ -124,8 +124,7 @@ class App:
             return
 
         logger = self._get_logger()
-        if logger:
-            logger.info("App is stopping gracefully...")
+        logger.info("App is stopping gracefully...")
 
         self.context.lifecycle.set_stopping()
 
@@ -133,36 +132,31 @@ class App:
         try:
             self.context.scheduler.stop()
         except Exception as e:
-            if logger:
-                logger.error(f"Error stopping scheduler: {e}")
+            logger.error(f"Error stopping scheduler: {e}")
 
         # 2. Stop Hosted Services
         try:
             self.context.hosted_services.stop()
         except Exception as e:
-            if logger:
-                logger.error(f"Error stopping hosted services: {e}")
+            logger.error(f"Error stopping hosted services: {e}")
 
         # 3. Stop Extensions
         try:
             self.context.extension_manager.stop_and_dispose()
         except Exception as e:
-            if logger:
-                logger.error(f"Error stopping extensions: {e}")
+            logger.error(f"Error stopping extensions: {e}")
 
         # 4. Shutdown Task Manager
         try:
             self.context.tasks.shutdown()
         except Exception as e:
-            if logger:
-                logger.error(f"Error shutting down task manager: {e}")
+            logger.error(f"Error shutting down task manager: {e}")
 
         # 5. Stop Async Runtime
         try:
             self.context.async_runtime.stop()
         except Exception as e:
-            if logger:
-                logger.error(f"Error stopping async runtime: {e}")
+            logger.error(f"Error stopping async runtime: {e}")
 
         # 6. Shutdown Event Bus (if supported)
         try:
@@ -172,9 +166,7 @@ class App:
             elif hasattr(bus, "dispose") and callable(getattr(bus, "dispose")):
                 bus.dispose()
         except Exception as e:
-            if logger:
-                logger.error(f"Error shutting down event bus: {e}")
+            logger.error(f"Error shutting down event bus: {e}")
 
         self.context.lifecycle.set_stopped()
-        if logger:
-            logger.info("App stopped.")
+        logger.info("App stopped.")

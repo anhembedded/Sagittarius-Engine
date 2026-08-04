@@ -39,7 +39,7 @@ class Bootstrap:
             # Start Scheduler
             self.context.scheduler.start()
 
-        except Exception as e:
+        except (RuntimeError, ValueError, TypeError, AttributeError, ImportError, OSError) as e:
             if logger:
                 logger.error(
                     f"[Bootstrap] Error during boot sequence: {e}. Shutting down runtime..."
@@ -47,21 +47,21 @@ class Bootstrap:
             # Clean up what was started
             try:
                 self.context.scheduler.stop()
-            except Exception as se:
+            except (RuntimeError, ValueError) as se:
                 if logger:
                     logger.warning(
                         f"[Bootstrap] Error stopping scheduler during boot cleanup: {se}"
                     )
             try:
                 self.context.hosted_services.stop()
-            except Exception as he:
+            except (RuntimeError, ValueError) as he:
                 if logger:
                     logger.warning(
                         f"[Bootstrap] Error stopping hosted services during boot cleanup: {he}"
                     )
             try:
                 self.context.async_runtime.stop()
-            except Exception as ae:
+            except (RuntimeError, ValueError) as ae:
                 if logger:
                     logger.warning(
                         f"[Bootstrap] Error stopping async runtime during boot cleanup: {ae}"

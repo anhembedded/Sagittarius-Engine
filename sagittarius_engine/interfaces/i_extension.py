@@ -49,6 +49,9 @@ class IExtension(ABC):
             priority=prio if isinstance(prio, int) else 0,
             enabled=enabled if isinstance(enabled, bool) else True,
         )
+    
+    def name(self) -> str:
+        return self.__class__.__name__
 
     @abstractmethod
     def register(self, context: "IEngineContext") -> None:

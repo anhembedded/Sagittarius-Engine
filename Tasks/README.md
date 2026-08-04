@@ -20,6 +20,8 @@ Welcome to the central task management hub for **Sagittarius Engine**. This dire
 | **TASK-015** | Framework Logging Null Object | Core Architecture / Observability | 2026-08-04 | [TASK-015_framework_logging_null_object.md](completed/TASK-015_framework_logging_null_object.md) |
 | **TASK-016** | Formalize `name` property | Core Architecture / Clean Code | 2026-08-04 | [TASK-016_interface_name_property.md](completed/TASK-016_interface_name_property.md) |
 | **TASK-014** | CQRS Dispatcher Type Safety (TOutput Resolution) | Core Architecture / Type Safety | 2026-08-02 | [TASK-014_cqrs_type_safety_overload.md](completed/TASK-014_cqrs_type_safety_overload.md) |
+| **TASK-015** | Framework Logging & Null Object Pattern | Core Architecture / Observability | 2026-08-04 | [TASK-015_framework_logging_null_object.md](completed/TASK-015_framework_logging_null_object.md) |
+| **TASK-007** | Kernel Reliability and OSS Readiness | Reliability / Open Source Polish | 2026-08-04 | [TASK-007_kernel_reliability_oss_readiness.md](completed/TASK-007_kernel_reliability_oss_readiness.md) |
 
 ### 🟡 In Progress (`Tasks/in_progress/`)
 
@@ -29,12 +31,9 @@ Welcome to the central task management hub for **Sagittarius Engine**. This dire
 
 | Task ID | Title | Category | Priority | Spec File |
 | --- | --- | --- | --- | --- |
-| **TASK-003** | End-to-End Async Pipeline | Core Engine / Trading Domain | P1 - High | [TASK-003_async_pipeline.md](backlog/TASK-003_async_pipeline.md) |
-| **TASK-004** | Core Engine Test Coverage Suite | Testing & Quality Assurance | P2 - Medium | [TASK-004_test_coverage_suite.md](backlog/TASK-004_test_coverage_suite.md) |
-| **TASK-005** | Runtime Concurrency Hardening | Runtime / Concurrency | P1 - High | [TASK-005_runtime_concurrency_hardening.md](backlog/TASK-005_runtime_concurrency_hardening.md) |
-| **TASK-006** | Extension and Event Bus Contract Consistency | Architecture / Event Bus & Extensions | P1 - High | [TASK-006_extension_eventbus_contracts.md](backlog/TASK-006_extension_eventbus_contracts.md) |
-| **TASK-007** | Kernel Reliability and OSS Readiness | Reliability / Open Source Polish | P2 - Medium | [TASK-007_kernel_reliability_oss_readiness.md](backlog/TASK-007_kernel_reliability_oss_readiness.md) |
+
 | **TASK-008** | Context Decoupling Program | Core Architecture / Service Boundaries | P2 - Medium | [TASK-008_context_decoupling_program.md](backlog/TASK-008_context_decoupling_program.md) |
+| **TASK-016** | Formalize `name` Method on Interfaces | Core Architecture / Interfaces | P3 - Low | [TASK-016_interface_name_property.md](backlog/TASK-016_interface_name_property.md) |
 
 ---
 
@@ -44,12 +43,8 @@ Welcome to the central task management hub for **Sagittarius Engine**. This dire
 Tasks/
 ├── README.md                           # Master Kanban Board & Overview
 ├── backlog/                            # Planned Task Specifications & Proposals
-│   ├── TASK-003_async_pipeline.md
-│   ├── TASK-004_test_coverage_suite.md
-│   ├── TASK-005_runtime_concurrency_hardening.md
-│   ├── TASK-006_extension_eventbus_contracts.md
-│   ├── TASK-007_kernel_reliability_oss_readiness.md
-│   └── TASK-008_context_decoupling_program.md
+│   ├── TASK-008_context_decoupling_program.md
+│   └── TASK-016_interface_name_property.md
 ├── issue-report/                       # High-impact Architecture Issue Report
 │   ├── issue.md
 │   └── exception_case.md
@@ -65,4 +60,5 @@ Tasks/
 │   ├── TASK-014_cqrs_type_safety_overload.md
 │   ├── TASK-015_framework_logging_null_object.md
 │   └── TASK-016_interface_name_property.md
+│   └── TASK-007_kernel_reliability_oss_readiness.md
 ```

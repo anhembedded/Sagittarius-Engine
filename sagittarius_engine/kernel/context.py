@@ -86,11 +86,12 @@ class EngineContext(IKernelContext):
         return self.extension_manager.registered_extensions
 
     @property
-    def logger(self) -> ILogger | None:
+    def logger(self) -> ILogger:
         try:
             return self.container.resolve(ILogger)
         except Exception:
-            return None
+            from sagittarius_engine.utils.null_logger import NullLogger
+            return NullLogger()
 
     @property
     def config(self) -> IConfig | None:

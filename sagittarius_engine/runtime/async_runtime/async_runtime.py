@@ -62,7 +62,7 @@ class AsyncRuntime:
             if pending:
                 for task in pending:
                     task.cancel()
-        except Exception as e:
+        except (RuntimeError, asyncio.InvalidStateError) as e:
             self._logger.warning(
                 f"[AsyncRuntime] Error cancelling pending tasks during stop: {e}"
             )
