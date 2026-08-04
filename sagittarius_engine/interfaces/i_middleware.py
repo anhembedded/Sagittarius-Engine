@@ -21,6 +21,13 @@ class IMiddleware(ABC):
     @endcode
     """
 
+    @property
+    def name(self) -> str:
+        """
+        @brief Return the middleware's name. Defaults to the class name.
+        """
+        return self.__class__.__name__
+
     @abstractmethod
     def process(
         self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]
