@@ -1,3 +1,6 @@
+[submodule "Binace_Bot"]
+	path = Binace_Bot
+	url = https://github.com/anhembedded/Binace_Bot.git
 [submodule "tools/Sagittarius_LogViewer"]
 	path = tools/Sagittarius_LogViewer
 	url = https://github.com/anhembedded/Sagittarius_LogViewer.git
