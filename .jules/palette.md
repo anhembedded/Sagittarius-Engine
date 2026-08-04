@@ -1,0 +1,3 @@
+## 2024-08-04 - PySide6 Widget Accessibility and Interaction Polish
+**Learning:** In PySide6 desktop applications, native widgets like `QPushButton` lack default UX hints (tooltips, hand cursor, screen reader names) that users expect, especially for utility buttons like "Clear Logs". These small additions drastically improve keyboard navigation, screen reader support (via accessible names), and general interaction confidence.
+**Action:** When adding utility or icon-only buttons in PySide6/Qt projects, always apply `&` for keyboard shortcuts, `setToolTip`, `setAccessibleName`, `setAccessibleDescription`, and `setCursor(Qt.CursorShape.PointingHandCursor)` as a standard accessibility and UX baseline.
