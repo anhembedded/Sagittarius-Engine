@@ -1,3 +1,0 @@
-🎯 What: Add test file for ThreadManagerModule to cover module lifecycle hooks
-📊 Coverage: Added tests for the `register` method on the ThreadManagerModule.
-✨ Result: Improved reliability and coverage of the core module lifecycle.
