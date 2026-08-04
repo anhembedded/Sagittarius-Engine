@@ -1,0 +1,3 @@
+[submodule "tools/Sagittarius_LogViewer"]
+	path = tools/Sagittarius_LogViewer
+	url = https://github.com/anhembedded/Sagittarius_LogViewer.git
