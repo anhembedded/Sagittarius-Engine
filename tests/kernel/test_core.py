@@ -171,6 +171,7 @@ def test_kernel_facade_and_components():
         Dispatcher,
         EngineContext,
     )
+    from sagittarius_engine.utils.null_logger import NullLogger
 
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -181,7 +182,7 @@ def test_kernel_facade_and_components():
     assert app.context.event_bus is event_bus
     assert app.container is container
     assert app.event_bus is event_bus
-    assert app.context.logger is None  # not bound yet
+    assert isinstance(app.context.logger, NullLogger)  # Falls back to NullLogger
     assert app.context.config is None  # not bound yet
 
     # 2. Verify EngineLifecycle state transitions
