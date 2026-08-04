@@ -105,20 +105,20 @@ class ExtensionManager:
         # Try to initialize any available extensions immediately to support instant resolution
         try:
             self._try_initialize_available()
-        except Exception as e:
+        except (RuntimeError, ValueError, TypeError, ImportError) as e:
             self._rollback()
             raise e
 
     def _get_logger(self) -> "ILogger | None":
         try:
             return self.context.logger
-        except Exception:
+        except AttributeError:
             return None
 
     def _emit(self, event_name: str, event_data: object) -> None:
         try:
             self.context.event_bus.emit(event_name, event_data)
-        except Exception as e:
+        except (RuntimeError, ValueError) as e:
             self.context.logger.error(f"Failed to emit event: {e}")
 
     def _try_initialize_available(self) -> None:
@@ -239,7 +239,7 @@ class ExtensionManager:
                 try:
                     ext.initialize(self.context)
                     self.initialized_extensions.append(ext)
-                except Exception as e:
+                except (RuntimeError, ValueError, TypeError, ImportError) as e:
                     if logger:
                         logger.error(
                             f"Failed to initialize extension '{name}': {e}. Rolling back..."
@@ -270,7 +270,7 @@ class ExtensionManager:
             if type(ext).boot_async is IExtension.boot_async:
                 return
             async_runtime.run_coroutine(ext.boot_async(self.context))
-        except Exception as e:
+        except (RuntimeError, ValueError, TypeError) as e:
             logger = self._get_logger()
             if logger:
                 logger.warning(f"[AsyncLifecycle] Could not schedule boot_async for '{ext.descriptor.name}': {e}")
@@ -287,7 +287,7 @@ class ExtensionManager:
                 return
             future = async_runtime.run_coroutine(ext.shutdown_async(self.context))
             future.result(timeout=10.0)
-        except Exception as e:
+        except (RuntimeError, ValueError, TimeoutError) as e:
             logger = self._get_logger()
             if logger:
                 logger.warning(f"[AsyncLifecycle] Could not run shutdown_async for '{ext.descriptor.name}': {e}")
@@ -304,7 +304,7 @@ class ExtensionManager:
             try:
                 ext.dispose(self.context)
                 self._emit("extension.disposed", ExtensionDisposed(name))
-            except Exception as e:
+            except (RuntimeError, ValueError, TypeError) as e:
                 if logger:
                     logger.error(f"Error during rollback disposal of '{name}': {e}")
         # Clear initialized list since they are now rolled back
@@ -324,7 +324,7 @@ class ExtensionManager:
             try:
                 ext.stop(self.context)
                 self._emit("extension.stopped", ExtensionStopped(name))
-            except Exception as e:
+            except (RuntimeError, ValueError, TypeError) as e:
                 if logger:
                     logger.error(f"Error stopping extension '{name}': {e}")
 
@@ -333,7 +333,7 @@ class ExtensionManager:
             try:
                 ext.dispose(self.context)
                 self._emit("extension.disposed", ExtensionDisposed(name))
-            except Exception as e:
+            except (RuntimeError, ValueError, TypeError) as e:
                 if logger:
                     logger.error(f"Error disposing extension '{name}': {e}")
 
