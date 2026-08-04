@@ -34,6 +34,7 @@ Welcome to the central task management hub for **Sagittarius Engine**. This dire
 | **TASK-007** | Kernel Reliability and OSS Readiness | Reliability / Open Source Polish | P2 - Medium | [TASK-007_kernel_reliability_oss_readiness.md](backlog/TASK-007_kernel_reliability_oss_readiness.md) |
 | **TASK-008** | Context Decoupling Program | Core Architecture / Service Boundaries | P2 - Medium | [TASK-008_context_decoupling_program.md](backlog/TASK-008_context_decoupling_program.md) |
 | **TASK-015** | Framework Logging & Null Object Pattern | Core Architecture / Observability | P2 - Medium | [TASK-015_framework_logging_null_object.md](backlog/TASK-015_framework_logging_null_object.md) |
+| **TASK-016** | Formalize `name` Method on Interfaces | Core Architecture / Interfaces | P3 - Low | [TASK-016_interface_name_property.md](backlog/TASK-016_interface_name_property.md) |
 
 ---
 
@@ -49,7 +50,8 @@ Tasks/
 │   ├── TASK-006_extension_eventbus_contracts.md
 │   ├── TASK-007_kernel_reliability_oss_readiness.md
 │   ├── TASK-008_context_decoupling_program.md
-│   └── TASK-015_framework_logging_null_object.md
+│   ├── TASK-015_framework_logging_null_object.md
+│   └── TASK-016_interface_name_property.md
 ├── issue-report/                       # High-impact Architecture Issue Report
 │   ├── issue.md
 │   └── exception_case.md
