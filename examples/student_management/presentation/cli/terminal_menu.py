@@ -95,8 +95,9 @@ class TerminalMenu(IHostedService):
             try:
                 # Safely wait for background thread future execution to complete
                 self.task.future.result()
-            except Exception:
-                pass
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Error waiting for CLI task: {e}")
 
     def _run_loop(self, token: CancellationToken) -> None:
         while not token.is_cancelled():

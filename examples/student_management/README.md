@@ -37,7 +37,7 @@ The project is structured according to Clean Architecture guidelines to isolate 
 
 ### Applied Design Patterns
 
-* **Mediator Pattern / CQRS**: Commands and Queries are separated (Write vs. Read) and dispatched through the central `app.dispatch()` / `app.query()` mediators.
+* **Mediator Pattern / CQRS**: Commands and Queries are separated (Write vs. Read) and dispatched through the central `app.dispatch()` mediator.
 * **Repository Pattern**: Business logic interacts with students via the abstract `IStudentRepository` interface, decoupling the database adapter from handlers.
 * **Hosted Service Pattern**: The Terminal CLI loop is wrapped as an `IHostedService` spawned as a background task.
 * **Observer Pattern**: The `IEventBus` handles asynchronous communications (e.g., student mutations, progress reports, health updates) between worker threads and UI listeners.
