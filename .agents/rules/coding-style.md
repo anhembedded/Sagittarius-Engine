@@ -1,4 +1,6 @@
 ---
+name: Coding Style
+description: General coding style guidelines, SOLID principles, and structural rules.
 trigger: model_decision
 ---
 
@@ -56,6 +58,10 @@ trigger: model_decision
 * **NO Function Call Side Effects:** NEVER execute state-mutating functions, DB queries, or API calls directly inside a logger statement.
 * **Strict Separation:** Resolve operations to local variables first, then log the variables.
 
-## 9. Run lint
+## 9. Run lint & CI
 
 * refer: [Lint context](../context/lint.md)
+* **Local CI/CD:** Always run `Binace_Bot\scripts\ci-local.ps1` to validate code formatting and pass tests before committing changes.
+
+## 10. Architectural Consistency
+* **Strict Layering:** Respect the 4 Clean Architecture layers. The Core (Domain & Application) must be completely isolated from Adapters (Presentation) and Infrastructure.

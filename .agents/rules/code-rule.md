@@ -1,4 +1,6 @@
 ---
+name: Python Code Rules
+description: Python coding standards, clean architecture principles, and code quality rules.
 trigger: always_on
 ---
 
@@ -32,3 +34,10 @@ trigger: always_on
    - **No Nested Loops:** Avoid deep nesting of loops (e.g. `for` inside `for` inside `while`). Extract nested logic into separate helper functions to reduce cyclomatic complexity and improve testability.
    - **No God Objects:** Strictly avoid creating massive classes or modules (like an overloaded `main.py` or a giant `Manager` class) that know too much or do too much. Delegate responsibilities (e.g. CLI parsing, bootstrapping, event handling) into dedicated modules.
    - **Abstract Low-Level Logic:** Do not write verbose, low-level OS/File system operations (like deep `os.path` joins or byte-level manipulation) directly in application or composition root layers. Extract them into common utility classes (e.g., `PathUtils`) inside the `sagittarius_engine.utils` directory if they are reusable across the framework.
+
+6. **Local CI/CD Enforcement:**
+   - Always run the local CI/CD script (`Binace_Bot\scripts\ci-local.ps1`) to validate your code before committing and pushing changes. It ensures linting, formatting, and tests pass.
+
+7. **Clean Architecture Layer Enforcement:**
+   - Always strictly respect the 4 Layers: Domain (Pure), Application (Use Cases/Ports), Interface Adapters (CLI/UI), and Infrastructure (DB/API/Frameworks).
+   - Never leak Infrastructure concerns (like `sagittarius_engine` base classes, SQLAlchemy, or API clients) into the Domain or Application layers.
