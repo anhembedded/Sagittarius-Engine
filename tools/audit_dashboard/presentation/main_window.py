@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
     QTextEdit,
     QPushButton,
 )
-from PySide6.QtCore import Slot, Signal, QObject
+from PySide6.QtCore import Slot, Signal, QObject, Qt
 
 
 class DashboardSignals(QObject):
@@ -36,7 +36,11 @@ class MainWindow(QMainWindow):
         self.log_area.setReadOnly(True)
         layout.addWidget(self.log_area)
 
-        self.clear_btn = QPushButton("Clear Logs")
+        self.clear_btn = QPushButton("&Clear Logs")
+        self.clear_btn.setToolTip("Clear all telemetry logs")
+        self.clear_btn.setAccessibleName("Clear Logs")
+        self.clear_btn.setAccessibleDescription("Clears the log area content")
+        self.clear_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.clear_btn.clicked.connect(self.log_area.clear)
         layout.addWidget(self.clear_btn)
 
