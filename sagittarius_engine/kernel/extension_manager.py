@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from sagittarius_engine.kernel.i_kernel_context import IKernelContext
@@ -18,7 +18,7 @@ from sagittarius_engine.exceptions import (
 )
 
 
-class ModuleExtensionAdapter(IExtension):
+class ModuleExtensionAdapter(IExtension[Any]):
     """
     @brief Adapts a legacy IModule to the IExtension interface.
     """
@@ -77,11 +77,11 @@ class ExtensionManager:
 
     def __init__(self, context: "IKernelContext") -> None:
         self.context = context
-        self.registered_extensions: list[IExtension] = []
-        self.sorted_extensions: list[IExtension] = []
-        self.initialized_extensions: list[IExtension] = []
+        self.registered_extensions: list[IExtension[Any]] = []
+        self.sorted_extensions: list[IExtension[Any]] = []
+        self.initialized_extensions: list[IExtension[Any]] = []
 
-    def register(self, extension_or_module: IExtension | IModule) -> None:
+    def register(self, extension_or_module: IExtension[Any] | IModule) -> None:
         """
         @brief Registers an IExtension or adapts a legacy IModule.
 
@@ -168,7 +168,7 @@ class ExtensionManager:
             if not initialized_any:
                 break
 
-    def _build_and_sort(self) -> list[IExtension]:
+    def _build_and_sort(self) -> list[IExtension[Any]]:
         """
         @brief Topologically sorts registered and enabled extensions based on dependencies.
         """
@@ -257,7 +257,7 @@ class ExtensionManager:
             # 3. Schedule async boot hook if AsyncRuntime is available
             self._schedule_boot_async(ext)
 
-    def _schedule_boot_async(self, ext: IExtension) -> None:
+    def _schedule_boot_async(self, ext: IExtension[Any]) -> None:
         """
         @brief Schedules boot_async() on the AsyncRuntime if available.
         @details No-op if the extension's boot_async is the base class no-op.
@@ -275,7 +275,7 @@ class ExtensionManager:
             if logger:
                 logger.warning(f"[AsyncLifecycle] Could not schedule boot_async for '{ext.descriptor.name}': {e}")
 
-    def _schedule_shutdown_async(self, ext: IExtension) -> None:
+    def _schedule_shutdown_async(self, ext: IExtension[Any]) -> None:
         """
         @brief Schedules shutdown_async() on the AsyncRuntime and blocks until complete.
         """

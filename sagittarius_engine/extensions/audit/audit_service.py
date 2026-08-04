@@ -3,7 +3,14 @@ from typing import Any, Dict, List
 import platform
 import logging
 from collections import deque
-from sagittarius_engine.interfaces import IEngineContext
+from typing import Protocol
+from sagittarius_engine.interfaces.i_container import IContainer
+
+class IAuditContext(Protocol):
+    @property
+    def container(self) -> IContainer: ...
+    @property
+    def tasks(self) -> Any: ...
 from sagittarius_engine.extensions.health.health_check_query import (
     HealthCheckQuery,
     HealthCheckDTO,
@@ -23,8 +30,8 @@ class AuditService:
     @brief Collects telemetry and metrics from the EngineContext for the Audit Dashboard.
     """
 
-    def __init__(self, context: IEngineContext, port: int = 9999) -> None:
-        self.context: IEngineContext = context
+    def __init__(self, context: IAuditContext, port: int = 9999) -> None:
+        self.context: IAuditContext = context
         self.port: int = port
         self.start_time: datetime = datetime.now(timezone.utc)
         self._logger: logging.Logger = logging.getLogger("AuditService")

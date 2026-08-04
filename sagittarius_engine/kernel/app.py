@@ -43,7 +43,7 @@ class App:
         return self.context.event_bus
 
     @property
-    def modules(self) -> list[IExtension]:
+    def modules(self) -> list[IExtension[Any]]:
         return self.context.modules
 
     @property
@@ -54,7 +54,7 @@ class App:
     def lifecycle(self) -> EngineLifecycle:
         return self.context.lifecycle
 
-    def use(self, extension_or_module: IExtension | IModule) -> None:
+    def use(self, extension_or_module: IExtension[Any] | IModule) -> None:
         """
         @brief Manually adds an Extension or Module to the App.
         """

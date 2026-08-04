@@ -6,14 +6,20 @@ if TYPE_CHECKING:
 from sagittarius_engine.interfaces.i_extension import IExtension
 from sagittarius_engine.infrastructure.logging.std_logger import StdLogger
 from sagittarius_engine.interfaces import IConfig, ILogger
+from typing import Protocol
+from sagittarius_engine.interfaces.i_container import IContainer
+
+class ILoggerContext(Protocol):
+    @property
+    def container(self) -> IContainer: ...
 
 
-class LoggerExtension(IExtension):
+class LoggerExtension(IExtension[ILoggerContext]):
     """
     @brief Extension for Logger setup.
     """
 
-    def register(self, context: "IEngineContext") -> None:
+    def register(self, context: ILoggerContext) -> None:
         try:
             config: IConfig = context.container.resolve(IConfig)
         except Exception:
@@ -22,8 +28,8 @@ class LoggerExtension(IExtension):
         logger_instance = StdLogger(config)
         context.container.singleton(ILogger, logger_instance)
 
-    def boot(self, context: "IEngineContext") -> None:
+    def boot(self, context: ILoggerContext) -> None:
         pass
 
-    def shutdown(self, context: "IEngineContext") -> None:
+    def shutdown(self, context: ILoggerContext) -> None:
         pass

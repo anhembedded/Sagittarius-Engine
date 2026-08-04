@@ -17,19 +17,27 @@ class HealthUpdatedEvent(BaseEvent):
         self.status: dict[str, Any] = status
 
 
-class HealthExtension(IExtension):
+from typing import Protocol
+from sagittarius_engine.interfaces.i_container import IContainer
+
+class IHealthContext(Protocol):
+    @property
+    def container(self) -> IContainer: ...
+
+
+class HealthExtension(IExtension[IHealthContext]):
     """
     @brief Extension for Application Health Checks.
     """
 
-    def register(self, context: "IEngineContext") -> None:
+    def register(self, context: IHealthContext) -> None:
         """@brief Registers the HealthCheckQuery in the container."""
         context.container.bind(HealthCheckQuery, HealthCheckQuery)
 
-    def boot(self, context: "IEngineContext") -> None:
+    def boot(self, context: IHealthContext) -> None:
         """@brief Boots the Health Extension."""
         pass
 
-    def shutdown(self, context: "IEngineContext") -> None:
+    def shutdown(self, context: IHealthContext) -> None:
         """@brief Shuts down the Health Extension."""
         pass

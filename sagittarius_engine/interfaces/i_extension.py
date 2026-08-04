@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 from collections.abc import Coroutine
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 if TYPE_CHECKING:
     from sagittarius_engine.interfaces.i_engine_context import IEngineContext
+
+TContext = TypeVar("TContext", contravariant=True)
 
 
 @dataclass
@@ -23,7 +25,7 @@ class ExtensionDescriptor:
     description: str = ""
 
 
-class IExtension(ABC):
+class IExtension(ABC, Generic[TContext]):
     """Interface for Sagittarius Engine Extensions."""
 
     @property
@@ -47,7 +49,7 @@ class IExtension(ABC):
         return self.__class__.__name__
 
     @abstractmethod
-    def register(self, context: "IEngineContext") -> None:
+    def register(self, context: TContext) -> None:
         """
         @brief Called first when the extension is registered to bind dependencies.
         @param context The EngineContext instance.
@@ -55,7 +57,7 @@ class IExtension(ABC):
         ...
 
     @abstractmethod
-    def boot(self, context: "IEngineContext") -> None:
+    def boot(self, context: TContext) -> None:
         """
         @brief Called after all extensions have been registered to trigger startup logic.
         @param context The EngineContext instance.
@@ -63,38 +65,38 @@ class IExtension(ABC):
         ...
 
     @abstractmethod
-    def shutdown(self, context: "IEngineContext") -> None:
+    def shutdown(self, context: TContext) -> None:
         """
         @brief Called when the engine is stopping to release resources.
         @param context The EngineContext instance.
         """
         ...
 
-    def initialize(self, context: "IEngineContext") -> None:
+    def initialize(self, context: TContext) -> None:
         """
         @brief Orchestrator initialization step. Defaults to calling register.
         """
         self.register(context)
 
-    def start(self, context: "IEngineContext") -> None:
+    def start(self, context: TContext) -> None:
         """
         @brief Orchestrator start step. Defaults to calling boot.
         """
         self.boot(context)
 
-    def stop(self, context: "IEngineContext") -> None:
+    def stop(self, context: TContext) -> None:
         """
         @brief Orchestrator stop step. Defaults to calling shutdown.
         """
         self.shutdown(context)
 
-    def dispose(self, context: "IEngineContext") -> None:
+    def dispose(self, context: TContext) -> None:
         """
         @brief Orchestrator cleanup/release step. Defaults to no-op.
         """
         pass
 
-    async def boot_async(self, context: "IEngineContext") -> None:
+    async def boot_async(self, context: TContext) -> None:
         """
         @brief Optional async lifecycle hook called after boot().
 
@@ -107,7 +109,7 @@ class IExtension(ABC):
         """
         return
 
-    async def shutdown_async(self, context: "IEngineContext") -> None:
+    async def shutdown_async(self, context: TContext) -> None:
         """
         @brief Optional async lifecycle hook called before shutdown().
 
