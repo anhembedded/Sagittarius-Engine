@@ -1,6 +1,6 @@
 """Integration tests for TASK-012: DI Container Scoped Lifecycle."""
+
 import threading
-import pytest
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 
 
@@ -21,7 +21,9 @@ class TestScopedLifecycle:
         with container.create_scope():
             a = container.resolve(IService)
             b = container.resolve(IService)
-            assert a is b, "Within a scope, scoped dependency must be the same instance."
+            assert a is b, (
+                "Within a scope, scoped dependency must be the same instance."
+            )
 
     def test_different_scopes_produce_different_instances(self) -> None:
         container = StdLibContainer()
@@ -57,7 +59,9 @@ class TestScopedLifecycle:
         t2.join()
 
         assert len(results) == 2
-        assert results[0] is not results[1], "Concurrent scopes must produce different instances."
+        assert results[0] is not results[1], (
+            "Concurrent scopes must produce different instances."
+        )
 
     def test_outside_scope_falls_back_to_transient(self) -> None:
         """Scoped dependency outside a scope should fall back to Transient resolution."""

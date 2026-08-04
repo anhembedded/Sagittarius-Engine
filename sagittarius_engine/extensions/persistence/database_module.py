@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 import os
 
 if TYPE_CHECKING:
-    from sagittarius_engine.interfaces.i_engine_context import IEngineContext
+    pass
 
 from sagittarius_engine.interfaces.i_extension import IExtension
 from sagittarius_engine.interfaces import IConfig, ILogger
@@ -22,6 +22,7 @@ except ImportError:
 
 from typing import Protocol
 from sagittarius_engine.interfaces.i_container import IContainer
+
 
 class IDatabaseContext(Protocol):
     @property

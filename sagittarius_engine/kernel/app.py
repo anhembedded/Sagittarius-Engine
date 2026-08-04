@@ -79,7 +79,9 @@ class App:
         """
         self.context.bootstrap.boot(auto_discover)
 
-    def dispatch(self, handler_class: type[IDispatchable], input_dto: object | None = None) -> Any:
+    def dispatch(
+        self, handler_class: type[IDispatchable], input_dto: object | None = None
+    ) -> Any:
         """
         @brief Dispatches a command or query through the Middleware Pipeline.
 

@@ -61,6 +61,7 @@ class PydanticValidationMiddleware(IMiddleware):
         @exception ValueError if validation fails.
         """
         import typing
+
         model_class = self.model_class
 
         if model_class is None:
@@ -91,9 +92,7 @@ class PydanticValidationMiddleware(IMiddleware):
                     validated_dto = data_transfer_obj
                 else:
                     try:
-                        validated_dto = model_class.model_validate(
-                            data_transfer_obj
-                        )
+                        validated_dto = model_class.model_validate(data_transfer_obj)
                     except Exception:
                         dto_dict = (
                             data_transfer_obj.__dict__

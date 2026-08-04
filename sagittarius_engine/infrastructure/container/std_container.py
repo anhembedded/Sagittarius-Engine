@@ -139,7 +139,6 @@ class StdLibContainer(IContainer):
         """
         return ScopeContext(self._scoped_registry)
 
-
     def _resolve(self, abstract: type[T] | Any, resolving: set[type]) -> T:  # noqa: C901
         """
         @brief Internal recursive resolve method with circular dependency detection.

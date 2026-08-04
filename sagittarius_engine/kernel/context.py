@@ -91,6 +91,7 @@ class EngineContext(IKernelContext):
             return self.container.resolve(ILogger)
         except Exception:
             from sagittarius_engine.utils.null_logger import NullLogger
+
             return NullLogger()
 
     @property

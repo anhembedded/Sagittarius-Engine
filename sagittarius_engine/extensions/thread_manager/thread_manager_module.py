@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from sagittarius_engine.interfaces.i_engine_context import IEngineContext
     from sagittarius_engine.interfaces.i_config import IConfig
 
     from sagittarius_engine.kernel.app import App
@@ -15,6 +14,7 @@ from sagittarius_engine.interfaces.i_thread_manager import (
 from sagittarius_engine.interfaces.i_module import IModule
 from typing import Protocol
 from sagittarius_engine.interfaces.i_container import IContainer
+
 
 class IThreadManagerContext(Protocol):
     @property

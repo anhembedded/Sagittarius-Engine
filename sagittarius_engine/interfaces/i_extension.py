@@ -1,10 +1,9 @@
 from abc import ABC, abstractmethod
-from collections.abc import Coroutine
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 if TYPE_CHECKING:
-    from sagittarius_engine.interfaces.i_engine_context import IEngineContext
+    pass
 
 TContext = TypeVar("TContext", contravariant=True)
 
@@ -44,7 +43,7 @@ class IExtension(ABC, Generic[TContext]):
             priority=prio if isinstance(prio, int) else 0,
             enabled=enabled if isinstance(enabled, bool) else True,
         )
-    
+
     def name(self) -> str:
         return self.__class__.__name__
 

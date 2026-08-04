@@ -5,17 +5,19 @@ import logging
 from collections import deque
 from typing import Protocol
 from sagittarius_engine.interfaces.i_container import IContainer
+from sagittarius_engine.extensions.health.health_check_query import (
+    HealthCheckQuery,
+    HealthCheckDTO,
+)
+from .infra.websocket_broadcaster import WebsocketBroadcaster
+
 
 class IAuditContext(Protocol):
     @property
     def container(self) -> IContainer: ...
     @property
     def tasks(self) -> Any: ...
-from sagittarius_engine.extensions.health.health_check_query import (
-    HealthCheckQuery,
-    HealthCheckDTO,
-)
-from .infra.websocket_broadcaster import WebsocketBroadcaster
+
 
 try:
     import psutil

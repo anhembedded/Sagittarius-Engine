@@ -1,12 +1,13 @@
 from typing import TYPE_CHECKING
+from typing import Protocol, Any
+from sagittarius_engine.interfaces.i_container import IContainer
 
 if TYPE_CHECKING:
-    from sagittarius_engine.interfaces.i_engine_context import IEngineContext
+    pass
 
 from sagittarius_engine.interfaces.i_extension import IExtension
 from sagittarius_engine.extensions.health.health_check_query import HealthCheckQuery
 from sagittarius_engine.domain.base_event import BaseEvent
-from typing import Any
 
 
 class HealthUpdatedEvent(BaseEvent):
@@ -16,9 +17,6 @@ class HealthUpdatedEvent(BaseEvent):
         super().__init__()
         self.status: dict[str, Any] = status
 
-
-from typing import Protocol
-from sagittarius_engine.interfaces.i_container import IContainer
 
 class IHealthContext(Protocol):
     @property

@@ -119,7 +119,9 @@ class ExtensionManager:
         try:
             self.context.event_bus.emit(event_name, event_data)
         except (RuntimeError, ValueError) as e:
-            self.context.logger.error(f"Failed to emit event: {e}")
+            logger = self._get_logger()
+            if logger:
+                logger.error(f"Failed to emit event: {e}")
 
     def _try_initialize_available(self) -> None:
         """
@@ -264,7 +266,11 @@ class ExtensionManager:
         """
         try:
             async_runtime = getattr(self.context, "async_runtime", None)
-            if async_runtime is None or not async_runtime.loop or not async_runtime.loop.is_running():
+            if (
+                async_runtime is None
+                or not async_runtime.loop
+                or not async_runtime.loop.is_running()
+            ):
                 return
             # Only schedule if the extension actually overrides boot_async
             if type(ext).boot_async is IExtension.boot_async:
@@ -273,7 +279,9 @@ class ExtensionManager:
         except (RuntimeError, ValueError, TypeError) as e:
             logger = self._get_logger()
             if logger:
-                logger.warning(f"[AsyncLifecycle] Could not schedule boot_async for '{ext.descriptor.name}': {e}")
+                logger.warning(
+                    f"[AsyncLifecycle] Could not schedule boot_async for '{ext.descriptor.name}': {e}"
+                )
 
     def _schedule_shutdown_async(self, ext: IExtension[Any]) -> None:
         """
@@ -281,7 +289,11 @@ class ExtensionManager:
         """
         try:
             async_runtime = getattr(self.context, "async_runtime", None)
-            if async_runtime is None or not async_runtime.loop or not async_runtime.loop.is_running():
+            if (
+                async_runtime is None
+                or not async_runtime.loop
+                or not async_runtime.loop.is_running()
+            ):
                 return
             if type(ext).shutdown_async is IExtension.shutdown_async:
                 return
@@ -290,7 +302,9 @@ class ExtensionManager:
         except (RuntimeError, ValueError, TimeoutError) as e:
             logger = self._get_logger()
             if logger:
-                logger.warning(f"[AsyncLifecycle] Could not run shutdown_async for '{ext.descriptor.name}': {e}")
+                logger.warning(
+                    f"[AsyncLifecycle] Could not run shutdown_async for '{ext.descriptor.name}': {e}"
+                )
 
     def _rollback(self) -> None:
         """
