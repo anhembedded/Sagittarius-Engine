@@ -59,10 +59,10 @@ class IEngineContext(ABC):
 
     @property
     @abstractmethod
-    def logger(self) -> ILogger | None:
+    def logger(self) -> ILogger:
         """
-        @brief The Logger interface if a logger is configured.
-        @return ILogger instance or None if logging module is disabled.
+        @brief The Logger interface.
+        @return ILogger instance (returns a NullLogger if logging module is disabled, guaranteeing it is never None).
         """
         ...
 

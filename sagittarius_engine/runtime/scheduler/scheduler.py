@@ -71,9 +71,7 @@ class Scheduler:
         try:
             self.context.event_bus.emit(event_name, event_data)
         except Exception as e:
-            logger = getattr(self.context, "logger", None)
-            if logger:
-                logger.error(f"Failed to emit event: {e}")
+            self.context.logger.error(f"Failed to emit event: {e}")
 
     def start(self) -> None:
         """
