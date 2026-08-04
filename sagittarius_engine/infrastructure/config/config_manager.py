@@ -87,6 +87,7 @@ class ConfigManager(IConfig):
                 self._cache.update(data)
             except Exception as e:
                 import logging
+
                 logging.getLogger(__name__).error(f"Config read error: {e}")
         self._loaded = True
 

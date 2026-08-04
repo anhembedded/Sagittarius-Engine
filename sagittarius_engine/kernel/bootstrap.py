@@ -39,7 +39,14 @@ class Bootstrap:
             # Start Scheduler
             self.context.scheduler.start()
 
-        except (RuntimeError, ValueError, TypeError, AttributeError, ImportError, OSError) as e:
+        except (
+            RuntimeError,
+            ValueError,
+            TypeError,
+            AttributeError,
+            ImportError,
+            OSError,
+        ) as e:
             if logger:
                 logger.error(
                     f"[Bootstrap] Error during boot sequence: {e}. Shutting down runtime..."

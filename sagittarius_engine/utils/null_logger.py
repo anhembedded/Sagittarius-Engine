@@ -1,6 +1,7 @@
 from typing import Any
 from sagittarius_engine.interfaces.i_logger import ILogger
 
+
 class NullLogger(ILogger):
     """A dummy logger that safely ignores all log messages."""
 

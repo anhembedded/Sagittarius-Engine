@@ -1,9 +1,8 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from sagittarius_engine.kernel.i_kernel_context import IKernelContext
     from sagittarius_engine.interfaces.i_engine_context import IEngineContext
-    from sagittarius_engine.interfaces.i_logger import ILogger
 from sagittarius_engine.interfaces.i_extension import IExtension, ExtensionDescriptor
 from sagittarius_engine.interfaces.i_module import IModule
 from sagittarius_engine.kernel.events import (
@@ -18,7 +17,7 @@ from sagittarius_engine.exceptions import (
 )
 
 
-class ModuleExtensionAdapter(IExtension):
+class ModuleExtensionAdapter(IExtension[Any]):
     """
     @brief Adapts a legacy IModule to the IExtension interface.
     """
@@ -77,11 +76,11 @@ class ExtensionManager:
 
     def __init__(self, context: "IKernelContext") -> None:
         self.context = context
-        self.registered_extensions: list[IExtension] = []
-        self.sorted_extensions: list[IExtension] = []
-        self.initialized_extensions: list[IExtension] = []
+        self.registered_extensions: list[IExtension[Any]] = []
+        self.sorted_extensions: list[IExtension[Any]] = []
+        self.initialized_extensions: list[IExtension[Any]] = []
 
-    def register(self, extension_or_module: IExtension | IModule) -> None:
+    def register(self, extension_or_module: IExtension[Any] | IModule) -> None:
         """
         @brief Registers an IExtension or adapts a legacy IModule.
 
@@ -108,12 +107,6 @@ class ExtensionManager:
         except (RuntimeError, ValueError, TypeError, ImportError) as e:
             self._rollback()
             raise e
-
-    def _get_logger(self) -> "ILogger | None":
-        try:
-            return self.context.logger
-        except AttributeError:
-            return None
 
     def _emit(self, event_name: str, event_data: object) -> None:
         try:
@@ -156,9 +149,7 @@ class ExtensionManager:
                             break
 
                 if deps_satisfied:
-                    logger = self._get_logger()
-                    if logger:
-                        logger.info(f"Initializing extension '{name}'...")
+                    self.context.logger.info(f"Initializing extension '{name}'...")
                     self._emit("extension.initializing", ExtensionInitializing(name))
                     ext.initialize(self.context)
                     self.initialized_extensions.append(ext)
@@ -168,7 +159,7 @@ class ExtensionManager:
             if not initialized_any:
                 break
 
-    def _build_and_sort(self) -> list[IExtension]:
+    def _build_and_sort(self) -> list[IExtension[Any]]:
         """
         @brief Topologically sorts registered and enabled extensions based on dependencies.
         """
@@ -226,87 +217,90 @@ class ExtensionManager:
         @brief Resolves dependencies, initializes remaining extensions, and boots them.
         @details Performs safe rollback/disposal on initialization failure.
         """
-        logger = self._get_logger()
         self.sorted_extensions = self._build_and_sort()
 
         # 1. Initialize stage for any remaining deferred extensions
         for ext in self.sorted_extensions:
             if ext not in self.initialized_extensions:
                 name = ext.descriptor.name
-                if logger:
-                    logger.info(f"Initializing extension '{name}'...")
+                self.context.logger.info(f"Initializing extension '{name}'...")
                 self._emit("extension.initializing", ExtensionInitializing(name))
                 try:
                     ext.initialize(self.context)
                     self.initialized_extensions.append(ext)
                 except (RuntimeError, ValueError, TypeError, ImportError) as e:
-                    if logger:
-                        logger.error(
-                            f"Failed to initialize extension '{name}': {e}. Rolling back..."
-                        )
+                    self.context.logger.error(
+                        f"Failed to initialize extension '{name}': {e}. Rolling back..."
+                    )
                     self._rollback()
                     raise e
 
         # 2. Start stage
         for ext in self.sorted_extensions:
             name = ext.descriptor.name
-            if logger:
-                logger.info(f"Starting extension '{name}'...")
+            self.context.logger.info(f"Starting extension '{name}'...")
             ext.start(self.context)
             self._emit("extension.started", ExtensionStarted(name))
             # 3. Schedule async boot hook if AsyncRuntime is available
             self._schedule_boot_async(ext)
 
-    def _schedule_boot_async(self, ext: IExtension) -> None:
+    def _schedule_boot_async(self, ext: IExtension[Any]) -> None:
         """
         @brief Schedules boot_async() on the AsyncRuntime if available.
         @details No-op if the extension's boot_async is the base class no-op.
         """
         try:
             async_runtime = getattr(self.context, "async_runtime", None)
-            if async_runtime is None or not async_runtime.loop or not async_runtime.loop.is_running():
+            if (
+                async_runtime is None
+                or not async_runtime.loop
+                or not async_runtime.loop.is_running()
+            ):
                 return
             # Only schedule if the extension actually overrides boot_async
             if type(ext).boot_async is IExtension.boot_async:
                 return
             async_runtime.run_coroutine(ext.boot_async(self.context))
         except (RuntimeError, ValueError, TypeError) as e:
-            logger = self._get_logger()
-            if logger:
-                logger.warning(f"[AsyncLifecycle] Could not schedule boot_async for '{ext.descriptor.name}': {e}")
+            self.context.logger.warning(
+                f"[AsyncLifecycle] Could not schedule boot_async for '{ext.descriptor.name}': {e}"
+            )
 
-    def _schedule_shutdown_async(self, ext: IExtension) -> None:
+    def _schedule_shutdown_async(self, ext: IExtension[Any]) -> None:
         """
         @brief Schedules shutdown_async() on the AsyncRuntime and blocks until complete.
         """
         try:
             async_runtime = getattr(self.context, "async_runtime", None)
-            if async_runtime is None or not async_runtime.loop or not async_runtime.loop.is_running():
+            if (
+                async_runtime is None
+                or not async_runtime.loop
+                or not async_runtime.loop.is_running()
+            ):
                 return
             if type(ext).shutdown_async is IExtension.shutdown_async:
                 return
             future = async_runtime.run_coroutine(ext.shutdown_async(self.context))
             future.result(timeout=10.0)
         except (RuntimeError, ValueError, TimeoutError) as e:
-            logger = self._get_logger()
-            if logger:
-                logger.warning(f"[AsyncLifecycle] Could not run shutdown_async for '{ext.descriptor.name}': {e}")
+            self.context.logger.warning(
+                f"[AsyncLifecycle] Could not run shutdown_async for '{ext.descriptor.name}': {e}"
+            )
 
     def _rollback(self) -> None:
         """
         @brief Safe cleanup of initialized extensions in reverse order on failure.
         """
-        logger = self._get_logger()
         for ext in reversed(self.initialized_extensions):
             name = ext.descriptor.name
-            if logger:
-                logger.info(f"Disposing extension '{name}' due to rollback...")
+            self.context.logger.info(f"Disposing extension '{name}' due to rollback...")
             try:
                 ext.dispose(self.context)
                 self._emit("extension.disposed", ExtensionDisposed(name))
             except (RuntimeError, ValueError, TypeError) as e:
-                if logger:
-                    logger.error(f"Error during rollback disposal of '{name}': {e}")
+                self.context.logger.error(
+                    f"Error during rollback disposal of '{name}': {e}"
+                )
         # Clear initialized list since they are now rolled back
         self.initialized_extensions.clear()
 
@@ -314,28 +308,23 @@ class ExtensionManager:
         """
         @brief Stops and disposes extensions in reverse dependency order.
         """
-        logger = self._get_logger()
         for ext in reversed(self.sorted_extensions):
             name = ext.descriptor.name
             # Run async shutdown before sync shutdown
             self._schedule_shutdown_async(ext)
-            if logger:
-                logger.info(f"Stopping extension '{name}'...")
+            self.context.logger.info(f"Stopping extension '{name}'...")
             try:
                 ext.stop(self.context)
                 self._emit("extension.stopped", ExtensionStopped(name))
             except (RuntimeError, ValueError, TypeError) as e:
-                if logger:
-                    logger.error(f"Error stopping extension '{name}': {e}")
+                self.context.logger.error(f"Error stopping extension '{name}': {e}")
 
-            if logger:
-                logger.info(f"Disposing extension '{name}'...")
+            self.context.logger.info(f"Disposing extension '{name}'...")
             try:
                 ext.dispose(self.context)
                 self._emit("extension.disposed", ExtensionDisposed(name))
             except (RuntimeError, ValueError, TypeError) as e:
-                if logger:
-                    logger.error(f"Error disposing extension '{name}': {e}")
+                self.context.logger.error(f"Error disposing extension '{name}': {e}")
 
         self.sorted_extensions.clear()
         self.initialized_extensions.clear()

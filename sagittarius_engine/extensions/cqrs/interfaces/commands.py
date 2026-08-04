@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Generic, TypeVar
+from typing import Generic, TypeVar
 
 from sagittarius_engine.interfaces.i_dispatchable import IDispatchable
 

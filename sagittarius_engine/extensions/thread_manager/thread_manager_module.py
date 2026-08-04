@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from sagittarius_engine.interfaces.i_engine_context import IEngineContext
     from sagittarius_engine.interfaces.i_config import IConfig
 
     from sagittarius_engine.kernel.app import App
@@ -13,14 +12,21 @@ from sagittarius_engine.interfaces.i_thread_manager import (
     IThreadManager,
 )
 from sagittarius_engine.interfaces.i_module import IModule
+from typing import Protocol
+from sagittarius_engine.interfaces.i_container import IContainer
 
 
-class ThreadManagerExtension(IExtension):
+class IThreadManagerContext(Protocol):
+    @property
+    def container(self) -> IContainer: ...
+
+
+class ThreadManagerExtension(IExtension[IThreadManagerContext]):
     """
     @brief Extension for ThreadManager setup.
     """
 
-    def register(self, context: "IEngineContext") -> None:
+    def register(self, context: IThreadManagerContext) -> None:
         # Resolve IConfig to get max_workers setting
         config: Any = context.container.resolve(IConfig)
 
@@ -36,10 +42,10 @@ class ThreadManagerExtension(IExtension):
         thread_manager = ThreadManager(max_workers=max_workers)
         context.container.singleton(IThreadManager, thread_manager)
 
-    def boot(self, context: "IEngineContext") -> None:
+    def boot(self, context: IThreadManagerContext) -> None:
         pass
 
-    def shutdown(self, context: "IEngineContext") -> None:
+    def shutdown(self, context: IThreadManagerContext) -> None:
         pass
 
 

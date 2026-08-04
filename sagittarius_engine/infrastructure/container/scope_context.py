@@ -1,7 +1,5 @@
-import threading
-from contextlib import contextmanager
 from contextvars import ContextVar
-from typing import Any, Generator
+from typing import Any
 
 _current_scope: ContextVar[dict[type, Any] | None] = ContextVar(
     "_current_scope", default=None

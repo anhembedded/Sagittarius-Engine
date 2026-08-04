@@ -1,8 +1,11 @@
-from sagittarius_engine.interfaces import IEngineContext, IExtension
-from sagittarius_engine.extensions.audit.audit_service import AuditService
+from sagittarius_engine.interfaces import IExtension
+from sagittarius_engine.extensions.audit.audit_service import (
+    AuditService,
+    IAuditContext,
+)
 
 
-class AuditExtension(IExtension):
+class AuditExtension(IExtension[IAuditContext]):
     """
     @brief Framework Observability & Diagnostics Extension.
     @details Installs telemetry tracking and optionally an interactive TUI dashboard.
@@ -12,14 +15,14 @@ class AuditExtension(IExtension):
         self.enable_dashboard = enable_dashboard
         self.dependencies = ["HealthExtension"]
 
-    def register(self, context: IEngineContext) -> None:
+    def register(self, context: IAuditContext) -> None:
         """
         @brief Binds the AuditService into the DI container.
         """
         audit_service = AuditService(context)
         context.container.singleton(AuditService, audit_service)
 
-    def boot(self, context: IEngineContext) -> None:
+    def boot(self, context: IAuditContext) -> None:
         """
         @brief Starts the Telemetry HTTP Server if dashboard is enabled.
         """
@@ -27,7 +30,7 @@ class AuditExtension(IExtension):
             audit_service = context.container.resolve(AuditService)
             audit_service.start_server()
 
-    def shutdown(self, context: IEngineContext) -> None:
+    def shutdown(self, context: IAuditContext) -> None:
         """
         @brief Stops the Telemetry HTTP Server.
         """

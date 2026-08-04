@@ -1,7 +1,7 @@
 """Unit tests for TASK-010: Async Lifecycle Support in IExtension."""
+
 import asyncio
 import threading
-import pytest
 from unittest.mock import MagicMock
 from sagittarius_engine.interfaces.i_extension import IExtension
 from sagittarius_engine.interfaces.i_engine_context import IEngineContext

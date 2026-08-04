@@ -1,11 +1,16 @@
 import inspect
 import pytest
 import unittest.mock
-import warnings
 from unittest.mock import MagicMock
 
 from sagittarius_engine.exceptions import ModuleRegistrationError
-from sagittarius_engine.interfaces import IContainer, IEventBus, IExtension, ILogger, IMiddleware, IModule
+from sagittarius_engine.interfaces import (
+    IContainer,
+    IEventBus,
+    IExtension,
+    ILogger,
+    IMiddleware,
+)
 from sagittarius_engine.kernel.app import App
 from sagittarius_engine.kernel.context import EngineContext
 
@@ -22,6 +27,7 @@ def test_app_snippet_init():
 
     assert getattr(app, "_container", None) is container_mock
 
+
 def test_app_production_init():
     """Test the original production code's __init__ method."""
     sig = inspect.signature(App.__init__)
@@ -32,11 +38,14 @@ def test_app_production_init():
     event_bus_mock = MagicMock(spec=IEventBus)
 
     # Using patch to avoid actually instantiating EngineContext
-    with unittest.mock.patch('sagittarius_engine.kernel.app.EngineContext') as mock_context:
+    with unittest.mock.patch(
+        "sagittarius_engine.kernel.app.EngineContext"
+    ) as mock_context:
         app = App(container=container_mock, event_bus=event_bus_mock)
 
         mock_context.assert_called_once_with(app, container_mock, event_bus_mock)
         assert app.context == mock_context.return_value
+
 
 def test_app_properties():
     app = App.__new__(App)
@@ -53,6 +62,7 @@ def test_app_properties():
     assert app.pipeline is app.context.middleware_pipeline
     assert app.lifecycle is app.context.lifecycle
 
+
 def test_app_use_success():
     app = App.__new__(App)
     app.context = MagicMock()
@@ -62,6 +72,7 @@ def test_app_use_success():
     app.use(extension_mock)
 
     app.context.extension_manager.register.assert_called_once_with(extension_mock)
+
 
 def test_app_use_type_error():
     app = App.__new__(App)
@@ -74,6 +85,7 @@ def test_app_use_type_error():
     with pytest.raises(ModuleRegistrationError, match="Invalid module"):
         app.use(extension_mock)
 
+
 def test_app_use_middleware():
     app = App.__new__(App)
     app.context = MagicMock()
@@ -84,6 +96,7 @@ def test_app_use_middleware():
 
     app.context.middleware_pipeline.add.assert_called_once_with(middleware_mock)
 
+
 def test_app_get_logger():
     app = App.__new__(App)
     app.context = MagicMock()
@@ -91,6 +104,7 @@ def test_app_get_logger():
     app.context.logger = logger_mock
 
     assert app._get_logger() is logger_mock
+
 
 def test_app_boot():
     app = App.__new__(App)
@@ -100,6 +114,7 @@ def test_app_boot():
     app.boot("some_path")
 
     app.context.bootstrap.boot.assert_called_once_with("some_path")
+
 
 def test_app_dispatch():
     app = App.__new__(App)
@@ -115,6 +130,7 @@ def test_app_dispatch():
     assert result == "result"
     app.context.dispatcher.dispatch.assert_called_once_with(handler_class, input_dto)
 
+
 def test_app_execute_deprecated():
     app = App.__new__(App)
     app.context = MagicMock()
@@ -124,11 +140,14 @@ def test_app_execute_deprecated():
     command_class = MagicMock()
     input_dto = MagicMock()
 
-    with pytest.warns(DeprecationWarning, match="App.execute is deprecated. Use App.dispatch instead."):
+    with pytest.warns(
+        DeprecationWarning, match="App.execute is deprecated. Use App.dispatch instead."
+    ):
         result = app.execute(command_class, input_dto)
 
     assert result == "result"
     app.context.dispatcher.dispatch.assert_called_once_with(command_class, input_dto)
+
 
 def test_app_query_deprecated():
     app = App.__new__(App)
@@ -139,11 +158,14 @@ def test_app_query_deprecated():
     query_class = MagicMock()
     input_dto = MagicMock()
 
-    with pytest.warns(DeprecationWarning, match="App.query is deprecated. Use App.dispatch instead."):
+    with pytest.warns(
+        DeprecationWarning, match="App.query is deprecated. Use App.dispatch instead."
+    ):
         result = app.query(query_class, input_dto)
 
     assert result == "result"
     app.context.dispatcher.dispatch.assert_called_once_with(query_class, input_dto)
+
 
 def test_app_stop_already_stopped():
     app = App.__new__(App)
@@ -154,6 +176,7 @@ def test_app_stop_already_stopped():
     app.stop()
 
     app.context.lifecycle.set_stopping.assert_not_called()
+
 
 def test_app_stop_success():
     app = App.__new__(App)
@@ -173,7 +196,10 @@ def test_app_stop_success():
     app.context.async_runtime.stop.assert_called_once()
     app.context.event_bus.shutdown.assert_called_once()
     app.context.lifecycle.set_stopped.assert_called_once()
-    assert logger_mock.info.call_count == 2 # App is stopping gracefully... and App stopped.
+    assert (
+        logger_mock.info.call_count == 2
+    )  # App is stopping gracefully... and App stopped.
+
 
 def test_app_stop_exceptions_logged():
     app = App.__new__(App)
@@ -186,7 +212,9 @@ def test_app_stop_exceptions_logged():
     # Give all components side effects to raise exceptions
     app.context.scheduler.stop.side_effect = Exception("scheduler error")
     app.context.hosted_services.stop.side_effect = Exception("hosted services error")
-    app.context.extension_manager.stop_and_dispose.side_effect = Exception("extension error")
+    app.context.extension_manager.stop_and_dispose.side_effect = Exception(
+        "extension error"
+    )
     app.context.tasks.shutdown.side_effect = Exception("tasks error")
     app.context.async_runtime.stop.side_effect = Exception("async runtime error")
     app.context.event_bus.shutdown.side_effect = Exception("event bus error")

@@ -35,9 +35,11 @@ class DummyContainer(IContainer):
 
     def create_scope(self):
         from contextlib import contextmanager
+
         @contextmanager
         def _noop():
             yield
+
         return _noop()
 
 
