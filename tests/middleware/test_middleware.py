@@ -4,8 +4,12 @@ from sagittarius_engine.interfaces import IMiddleware
 
 class DummyMiddleware(IMiddleware):
     def __init__(self, name: str, tracer: list):
-        self.name = name
+        self._name = name
         self.tracer = tracer
+
+    @property
+    def name(self) -> str:
+        return self._name
 
     def process(self, cmd_or_query, data_transfer_obj, next_handler):
         self.tracer.append(f"{self.name}_start")

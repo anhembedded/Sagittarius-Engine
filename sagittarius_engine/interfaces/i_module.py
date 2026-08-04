@@ -20,6 +20,13 @@ class IModule(ABC):
     @endcode
     """
 
+    @property
+    def name(self) -> str:
+        """
+        @brief Return the module's name. Defaults to the class name.
+        """
+        return self.__class__.__name__
+
     @abstractmethod
     def register(self, app: "App") -> None:
         """

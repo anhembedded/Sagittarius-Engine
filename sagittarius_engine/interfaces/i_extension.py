@@ -27,6 +27,13 @@ class IExtension(ABC):
     """Interface for Sagittarius Engine Extensions."""
 
     @property
+    def name(self) -> str:
+        """
+        @brief Return the extension's name. Defaults to the class name.
+        """
+        return self.__class__.__name__
+
+    @property
     def descriptor(self) -> ExtensionDescriptor:
         """
         @brief Return the extension descriptor. Defaults to class name and attributes.

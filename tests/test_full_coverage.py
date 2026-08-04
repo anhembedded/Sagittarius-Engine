@@ -456,8 +456,12 @@ def test_thread_pool_event_bus__handler_error_no_crash_and_parallelism():
 
 class DummyMiddleware(IMiddleware):
     def __init__(self, name):
-        self.name = name
+        self._name = name
         self.calls = []
+
+    @property
+    def name(self) -> str:
+        return self._name
 
     def process(self, cmd_or_query, data_transfer_obj, next_handler):
         self.calls.append(f"{self.name}_before")
