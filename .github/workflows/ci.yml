@@ -40,14 +40,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
 
-      - name: Ruff — lint
-        run: ruff check sagittarius_engine tests
-
-      - name: Ruff — format check
-        run: ruff format --check sagittarius_engine tests
-
-      - name: mypy — type check
-        run: mypy sagittarius_engine tests --ignore-missing-imports --follow-imports=skip
+      - name: Run Linting Script
+        shell: pwsh
+        run: ./lint.ps1
 
   # ──────────────────────────────────────────────────────────────
   # Job 2: Test Matrix (Python 3.14 dev on Linux & Windows)
