@@ -46,3 +46,6 @@ trigger: always_on
    - Every Application Use Case must reside in its own dedicated directory (e.g., `src/application/use_cases/my_use_case/`).
    - The Command/Response definition must be separated from the Handler logic into multiple files (e.g., `command.py` and `handler.py`), and then exported cleanly via `__init__.py`.
    - Never import engine-specific interfaces (like `sagittarius_engine.extensions.cqrs.ICommand`) into the Application layer. Use the layer's own pure Python `ICommandHandler` interface.
+
+9. **Git Commits & Version Control:**
+   - **DO NOT** commit code changes (e.g., using `git commit`) autonomously unless the user explicitly requests you to do so. Always wait for explicit permission before saving changes to version control.
