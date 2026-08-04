@@ -18,6 +18,7 @@ Welcome to the central task management hub for **Sagittarius Engine**. This dire
 | **TASK-012** | DI Container Scoped Lifecycle | Infrastructure / Dependency Injection | 2026-08-02 | [TASK-012_di_container_scoped_lifecycle.md](completed/TASK-012_di_container_scoped_lifecycle.md) |
 | **TASK-013** | Engine Context God Object Prevention | Core Architecture / Clean Architecture | 2026-08-02 | [TASK-013_engine_context_god_object_prevention.md](completed/TASK-013_engine_context_god_object_prevention.md) |
 | **TASK-014** | CQRS Dispatcher Type Safety (TOutput Resolution) | Core Architecture / Type Safety | 2026-08-02 | [TASK-014_cqrs_type_safety_overload.md](completed/TASK-014_cqrs_type_safety_overload.md) |
+| **TASK-015** | Framework Logging & Null Object Pattern | Core Architecture / Observability | 2026-08-04 | [TASK-015_framework_logging_null_object.md](completed/TASK-015_framework_logging_null_object.md) |
 
 ### 🟡 In Progress (`Tasks/in_progress/`)
 
@@ -30,7 +31,6 @@ Welcome to the central task management hub for **Sagittarius Engine**. This dire
 
 | **TASK-007** | Kernel Reliability and OSS Readiness | Reliability / Open Source Polish | P2 - Medium | [TASK-007_kernel_reliability_oss_readiness.md](backlog/TASK-007_kernel_reliability_oss_readiness.md) |
 | **TASK-008** | Context Decoupling Program | Core Architecture / Service Boundaries | P2 - Medium | [TASK-008_context_decoupling_program.md](backlog/TASK-008_context_decoupling_program.md) |
-| **TASK-015** | Framework Logging & Null Object Pattern | Core Architecture / Observability | P2 - Medium | [TASK-015_framework_logging_null_object.md](backlog/TASK-015_framework_logging_null_object.md) |
 | **TASK-016** | Formalize `name` Method on Interfaces | Core Architecture / Interfaces | P3 - Low | [TASK-016_interface_name_property.md](backlog/TASK-016_interface_name_property.md) |
 
 ---
@@ -43,7 +43,6 @@ Tasks/
 ├── backlog/                            # Planned Task Specifications & Proposals
 │   ├── TASK-007_kernel_reliability_oss_readiness.md
 │   ├── TASK-008_context_decoupling_program.md
-│   ├── TASK-015_framework_logging_null_object.md
 │   └── TASK-016_interface_name_property.md
 ├── issue-report/                       # High-impact Architecture Issue Report
 │   ├── issue.md
@@ -57,5 +56,6 @@ Tasks/
 │   ├── TASK-011_strict_extension_adapter_typing.md
 │   ├── TASK-012_di_container_scoped_lifecycle.md
 │   ├── TASK-013_engine_context_god_object_prevention.md
-│   └── TASK-014_cqrs_type_safety_overload.md
+│   ├── TASK-014_cqrs_type_safety_overload.md
+│   └── TASK-015_framework_logging_null_object.md
 ```
