@@ -41,3 +41,8 @@ trigger: always_on
 7. **Clean Architecture Layer Enforcement:**
    - Always strictly respect the 4 Layers: Domain (Pure), Application (Use Cases/Ports), Interface Adapters (CLI/UI), and Infrastructure (DB/API/Frameworks).
    - Never leak Infrastructure concerns (like `sagittarius_engine` base classes, SQLAlchemy, or API clients) into the Domain or Application layers.
+
+8. **Use Case Structure (CQRS):**
+   - Every Application Use Case must reside in its own dedicated directory (e.g., `src/application/use_cases/my_use_case/`).
+   - The Command/Response definition must be separated from the Handler logic into multiple files (e.g., `command.py` and `handler.py`), and then exported cleanly via `__init__.py`.
+   - Never import engine-specific interfaces (like `sagittarius_engine.extensions.cqrs.ICommand`) into the Application layer. Use the layer's own pure Python `ICommandHandler` interface.
