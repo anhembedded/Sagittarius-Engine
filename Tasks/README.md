@@ -27,10 +27,7 @@ Welcome to the central task management hub for **Sagittarius Engine**. This dire
 
 | Task ID | Title | Category | Priority | Spec File |
 | --- | --- | --- | --- | --- |
-| **TASK-003** | End-to-End Async Pipeline | Core Engine / Trading Domain | P1 - High | [TASK-003_async_pipeline.md](backlog/TASK-003_async_pipeline.md) |
-| **TASK-004** | Core Engine Test Coverage Suite | Testing & Quality Assurance | P2 - Medium | [TASK-004_test_coverage_suite.md](backlog/TASK-004_test_coverage_suite.md) |
-| **TASK-005** | Runtime Concurrency Hardening | Runtime / Concurrency | P1 - High | [TASK-005_runtime_concurrency_hardening.md](backlog/TASK-005_runtime_concurrency_hardening.md) |
-| **TASK-006** | Extension and Event Bus Contract Consistency | Architecture / Event Bus & Extensions | P1 - High | [TASK-006_extension_eventbus_contracts.md](backlog/TASK-006_extension_eventbus_contracts.md) |
+
 | **TASK-007** | Kernel Reliability and OSS Readiness | Reliability / Open Source Polish | P2 - Medium | [TASK-007_kernel_reliability_oss_readiness.md](backlog/TASK-007_kernel_reliability_oss_readiness.md) |
 | **TASK-008** | Context Decoupling Program | Core Architecture / Service Boundaries | P2 - Medium | [TASK-008_context_decoupling_program.md](backlog/TASK-008_context_decoupling_program.md) |
 | **TASK-015** | Framework Logging & Null Object Pattern | Core Architecture / Observability | P2 - Medium | [TASK-015_framework_logging_null_object.md](backlog/TASK-015_framework_logging_null_object.md) |
@@ -44,10 +41,6 @@ Welcome to the central task management hub for **Sagittarius Engine**. This dire
 Tasks/
 ├── README.md                           # Master Kanban Board & Overview
 ├── backlog/                            # Planned Task Specifications & Proposals
-│   ├── TASK-003_async_pipeline.md
-│   ├── TASK-004_test_coverage_suite.md
-│   ├── TASK-005_runtime_concurrency_hardening.md
-│   ├── TASK-006_extension_eventbus_contracts.md
 │   ├── TASK-007_kernel_reliability_oss_readiness.md
 │   ├── TASK-008_context_decoupling_program.md
 │   ├── TASK-015_framework_logging_null_object.md
