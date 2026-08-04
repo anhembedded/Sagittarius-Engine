@@ -40,7 +40,12 @@ async def test_audit_broadcaster_sends_updates():
     context.hosted_services = MagicMock()
 
     # Create and start AuditService on a test port
-    test_port = 9998
+    import socket
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(("127.0.0.1", 0))
+    test_port = s.getsockname()[1]
+    s.close()
     audit_service = AuditService(context, port=test_port)
 
     # Mock _get_full_state to avoid JSON serialization errors with MagicMock

@@ -51,9 +51,6 @@ class IExtension(ABC, Generic[TContext]):
             enabled=enabled if isinstance(enabled, bool) else True,
         )
 
-    def name(self) -> str:
-        return self.__class__.__name__
-
     @abstractmethod
     def register(self, context: TContext) -> None:
         """

@@ -36,7 +36,7 @@ def test_middleware_pipeline_execution_order():
 
 
 def test_transaction_middleware_commits_on_success():
-    from sagittarius_engine.middleware.transaction_middleware import (
+    from sagittarius_engine.extensions.persistence.transaction_middleware import (
         TransactionMiddleware,
     )
     from sagittarius_engine.interfaces import IContainer
@@ -60,7 +60,7 @@ def test_transaction_middleware_commits_on_success():
 
 
 def test_transaction_middleware_rollbacks_on_exception():
-    from sagittarius_engine.middleware.transaction_middleware import (
+    from sagittarius_engine.extensions.persistence.transaction_middleware import (
         TransactionMiddleware,
     )
     from sagittarius_engine.interfaces import IContainer

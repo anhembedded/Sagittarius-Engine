@@ -87,3 +87,8 @@ files = ["sagittarius_engine", "tests"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+pythonpath = "."
+filterwarnings = [
+    "ignore:.*websockets.legacy is deprecated.*:DeprecationWarning",
+    "ignore:.*websockets.WebSocketClientProtocol is deprecated.*:DeprecationWarning"
+]
