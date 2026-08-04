@@ -1,60 +1,42 @@
-Your **Sagittarius Engine** has reached a very high level of maturity, especially with the clear separation between `kernel`, `runtime`, and `extensions`[cite: 3]. However, when viewed through the lens of a Production-ready system (especially for 24/7 Trading Bots or IoT), the current codebase hides several critical bugs, architectural risks, and memory bottlenecks.
+Needs Architectural Adjustment
+Issue 1.2: DI Container Factory Loss
 
-Here is an in-depth analysis report of the issues that need immediate fixing:
+Your Plan: Pop the factory, try _resolve(), and if it fails, push the factory back.
 
-## 🔥 1. Critical Bugs
+Architect's Take: While this works, it's an anti-pattern (modify state -> attempt -> rollback state).
 
-### 1.1. System Deadlock in IPC Broker
-*   **Location:** `infrastructure/event_bus/ipc_broker.py`, `_run()` method[cite: 3].
-*   **Issue:** When `IPCBroker` receives an event from the `publish_queue` and distributes it to the `subscriber_queues`, the code uses `sub_queue.put((event_name, data))` without any `timeout` or `queue.Full` handling[cite: 3].
-*   **Consequence:** If a child process (subscriber) crashes, hangs, or processes slowly causing its queue to fill up, the `put()` method of `IPCBroker` will block indefinitely[cite: 3]. This instantly "freezes" the entire cross-process Event Bus system.
-*   **Solution:** Add a timeout and catch the `queue.Full` exception to drop blocked subscribers.
-    ```python
-    try:
-        sub_queue.put((event_name, data), timeout=0.1)
-    except queue.Full:
-        self._logger.warning(f"Subscriber queue full, dropping event {event_name}")
-    ```
+Better Approach: Only remove the factory after successful resolution.
 
-### 1.2. Factory Loss in DI Container on Error
-*   **Location:** `infrastructure/container/std_container.py`, `singleton()` method[cite: 3].
-*   **Issue:** When registering a class as a singleton (`instance_or_factory` is `type`), you create a `_lazy_factory`[cite: 3]. Inside this function, you immediately call `c._factories.pop(_abstract, None)` before calling `_resolve()`[cite: 3].
-*   **Consequence:** If `_resolve()` raises an exception (e.g., missing dependency), the factory is already removed from the `_factories` dictionary. Subsequent calls to `resolve()` for that abstract will permanently fail because the container has completely "forgotten" how to instantiate it[cite: 3].
-*   **Solution:** Only remove the factory from `_factories` after `_resolve()` succeeds and the object is assigned to `_instances`.
+Python
+def _lazy_factory(c, _abstract=abstract, _cls=concrete):
+    # Don't pop yet
+    instance = c._resolve(_cls, set())
+    c._factories.pop(_abstract, None) # Only pop upon success
+    return instance
+Issue 3.1: Memory Leak Risk in Task Manager
 
----
+Your Plan: Cap retained tasks to 10 and clear bg_task.future = None and bg_task.error = None to free memory.
 
-## ⚠️ 2. Architectural Risks (Principle Violations)
+Architect's Take: Setting bg_task.error = None is dangerous. You are destroying the forensic evidence of why the task failed. If an admin queries the Audit API to see failed background tasks, they will just see "FAILED" with no stack trace or error message.
 
-### 2.1. Core Middleware Coupled to Extension
-*   **Location:** `middleware/transaction_middleware.py`[cite: 3].
-*   **Issue:** The engine is designed with the philosophy that "Core knows nothing about Extensions". However, `TransactionMiddleware` (located in the core `middleware/` directory) directly imports `ISession` from `sagittarius_engine.extensions.persistence`[cite: 3].
-*   **Consequence:** If a user creates a Minimal or MVC project that does not use the Database Extension, the application will crash upon import because the `persistence` module won't be found[cite: 3].
-*   **Solution:** Move `TransactionMiddleware` into the `extensions/persistence/` directory[cite: 3]. The engine should only provide the `IMiddleware` interface[cite: 3], while the database extension provides its own transaction management middleware.
+Better Approach: Before setting the error to None, extract the string representation so the API still has data:
+bg_task.error_message = str(bg_task.error); bg_task.error = None.
 
-### 2.2. Deep Hooking into Python Internals
-*   **Location:** `runtime/tasks/task_manager.py`, `DaemonThreadPoolExecutor` class[cite: 3].
-*   **Issue:** You are attempting to hack into the internals of the standard `concurrent.futures.thread` library (accessing `_worker`, `_threads_queues`) to force threads to become daemons[cite: 3].
-*   **Consequence:** The internal structure of `concurrent.futures` changes constantly across Python versions (3.8, 3.9, 3.12). This code is highly prone to breaking (crashing) when a user upgrades their Python version.
-*   **Solution:** There is no need for `DaemonThreadPoolExecutor`. Just use the standard `ThreadPoolExecutor` and ensure you call `executor.shutdown(wait=False, cancel_futures=True)`[cite: 3] inside the `stop()` method or during system cleanup.
+Issue 3.3: Incomplete Graceful Shutdown
 
----
+Your Plan: Run blocking shutdown steps in a short-lived thread and use thread.join(timeout=5).
 
-## 💡 3. Bottlenecks and Improvements
+Architect's Take: This is a classic Python concurrency trap. thread.join(timeout) does NOT kill the thread. It simply unblocks the main thread. The runaway thread will continue executing in the background. If it is not a daemon thread, it will prevent the Python interpreter from exiting entirely. If it is a daemon thread, the OS will abruptly terminate it when the main process exits, potentially causing database corruption.
 
-### 3.1. Memory Leak Risk in Task Manager
-*   **Location:** `runtime/tasks/task_manager.py`, `_cleanup_old_tasks()` method[cite: 3].
-*   **Issue:** You are using "magic numbers" logic: If the number of tasks > 200, clean up and keep the last 50 tasks (`[:-50]`)[cite: 3].
-*   **Consequence:** This means there will always be around 50 to 200 `BackgroundTask` objects (along with their `Exception`, `CancellationToken`, and accompanying closure variables) floating in RAM[cite: 3]. If the payload passed into the tasks is large, memory will bloat very quickly.
-*   **Solution:** Allow configuring a `max_retained_tasks` parameter via `IConfig`, or completely clear finished tasks after a certain TTL (Time To Live, e.g., 5 minutes).
+Better Approach: For extensions, prefer calling ext.shutdown_async() wrapped in asyncio.wait_for(..., timeout=5.0). For synchronous shutdowns, you can use the thread approach, but you must ensure the thread is initialized with daemon=True so it doesn't hold the process hostage.
 
-### 3.2. Security Flaw in Audit WebSocket
-*   **Location:** `extensions/audit/infra/websocket_broadcaster.py`[cite: 3].
-*   **Issue:** `WebsocketBroadcaster` automatically opens port `0.0.0.0:9999`[cite: 3] and broadcasts the entire system state (including config keys, database state, cpu/ram) to anyone who connects, without any Authentication mechanism.
-*   **Consequence:** If the application is deployed to production and you forget to block the port via Firewall, sensitive system information will be completely exposed to the Internet.
-*   **Solution:** It should default to binding to `127.0.0.1` instead of `0.0.0.0`[cite: 3]. Add a simple token mechanism to the WebSocket connection string (e.g., `ws://host:port?token=XYZ`).
+🚨 The Missing Pieces (Phase 2 Bugs)
+Your plan completely omits the Phase 2 Critical Bugs that were identified in the previous system analysis. If you deploy this to production, the engine will still fail on data validation and async task execution.
 
-### 3.3. Incomplete Graceful Shutdown
-*   **Location:** `kernel/app.py`, `stop()` method[cite: 3].
-*   **Issue:** The shutdown command uses multiple consecutive `try...except` blocks[cite: 3]. However, if the `stop()` method of any single Extension blocks (e.g., due to an infinite loop or waiting on socket IO), the entire App shutdown process will hang indefinitely.
-*   **Solution:** Use `asyncio.wait_for` or a timeout mechanism (e.g., `threading.Thread.join(timeout=...)`) for each cleanup process to ensure the App can always shut down even if a child module fails.
+You must append the following to your implementation plan:
+
+Silent DTO Discard (Middleware): The pipeline uses functools.partial, which freezes the unvalidated DTO. Reassigning data_transfer_obj inside PydanticValidationMiddleware does nothing. The pipeline signature must be updated to pass modified objects down the chain.
+
+Async Task Spawn Crash: TaskManager.spawn() blindly passes the cancellation token to async functions without checking their signature via inspect.
+
+Incorrect Asyncio Teardown: AsyncRuntime.stop() stops the loop before cancelling pending tasks, meaning the tasks never receive the CancelledError and socket connections remain hanging.
