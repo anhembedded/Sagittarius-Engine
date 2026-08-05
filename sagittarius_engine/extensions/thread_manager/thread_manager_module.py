@@ -46,7 +46,11 @@ class ThreadManagerExtension(IExtension[IThreadManagerContext]):
         pass
 
     def shutdown(self, context: IThreadManagerContext) -> None:
-        pass
+        thread_manager = context.container.resolve(IThreadManager)
+        if thread_manager:
+            # wait=False ensures we do not block the shutdown sequence
+            # (though individual tasks should still implement cancellation tokens)
+            thread_manager.shutdown(wait=False)
 
 
 class ThreadManagerModule(IModule):
