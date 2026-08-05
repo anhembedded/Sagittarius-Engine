@@ -88,6 +88,7 @@ class MainWindow(QMainWindow):
             }
             QTableWidget {
                 background-color: #21252b;
+                alternate-background-color: #282c34;
                 gridline-color: #2c313c;
                 border: 1px solid #181a1f;
                 selection-background-color: #3e4451;
@@ -173,6 +174,10 @@ class MainWindow(QMainWindow):
         )
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.table.setAlternatingRowColors(True)
+        self.table.verticalHeader().setVisible(False)
+        self.table.setAccessibleName("Student Database Table")
+        self.table.setAccessibleDescription("A table displaying the registered students with their ID, name, age, gender, major, and GPA.")
         left_layout.addWidget(self.table)
 
         main_layout.addWidget(left_widget, stretch=7)
@@ -190,6 +195,8 @@ class MainWindow(QMainWindow):
         right_layout.addWidget(log_title)
 
         self.log_list = QListWidget()
+        self.log_list.setAccessibleName("Event Bus Logs")
+        self.log_list.setAccessibleDescription("A list displaying real-time system events and logs.")
         right_layout.addWidget(self.log_list)
 
         # Progress Header
@@ -201,6 +208,8 @@ class MainWindow(QMainWindow):
         self.progress_bar = QProgressBar()
         self.progress_bar.setRange(0, 100)
         self.progress_bar.setValue(0)
+        self.progress_bar.setAccessibleName("Report Generation Progress")
+        self.progress_bar.setAccessibleDescription("A progress bar showing the completion percentage of the async GPA report generation task.")
         right_layout.addWidget(self.progress_bar)
 
         self.report_label = QLabel("Waiting for report generation task...")
