@@ -13,3 +13,6 @@
 ## 2025-05-18 - Lock Contention in DI Container Resolution
 **Learning:** Using locks around thread-safe dictionary reads (like `dict.get()`) during dependency resolution (`StdLibContainer._resolve`) causes unnecessary thread contention. In CPython, dictionary read operations are atomic and thread-safe due to the Global Interpreter Lock (GIL).
 **Action:** Perform read-only dictionary lookups (e.g., `_factories.get`, `_resolution_cache.get`) lock-free outside of `threading.RLock()` blocks. Only acquire the lock when performing modifications or when executing logic that isn't inherently thread-safe (using double-checked locking).
+## 2025-05-24 - Extension Initialization Sorting Overhead
+**Learning:** Re-sorting a list (`sorted_exts = sorted(...)`) inside a `while` loop during extension initialization causes redundant O(N log N) operations for every iteration when the underlying list being sorted (`enabled_exts`) does not change.
+**Action:** Ensure invariant operations such as sorting lists are hoisted outside of while or for loops to prevent redundant computational overhead.
