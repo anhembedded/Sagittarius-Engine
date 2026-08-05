@@ -31,6 +31,7 @@ rules:
   - commit-rule.md
   - deployment.md
   - task-tracking.md
+  - ui-architecture.md
 
 skills:
   - implement-module.md
