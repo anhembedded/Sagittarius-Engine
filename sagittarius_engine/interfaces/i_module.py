@@ -46,3 +46,13 @@ class IModule(ABC):
         @param app The current application instance.
         """
         ...
+
+    @abstractmethod
+    def shutdown(self, app: "App") -> None:
+        """
+        @brief Called when the application is stopping.
+        @details Used to cleanly release resources, stop background tasks, etc.
+
+        @param app The current application instance.
+        """
+        ...

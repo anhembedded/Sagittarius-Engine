@@ -18,3 +18,6 @@ class BaseModule(IModule):
 
     def boot(self, app: "App") -> None:
         pass
+
+    def shutdown(self, app: "App") -> None:
+        pass

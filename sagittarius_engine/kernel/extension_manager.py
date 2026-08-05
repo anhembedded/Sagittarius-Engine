@@ -53,7 +53,12 @@ class ModuleExtensionAdapter(IExtension[Any]):
         self.legacy_module.boot(kernel_ctx.app)
 
     def shutdown(self, context: "IEngineContext") -> None:
-        pass
+        from typing import cast
+        
+        kernel_ctx = cast("IKernelContext", context)
+        # Check for backwards compatibility with modules written before IModule had shutdown
+        if hasattr(self.legacy_module, "shutdown"):
+            self.legacy_module.shutdown(kernel_ctx.app)
 
     def __getattr__(self, name: str) -> object:
         return getattr(self.legacy_module, name)
