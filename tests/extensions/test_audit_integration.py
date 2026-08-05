@@ -46,7 +46,7 @@ async def test_audit_broadcaster_sends_updates():
     s.bind(("127.0.0.1", 0))
     test_port = s.getsockname()[1]
     s.close()
-    audit_service = AuditService(context, port=test_port)
+    audit_service = AuditService(context, port=test_port, token="XYZ")
 
     # Mock _get_full_state to avoid JSON serialization errors with MagicMock
     audit_service._get_full_state = MagicMock(
@@ -68,7 +68,7 @@ async def test_audit_broadcaster_sends_updates():
     try:
         from websockets.asyncio.client import connect
 
-        async with connect(f"ws://127.0.0.1:{test_port}") as websocket:
+        async with connect(f"ws://127.0.0.1:{test_port}/?token=XYZ") as websocket:
             # 3. Verify Initial State
             # The server pushes 'initial_state' immediately upon connection
             initial_message = await websocket.recv()
@@ -95,7 +95,7 @@ async def test_audit_broadcaster_sends_updates():
 
     except ImportError:
         # Fallback for older websockets API
-        async with websockets.connect(f"ws://127.0.0.1:{test_port}") as websocket:
+        async with websockets.connect(f"ws://127.0.0.1:{test_port}/?token=XYZ") as websocket:
             initial_message = await websocket.recv()
             initial_data = json.loads(initial_message)
             received_messages.append(initial_data)

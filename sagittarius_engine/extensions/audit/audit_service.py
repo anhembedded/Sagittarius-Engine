@@ -32,15 +32,24 @@ class AuditService:
     @brief Collects telemetry and metrics from the EngineContext for the Audit Dashboard.
     """
 
-    def __init__(self, context: IAuditContext, port: int = 9999) -> None:
+    def __init__(self, context: IAuditContext, port: int = 9999, token: str = "") -> None:
+        import os
+        import secrets
+
         self.context: IAuditContext = context
         self.port: int = port
+
+        # Load token securely from environment variables, or fallback to passed token, or generate a random secure token
+        self.token: str = os.getenv("AUDIT_WEBSOCKET_TOKEN", token)
+        if not self.token:
+            self.token = secrets.token_urlsafe(32)
+
         self.start_time: datetime = datetime.now(timezone.utc)
         self._logger: logging.Logger = logging.getLogger("AuditService")
         self.recent_events: deque = deque(maxlen=100)
 
         # Initialize the broadcaster
-        self.broadcaster = WebsocketBroadcaster(port=self.port)
+        self.broadcaster = WebsocketBroadcaster(port=self.port, token=self.token)
         self.broadcaster.on_new_client_callback = self._get_full_state
 
         self._subscribe_events()

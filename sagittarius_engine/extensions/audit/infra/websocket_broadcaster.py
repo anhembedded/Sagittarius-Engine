@@ -3,6 +3,7 @@ import json
 import logging
 import threading
 import sys
+from urllib.parse import urlparse, parse_qs
 from typing import Any, Dict, Set, Callable, Optional
 from ..ports import ITelemetryBroadcaster
 
@@ -17,9 +18,15 @@ except ImportError:
 
 
 class WebsocketBroadcaster(ITelemetryBroadcaster):
-    def __init__(self, host: str = "0.0.0.0", port: int = 9999):
+    def __init__(self, host: str = "127.0.0.1", port: int = 9999, token: str = ""):
+        import os
+        import secrets
+
         self.host = host
         self.port = port
+        self.token = os.getenv("AUDIT_WEBSOCKET_TOKEN", token)
+        if not self.token:
+            self.token = secrets.token_urlsafe(32)
         self.clients: Set[Any] = set()
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._thread: Optional[threading.Thread] = None
@@ -30,6 +37,20 @@ class WebsocketBroadcaster(ITelemetryBroadcaster):
         self.on_new_client_callback: Optional[Callable[[], Dict[str, Any]]] = None
 
     async def _handler(self, websocket, *args, **kwargs):
+        if hasattr(websocket, "request"):
+            path = websocket.request.path
+        else:
+            path = getattr(websocket, "path", "")
+
+        parsed = urlparse(path)
+        qs = parse_qs(parsed.query)
+        client_token = qs.get("token", [None])[0]
+
+        if client_token != self.token:
+            self._logger.warning(f"Rejected connection from {websocket.remote_address} due to invalid token.")
+            await websocket.close(code=1008, reason="Authentication failed")
+            return
+
         self.clients.add(websocket)
         self._logger.info(f"New client connected: {websocket.remote_address}")
 
