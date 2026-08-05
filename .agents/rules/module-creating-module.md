@@ -199,8 +199,10 @@ class IUserRepository(ABC):
 ### 4.4 Write Use Cases (Command/Query)
 ```python
 # application/commands/create_user.py
+from dataclasses import dataclass
 
-class CreateUserCommand(ICommand):
+@dataclass(frozen=True)
+class CreateUserCommand:
     def __init__(self, repo: IUserRepository, event_bus: IEventBus):
         self.repo = repo
         self.event_bus = event_bus
