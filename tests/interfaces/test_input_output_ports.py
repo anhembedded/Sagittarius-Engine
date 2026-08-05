@@ -64,7 +64,11 @@ def test_batch_input_port_csv_normal():
         tmp_path = tmp.name
 
     try:
-        port = BatchInputPort(file_path=tmp_path, file_type=FILE_TYPE_CSV)
+        port = BatchInputPort(
+            file_path=tmp_path,
+            file_type=FILE_TYPE_CSV,
+            base_path=os.path.dirname(tmp_path),
+        )
 
         row1 = port.receive()
         assert row1 == {"id": "1", "name": "Alice"}
@@ -84,7 +88,11 @@ def test_batch_input_port_csv_empty():
         tmp_path = tmp.name
 
     try:
-        port = BatchInputPort(file_path=tmp_path, file_type=FILE_TYPE_CSV)
+        port = BatchInputPort(
+            file_path=tmp_path,
+            file_type=FILE_TYPE_CSV,
+            base_path=os.path.dirname(tmp_path),
+        )
 
         row1 = port.receive()
         assert row1 == {COMMAND_KEY: EXIT_COMMAND}
@@ -99,7 +107,11 @@ def test_batch_input_port_json_normal():
         tmp_path = tmp.name
 
     try:
-        port = BatchInputPort(file_path=tmp_path, file_type=FILE_TYPE_JSON)
+        port = BatchInputPort(
+            file_path=tmp_path,
+            file_type=FILE_TYPE_JSON,
+            base_path=os.path.dirname(tmp_path),
+        )
 
         row1 = port.receive()
         assert row1 == {"id": "1", "name": "Alice"}
@@ -120,7 +132,11 @@ def test_batch_input_port_json_invalid(caplog):
 
     try:
         mock_logger = MagicMock()
-        port = BatchInputPort(file_path=tmp_path, file_type=FILE_TYPE_JSON)
+        port = BatchInputPort(
+            file_path=tmp_path,
+            file_type=FILE_TYPE_JSON,
+            base_path=os.path.dirname(tmp_path),
+        )
         port.logger = mock_logger
         row1 = port.receive()
 
@@ -139,7 +155,11 @@ def test_batch_input_port_unsupported_file_type():
 
     try:
         mock_logger = MagicMock()
-        port = BatchInputPort(file_path=tmp_path, file_type="UNKNOWN_TYPE")
+        port = BatchInputPort(
+            file_path=tmp_path,
+            file_type="UNKNOWN_TYPE",
+            base_path=os.path.dirname(tmp_path),
+        )
         port.logger = mock_logger
         row = port.receive()
 
@@ -157,7 +177,8 @@ def test_batch_input_port_file_not_found():
     row = port.receive()
 
     assert row == {COMMAND_KEY: EXIT_COMMAND}
-    mock_logger.error.assert_called_once_with("File not found: nonexistent_file.csv")
+    expected_path = os.path.realpath(os.path.join("", "nonexistent_file.csv"))
+    mock_logger.error.assert_called_once_with(f"File not found: {expected_path}")
 
 
 def test_batch_output_port():
