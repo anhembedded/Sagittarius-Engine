@@ -30,13 +30,19 @@ class MainWindow(QMainWindow):
 
         # UI Elements
         self.status_label = QLabel("Status: Waiting for data...")
+        self.status_label.setAccessibleName("Connection Status")
+        self.status_label.setToolTip("Displays the current connection status to the Sagittarius Engine telemetry server.")
         layout.addWidget(self.status_label)
 
         self.log_area = QTextEdit()
         self.log_area.setReadOnly(True)
+        self.log_area.setAccessibleName("Telemetry Log Area")
+        self.log_area.setToolTip("Displays incoming telemetry data in real-time.")
         layout.addWidget(self.log_area)
 
         self.clear_btn = QPushButton("Clear Logs")
+        self.clear_btn.setAccessibleName("Clear Logs Button")
+        self.clear_btn.setToolTip("Click to clear all telemetry logs from the screen.")
         self.clear_btn.clicked.connect(self.log_area.clear)
         layout.addWidget(self.clear_btn)
 

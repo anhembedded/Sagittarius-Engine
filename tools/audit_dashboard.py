@@ -191,7 +191,7 @@ def generate_ui(port: int):
     return layout
 
 
-def walk_dict(tree: Tree, dictionary: dict):
+def walk_dict(tree: "Tree", dictionary: dict):
     for k, v in dictionary.items():
         if isinstance(v, dict):
             branch = tree.add(f"[bold cyan]{k}[/bold cyan]")
