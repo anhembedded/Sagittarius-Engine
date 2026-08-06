@@ -5,7 +5,7 @@ from sagittarius_engine.interfaces.i_container import IContainer
 class BasePresenter(QObject):
     """
     @brief The architectural foundation for all MVP Presenters using PySide6.
-    
+
     @details
     This class enforces strict lifecycle management and architectural contracts:
     - Multiple Inheritance safety (QObject first, ABC second).
@@ -14,7 +14,7 @@ class BasePresenter(QObject):
       at the very end of their own `__init__` after all local attributes are initialized.
     """
 
-    # Class-level definition for the initial state of the FSM. 
+    # Class-level definition for the initial state of the FSM.
     # Override this in child classes (e.g. INITIAL_STATE = UIMode.IDLE).
     INITIAL_STATE = None
 
@@ -30,16 +30,23 @@ class BasePresenter(QObject):
         super().__init__()
         self.view = view
         self.container = container
-        
+
         # Commonly used Engine dependencies for UI Presenters
-        from sagittarius_engine.interfaces import IEventBus, ILogger, IDispatcher, IConfig
+        from sagittarius_engine.interfaces import (
+            IEventBus,
+            ILogger,
+            IDispatcher,
+            IConfig,
+        )
+
         self.event_bus = container.resolve(IEventBus)
         self.logger = container.resolve(ILogger)
         self.dispatcher = container.resolve(IDispatcher)
         self.config = container.resolve(IConfig)
-        
+
         # State Machine for UI
         from sagittarius_engine.extensions.fsm.state_machine import BaseStateMachine
+
         if self.INITIAL_STATE is not None:
             self.fsm = BaseStateMachine(self.INITIAL_STATE)
             self._bind_fsm_to_ui()
@@ -49,7 +56,9 @@ class BasePresenter(QObject):
         # Load UI Matrix from config and apply to view if applicable
         try:
             ui_matrix = self.config.get_all()
-            if hasattr(self.view, "control_card") and hasattr(self.view.control_card, "set_ui_matrix"):
+            if hasattr(self.view, "control_card") and hasattr(
+                self.view.control_card, "set_ui_matrix"
+            ):
                 self.view.control_card.set_ui_matrix(ui_matrix)
             elif hasattr(self.view, "set_ui_matrix"):
                 self.view.set_ui_matrix(ui_matrix)
@@ -71,14 +80,18 @@ class BasePresenter(QObject):
 
         def _on_state_changed(old_state, new_state):
             target = self.view
-            if hasattr(self.view, "control_card") and hasattr(self.view.control_card, "apply_ui_mode"):
+            if hasattr(self.view, "control_card") and hasattr(
+                self.view.control_card, "apply_ui_mode"
+            ):
                 target = self.view.control_card
-                
+
             if hasattr(target, "apply_ui_mode"):
                 target.apply_ui_mode(new_state, self.UI_MATRIX_SECTION_KEY)
             else:
                 if self.logger:
-                    self.logger.warning(f"View {self.view} does not support apply_ui_mode")
+                    self.logger.warning(
+                        f"View {self.view} does not support apply_ui_mode"
+                    )
 
         self.fsm.add_global_callback(_on_state_changed)
 

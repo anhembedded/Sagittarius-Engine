@@ -3,6 +3,7 @@ import importlib.util
 from typing import List, Any
 from sagittarius_engine.interfaces.i_extension import IExtension
 
+
 class DependencyValidatorExtension(IExtension[Any]):
     """
     Fail-Fast Dependency Validator Extension.
@@ -29,16 +30,18 @@ class DependencyValidatorExtension(IExtension[Any]):
                 f"    pip install {' '.join(missing_packages)}"
             )
             # Use engine logger if available, otherwise print
-            if hasattr(context, 'logger'):
+            if hasattr(context, "logger"):
                 context.logger.error(error_msg)
             else:
                 print(error_msg)
-            
+
             # Fail-fast
             sys.exit(1)
         else:
-            if hasattr(context, 'logger'):
-                context.logger.info("Pre-flight check passed. All critical dependencies found.")
+            if hasattr(context, "logger"):
+                context.logger.info(
+                    "Pre-flight check passed. All critical dependencies found."
+                )
             else:
                 print("INFO: Pre-flight check passed. All critical dependencies found.")
 

@@ -132,10 +132,10 @@ class ExtensionManager:
         while True:
             initialized_any = False
             next_pending = []
-            
+
             for ext in pending_exts:
                 name = ext.descriptor.name
-                
+
                 # We no longer need to check if name in initialized_names
                 # because pending_exts only contains un-initialized extensions.
 
@@ -165,7 +165,7 @@ class ExtensionManager:
 
             if not initialized_any:
                 break
-            
+
             pending_exts = next_pending
 
     def _build_and_sort(self) -> list[IExtension[Any]]:

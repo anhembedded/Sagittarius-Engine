@@ -2,6 +2,7 @@
 @brief PySide6 MVC Extension for Sagittarius Engine.
 @details Provides true lazy-loaded UI routing, base presenters, and data-driven matrix UI.
 """
+
 import sys
 
 # Dependency Guard: Protects the UI-Agnostic Core from crashing if PySide6 is missing.

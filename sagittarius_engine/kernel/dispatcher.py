@@ -36,7 +36,7 @@ class Dispatcher(IDispatcher):
         )
         if input_dto:
             logger.debug(f"Payload: {input_dto}", extra={"submodule": "Dispatcher"})
-                
+
         handler = self.context.container.resolve(handler_class)
 
         def final() -> Any:
@@ -44,10 +44,16 @@ class Dispatcher(IDispatcher):
 
         try:
             result = self.context.middleware_pipeline.execute(handler, input_dto, final)
-            logger.debug(f"{handler_class.__name__} completed successfully.", extra={"submodule": "Dispatcher"})
+            logger.debug(
+                f"{handler_class.__name__} completed successfully.",
+                extra={"submodule": "Dispatcher"},
+            )
             return result
         except Exception as e:
-            logger.error(f"{handler_class.__name__} failed: {e}", extra={"submodule": "Dispatcher"})
+            logger.error(
+                f"{handler_class.__name__} failed: {e}",
+                extra={"submodule": "Dispatcher"},
+            )
             raise
 
     def execute(self, command_class: type, input_dto: object | None = None) -> Any:
