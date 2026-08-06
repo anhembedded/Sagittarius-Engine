@@ -16,3 +16,7 @@
 ## 2025-05-24 - Extension Initialization Sorting Overhead
 **Learning:** Re-sorting a list (`sorted_exts = sorted(...)`) inside a `while` loop during extension initialization causes redundant O(N log N) operations for every iteration when the underlying list being sorted (`enabled_exts`) does not change.
 **Action:** Ensure invariant operations such as sorting lists are hoisted outside of while or for loops to prevent redundant computational overhead.
+
+## 2025-10-24 - Extension Initialization Iteration Optimization
+**Learning:** During extension initialization resolution (`ExtensionManager._try_initialize_available`), repeatedly iterating over the full list of registered extensions to find pending ones causes redundant loop overhead, even if already initialized extensions are skipped via a quick `continue`. This results in O(N^2) worst-case performance when resolving deep dependency chains.
+**Action:** Optimize iterative resolution loops by filtering out completed items into a new list (e.g., `pending_exts`) and re-assigning the iterator source (`sorted_exts = pending_exts`) at the end of each pass. This shrinks the search space progressively, eliminating redundant iterations.
