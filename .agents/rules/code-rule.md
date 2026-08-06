@@ -6,6 +6,14 @@ trigger: always_on
 
 # PYTHON CODING STANDARDS & GUIDELINES
 
+## SOLID Principles
+Follow SOLID wherever it's practical — apply it to improve clarity/testability, don't force an abstraction onto a small, unlikely-to-change piece of code just to tick a box.
+- **S — Single Responsibility:** One class/module has one reason to change. (See "No God Objects" below.)
+- **O — Open/Closed:** Prefer extending behavior via a new class/strategy over editing existing, already-tested logic; put extension points behind an interface/ABC.
+- **L — Liskov Substitution:** A subclass must work anywhere its base/interface is expected — no raising `NotImplementedError` on inherited methods, no narrowing accepted inputs or weakening guarantees the base type promised.
+- **I — Interface Segregation:** Keep ports/interfaces narrow and role-specific; don't make an implementer satisfy methods it has no use for.
+- **D — Dependency Inversion:** High-level modules depend on abstractions, not concrete implementations. (See "Full Abstraction & Decoupling" below.)
+
 ## Core Architecture Principles
 1. **Strong Typing & Type Safety:**
    - Always use explicit type annotations for all function signatures, parameters, return values, and class attributes.
