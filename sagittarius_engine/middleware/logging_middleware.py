@@ -28,6 +28,8 @@ class LoggingMiddleware(IMiddleware):
         @param container The dependency injection container used to resolve the logger.
         """
         self.container = container
+        self._logger: ILogger | None = None
+        self._resolved = False
 
     def process(
         self, cmd_or_query: Any, data_transfer_obj: Any, next_handler: Callable[[], Any]
@@ -42,11 +44,18 @@ class LoggingMiddleware(IMiddleware):
         """
         name = cmd_or_query.__class__.__name__
 
-        try:
-            logger: ILogger = self.container.resolve(ILogger)
+        if not self._resolved:
+            try:
+                self._logger = self.container.resolve(ILogger)
+            except Exception:
+                self._logger = None
+            self._resolved = True
+
+        logger = self._logger
+
+        if logger:
             logger.info(f"[LoggingMiddleware] Starting {name}")
-        except Exception:
-            logger = None  # type: ignore[assignment]
+        else:
             print(f"[LoggingMiddleware] Starting {name}")
 
         result = next_handler()

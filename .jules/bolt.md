@@ -16,3 +16,6 @@
 ## 2025-05-24 - Extension Initialization Sorting Overhead
 **Learning:** Re-sorting a list (`sorted_exts = sorted(...)`) inside a `while` loop during extension initialization causes redundant O(N log N) operations for every iteration when the underlying list being sorted (`enabled_exts`) does not change.
 **Action:** Ensure invariant operations such as sorting lists are hoisted outside of while or for loops to prevent redundant computational overhead.
+## 2025-05-25 - DI Resolution Overhead in Middleware Pipeline
+**Learning:** Middleware components executed frequently on every request suffer from significant overhead when resolving dependencies dynamically via a DI container within the execution path (`process` method). This involves repeated exception handling, lock checks, and dictionary lookups on every single query/command.
+**Action:** Resolve dependencies once, typically during middleware initialization, or lazily resolve and cache the dependency on the first execution to avoid repeated DI container invocations on the hot path.
