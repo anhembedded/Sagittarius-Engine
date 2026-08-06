@@ -92,3 +92,25 @@ def test_project_generator(tmp_path):
     assert result.returncode == 0
     assert "booted successfully" in result.stdout
     assert "test-generated-app" in result.stdout
+
+
+def test_project_generator_path_traversal(tmp_path):
+    loader = TemplateLoader()
+    renderer = TemplateRenderer()
+    generator = ProjectGenerator(loader, renderer)
+
+    # Output directory
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+
+    # Attempt traversal in project_name
+    project_name = "../escaped-project"
+    from sagittarius_engine.exceptions import PathTraversalError
+
+    with pytest.raises(PathTraversalError) as exc_info:
+        generator.generate(
+            project_name=project_name,
+            template_name="minimal",
+            output_dir=str(output_dir),
+        )
+    assert "Path traversal detected" in str(exc_info.value)
