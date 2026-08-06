@@ -20,24 +20,24 @@ class BatchInputPort(BaseInputPort):
         self,
         file_path: str,
         file_type: str = FILE_TYPE_CSV,
-        base_path: Optional[str] = None,
+        base_path: str = "",
     ) -> None:
         super().__init__()
 
-        if base_path is not None:
-            base_path_real = os.path.realpath(base_path)
-            full_path = (
-                os.path.join(base_path, file_path)
-                if not os.path.isabs(file_path)
-                else file_path
-            )
-            full_path_real = os.path.realpath(full_path)
+        # SECURITY: Fail-closed path traversal defense.
+        # By defaulting base_path to "" (current working directory),
+        # we strictly confine the file resolution and avoid a fail-open state.
+        base_path_real = os.path.realpath(base_path)
+        full_path = (
+            os.path.join(base_path, file_path)
+            if not os.path.isabs(file_path)
+            else file_path
+        )
+        full_path_real = os.path.realpath(full_path)
 
-            if os.path.commonpath([base_path_real, full_path_real]) != base_path_real:
-                raise PathTraversalError(f"Path traversal detected: {file_path}")
-            self.file_path = full_path_real
-        else:
-            self.file_path = file_path
+        if os.path.commonpath([base_path_real, full_path_real]) != base_path_real:
+            raise PathTraversalError(f"Path traversal detected: {file_path}")
+        self.file_path = full_path_real
 
         self.file_type = file_type
         self._iterator: Optional[Iterator[dict[str, Any]]] = None
