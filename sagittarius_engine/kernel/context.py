@@ -56,6 +56,10 @@ class EngineContext(IKernelContext):
         self._container.singleton(TaskManager, self._tasks)
         self._container.singleton(Scheduler, self.scheduler)
         self._container.singleton(HostedServiceManager, self.hosted_services)
+        
+        # Register core engine interfaces
+        from sagittarius_engine.interfaces.i_dispatcher import IDispatcher
+        self._container.singleton(IDispatcher, self.dispatcher)
 
     @property
     def container(self) -> IContainer:

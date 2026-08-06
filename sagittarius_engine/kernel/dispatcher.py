@@ -3,11 +3,11 @@ from typing import Any, TYPE_CHECKING
 if TYPE_CHECKING:
     from sagittarius_engine.kernel.i_kernel_context import IKernelContext
 import warnings
-from sagittarius_engine.interfaces import ILogger
+from sagittarius_engine.interfaces import ILogger, IDispatcher
 from sagittarius_engine.interfaces.i_dispatchable import IDispatchable
 
 
-class Dispatcher:
+class Dispatcher(IDispatcher):
     """Responsible for executing handlers through the middleware pipeline."""
 
     def __init__(self, context: "IKernelContext") -> None:

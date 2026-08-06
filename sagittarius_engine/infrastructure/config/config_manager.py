@@ -101,6 +101,14 @@ class ConfigManager(IConfig):
                 return val
         return val
 
+    def get_all(self) -> dict[str, Any]:
+        """
+        @brief Gets the entire configuration dictionary.
+        @return A dictionary containing all configuration key-value pairs.
+        """
+        self._load()
+        return self._cache.copy()
+
     def set(self, key: str, value: Any) -> None:
         """
         @brief Sets a configuration value.
