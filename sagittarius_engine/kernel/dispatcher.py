@@ -3,11 +3,11 @@ from typing import Any, TYPE_CHECKING
 if TYPE_CHECKING:
     from sagittarius_engine.kernel.i_kernel_context import IKernelContext
 import warnings
-from sagittarius_engine.interfaces import ILogger
+from sagittarius_engine.interfaces import ILogger, IDispatcher
 from sagittarius_engine.interfaces.i_dispatchable import IDispatchable
 
 
-class Dispatcher:
+class Dispatcher(IDispatcher):
     """Responsible for executing handlers through the middleware pipeline."""
 
     def __init__(self, context: "IKernelContext") -> None:
@@ -29,18 +29,32 @@ class Dispatcher:
         @return The result of handler.execute(input_dto).
         """
         logger = self._get_logger()
-        if logger:
-            msg_type = "query" if "Query" in handler_class.__name__ else "command"
-            logger.info(
-                f"Executing {msg_type}: {handler_class.__name__}",
-                extra={"submodule": "Dispatcher"},
-            )
+        msg_type = "query" if "Query" in handler_class.__name__ else "command"
+        logger.info(
+            f"Executing {msg_type}: {handler_class.__name__}",
+            extra={"submodule": "Dispatcher"},
+        )
+        if input_dto:
+            logger.debug(f"Payload: {input_dto}", extra={"submodule": "Dispatcher"})
+
         handler = self.context.container.resolve(handler_class)
 
         def final() -> Any:
             return handler.execute(input_dto)
 
-        return self.context.middleware_pipeline.execute(handler, input_dto, final)
+        try:
+            result = self.context.middleware_pipeline.execute(handler, input_dto, final)
+            logger.debug(
+                f"{handler_class.__name__} completed successfully.",
+                extra={"submodule": "Dispatcher"},
+            )
+            return result
+        except Exception as e:
+            logger.error(
+                f"{handler_class.__name__} failed: {e}",
+                extra={"submodule": "Dispatcher"},
+            )
+            raise
 
     def execute(self, command_class: type, input_dto: object | None = None) -> Any:
         """

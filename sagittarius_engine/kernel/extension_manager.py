@@ -130,16 +130,19 @@ class ExtensionManager:
 
         # ⚡ Bolt: Sort once outside the loop to avoid redundant O(N log N) overhead
         # Sort by priority descending to initialize higher priority items first
-        sorted_exts = sorted(
+        pending_exts = sorted(
             enabled_exts, key=lambda e: e.descriptor.priority, reverse=True
         )
 
         while True:
             initialized_any = False
-            for ext in sorted_exts:
+            next_pending = []
+
+            for ext in pending_exts:
                 name = ext.descriptor.name
-                if name in initialized_names:
-                    continue
+
+                # We no longer need to check if name in initialized_names
+                # because pending_exts only contains un-initialized extensions.
 
                 # Check if all required dependencies are initialized
                 deps_satisfied = True
@@ -162,9 +165,13 @@ class ExtensionManager:
                     self.initialized_extensions.append(ext)
                     initialized_names.add(name)
                     initialized_any = True
+                else:
+                    next_pending.append(ext)
 
             if not initialized_any:
                 break
+
+            pending_exts = next_pending
 
     def _build_and_sort(self) -> list[IExtension[Any]]:
         """

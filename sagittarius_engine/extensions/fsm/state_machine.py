@@ -4,7 +4,7 @@ from typing import Generic, TypeVar, Callable, Dict, List, Set
 from enum import Enum
 from sagittarius_engine.extensions.fsm.exceptions import InvalidStateTransitionError
 
-T = TypeVar('T', bound=Enum)
+T = TypeVar("T", bound=Enum)
 
 logger = logging.getLogger("Engine.FSM")
 
@@ -23,17 +23,17 @@ class BaseStateMachine(Generic[T]):
             raise TypeError("initial_state must be an instance of Enum")
 
         self._current_state: T = initial_state
-        
+
         # Strict Reentrant Lock to protect state and prevent deadlocks in recursive callbacks
         self._lock = threading.RLock()
-        
+
         # Transition Matrix (Rules Engine)
         self._allowed_transitions: Dict[T, Set[T]] = {}
-        
+
         # Lifecycle Callbacks
         self._on_enter: Dict[T, List[Callable[[], None]]] = {}
         self._on_exit: Dict[T, List[Callable[[], None]]] = {}
-        
+
         # Global Callbacks triggered on ANY transition
         # Signature: Callable[[old_state, new_state], None]
         self._global_callbacks: List[Callable[[T, T], None]] = []
@@ -72,7 +72,7 @@ class BaseStateMachine(Generic[T]):
             if state not in self._on_exit:
                 self._on_exit[state] = []
             self._on_exit[state].append(callback)
-            
+
     def add_global_callback(self, callback: Callable[[T, T], None]) -> None:
         """
         @brief Registers a global callback triggered on any successful state transition.
@@ -90,11 +90,13 @@ class BaseStateMachine(Generic[T]):
         """
         with self._lock:
             old_state = self._current_state
-            
+
             # 1. Validation
             allowed_targets = self._allowed_transitions.get(old_state, set())
             if new_state not in allowed_targets:
-                logger.error(f"FSM Error: Transition {old_state.name} -> {new_state.name} rejected.")
+                logger.error(
+                    f"FSM Error: Transition {old_state.name} -> {new_state.name} rejected."
+                )
                 raise InvalidStateTransitionError(old_state.name, new_state.name)
 
             logger.debug(f"FSM: Transitioning {old_state.name} -> {new_state.name}")
@@ -104,7 +106,9 @@ class BaseStateMachine(Generic[T]):
                 try:
                     cb()
                 except Exception as e:
-                    logger.exception(f"Error in on_exit callback for state {old_state.name}: {e}")
+                    logger.exception(
+                        f"Error in on_exit callback for state {old_state.name}: {e}"
+                    )
 
             # 3. Change state
             self._current_state = new_state
@@ -121,7 +125,9 @@ class BaseStateMachine(Generic[T]):
                 try:
                     cb()
                 except Exception as e:
-                    logger.exception(f"Error in on_enter callback for state {new_state.name}: {e}")
+                    logger.exception(
+                        f"Error in on_enter callback for state {new_state.name}: {e}"
+                    )
 
             return True
 
@@ -130,7 +136,7 @@ if __name__ == "__main__":
     # ==========================================
     # DEMONSTRATION BLOCK
     # ==========================================
-    logging.basicConfig(level=logging.DEBUG, format='%(levelname)s - %(message)s')
+    logging.basicConfig(level=logging.DEBUG, format="%(levelname)s - %(message)s")
 
     class DoorState(Enum):
         CLOSED = "CLOSED"
@@ -149,15 +155,21 @@ if __name__ == "__main__":
     # 3. Register Global Callback
     def log_transition(old_st: DoorState, new_st: DoorState):
         print(f"[GLOBAL TELEMETRY] Door changed from {old_st.name} to {new_st.name}")
-        
+
     door_fsm.add_global_callback(log_transition)
 
     # 4. Register Lifecycle Hooks
-    door_fsm.on_enter(DoorState.OPEN, lambda: print("--> Action: Turning on room lights."))
-    door_fsm.on_exit(DoorState.OPEN, lambda: print("<-- Action: Turning off room lights."))
-    
+    door_fsm.on_enter(
+        DoorState.OPEN, lambda: print("--> Action: Turning on room lights.")
+    )
+    door_fsm.on_exit(
+        DoorState.OPEN, lambda: print("<-- Action: Turning off room lights.")
+    )
+
     door_fsm.on_enter(DoorState.LOCKED, lambda: print("--> Action: Engaging deadbolt."))
-    door_fsm.on_exit(DoorState.LOCKED, lambda: print("<-- Action: Disengaging deadbolt."))
+    door_fsm.on_exit(
+        DoorState.LOCKED, lambda: print("<-- Action: Disengaging deadbolt.")
+    )
 
     # 5. Execute Valid Transitions
     print("\n--- Testing Valid Transitions ---")
@@ -179,11 +191,11 @@ if __name__ == "__main__":
 
     # 7. Thread-Safety Demo
     print("\n--- Testing Thread-Safety (Spamming OPEN/CLOSED) ---")
-    
+
     def spam_transitions():
         try:
             for _ in range(5):
-                # We attempt to transition back and forth; some might fail if threads overlap, 
+                # We attempt to transition back and forth; some might fail if threads overlap,
                 # but the internal state will never be corrupted.
                 current = door_fsm.current_state
                 if current == DoorState.CLOSED:
@@ -191,15 +203,15 @@ if __name__ == "__main__":
                 elif current == DoorState.OPEN:
                     door_fsm.transition_to(DoorState.CLOSED)
         except InvalidStateTransitionError:
-            pass # Expected in a multi-threaded race, but lock prevents data corruption
+            pass  # Expected in a multi-threaded race, but lock prevents data corruption
 
     t1 = threading.Thread(target=spam_transitions)
     t2 = threading.Thread(target=spam_transitions)
-    
+
     t1.start()
     t2.start()
-    
+
     t1.join()
     t2.join()
-    
+
     print(f"Final State after threaded stress test: {door_fsm.current_state.name}")

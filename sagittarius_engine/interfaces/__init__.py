@@ -11,6 +11,10 @@ from .i_config import IConfig
 from .i_input_port import IInputPort
 from .i_output_port import IOutputPort
 from .i_dispatchable import IDispatchable
+from .i_thread_manager import IThreadManager
+from .i_file_storage import IFileStorage
+from .i_metrics import IMetrics
+from .i_dispatcher import IDispatcher
 
 
 __all__ = [
@@ -31,8 +35,5 @@ __all__ = [
     "IThreadManager",
     "IFileStorage",
     "IMetrics",
+    "IDispatcher",
 ]
-
-from .i_thread_manager import IThreadManager
-from .i_file_storage import IFileStorage
-from .i_metrics import IMetrics

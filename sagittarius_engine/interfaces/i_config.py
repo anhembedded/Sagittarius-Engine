@@ -22,6 +22,14 @@ class IConfig(ABC):
         ...
 
     @abstractmethod
+    def get_all(self) -> dict[str, Any]:
+        """
+        @brief Gets the entire configuration dictionary.
+        @return A dictionary containing all configuration key-value pairs.
+        """
+        ...
+
+    @abstractmethod
     def set(self, key: str, value: Any) -> None:
         """
         @brief Sets a configuration value.
