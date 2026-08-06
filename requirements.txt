@@ -14,3 +14,5 @@ boto3
 azure-storage-blob
 anyio
 pytest-asyncio
+PySide6
+pyqtgraph
