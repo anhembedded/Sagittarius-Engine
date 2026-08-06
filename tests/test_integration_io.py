@@ -71,6 +71,9 @@ class DummyModule(IModule):
     def boot(self, app: App) -> None:
         pass
 
+    def shutdown(self, app: App) -> None:
+        pass
+
 
 def test_integration_cli_flow():
     # Setup App

@@ -9,6 +9,9 @@ class ConcreteThreadManagerModule(ThreadManagerModule):
     def boot(self, app):
         pass
 
+    def shutdown(self, app):
+        pass
+
 
 def test_thread_manager_module_register():
     module = ConcreteThreadManagerModule()

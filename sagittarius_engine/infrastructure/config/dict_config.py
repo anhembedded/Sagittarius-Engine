@@ -42,3 +42,9 @@ class DictConfig(IConfig):
         @param value The configuration value to store.
         """
         self._config[key] = value
+
+    def get_all(self) -> dict[str, Any]:
+        """
+        @brief Returns a copy of all configurations.
+        """
+        return dict(self._config)

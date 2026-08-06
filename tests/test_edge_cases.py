@@ -316,6 +316,7 @@ def test_module_autodiscovery__syntax_error__ignores_and_does_not_crash(app, tmp
         f.write("class ValidModule(IModule):\n")
         f.write("    def register(self, app): pass\n")
         f.write("    def boot(self, app): pass\n")
+        f.write("    def shutdown(self, app): pass\n")
 
     with open(module_dir / "invalid_module.py", "w") as f:
         f.write("class InvalidModule(IModule)  # Syntax error, missing colon\n")
@@ -343,6 +344,7 @@ def test_module_autodiscovery__import_error__ignores_and_does_not_crash(app, tmp
         f.write("class ValidModule(IModule):\n")
         f.write("    def register(self, app): pass\n")
         f.write("    def boot(self, app): pass\n")
+        f.write("    def shutdown(self, app): pass\n")
 
     with open(module_dir / "missing_import_module.py", "w") as f:
         f.write("import missing_package_12345\n")
@@ -350,6 +352,7 @@ def test_module_autodiscovery__import_error__ignores_and_does_not_crash(app, tmp
         f.write("class MissingImportModule(IModule):\n")
         f.write("    def register(self, app): pass\n")
         f.write("    def boot(self, app): pass\n")
+        f.write("    def shutdown(self, app): pass\n")
 
     import sys
 
@@ -551,6 +554,9 @@ def test_integration__module_event_handler_raises__app_does_not_crash(
             app.event_bus.on("some.event", self.bad_handler)
             app.event_bus.on("some.event", self.good_handler)
             self.good_handler_called = False
+
+        def shutdown(self, app):
+            pass
 
         def bad_handler(self, e):
             raise Exception("Handler failed")

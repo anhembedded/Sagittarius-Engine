@@ -125,7 +125,9 @@ class ExtensionManager:
         """
         initialized_names = {ext.descriptor.name for ext in self.initialized_extensions}
         enabled_exts = [
-            ext for ext in self.registered_extensions if ext.descriptor.enabled
+            ext
+            for ext in self.registered_extensions
+            if ext.descriptor.enabled and ext.descriptor.name not in initialized_names
         ]
 
         # ⚡ Bolt: Sort once outside the loop to avoid redundant O(N log N) overhead

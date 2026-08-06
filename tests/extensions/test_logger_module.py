@@ -32,6 +32,9 @@ def test_logger_module_with_config():
         def set(self, key, value):
             pass
 
+        def get_all(self):
+            return {}
+
     container.singleton(IConfig, FakeConfig())
 
     extension = LoggerExtension()
@@ -74,6 +77,9 @@ def test_logger_config__from_iconfig__reads_all_keys():
         def set(self, key, value):
             pass
 
+        def get_all(self):
+            return self._data.copy()
+
     cfg = LoggerConfig.from_iconfig(FakeConfig())
     assert cfg.log_level == logging.DEBUG
     assert cfg.log_file == "app.log"
@@ -92,6 +98,9 @@ def test_logger_config__from_iconfig__unknown_level_falls_back_to_info():
 
         def set(self, key, value):
             pass
+
+        def get_all(self):
+            return {}
 
     cfg = LoggerConfig.from_iconfig(FakeConfig())
     assert cfg.log_level == logging.INFO

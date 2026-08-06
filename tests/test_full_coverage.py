@@ -579,6 +579,9 @@ class DummyModule(IModule):
     def boot(self, app):
         pass
 
+    def shutdown(self, app):
+        pass
+
 
 class InvalidModule:
     pass
@@ -851,6 +854,8 @@ class PkgModule(IModule):
         app.event_bus.emit("pkg_mod.registered", None)
     def boot(self, app):
         pass
+    def shutdown(self, app):
+        pass
 """)
 
     # 2. Single file module
@@ -860,6 +865,8 @@ class SingleModule(IModule):
     def register(self, app):
         app.event_bus.emit("single_mod.registered", None)
     def boot(self, app):
+        pass
+    def shutdown(self, app):
         pass
 """)
 
@@ -1025,6 +1032,9 @@ def test_integration__end_to_end_flow():
             self.event_handled = False
 
         def boot(self, app):
+            pass
+
+        def shutdown(self, app):
             pass
 
         def handle_mini_event(self, data):

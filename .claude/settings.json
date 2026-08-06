@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m ruff check src/presentation/ui/components/chart_card/)",
+      "Bash(python -m pytest tests/ -q)"
+    ]
+  }
+}
