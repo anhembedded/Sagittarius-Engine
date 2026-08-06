@@ -46,6 +46,9 @@ class UIMatrixMixin:
         if not hasattr(self, "_ui_matrix"):
             raise RuntimeError("[UIMatrixMixin] UI Matrix not loaded. Call load_ui_matrix() first.")
 
+        import logging
+        logger = logging.getLogger("App.UI")
+
         section = self._ui_matrix.get(section_key, {})
         
         # Normalize Enum to string value if necessary
@@ -54,9 +57,10 @@ class UIMatrixMixin:
             mode_key = str(mode_key)
 
         if mode_key not in section:
-            print(f"[UIMatrixMixin] Warning: Mode '{mode}' (key: {mode_key}) not found in matrix section '{section_key}'. Available sections: {list(self._ui_matrix.keys())}")
+            logger.warning(f"[UIMatrixMixin] Mode '{mode}' (key: {mode_key}) not found in matrix section '{section_key}'.")
             return
 
+        logger.debug(f"[UIMatrixMixin] Applying mode '{mode_key}' for section '{section_key}'")
         config = section[mode_key]
 
         # Use reflection (getattr) to find the widget inside this class instance

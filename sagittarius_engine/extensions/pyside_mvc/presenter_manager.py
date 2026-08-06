@@ -51,13 +51,18 @@ class PresenterManager(QObject):
         @brief Navigate to a screen, safely lazy-loading it if necessary.
         @param name The registered route name.
         """
+        from sagittarius_engine.interfaces.i_logger import ILogger
+        logger = self.container.resolve(ILogger)
+        
         if name not in self._registry:
+            logger.error(f"[PresenterManager] Route '{name}' is not registered!")
             raise ValueError(f"[PresenterManager] Route '{name}' is not registered!")
             
         config = self._registry[name]
         
         # --- BƯỚC 1: TRUE LAZY INITIALIZATION ---
         if config["presenter_instance"] is None:
+            logger.debug(f"[PresenterManager] Lazy Loading Screen: {name}")
             # 1.1 Create the View
             view = config["view_factory"]()
             config["view_instance"] = view
@@ -69,11 +74,10 @@ class PresenterManager(QObject):
             # 1.3 Add to QStackedWidget (doing this lazily prevents UI boot bottleneck)
             index = self.stacked_widget.addWidget(view)
             config["stacked_index"] = index
-            
-            # (Optional) Logger can be injected here in the future
-            # print(f"[*] Booted {name} (True Lazy Load)")
+            logger.debug(f"[PresenterManager] Successfully booted {name} (True Lazy Load)")
 
         # --- BƯỚC 2: SWAP VIEW ---
+        logger.debug(f"[PresenterManager] Navigating to {name}")
         self.stacked_widget.setCurrentIndex(config["stacked_index"])
         self._current_screen_name = name
         
