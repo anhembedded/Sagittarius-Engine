@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(QT_QPA_PLATFORM=offscreen python -m pytest tests/unit tests/integration -q)",
+      "Bash(python -m pytest tests -q)"
+    ]
+  }
+}
