@@ -44,6 +44,14 @@ class BasePresenter(QObject):
         self.dispatcher = container.resolve(IDispatcher)
         self.config = container.resolve(IConfig)
 
+        # Auto-activate dev-mode View instrumentation (e.g. click logging)
+        # for any View that opts in by subclassing BaseView — a no-op for
+        # views that don't, so this is safe for every other framework consumer.
+        from .base_view import DEV_MODE_CONFIG_KEY, BaseView
+
+        if isinstance(view, BaseView) and self.config.get(DEV_MODE_CONFIG_KEY, False):
+            view.enable_dev_click_logging()
+
         # State Machine for UI
         from sagittarius_engine.extensions.fsm.state_machine import BaseStateMachine
 
