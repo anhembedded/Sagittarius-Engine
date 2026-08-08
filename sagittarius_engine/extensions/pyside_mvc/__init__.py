@@ -18,8 +18,15 @@ except ImportError:
     # We don't raise an error here because simply scanning the extensions folder shouldn't crash the engine.
 else:
     from .base_presenter import BasePresenter
+    from .base_view import BaseView
     from .presenter_manager import PresenterManager
     from .ui_matrix_mixin import UIMatrixMixin
     from .thread_bridge import safe_ui_action
 
-    __all__ = ["BasePresenter", "PresenterManager", "UIMatrixMixin", "safe_ui_action"]
+    __all__ = [
+        "BasePresenter",
+        "BaseView",
+        "PresenterManager",
+        "UIMatrixMixin",
+        "safe_ui_action",
+    ]
