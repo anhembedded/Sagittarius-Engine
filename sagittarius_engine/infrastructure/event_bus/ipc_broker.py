@@ -1,6 +1,7 @@
 import threading
 import logging
 import queue
+import pickle
 from multiprocessing.queues import Queue
 from sagittarius_engine.interfaces.i_logger import ILogger
 
@@ -69,7 +70,10 @@ class IPCBroker:
                 with self._lock:
                     for sub_queue in self._subscriber_queues:
                         try:
-                            sub_queue.put((event_name, data))
+                            # SECURITY: Synchronously validate picklability to prevent DoS crash in background _feed thread
+                            item = (event_name, data)
+                            pickle.dumps(item)
+                            sub_queue.put(item)
                         except Exception as e:
                             if self._logger:
                                 self._logger.error(
