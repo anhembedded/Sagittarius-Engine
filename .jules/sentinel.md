@@ -12,3 +12,8 @@
 **Vulnerability:** `BatchInputPort` implemented path traversal defenses but defaulted `base_path` to `None`, bypassing the checks completely and creating a critical fail-open vulnerability allowing unrestricted file system access.
 **Learning:** Security controls must be fail-closed. Defaulting a confinement parameter to `""` securely restricts access to the current working directory, whereas bypassing checks on `None` silently disables the defense.
 **Prevention:** When implementing path traversal defenses, ensure the default parameter (e.g., `base_path`) enforces a restrictive boundary (like `""`) instead of `None`, and execute validation unconditionally.
+
+## 2025-02-14 - Background Thread DoS in IPC Queues
+**Vulnerability:** IPC components (`IPCQueueEventBus`, `IPCBroker`) were vulnerable to Denial of Service (DoS) crashes in `multiprocessing.Queue`'s background `_feed` thread if unpicklable data was sent. This caused the background thread to crash silently, breaking event delivery.
+**Learning:** `multiprocessing.Queue.put()` uses an internal background thread to serialize data. If pickling fails asynchronously, the thread crashes and subsequent `put()` operations fail or block indefinitely.
+**Prevention:** Synchronously validate data serializability using `pickle.dumps()` within a try-except block before calling `queue.put()`.
