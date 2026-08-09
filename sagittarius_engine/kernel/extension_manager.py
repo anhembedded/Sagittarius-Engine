@@ -121,52 +121,62 @@ class ExtensionManager:
         initialized_names = {ext.descriptor.name for ext in self.initialized_extensions}
         enabled_exts = [
             ext for ext in self.registered_extensions if ext.descriptor.enabled
+            # Only process extensions that haven't been initialized yet
+            if ext.descriptor.name not in initialized_names
         ]
 
-        # ⚡ Bolt: Sort once outside the loop to avoid redundant O(N log N) overhead
-        # Sort by priority descending to initialize higher priority items first
-        pending_exts = sorted(
-            enabled_exts, key=lambda e: e.descriptor.priority, reverse=True
-        )
+        # Kahn's Algorithm (Topological Sort) for O(V+E) initialization
+        waiting_for: dict[str, set[str]] = {}
+        dependents: dict[str, list[IExtension[Any]]] = {}
+        ready_to_init: list[IExtension[Any]] = []
 
-        while True:
-            initialized_any = False
-            next_pending = []
+        for ext in enabled_exts:
+            name = ext.descriptor.name
+            missing_deps = set()
 
-            for ext in pending_exts:
-                name = ext.descriptor.name
+            for dep in ext.descriptor.dependencies:
+                if dep not in initialized_names:
+                    missing_deps.add(dep)
 
-                # We no longer need to check if name in initialized_names
-                # because pending_exts only contains un-initialized extensions.
+            for dep in ext.descriptor.optional_dependencies:
+                if dep not in initialized_names:
+                    missing_deps.add(dep)
 
-                # Check if all required dependencies are initialized
-                deps_satisfied = True
-                for dep in ext.descriptor.dependencies:
-                    if dep not in initialized_names:
-                        deps_satisfied = False
-                        break
+            if missing_deps:
+                waiting_for[name] = missing_deps
+                for dep in missing_deps:
+                    dependents.setdefault(dep, []).append(ext)
+            else:
+                ready_to_init.append(ext)
 
-                # Check if registered or pending optional dependencies are initialized
-                if deps_satisfied:
-                    for dep in ext.descriptor.optional_dependencies:
-                        if dep not in initialized_names:
-                            deps_satisfied = False
-                            break
+        # ⚡ Bolt: Sort once by priority descending to initialize higher priority items first
+        ready_to_init.sort(key=lambda e: e.descriptor.priority, reverse=True)
 
-                if deps_satisfied:
-                    self.context.logger.info(f"Initializing extension '{name}'...")
-                    self._emit("extension.initializing", ExtensionInitializing(name))
-                    ext.initialize(self.context)
-                    self.initialized_extensions.append(ext)
-                    initialized_names.add(name)
-                    initialized_any = True
-                else:
-                    next_pending.append(ext)
+        while ready_to_init:
+            ext = ready_to_init.pop(0)
+            name = ext.descriptor.name
 
-            if not initialized_any:
-                break
+            self.context.logger.info(f"Initializing extension '{name}'...")
+            self._emit("extension.initializing", ExtensionInitializing(name))
+            ext.initialize(self.context)
+            self.initialized_extensions.append(ext)
+            initialized_names.add(name)
 
-            pending_exts = next_pending
+            if name in dependents:
+                newly_ready = []
+                for dependent_ext in dependents[name]:
+                    dep_name = dependent_ext.descriptor.name
+                    if name in waiting_for[dep_name]:
+                        waiting_for[dep_name].remove(name)
+                    if not waiting_for[dep_name]:
+                        newly_ready.append(dependent_ext)
+                        del waiting_for[dep_name]
+
+                if newly_ready:
+                    for n_ext in newly_ready:
+                        ready_to_init.append(n_ext)
+                    # Keep the ready queue sorted by priority
+                    ready_to_init.sort(key=lambda e: e.descriptor.priority, reverse=True)
 
     def _build_and_sort(self) -> list[IExtension[Any]]:
         """
