@@ -22,11 +22,37 @@ else:
     from .presenter_manager import PresenterManager
     from .ui_matrix_mixin import UIMatrixMixin
     from .thread_bridge import safe_ui_action
+    from .QmlShared import (
+        ICON_PROVIDER_ID,
+        AppQmlConfig,
+        BaseQmlViewModel,
+        IconImageProvider,
+        IIconLoader,
+        LogListModel,
+        QmlHostView,
+        configure_app_qml,
+        create_quick_widget,
+        ensure_qml_style,
+        get_theme_bridge,
+        register_theme,
+    )
 
     __all__ = [
+        "ICON_PROVIDER_ID",
+        "AppQmlConfig",
         "BasePresenter",
+        "BaseQmlViewModel",
         "BaseView",
+        "IconImageProvider",
+        "IIconLoader",
+        "LogListModel",
         "PresenterManager",
+        "QmlHostView",
         "UIMatrixMixin",
+        "configure_app_qml",
+        "create_quick_widget",
+        "ensure_qml_style",
+        "get_theme_bridge",
+        "register_theme",
         "safe_ui_action",
     ]

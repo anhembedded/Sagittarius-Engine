@@ -1,6 +1,8 @@
 import json
 from unittest.mock import MagicMock
 
+import pytest
+
 from sagittarius_engine.infrastructure.config.config_manager import ConfigManager
 from sagittarius_engine.infrastructure.config.config_source import ConfigSource
 
@@ -67,3 +69,70 @@ def test_config_manager_get_casting():
     # Test TypeError (e.g., passing a list to int) falls back to original value
     manager.load_dict({"list_val": [1, 2]})
     assert manager.get("list_val", cast=int) == [1, 2]
+
+
+def test_save_without_writable_source_raises():
+    manager = ConfigManager()
+    manager.set("k", "v")
+
+    with pytest.raises(ValueError):
+        manager.save()
+
+
+def test_save_writes_only_dirty_keys_onto_existing_file(tmp_path):
+    defaults_file = tmp_path / "defaults.json"
+    defaults_file.write_text(json.dumps({"A": "default_a", "B": "default_b"}))
+
+    user_file = tmp_path / "user.json"
+    user_file.write_text(json.dumps({"C": "existing_c"}))
+
+    manager = ConfigManager()
+    manager.load_json(str(defaults_file))
+    manager.load_json(str(user_file), writable=True)
+
+    manager.set("A", "overridden_a")
+    manager.save()
+
+    on_disk = json.loads(user_file.read_text())
+    # The pre-existing user override survives...
+    assert on_disk["C"] == "existing_c"
+    # ...and the new override is added, without leaking the untouched default B.
+    assert on_disk["A"] == "overridden_a"
+    assert "B" not in on_disk
+
+
+def test_save_is_noop_when_nothing_dirty(tmp_path):
+    user_file = tmp_path / "user.json"
+    user_file.write_text(json.dumps({"C": "existing_c"}))
+
+    manager = ConfigManager()
+    manager.load_json(str(user_file), writable=True)
+
+    manager.save()
+
+    assert json.loads(user_file.read_text()) == {"C": "existing_c"}
+
+
+def test_save_creates_missing_writable_file(tmp_path):
+    user_file = tmp_path / "nested" / "user.json"
+
+    manager = ConfigManager()
+    manager.load_json(str(user_file), writable=True)
+    manager.set("A", "a")
+    manager.save()
+
+    assert json.loads(user_file.read_text()) == {"A": "a"}
+
+
+def test_save_clears_dirty_so_second_save_is_noop(tmp_path):
+    user_file = tmp_path / "user.json"
+
+    manager = ConfigManager()
+    manager.load_json(str(user_file), writable=True)
+    manager.set("A", "a")
+    manager.save()
+
+    user_file.write_text(json.dumps({"A": "a", "manually_added": "x"}))
+    manager.save()  # nothing dirty anymore — must not clobber the manual edit
+
+    assert json.loads(user_file.read_text()) == {"A": "a", "manually_added": "x"}
