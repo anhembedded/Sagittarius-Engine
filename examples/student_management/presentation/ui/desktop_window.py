@@ -173,6 +173,8 @@ class MainWindow(QMainWindow):
         )
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.table.setAccessibleName("Student Database Table")
+        self.table.setAccessibleDescription("Table containing student records including ID, Name, Age, Gender, Major, and GPA")
         left_layout.addWidget(self.table)
 
         main_layout.addWidget(left_widget, stretch=7)
@@ -190,6 +192,8 @@ class MainWindow(QMainWindow):
         right_layout.addWidget(log_title)
 
         self.log_list = QListWidget()
+        self.log_list.setAccessibleName("Event Bus Logs")
+        self.log_list.setAccessibleDescription("List of real-time universal event bus logs")
         right_layout.addWidget(self.log_list)
 
         # Progress Header
@@ -201,6 +205,8 @@ class MainWindow(QMainWindow):
         self.progress_bar = QProgressBar()
         self.progress_bar.setRange(0, 100)
         self.progress_bar.setValue(0)
+        self.progress_bar.setAccessibleName("GPA Analytics Progress")
+        self.progress_bar.setAccessibleDescription("Progress bar showing the status of the async GPA analytics report generation")
         right_layout.addWidget(self.progress_bar)
 
         self.report_label = QLabel("Waiting for report generation task...")
