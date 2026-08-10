@@ -17,3 +17,8 @@
 **Vulnerability:** The `AuditService.get_system_health()` method caught generic exceptions and exposed the raw error string `str(e)` in its response message, potentially leaking internal connection details or sensitive stack traces to the telemetry broadcaster.
 **Learning:** To prevent information disclosure vulnerabilities, never expose raw exception strings to external APIs or health checks.
 **Prevention:** Log the actual exception details securely using the internal logger, and return a generic, static error message to the client (e.g., "An internal error occurred.").
+
+## 2025-02-13 - Information Disclosure in AuditService Task Details
+**Vulnerability:** `AuditService.get_all_tasks_details()` exposed the raw error strings `str(t.error)` or `str(t.exception)` in the returned telemetry payload, leaking internal task exception details to external clients.
+**Learning:** To prevent information disclosure, telemetry data must never include raw exception strings.
+**Prevention:** Log actual exception details securely using the internal logger and return a generic error message (e.g., "An internal error occurred.") for external consumption.
