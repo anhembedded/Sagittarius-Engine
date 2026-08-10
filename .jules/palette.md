@@ -1,0 +1,3 @@
+## 2024-05-24 - PySide6 Text-Symbol Accessibility
+**Learning:** In PySide6 applications, text-based symbols (like ▲ and ▼ used in the Find Bar) are read aloud verbatim by screen readers as raw unicode, degrading navigation a11y severely compared to standard icons. Furthermore, they lack default interactive visual affordance.
+**Action:** Always pair text-symbol buttons with explicit `setAccessibleName` and `setAccessibleDescription` to override default unicode reading, and attach `setCursor(Qt.CursorShape.PointingHandCursor)` since raw text buttons don't inherit interactive visual feedback automatically.
