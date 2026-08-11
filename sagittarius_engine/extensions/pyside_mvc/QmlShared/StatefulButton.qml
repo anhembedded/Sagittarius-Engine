@@ -38,28 +38,19 @@ Button {
     //: `image://icons/<name>/<iconTint>` provider. Empty string omits the
     //: icon.
     property string iconSource: ""
-    //: Icon color token. Defaults to the same active/inactive split as the
-    //: text/border (muted when idle, accent when isActive) — override with
-    //: a semantic token (e.g. "success"/"danger") for an action button
-    //: whose icon color doesn't depend on selection state (Start/Stop).
     property string iconTint: root.isActive ? "accent" : "muted"
-    //: Border color while NOT active — pass a semantic token
-    //: (Theme.success/Theme.danger/Theme.stateNavBorder) for an
-    //: affirmative/destructive/nav-item look, or leave the Theme.border
-    //: default for a neutral one. Ignored while isActive is true
-    //: (Theme.accent takes over).
+    property string hoverIconTint: root.iconTint
     property color accentBorder: Theme.border
+    property color hoverBorderColor: root.isActive ? Theme.accent : root.accentBorder
+    property color textColor: root.isActive ? Theme.accent : Theme.textPrimary
+    property color hoverTextColor: root.textColor
+    property color idleBgColor: Theme.stateIdleBg
+    property color hoverBgColor: Theme.stateHoverBg
     property int iconSize: 13
     property int fontSize: 11
+    property bool fontBold: false
     property int contentSpacing: 5
-    //: Marks this button as the current selection (e.g. the active nav
-    //: route) — independent of enabled/disabled.
     property bool isActive: false
-    //: Off by default (matches every action button's compact, icon+text
-    //: centered-as-a-group look). Turn on for a fixed-width container where
-    //: a long label needs to truncate instead of overflowing (e.g. a nav
-    //: sidebar item) — makes the text fill the remaining row width and
-    //: elide, instead of sizing to its own content.
     property bool textFillWidth: false
 
     implicitHeight: 32
@@ -69,7 +60,7 @@ Button {
 
         Image {
             visible: root.iconSource !== ""
-            source: root.iconSource === "" ? "" : "image://icons/" + root.iconSource + "/" + root.iconTint
+            source: root.iconSource === "" ? "" : "image://icons/" + root.iconSource + "/" + (root.hovered && root.enabled ? root.hoverIconTint : root.iconTint)
             sourceSize.width: root.iconSize
             sourceSize.height: root.iconSize
             Layout.preferredWidth: root.iconSize
@@ -79,8 +70,9 @@ Button {
 
         Text {
             text: root.text
-            color: root.isActive ? Theme.accent : Theme.textPrimary
+            color: root.isActive ? Theme.accent : (root.hovered && root.enabled ? root.hoverTextColor : root.textColor)
             font.pixelSize: root.fontSize
+            font.bold: root.fontBold
             opacity: root.enabled ? 1.0 : Theme.stateDisabledOpacity
             Layout.fillWidth: root.textFillWidth
             elide: root.textFillWidth ? Text.ElideRight : Text.ElideNone
@@ -92,8 +84,8 @@ Button {
         radius: 6
         color: root.isActive
                ? Theme.stateActiveTint
-               : (root.hovered && root.enabled ? Theme.stateHoverBg : Theme.stateIdleBg)
-        border.color: root.isActive ? Theme.accent : root.accentBorder
+               : (root.hovered && root.enabled ? root.hoverBgColor : root.idleBgColor)
+        border.color: root.isActive ? Theme.accent : (root.hovered && root.enabled ? root.hoverBorderColor : root.accentBorder)
         border.width: 1
         opacity: root.enabled ? 1.0 : Theme.stateDisabledOpacity
     }
