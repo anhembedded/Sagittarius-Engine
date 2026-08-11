@@ -4,3 +4,5 @@ BaseCard 1.0 BaseCard.qml
 FieldBackground 1.0 FieldBackground.qml
 StyledCheck 1.0 StyledCheck.qml
 StatefulButton 1.0 StatefulButton.qml
+DateTimePicker 1.0 DateTimePicker.qml
+TimeRangeCard 1.0 TimeRangeCard.qml
