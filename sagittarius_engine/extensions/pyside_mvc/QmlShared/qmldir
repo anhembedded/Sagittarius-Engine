@@ -1,2 +1,6 @@
 module QmlShared
 LogPanel 1.0 LogPanel.qml
+BaseCard 1.0 BaseCard.qml
+FieldBackground 1.0 FieldBackground.qml
+StyledCheck 1.0 StyledCheck.qml
+StatefulButton 1.0 StatefulButton.qml

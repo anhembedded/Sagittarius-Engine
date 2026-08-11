@@ -8,7 +8,7 @@ import QtQuick.Layouts
 //
 // Usage:
 //     LogPanel { title: "SYSTEM MONITOR"; logModel: viewModel.logModel }
-Rectangle {
+BaseCard {
     id: root
 
     property string title: "LOG"
@@ -61,7 +61,7 @@ Rectangle {
 
                 Rectangle {
                     radius: 3
-                    color: "#17181d"
+                    color: Theme.stateIdleBg
                     border.color: Theme.border
                     border.width: 1
                     Layout.preferredWidth: countText.implicitWidth + 12
@@ -77,6 +77,42 @@ Rectangle {
                 }
 
                 Item { Layout.fillWidth: true }
+
+                Button {
+                    id: copyButton
+                    objectName: "btnCopyLog"
+                    text: "Copy"
+                    implicitHeight: 24
+                    // Whole-log copy, independent of any text selection —
+                    // the per-line message Text below is individually
+                    // selectable/copyable too (see delegate), this is the
+                    // "grab everything" shortcut.
+                    onClicked: logList.model.copyAllToClipboard()
+
+                    contentItem: RowLayout {
+                        spacing: 4
+                        Image {
+                            source: "image://icons/copy/muted"
+                            sourceSize.width: 12
+                            sourceSize.height: 12
+                            Layout.preferredWidth: 12
+                            Layout.preferredHeight: 12
+                        }
+                        Text {
+                            text: copyButton.text
+                            color: Theme.textPrimary
+                            font.pixelSize: 11
+                        }
+                    }
+
+                    background: Rectangle {
+                        implicitWidth: 64
+                        radius: 4
+                        color: copyButton.hovered ? Theme.stateHoverBg : Theme.stateIdleBg
+                        border.color: Theme.border
+                        border.width: 1
+                    }
+                }
 
                 Button {
                     id: clearButton
@@ -106,7 +142,7 @@ Rectangle {
                     background: Rectangle {
                         implicitWidth: 64
                         radius: 4
-                        color: clearButton.hovered ? "#1f2127" : "#17181d"
+                        color: clearButton.hovered ? Theme.stateHoverBg : Theme.stateIdleBg
                         border.color: Theme.border
                         border.width: 1
                     }
@@ -147,21 +183,34 @@ Rectangle {
                     Layout.topMargin: 2
                 }
 
-                Text {
+                // TextEdit (not Text) so a line's content is selectable/
+                // copyable with the mouse + Ctrl+C, matching a normal
+                // console/log viewer — plain Text has no selection support
+                // at all. readOnly keeps it display-only otherwise (no
+                // cursor blinking, no edits reach the model).
+                TextEdit {
                     text: "[" + model.timestamp + "]"
                     color: Theme.muted
                     font.family: "Consolas"
                     font.pixelSize: 11
                     Layout.alignment: Qt.AlignTop
+                    readOnly: true
+                    selectByMouse: true
+                    persistentSelection: true
+                    selectionColor: Theme.accent
                 }
 
-                Text {
+                TextEdit {
                     text: model.message
                     color: model.level === "error" ? Theme.danger : Theme.textPrimary
                     font.family: "Consolas"
                     font.pixelSize: 11
-                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    wrapMode: TextEdit.WrapAtWordBoundaryOrAnywhere
                     Layout.fillWidth: true
+                    readOnly: true
+                    selectByMouse: true
+                    persistentSelection: true
+                    selectionColor: Theme.accent
                 }
             }
         }

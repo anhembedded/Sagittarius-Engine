@@ -1,5 +1,7 @@
 from PySide6.QtQml import QQmlPropertyMap
 
+from .state_tokens import with_state_token_defaults
+
 _THEME_CONTEXT_NAME = "Theme"
 
 _shared_theme_bridge: QQmlPropertyMap | None = None
@@ -24,7 +26,10 @@ def get_theme_bridge(palette: dict[str, str] | None = None) -> QQmlPropertyMap:
     screens) just return the already-built instance.
 
     @param palette Maps QML property name -> color value (typically a hex
-    string). Required on the first call; ignored afterwards.
+    string). Required on the first call; ignored afterwards. Merged with
+    `state_tokens.DEFAULT_STATE_TOKENS` (app keys win on collision) so
+    `Theme.stateDisabledOpacity`/`stateHoverBg`/etc. always resolve to
+    something, even for an app that hasn't opted into overriding them yet.
     @raise ValueError If called before any palette has been supplied.
     """
     global _shared_theme_bridge
@@ -35,7 +40,7 @@ def get_theme_bridge(palette: dict[str, str] | None = None) -> QQmlPropertyMap:
                 "(typically from create_quick_widget()) must supply one."
             )
         _shared_theme_bridge = QQmlPropertyMap()
-        for key, value in palette.items():
+        for key, value in with_state_token_defaults(palette).items():
             _shared_theme_bridge.insert(key, value)
     return _shared_theme_bridge
 

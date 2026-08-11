@@ -16,18 +16,45 @@ class BaseQmlViewModel(QObject):
     """
 
     uiModeChanged = Signal()
+    controlsEnabledChanged = Signal()
+
+    #: Which `uiMode` string values should disable this screen's controls —
+    #: subclasses override to opt in (e.g. `frozenset({"LOCKED", "LIVE"})`).
+    #: Empty by default: the engine has no opinion on which of an app's
+    #: modes are "busy" states, mirroring BaseStateMachine's own genericity
+    #: over "any Enum" — a subclass that never sets this keeps today's
+    #: behavior (`controlsEnabled` always True) unchanged.
+    DISABLED_UI_MODES: frozenset[str] = frozenset()
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self._ui_mode = "IDLE"
+        self._controls_enabled = "IDLE" not in self.DISABLED_UI_MODES
 
     def _get_ui_mode(self) -> str:
         return self._ui_mode
 
     uiMode = Property(str, _get_ui_mode, notify=uiModeChanged)
 
+    def _get_controls_enabled(self) -> bool:
+        return self._controls_enabled
+
+    #: Derived from `uiMode`/`DISABLED_UI_MODES` — screens bind
+    #: `enabled: viewModel.controlsEnabled` instead of hand-rolling their own
+    #: `uiMode === "IDLE" || uiMode === "ERROR"`-style string comparison,
+    #: which is where screens have drifted into inconsistent (and once,
+    #: behaviorally different) ad hoc conditions in the past.
+    controlsEnabled = Property(
+        bool, _get_controls_enabled, notify=controlsEnabledChanged
+    )
+
     def set_ui_mode(self, mode: str) -> None:
         if mode == self._ui_mode:
             return
         self._ui_mode = mode
         self.uiModeChanged.emit()
+
+        enabled = mode not in self.DISABLED_UI_MODES
+        if enabled != self._controls_enabled:
+            self._controls_enabled = enabled
+            self.controlsEnabledChanged.emit()

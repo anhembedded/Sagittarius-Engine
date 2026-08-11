@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from PySide6.QtCore import QAbstractListModel, QModelIndex, Qt, Signal, Slot
+from PySide6.QtGui import QGuiApplication
 
 #: Log level -> the icon name LogPanel.qml renders beside the line, resolved
 #: through whatever `image://<scheme>/...` provider the app registered.
@@ -103,6 +104,16 @@ class LogListModel(QAbstractListModel):
         self._entries.clear()
         self.endResetModel()
         self.countChanged.emit()
+
+    @Slot()
+    def copyAllToClipboard(self) -> None:
+        """Callable from QML — the panel's own Copy button needs no
+        Presenter round-trip, same as clear() above. Copies every line as
+        plain text ("[HH:MM:SS] message", one per line, oldest first —
+        matching render order) rather than requiring the user to select text
+        across every ListView delegate by hand."""
+        text = "\n".join(f"[{entry.timestamp}] {entry.message}" for entry in self._entries)
+        QGuiApplication.clipboard().setText(text)
 
     @property
     def entries(self) -> list[LogEntry]:
