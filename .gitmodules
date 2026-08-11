@@ -1,6 +1,6 @@
 [submodule "Binace_Bot"]
-	path = Binace_Bot
-	url = ../Binace_Bot.git
+	path = Sagittarius_Elite_Warrior
+	url = https://github.com/anhembedded/Sagittarius-Elite-Warrior.git
 [submodule "tools/Sagittarius_LogViewer"]
-	path = tools/Sagittarius_LogViewer
-	url = ../Sagittarius_LogViewer.git
+	path = tools/Sagittarius-The-Watcher
+	url = https://github.com/anhembedded/Sagittarius-The-Watcher.git

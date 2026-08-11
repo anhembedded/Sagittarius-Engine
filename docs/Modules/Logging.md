@@ -43,7 +43,7 @@ The absolute best practice inside your Application or Domain layers is to rely e
 
 ```python
 from sagittarius_engine.interfaces import ILogger
-from Binace_Bot.src.application.ports.i_market_data_repository import IMarketDataRepository
+from Sagittarius_Elite_Warrior.src.application.ports.i_market_data_repository import IMarketDataRepository
 
 class SyncMarketDataCommandHandler:
     def __init__(self, repository: IMarketDataRepository, logger: ILogger) -> None:
@@ -78,7 +78,7 @@ class GetHistoricalKlinesQueryHandler:
    - **Truth**: As long as the prefix is `"App."`, the standard propagation mechanics in Python will route the log directly to the root `"App"` logger managed by `StdLogger`. It still benefits from the TCP Log Viewer and File logging configurations without needing an injected instance.
 
 2. **Misconception: You must use `logging.getLogger(__name__)` everywhere.**
-   - **Truth**: If you use `__name__` (e.g., `Binace_Bot.src.application...`), your logs will NOT propagate to `"App"` unless you manually rewire the loggers. Always prefix your namespace with `"App."` (e.g., `"App.Database"`) to hook into `StdLogger`.
+   - **Truth**: If you use `__name__` (e.g., `Sagittarius_Elite_Warrior.src.application...`), your logs will NOT propagate to `"App"` unless you manually rewire the loggers. Always prefix your namespace with `"App."` (e.g., `"App.Database"`) to hook into `StdLogger`.
 
 3. **Misconception: `extra` dictionaries are printed directly in the console output.**
    - **Truth**: By default, Python's `StreamHandler` string formatter `%(message)s` does NOT print the `extra` dict. The structured `extra` data is primarily utilized by the `TcpLogViewerHandler` which serializes it to JSON, allowing rich UI sorting and filtering on the viewer app.

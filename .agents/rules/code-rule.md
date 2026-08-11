@@ -44,7 +44,7 @@ Follow SOLID wherever it's practical — apply it to improve clarity/testability
    - **Abstract Low-Level Logic:** Do not write verbose, low-level OS/File system operations (like deep `os.path` joins or byte-level manipulation) directly in application or composition root layers. Extract them into common utility classes (e.g., `PathUtils`) inside the `sagittarius_engine.utils` directory if they are reusable across the framework.
 
 6. **Local CI/CD Enforcement:**
-   - Always run the local CI/CD script (`Binace_Bot\scripts\ci-local.ps1`) to validate your code before committing and pushing changes. It ensures linting, formatting, and tests pass.
+   - Always run the local CI/CD script (`Sagittarius_Elite_Warrior\scripts\ci-local.ps1`) to validate your code before committing and pushing changes. It ensures linting, formatting, and tests pass.
 
 7. **Clean Architecture Layer Enforcement:**
    - Always strictly respect the 4 Layers: Domain (Pure), Application (Use Cases/Ports), Interface Adapters (CLI/UI), and Infrastructure (DB/API/Frameworks).

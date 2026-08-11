@@ -13,7 +13,7 @@ _FALLBACK_COLOR = "#848E9C"
 
 class IIconLoader(Protocol):
     """@brief Port an app's own icon loader must satisfy to back
-    IconImageProvider — see e.g. Binace_Bot's assets/icon_loader.py."""
+    IconImageProvider — see e.g. Sagittarius_Elite_Warrior's assets/icon_loader.py."""
 
     def get_icon(self, name: str, color: str, size: int) -> QIcon: ...
 

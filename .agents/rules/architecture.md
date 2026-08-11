@@ -61,13 +61,13 @@ The system is strictly divided into 4 layers following Clean Architecture princi
 ### Layer 3: Interface Adapters (Tầng Giao tiếp / Chuyển đổi)
 **Responsibility:** Acts as the "translator" between the Core and the Outside World.
 - Transforms data from formats convenient for Use Cases to formats convenient for Database/UI, and vice versa.
-- **Example (Binace_Bot):** The `src/presentation/cli/` directory. It takes raw text from the user, translates it into DTOs (e.g., `StartLiveStreamCommand`), and dispatches it to the Engine. It also takes results and prints them.
+- **Example (Sagittarius_Elite_Warrior):** The `src/presentation/cli/` directory. It takes raw text from the user, translates it into DTOs (e.g., `StartLiveStreamCommand`), and dispatches it to the Engine. It also takes results and prints them.
 - **Note:** If a UI (e.g., PySide/Qt) is added later, all UI code belongs here. The Application layer must remain completely unaware of whether it is driven by CLI or a GUI.
 
 ### Layer 4: Infrastructure & Frameworks (Tầng Cơ sở hạ tầng)
 **Responsibility:** Where the system touches hardware, network, databases, and frameworks.
 - This layer contains "dirty" code full of external libraries, SDKs, and network connections. It plugs Adapters into the Ports defined by Layer 2.
-- **Examples (Binace_Bot):** `src/infrastructure/` and `src/main.py`.
+- **Examples (Sagittarius_Elite_Warrior):** `src/infrastructure/` and `src/main.py`.
 - **External Libraries:** `binance-python` (for API), `sqlalchemy` (for DB), and `sagittarius_engine` (for framework).
 - **Concrete Adapters:**
   - `PythonBinanceClient`: Uses `binance` to satisfy `IExchangeClient`.
