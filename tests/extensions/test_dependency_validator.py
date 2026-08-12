@@ -1,5 +1,4 @@
 import pytest
-import sys
 from unittest.mock import MagicMock, patch
 from sagittarius_engine.extensions.dependency_validator import DependencyValidatorExtension
 
