@@ -39,7 +39,7 @@ class GenerateReportUseCase(IGenerateReportUseCase):
 
             task.update_progress(100, "Done!")
 
-            students = self.repo.get_all()
+            students = await asyncio.to_thread(self.repo.get_all)
             if not students:
                 report_content = (
                     "Report Summary: No students registered in the database."

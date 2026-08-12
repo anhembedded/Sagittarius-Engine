@@ -23,3 +23,6 @@
 ## 2025-10-24 - TaskManager Cleanup Iteration Optimization
 **Learning:** Iterating over `self.tasks.items()` on every task completion to clean up old tasks creates an O(N) overhead where N is the total number of tasks (active + finished). In high-throughput environments, this linear scan degrades performance.
 **Action:** Use a separate `collections.deque` to track finished task IDs for O(1) amortized cleanup, avoiding scans of the main task registry.
+## 2024-05-23 - Prevent blocking operations in asyncio coroutines
+**Learning:** Blocking operations, such as synchronous database calls, inside `async def` functions block the asyncio event loop, severely degrading concurrent performance and increasing latency for all other tasks.
+**Action:** Use `asyncio.to_thread()` to offload synchronous, blocking operations to a separate thread when working within an asyncio event loop.
