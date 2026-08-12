@@ -123,6 +123,8 @@ class MainWindow(QMainWindow):
             """
         )
 
+        self._uuid_to_item: dict[str, QTableWidgetItem] = {}
+
         self._init_ui()
         self.view_adapter = QtStudentMonitorViewAdapter(self)
         self.presenter = StudentMonitorPresenter(self.view_adapter, app)
@@ -232,22 +234,27 @@ class MainWindow(QMainWindow):
 
     def display_students(self, students: Sequence[Student]) -> None:
         self.table.setRowCount(0)
+        self._uuid_to_item.clear()
         for s in students:
             self.update_student_row(s)
 
     def update_student_row(self, s: Student) -> None:
         row_idx = -1
-        for i in range(self.table.rowCount()):
-            item = self.table.item(i, 0)
-            if item is not None and item.text() == s.id:
-                row_idx = i
-                break
+        item = self._uuid_to_item.get(s.id)
+        if item is not None:
+            try:
+                row_idx = item.row()
+            except RuntimeError:
+                # The C++ object was deleted, we should clean up our cache and insert a new row
+                self._uuid_to_item.pop(s.id, None)
 
         if row_idx == -1:
             row_idx = self.table.rowCount()
             self.table.insertRow(row_idx)
 
-        self.table.setItem(row_idx, 0, QTableWidgetItem(s.id))
+        uuid_item = QTableWidgetItem(s.id)
+        self.table.setItem(row_idx, 0, uuid_item)
+        self._uuid_to_item[s.id] = uuid_item
         self.table.setItem(row_idx, 1, QTableWidgetItem(s.student_id))
         self.table.setItem(row_idx, 2, QTableWidgetItem(s.full_name))
         self.table.setItem(row_idx, 3, QTableWidgetItem(str(s.age)))
@@ -259,11 +266,16 @@ class MainWindow(QMainWindow):
         self.table.setItem(row_idx, 6, gpa_item)
 
     def remove_student_row(self, uuid: str) -> None:
-        for i in range(self.table.rowCount()):
-            item = self.table.item(i, 0)
-            if item is not None and item.text() == uuid:
-                self.table.removeRow(i)
-                break
+        item = self._uuid_to_item.get(uuid)
+        if item is not None:
+            try:
+                row_idx = item.row()
+                if row_idx != -1:
+                    self.table.removeRow(row_idx)
+            except RuntimeError:
+                pass
+            finally:
+                self._uuid_to_item.pop(uuid, None)
 
     def update_report_progress(self, progress: int) -> None:
         self.progress_bar.setValue(progress)

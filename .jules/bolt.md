@@ -23,3 +23,6 @@
 ## 2025-10-24 - TaskManager Cleanup Iteration Optimization
 **Learning:** Iterating over `self.tasks.items()` on every task completion to clean up old tasks creates an O(N) overhead where N is the total number of tasks (active + finished). In high-throughput environments, this linear scan degrades performance.
 **Action:** Use a separate `collections.deque` to track finished task IDs for O(1) amortized cleanup, avoiding scans of the main task registry.
+## 2024-05-18 - QTableWidget O(N) Lookup Optimization
+**Learning:** PySide6 UI rendering can block noticeably if operations like updating or removing rows require a linear search (O(N)) through table rows to find the correct `QTableWidgetItem`. Also, QTableWidgetItems can be deleted implicitly by Qt (e.g. `setRowCount(0)`), causing `RuntimeError` if you hold a stale reference.
+**Action:** Always maintain a dictionary cache mapping unique identifiers to `QTableWidgetItem` instances for O(1) lookup. Explicitly handle the item lifecycle (like catching `RuntimeError: libshiboken: Internal C++ object already deleted`) and always clear the cache on bulk rebuilds to avoid dangling references.
