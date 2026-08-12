@@ -2,6 +2,7 @@ import inspect
 import logging
 import threading
 import weakref
+from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Dict, Optional, Union
 from sagittarius_engine.interfaces.i_task_manager import ITaskManager
@@ -76,6 +77,7 @@ class TaskManager(ITaskManager):
     def __init__(self, context: Any) -> None:
         self.context = context
         self.tasks: Dict[str, BackgroundTask] = {}
+        self._finished_task_ids: deque[str] = deque()
         self.background_executor = DaemonThreadPoolExecutor(
             max_workers=20,
             thread_name_prefix="SagittariusBgTask",
@@ -98,15 +100,9 @@ class TaskManager(ITaskManager):
     def _cleanup_old_tasks(self) -> None:
         with self._lock:
             # Prevent memory leaks by capping the tracking list of finished tasks
-            if len(self.tasks) > 200:
-                finished_ids = [
-                    tid
-                    for tid, t in self.tasks.items()
-                    if t.status
-                    in (TaskState.COMPLETED, TaskState.FAILED, TaskState.CANCELLED)
-                ]
-                # Remove oldest finished tasks, keeping only the most recent 50
-                for tid in finished_ids[:-50]:
+            while len(self._finished_task_ids) > 50:
+                tid = self._finished_task_ids.popleft()
+                if tid in self.tasks:
                     del self.tasks[tid]
 
     def _wrap_sync(
@@ -131,6 +127,8 @@ class TaskManager(ITaskManager):
                 )
                 raise e
             finally:
+                with self._lock:
+                    self._finished_task_ids.append(bg_task.id)
                 self._cleanup_old_tasks()
 
         return wrapper
@@ -150,6 +148,8 @@ class TaskManager(ITaskManager):
             self._emit("runtime.tasks.failed", TaskFailed(bg_task.id, bg_task.name, e))
             raise e
         finally:
+            with self._lock:
+                self._finished_task_ids.append(bg_task.id)
             self._cleanup_old_tasks()
 
     def spawn(
@@ -207,6 +207,9 @@ class TaskManager(ITaskManager):
                 bg_task.status = TaskState.FAILED
                 bg_task.error = e
                 self._emit("runtime.tasks.failed", TaskFailed(bg_task.id, task_name, e))
+                with self._lock:
+                    self._finished_task_ids.append(bg_task.id)
+                self._cleanup_old_tasks()
                 raise e
         else:
             # It's sync
@@ -231,6 +234,9 @@ class TaskManager(ITaskManager):
                 bg_task.status = TaskState.FAILED
                 bg_task.error = e
                 self._emit("runtime.tasks.failed", TaskFailed(bg_task.id, task_name, e))
+                with self._lock:
+                    self._finished_task_ids.append(bg_task.id)
+                self._cleanup_old_tasks()
                 raise e
 
         return bg_task
