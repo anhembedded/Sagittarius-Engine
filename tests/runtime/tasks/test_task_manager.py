@@ -55,3 +55,26 @@ def test_task_manager_progress_event_emission():
     assert event_obj.task_id == task.id
     assert event_obj.progress == 75.5
     assert event_obj.message == "Almost there"
+
+def test_task_manager_cleanup():
+    from sagittarius_engine.runtime.tasks.background_task import BackgroundTask, TaskState
+    context = MockContext()
+    manager = TaskManager(context)
+
+    # Add 200 completed tasks
+    for i in range(200):
+        t = BackgroundTask(f"completed_task_{i}")
+        t.status = TaskState.COMPLETED
+        manager.tasks[t.id] = t
+        manager._finished_task_ids.append(t.id)
+
+    # Add 5 active tasks
+    for i in range(5):
+        t = BackgroundTask(f"active_task_{i}")
+        t.status = TaskState.RUNNING
+        manager.tasks[t.id] = t
+
+    manager._cleanup_old_tasks()
+
+    assert len(manager._finished_task_ids) == 50
+    assert len(manager.tasks) == 55
