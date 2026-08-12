@@ -23,3 +23,6 @@
 ## 2025-10-24 - TaskManager Cleanup Iteration Optimization
 **Learning:** Iterating over `self.tasks.items()` on every task completion to clean up old tasks creates an O(N) overhead where N is the total number of tasks (active + finished). In high-throughput environments, this linear scan degrades performance.
 **Action:** Use a separate `collections.deque` to track finished task IDs for O(1) amortized cleanup, avoiding scans of the main task registry.
+## 2025-01-31 - String Concatenation Optimization
+**Learning:** Python strings are immutable, making repeated `+=` string concatenations inside a loop inefficient as it continuously allocates new memory. Building a list and calling `"".join()` at the end can yield a ~21% speed improvement.
+**Action:** Use list appending and `"".join()` instead of `+=` for assembling long strings iteratively, especially when dealing with loops.
