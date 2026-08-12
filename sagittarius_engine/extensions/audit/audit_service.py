@@ -131,7 +131,8 @@ class AuditService:
                 return dispatcher.dispatch(HealthCheckQuery, HealthCheckDTO())
 
         except Exception as e:
-            return {"status": "error", "message": str(e), "components": {}}
+            self._logger.error(f"Health check failed: {e}")
+            return {"status": "error", "message": "An error occurred during health check.", "components": {}}
 
         return {"status": "unknown"}
 
