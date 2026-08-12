@@ -12,3 +12,8 @@
 **Vulnerability:** `BatchInputPort` implemented path traversal defenses but defaulted `base_path` to `None`, bypassing the checks completely and creating a critical fail-open vulnerability allowing unrestricted file system access.
 **Learning:** Security controls must be fail-closed. Defaulting a confinement parameter to `""` securely restricts access to the current working directory, whereas bypassing checks on `None` silently disables the defense.
 **Prevention:** When implementing path traversal defenses, ensure the default parameter (e.g., `base_path`) enforces a restrictive boundary (like `""`) instead of `None`, and execute validation unconditionally.
+
+## 2026-08-12 - Insecure Bind Address in WebsocketBroadcaster
+**Vulnerability:** `WebsocketBroadcaster` defaulted to binding on `0.0.0.0`, exposing telemetry broadcast endpoints to any network interface and potentially unauthorized actors.
+**Learning:** Defaulting to all interfaces (`0.0.0.0`) without authentication is dangerous for services broadcasting system state or telemetry. Network listeners should bind to loopback (`127.0.0.1`) by default unless external exposure is explicitly required and secured.
+**Prevention:** Default internal and unauthenticated network listeners to `127.0.0.1`. Allow configuration for users to explicitly opt into external binding.

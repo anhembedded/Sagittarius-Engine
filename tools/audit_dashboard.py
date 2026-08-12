@@ -18,7 +18,9 @@ except ImportError:
     RICH_AVAILABLE = False
 
 
-def fetch_telemetry(port: int, path: str = "/") -> dict:
+from typing import Optional
+
+def fetch_telemetry(port: int, path: str = "/") -> Optional[dict]:
     try:
         req = urllib.request.Request(f"http://localhost:{port}{path}")
         with urllib.request.urlopen(req, timeout=1.0) as response:
@@ -84,14 +86,15 @@ def generate_ui(port: int):
     health_status = health.get("status", "unknown").upper()
     health_color = "green" if health_status == "HEALTHY" else "red"
 
-    overview_text = f"[b]Uptime:[/b] {uptime:.1f}s | [b]Status:[/b] [{health_color}][b]{health_status}[/b][/{health_color}]\n"
-    overview_text += f"[b]OS:[/b] {env.get('os')} {env.get('os_release')} | [b]Python:[/b] {env.get('python_version')}\n"
-    overview_text += (
+    overview_parts = [
+        f"[b]Uptime:[/b] {uptime:.1f}s | [b]Status:[/b] [{health_color}][b]{health_status}[/b][/{health_color}]\n",
+        f"[b]OS:[/b] {env.get('os')} {env.get('os_release')} | [b]Python:[/b] {env.get('python_version')}\n",
         f"[b]CPU:[/b] {env.get('cpu_percent')} | [b]RAM:[/b] {env.get('ram_mb')}\n\n"
-    )
+    ]
     for comp, stat in health.get("components", {}).items():
         icon = "✅" if stat == "ok" else "❌"
-        overview_text += f"{icon} [b]{comp}[/b]: {stat}\n"
+        overview_parts.append(f"{icon} [b]{comp}[/b]: {stat}\n")
+    overview_text = "".join(overview_parts)
 
     overview_panel = Panel(
         overview_text, title="System Overview", border_style="cyan", box=box.ROUNDED
