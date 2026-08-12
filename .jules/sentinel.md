@@ -12,3 +12,7 @@
 **Vulnerability:** `BatchInputPort` implemented path traversal defenses but defaulted `base_path` to `None`, bypassing the checks completely and creating a critical fail-open vulnerability allowing unrestricted file system access.
 **Learning:** Security controls must be fail-closed. Defaulting a confinement parameter to `""` securely restricts access to the current working directory, whereas bypassing checks on `None` silently disables the defense.
 **Prevention:** When implementing path traversal defenses, ensure the default parameter (e.g., `base_path`) enforces a restrictive boundary (like `""`) instead of `None`, and execute validation unconditionally.
+## 2024-05-24 - Information Disclosure in Health Checks
+**Vulnerability:** Raw exception messages (`str(e)`) were being returned directly in health check API responses.
+**Learning:** Returning raw system exceptions to clients leaks internal implementation details, which can be leveraged by attackers to map out the system architecture or identify exploitable conditions.
+**Prevention:** Always log the actual exception details securely on the server side and return a generic, non-descriptive error message to the client.
