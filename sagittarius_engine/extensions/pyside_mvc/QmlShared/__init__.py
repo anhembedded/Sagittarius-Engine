@@ -18,14 +18,15 @@ from .qml_host_view import (
     create_quick_widget,
 )
 from .qml_style import ensure_qml_style
+from .qml_value_normalizer import from_qml
 from .state_tokens import DEFAULT_STATE_TOKENS, with_state_token_defaults
 from .theme_bridge import get_theme_bridge, register_theme
 
 __all__ = [
+    "DEFAULT_STATE_TOKENS",
     "ICON_PROVIDER_ID",
     "AppQmlConfig",
     "BaseQmlViewModel",
-    "DEFAULT_STATE_TOKENS",
     "IIconLoader",
     "IconImageProvider",
     "LogListModel",
@@ -33,6 +34,7 @@ __all__ = [
     "configure_app_qml",
     "create_quick_widget",
     "ensure_qml_style",
+    "from_qml",
     "get_theme_bridge",
     "register_theme",
     "with_state_token_defaults",

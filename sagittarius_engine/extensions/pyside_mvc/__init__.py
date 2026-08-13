@@ -20,13 +20,11 @@ else:
     from .base_presenter import BasePresenter
     from .base_view import BaseView
     from .presenter_manager import PresenterManager
-    from .ui_matrix_mixin import UIMatrixMixin
-    from .thread_bridge import safe_ui_action
     from .QmlShared import (
+        DEFAULT_STATE_TOKENS,
         ICON_PROVIDER_ID,
         AppQmlConfig,
         BaseQmlViewModel,
-        DEFAULT_STATE_TOKENS,
         IconImageProvider,
         IIconLoader,
         LogListModel,
@@ -34,20 +32,23 @@ else:
         configure_app_qml,
         create_quick_widget,
         ensure_qml_style,
+        from_qml,
         get_theme_bridge,
         register_theme,
         with_state_token_defaults,
     )
+    from .thread_bridge import safe_ui_action
+    from .ui_matrix_mixin import UIMatrixMixin
 
     __all__ = [
+        "DEFAULT_STATE_TOKENS",
         "ICON_PROVIDER_ID",
         "AppQmlConfig",
         "BasePresenter",
         "BaseQmlViewModel",
         "BaseView",
-        "DEFAULT_STATE_TOKENS",
-        "IconImageProvider",
         "IIconLoader",
+        "IconImageProvider",
         "LogListModel",
         "PresenterManager",
         "QmlHostView",
@@ -55,6 +56,7 @@ else:
         "configure_app_qml",
         "create_quick_widget",
         "ensure_qml_style",
+        "from_qml",
         "get_theme_bridge",
         "register_theme",
         "safe_ui_action",
