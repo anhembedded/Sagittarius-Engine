@@ -48,9 +48,18 @@ class BasePresenter(QObject):
         # for any View that opts in by subclassing BaseView — a no-op for
         # views that don't, so this is safe for every other framework consumer.
         from .base_view import DEV_MODE_CONFIG_KEY, BaseView
+        from .thread_affinity import set_thread_affinity_dev_mode
 
-        if isinstance(view, BaseView) and self.config.get(DEV_MODE_CONFIG_KEY, False):
+        dev_mode = self.config.get(DEV_MODE_CONFIG_KEY, False)
+        if isinstance(view, BaseView) and dev_mode:
             view.enable_dev_click_logging()
+
+        # @ui_mutator (BOT-068) reads this process-wide, not per-instance —
+        # a BaseQmlViewModel has no IConfig of its own to check. Every
+        # ViewModel is constructed by a Presenter, and any background worker
+        # that could reach one was submitted by that same Presenter, so this
+        # is always set before it matters.
+        set_thread_affinity_dev_mode(dev_mode)
 
         # State Machine for UI
         from sagittarius_engine.extensions.fsm.state_machine import BaseStateMachine

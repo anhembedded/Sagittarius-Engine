@@ -37,6 +37,13 @@ else:
         register_theme,
         with_state_token_defaults,
     )
+    from .thread_affinity import (
+        CrossThreadUiMutationError,
+        not_a_ui_mutator,
+        set_thread_affinity_dev_mode,
+        ui_mutator,
+        unprotected_mutators,
+    )
     from .thread_bridge import safe_ui_action
     from .ui_matrix_mixin import UIMatrixMixin
 
@@ -47,6 +54,7 @@ else:
         "BasePresenter",
         "BaseQmlViewModel",
         "BaseView",
+        "CrossThreadUiMutationError",
         "IIconLoader",
         "IconImageProvider",
         "LogListModel",
@@ -58,7 +66,11 @@ else:
         "ensure_qml_style",
         "from_qml",
         "get_theme_bridge",
+        "not_a_ui_mutator",
         "register_theme",
         "safe_ui_action",
+        "set_thread_affinity_dev_mode",
+        "ui_mutator",
+        "unprotected_mutators",
         "with_state_token_defaults",
     ]

@@ -1,4 +1,4 @@
-from PySide6.QtCore import Property, QObject, Signal
+from PySide6.QtCore import Property, QObject, Signal, Slot
 
 
 class BaseQmlViewModel(QObject):
@@ -48,6 +48,7 @@ class BaseQmlViewModel(QObject):
         bool, _get_controls_enabled, notify=controlsEnabledChanged
     )
 
+    @Slot(str)
     def set_ui_mode(self, mode: str) -> None:
         if mode == self._ui_mode:
             return
