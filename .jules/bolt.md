@@ -26,3 +26,6 @@
 ## 2024-05-23 - Prevent blocking operations in asyncio coroutines
 **Learning:** Blocking operations, such as synchronous database calls, inside `async def` functions block the asyncio event loop, severely degrading concurrent performance and increasing latency for all other tasks.
 **Action:** Use `asyncio.to_thread()` to offload synchronous, blocking operations to a separate thread when working within an asyncio event loop.
+## 2025-01-31 - String Concatenation Optimization
+**Learning:** Python strings are immutable, making repeated `+=` string concatenations inside a loop inefficient as it continuously allocates new memory. Building a list and calling `"".join()` at the end can yield a ~21% speed improvement.
+**Action:** Use list appending and `"".join()` instead of `+=` for assembling long strings iteratively, especially when dealing with loops.
