@@ -139,3 +139,29 @@ def test_audit_service_system_health_error_handling():
     assert result["status"] == "error"
     assert result["message"] == "An internal error occurred"
     assert "Secret raw error details" not in result["message"]
+
+def test_audit_service_task_details_error_handling():
+    """
+    [Unit Test - UT]
+    Verifies AuditService securely handles task errors without leaking sensitive information.
+    """
+    mock_context = MagicMock(spec=IEngineContext)
+
+    mock_task = MagicMock()
+    mock_task.name = "FailingTask"
+    mock_task.status = MagicMock()
+    mock_task.status.value = "failed"
+    mock_task.start_time = None
+    mock_task.end_time = None
+    mock_task.error = Exception("Secret raw error details in task")
+
+    mock_tasks = MagicMock()
+    mock_tasks.tasks = {"test-id-123": mock_task}
+    mock_context.tasks = mock_tasks
+
+    service = AuditService(mock_context)
+    tasks = service.get_all_tasks_details()
+
+    assert len(tasks) == 1
+    assert tasks[0]["error"] == "An internal error occurred"
+    assert "Secret raw error details" not in tasks[0]["error"]

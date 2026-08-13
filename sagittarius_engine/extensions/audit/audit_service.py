@@ -314,9 +314,11 @@ class AuditService:
                 for t in task_items:
                     error_msg = None
                     if hasattr(t, "error") and t.error:
-                        error_msg = str(t.error)
+                        self._logger.error(f"Task '{getattr(t, 'name', 'Unknown')}' error: {t.error}")
+                        error_msg = "An internal error occurred"
                     elif hasattr(t, "exception") and t.exception:
-                        error_msg = str(t.exception)
+                        self._logger.error(f"Task '{getattr(t, 'name', 'Unknown')}' error: {t.exception}")
+                        error_msg = "An internal error occurred"
 
                     runtime = "N/A"
                     if hasattr(t, "start_time") and t.start_time:

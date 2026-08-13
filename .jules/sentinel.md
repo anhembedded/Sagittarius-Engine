@@ -22,3 +22,7 @@
 **Vulnerability:** `AuditService.get_system_health` caught exceptions during health checks and directly embedded the raw exception string (`str(e)`) in the returned dictionary, causing an information disclosure vulnerability.
 **Learning:** Returning raw exception messages to callers (like a UI or API endpoint) can leak sensitive internals, such as stack traces, database schema details, or underlying code logic, especially when it originates from deeply nested calls like CQRS dispatchers.
 **Prevention:** Never expose raw exception strings (`str(e)`) in external-facing or state-reporting methods. Instead, securely log the raw exception (e.g., `self._logger.error(f"Error: {e}")`) and return a generic error message (e.g., `"message": "An internal error occurred"`) to the caller.
+## 2024-05-24 - Information Disclosure in Task Telemetry
+**Vulnerability:** Raw exception strings (str(t.error)) were exposed in telemetry endpoints for background tasks.
+**Learning:** Generic handlers in diagnostic or telemetry APIs often inadvertently expose internal logic and potential secrets via raw exception strings.
+**Prevention:** Never directly assign exception string representations to output payload properties. Instead, securely log the raw error and substitute it with a generic, safe message like 'An internal error occurred'.
