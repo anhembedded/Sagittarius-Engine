@@ -17,3 +17,8 @@
 **Vulnerability:** `WebsocketBroadcaster` defaulted to binding on `0.0.0.0`, exposing telemetry broadcast endpoints to any network interface and potentially unauthorized actors.
 **Learning:** Defaulting to all interfaces (`0.0.0.0`) without authentication is dangerous for services broadcasting system state or telemetry. Network listeners should bind to loopback (`127.0.0.1`) by default unless external exposure is explicitly required and secured.
 **Prevention:** Default internal and unauthenticated network listeners to `127.0.0.1`. Allow configuration for users to explicitly opt into external binding.
+
+## 2025-02-23 - Information Disclosure in AuditService Health Check
+**Vulnerability:** `AuditService.get_system_health` caught exceptions during health checks and directly embedded the raw exception string (`str(e)`) in the returned dictionary, causing an information disclosure vulnerability.
+**Learning:** Returning raw exception messages to callers (like a UI or API endpoint) can leak sensitive internals, such as stack traces, database schema details, or underlying code logic, especially when it originates from deeply nested calls like CQRS dispatchers.
+**Prevention:** Never expose raw exception strings (`str(e)`) in external-facing or state-reporting methods. Instead, securely log the raw exception (e.g., `self._logger.error(f"Error: {e}")`) and return a generic error message (e.g., `"message": "An internal error occurred"`) to the caller.

@@ -120,3 +120,22 @@ def test_audit_extension_registration():
     # Shutdown should call stop_server
     ext.shutdown(mock_context)
     mock_audit_service.stop_server.assert_called_once()
+
+def test_audit_service_system_health_error_handling():
+    """
+    [Unit Test - UT]
+    Verifies AuditService securely handles exceptions during health check
+    dispatch to prevent information disclosure.
+    """
+    mock_context = MagicMock(spec=IEngineContext)
+
+    mock_app = MagicMock()
+    mock_app.dispatch.side_effect = Exception("Secret raw error details")
+    mock_context.app = mock_app
+
+    service = AuditService(mock_context)
+    result = service.get_system_health()
+
+    assert result["status"] == "error"
+    assert result["message"] == "An internal error occurred"
+    assert "Secret raw error details" not in result["message"]
