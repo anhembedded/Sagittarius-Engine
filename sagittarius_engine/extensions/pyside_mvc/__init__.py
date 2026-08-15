@@ -47,6 +47,7 @@ else:
     )
     from .thread_bridge import safe_ui_action
     from .ui_matrix_mixin import UIMatrixMixin
+    from .ui_watchdog import UIWatchdog, setup_qt_signal_handling
 
     __all__ = [
         "DEFAULT_STATE_TOKENS",
@@ -75,4 +76,6 @@ else:
         "ui_mutator",
         "unprotected_mutators",
         "with_state_token_defaults",
+        "UIWatchdog",
+        "setup_qt_signal_handling",
     ]
