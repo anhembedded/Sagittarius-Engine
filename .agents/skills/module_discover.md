@@ -11,8 +11,8 @@ When the user requests you to "discover", "investigate", or "document" a specifi
 
 ### 1. Research the Core Abstractions (Interfaces)
 
-- Use `grep_search` to find the core interfaces related to the module (e.g., `IConfig`, `IEventBus`).
-- Look for these interfaces in the `sagittarius_engine/interfaces/` directory.
+- Use the repo's actual search/read tools to find the core interfaces related to the module.
+- Look for these interfaces in the relevant project directories rather than assuming a single fixed folder.
 - Read the source code of the interface to understand its public API contracts, type hints, and intended responsibilities.
 
 ### 2. Identify Implementations and Concrete Classes

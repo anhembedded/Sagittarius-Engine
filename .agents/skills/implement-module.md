@@ -48,8 +48,11 @@ When implementing a module, your output must include:
 * **Integration Instructions:** How to wire this module into the existing DI container or orchestration layer.
 * **Testing Strategy:** Unit tests for both the "happy path" and specifically for failure modes, resource cleanup, and invalid inputs.
 
-## 5.5 run static check
-make sure cicd pass in [cicd](../../.github/workflows/ci.yml)
+## 5.5 Validation discipline
+
+- Run the smallest meaningful validation first: focused tests or checks that directly prove the requested behavior.
+- Then run any broader checks required by the touched surface or by explicit project workflow.
+- Before committing, verify the relevant commands from `.github/workflows/ci.yml` or equivalent project test scripts instead of guessing.
 
 ## 6. Golden Rule
 
