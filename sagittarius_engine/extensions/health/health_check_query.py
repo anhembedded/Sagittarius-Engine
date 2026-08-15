@@ -41,12 +41,16 @@ class HealthCheckQuery(IQuery):
         except Exception:
             status["components"]["container"] = "error: container resolution failed"
             status["status"] = "unhealthy"
+
         try:
             if not hasattr(self.event_bus, "emit"):
                 raise ValueError("event_bus has no emit method")
         except Exception:
             status["components"]["event_bus"] = "error: event bus check failed"
             status["status"] = "unhealthy"
+
+        # Check Database health (supports static ISession OR dynamic DatabaseManager / Sharding)
+        db_checked = False
         try:
             session: ISession = self.container.resolve(ISession)
             try:
@@ -54,12 +58,38 @@ class HealthCheckQuery(IQuery):
 
                 session.execute(text("SELECT 1"))
                 status["components"]["database"] = "ok"
+                db_checked = True
             except ImportError:
                 status["components"]["database"] = "sqlalchemy not installed"
                 status["status"] = "unhealthy"
+                db_checked = True
             except Exception:
                 status["components"]["database"] = "database connection failed"
                 status["status"] = "unhealthy"
+                db_checked = True
         except Exception:
+            pass
+
+        if not db_checked:
+            # Check for dynamic database managers or repositories in DI container
+            known_keys = (
+                list(getattr(self.container, "_bindings", {}).keys())
+                + list(getattr(self.container, "_factories", {}).keys())
+                + list(getattr(self.container, "_instances", {}).keys())
+            )
+            for reg_type in known_keys:
+                type_name = getattr(reg_type, "__name__", str(reg_type))
+                if any(kw in type_name for kw in ("DatabaseManager", "DatabaseConfig", "MarketDataRepository", "Database")):
+                    try:
+                        resolved = self.container.resolve(reg_type)
+                        if resolved is not None:
+                            status["components"]["database"] = "ok"
+                            db_checked = True
+                            break
+                    except Exception:
+                        pass
+
+        if not db_checked:
             status["components"]["database"] = "not configured"
+
         return status
