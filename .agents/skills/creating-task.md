@@ -7,6 +7,8 @@ description: Instructions for creating a new Task specification in the Tasks Kan
 
 When the user asks you to create a new task or backlog item for the Sagittarius Engine, you MUST follow these specific steps to ensure the task is properly integrated into the project's Kanban hub.
 
+**Process gate:** Do not create a new task spec if the work is clearly a direct continuation of the current active task and the user has not asked for separate tracking. In that case, continue the existing task and update its task file instead of spawning a new one.
+
 ## 1. Determine the Next Task ID
 
 1. Read `Tasks/README.md` to view the existing tasks (completed, in-progress, and backlog).

@@ -23,7 +23,8 @@ Every complete guide must explicitly or implicitly answer:
 
 * **No Implementation Details:** Never explain private classes, internal architecture, or internal imports unless explicitly writing an Architecture document.
 * **No Duplication:** Keep Concepts (Why), Guides (How), Tutorials (Practice), and API Refs (Specs) strictly separated.
-* **Single Source of Truth:** Always consult the Project Knowledge Base (overview, terminology, roadmap) before writing. Always use official project terminology.
+* **Single Source of Truth:** Always consult the current project docs, task files, and roadmap before writing. Always use official project terminology.
+* **Reality Over Template:** If the repo already has a stronger local pattern for handoff or status docs, match that pattern instead of forcing a generic document structure.
 
 ## 4. Code & Visual Rules
 

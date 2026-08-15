@@ -27,7 +27,8 @@ Update phase status at the START and END of each phase.
 ## 3. Testing Strategy
 
 * **Rule:** Never alter tests just to pass. Tests must validate intended behavior.
-* **Regression & Expansion:** Add tests that fail before the fix and pass after. Expand coverage to include boundaries, null/invalid inputs, edge cases, and concurrency.
+* **Regression & Expansion:** When the user reports a bug, write a regression test that reproduces it before fixing the code. Then make it pass. Expand coverage to include boundaries, null/invalid inputs, edge cases, and concurrency where relevant.
+* **Focused Validation First:** Start with the smallest test slice that proves the bug and the fix. Only run broader suites when the changed surface or project rules require it.
 * **Quality:** New tests must be independent, fast, deterministic, and readable. Document any coverage gaps identified during RCA.
 
 ## 4. Systemic Investigation & Architecture
