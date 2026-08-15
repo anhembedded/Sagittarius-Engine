@@ -2,8 +2,8 @@
 @brief Application Health Check Extension.
 
 @details
-Registers the HealthCheckQuery in the container and automatically emits
-HealthUpdatedEvent via the EventBus on boot.
+Registers the HealthCheckQuery in the container, logs status via the engine
+logger, and automatically emits HealthUpdatedEvent via the EventBus on boot.
 """
 
 from __future__ import annotations
@@ -38,6 +38,9 @@ class IHealthContext(Protocol):
     @property
     def event_bus(self) -> IEventBus | None: ...
 
+    @property
+    def logger(self) -> Any | None: ...
+
 
 class HealthExtension(IExtension[IHealthContext]):
     """
@@ -49,10 +52,18 @@ class HealthExtension(IExtension[IHealthContext]):
         context.container.bind(HealthCheckQuery, HealthCheckQuery)
 
     def boot(self, context: IHealthContext) -> None:
-        """@brief Boots the Health Extension and emits initial health status."""
+        """@brief Boots the Health Extension, logs status, and emits health event."""
         try:
             query = context.container.resolve(HealthCheckQuery)
             status = query.execute()
+            status_str = str(status.get("status", "healthy")).upper()
+            components = status.get("components", {})
+            comp_str = ", ".join(f"{k.capitalize()}: {str(v).upper()}" for k, v in components.items())
+            log_msg = f"System Health: {status_str} ({comp_str})"
+
+            if hasattr(context, "logger") and context.logger is not None:
+                context.logger.info(log_msg)
+
             if hasattr(context, "event_bus") and context.event_bus is not None:
                 context.event_bus.emit(
                     HealthUpdatedEvent.event_name, HealthUpdatedEvent(status)
