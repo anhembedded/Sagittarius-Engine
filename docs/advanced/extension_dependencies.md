@@ -52,12 +52,13 @@ When `app.boot()` is called, the Kernel performs the following steps:
 ```python
 from sagittarius_engine import IExtension, ExtensionDescriptor, EngineContext
 
+
 class AuthenticationExtension(IExtension):
     @property
     def descriptor(self) -> ExtensionDescriptor:
         return ExtensionDescriptor(
             name="Authentication",
-            dependencies=["Database"] # Database must start first
+            dependencies=["Database"],  # Database must start first
         )
 
     def register(self, context: EngineContext) -> None:

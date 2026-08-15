@@ -1,5 +1,6 @@
 # Clean Architecture - Infrastructure Adapter (In-Memory Repository)
-from typing import Sequence, Optional
+from collections.abc import Sequence
+
 from examples.student_management.application.contracts.student_repository import (
     IStudentRepository,
 )
@@ -21,10 +22,10 @@ class InMemoryStudentRepository(IStudentRepository):
     def delete(self, uuid: str) -> None:
         self._students.pop(uuid, None)
 
-    def get_by_id(self, uuid: str) -> Optional[Student]:
+    def get_by_id(self, uuid: str) -> Student | None:
         return self._students.get(uuid)
 
-    def get_by_student_id(self, student_id: str) -> Optional[Student]:
+    def get_by_student_id(self, student_id: str) -> Student | None:
         for s in self._students.values():
             if s.student_id == student_id:
                 return s

@@ -100,6 +100,7 @@ Every plugin must implement the `IExtension` interface and provide an `Extension
 # no-run
 from sagittarius_engine import IExtension, ExtensionDescriptor
 
+
 class MetricsPlugin(IExtension):
     def __init__(self) -> None:
         self._desc = ExtensionDescriptor(name="MetricsPlugin", priority=10)

@@ -121,6 +121,7 @@ def test_audit_extension_registration():
     ext.shutdown(mock_context)
     mock_audit_service.stop_server.assert_called_once()
 
+
 def test_audit_service_system_health_error_handling():
     """
     [Unit Test - UT]

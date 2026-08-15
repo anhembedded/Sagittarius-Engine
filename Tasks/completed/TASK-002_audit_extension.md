@@ -29,6 +29,7 @@ Location: `sagittarius_engine/extensions/audit/audit_extension.py`
 ```python
 from sagittarius_engine.interfaces import IEngineContext, IExtension
 
+
 class AuditExtension(IExtension):
     def register(self, ctx: IEngineContext) -> None:
         ctx.container.singleton(AuditService, AuditService(ctx))

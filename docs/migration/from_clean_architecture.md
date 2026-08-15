@@ -44,8 +44,8 @@ If your code previously relied on `sagittarius_engine.base.BaseRepository`, you 
 # non-runnable
 from sagittarius_engine.base import BaseRepository
 
-class UserRepository(BaseRepository):
-    ...
+
+class UserRepository(BaseRepository): ...
 ```
 
 ```python
@@ -53,8 +53,8 @@ class UserRepository(BaseRepository):
 # non-runnable
 from sagittarius_engine.extensions.persistence import BaseRepository
 
-class UserRepository(BaseRepository):
-    ...
+
+class UserRepository(BaseRepository): ...
 ```
 
 ### Step 2: Extract Business Logic into Handlers
@@ -74,10 +74,12 @@ user = use_case.execute(dto)
 from sagittarius_engine import App
 from sagittarius_engine.extensions.cqrs import ICommand
 
+
 class CreateUserCommand(ICommand):
     def execute(self, dto: dict) -> str:
         # Domain logic here
         return "Success"
+
 
 # The Dispatcher routes the command to the correct handler automatically
 result = app.dispatch(CreateUserCommand, dto)

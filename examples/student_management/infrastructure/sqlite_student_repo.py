@@ -1,13 +1,13 @@
 # Clean Architecture - Infrastructure Adapter (SQLite Repository)
 import sqlite3
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
-from typing import Sequence, Iterator, Optional
 
-from sagittarius_engine.interfaces import IConfig
 from examples.student_management.application.contracts.student_repository import (
     IStudentRepository,
 )
 from examples.student_management.domain.student import Student
+from sagittarius_engine.interfaces import IConfig
 
 
 class SqliteStudentRepository(IStudentRepository):
@@ -102,7 +102,7 @@ class SqliteStudentRepository(IStudentRepository):
                 (uuid, uuid),
             )
 
-    def get_by_id(self, uuid: str) -> Optional[Student]:
+    def get_by_id(self, uuid: str) -> Student | None:
         with self._connection() as conn:
             cursor = conn.execute(
                 "SELECT id, student_id, full_name, age, gender, major, gpa FROM students WHERE id = ?",
@@ -111,7 +111,7 @@ class SqliteStudentRepository(IStudentRepository):
             row = cursor.fetchone()
             return self._row_to_student(row) if row else None
 
-    def get_by_student_id(self, student_id: str) -> Optional[Student]:
+    def get_by_student_id(self, student_id: str) -> Student | None:
         with self._connection() as conn:
             cursor = conn.execute(
                 "SELECT id, student_id, full_name, age, gender, major, gpa FROM students WHERE student_id = ?",

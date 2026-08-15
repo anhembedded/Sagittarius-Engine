@@ -71,6 +71,7 @@ def my_background_worker():
     time.sleep(5)
     print("Done!")
 
+
 def some_use_case(context: IEngineContext):
     handle = context.tasks.spawn(my_background_worker, name="HeavyWorkTask")
     print(f"Task spawned with ID: {handle.id}")
@@ -84,7 +85,10 @@ If your worker function accepts a parameter named `token` or `on_progress_update
 from sagittarius_engine.runtime.tasks.cancellation_token import CancellationToken
 from typing import Callable
 
-def data_processing_worker(token: CancellationToken, on_progress_update: Callable[[float, str], None]):
+
+def data_processing_worker(
+    token: CancellationToken, on_progress_update: Callable[[float, str], None]
+):
     total_items = 100
     for i in range(total_items):
         # 1. Cooperative Cancellation Check
@@ -93,19 +97,20 @@ def data_processing_worker(token: CancellationToken, on_progress_update: Callabl
             return
 
         # Do work
-        time.sleep(0.1) 
-        
+        time.sleep(0.1)
+
         # 2. Report Progress
         progress = ((i + 1) / total_items) * 100
         on_progress_update(progress, f"Processed item {i}")
 
+
 def some_controller(context: IEngineContext):
     # Spawn the task
     handle = context.tasks.spawn(data_processing_worker, name="DataProcessor")
-    
+
     # Check progress later
     print(f"Current progress: {handle.progress}%")
-    
+
     # Cancel if it takes too long
     handle.cancel()
 ```

@@ -1,14 +1,15 @@
 import asyncio
-from sagittarius_engine.runtime.tasks.task_manager import TaskManager
-from sagittarius_engine.interfaces import IEventBus
-from examples.student_management.application.contracts.use_case_ports import (
-    IGenerateReportUseCase,
-)
+
 from examples.student_management.application.contracts.student_repository import (
     IStudentRepository,
 )
-from examples.student_management.domain.events import ReportCompletedEvent
+from examples.student_management.application.contracts.use_case_ports import (
+    IGenerateReportUseCase,
+)
 from examples.student_management.application.dtos.commands import GenerateReportCommand
+from examples.student_management.domain.events import ReportCompletedEvent
+from sagittarius_engine.interfaces import IEventBus
+from sagittarius_engine.runtime.tasks.task_manager import TaskManager
 
 
 class GenerateReportUseCase(IGenerateReportUseCase):
@@ -19,7 +20,9 @@ class GenerateReportUseCase(IGenerateReportUseCase):
         self.tasks = tasks
         self.event_bus = event_bus
 
-    def execute(self, command: GenerateReportCommand = GenerateReportCommand()) -> str:
+    def execute(self, command: GenerateReportCommand | None = None) -> str:
+        if command is None:
+            command = GenerateReportCommand()
         task_ref = []
 
         async def _generate_report_async(token) -> None:

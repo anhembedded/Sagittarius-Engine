@@ -39,7 +39,9 @@ class MainWindow(QMainWindow):
         self.clear_btn = QPushButton("&Clear Logs")
         self.clear_btn.setToolTip("Clear all telemetry logs from the display (Alt+C)")
         self.clear_btn.setAccessibleName("Clear Logs")
-        self.clear_btn.setAccessibleDescription("Clears the telemetry log text area. Shortcut: Alt+C.")
+        self.clear_btn.setAccessibleDescription(
+            "Clears the telemetry log text area. Shortcut: Alt+C."
+        )
         self.clear_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.clear_btn.clicked.connect(self.log_area.clear)
         layout.addWidget(self.clear_btn)

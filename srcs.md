@@ -635,8 +635,6 @@ pass
 # FILE: extensions/__init__.py
 
 ```python
-
-
 from .cqrs import ICommand, IQuery
 
 from .audit import AuditExtension, AuditService
@@ -657,26 +655,20 @@ from .logger.logger_module import LoggerExtension
 from .thread_manager.thread_manager_module import ThreadManagerModule
 
 __all__ = [
-
     "ICommand",
     "IQuery",
-
     "AuditExtension",
     "AuditService",
-
     "BaseRepository",
     "ISession",
     "SQLAlchemySessionAdapter",
     "DatabaseExtension",
     "SqlAlchemyExtension",
-
     "HealthExtension",
     "HealthCheckQuery",
     "HealthCheckDTO",
     "HealthUpdatedEvent",
-
     "LoggerExtension",
-
     "ThreadManagerModule",
 ]
 ``````
@@ -1052,8 +1044,6 @@ def __init__(self, task_id: str, status: str):
 # FILE: extensions/audit/infra/__init__.py
 
 ```python
-
-
 from .websocket_broadcaster import WebsocketBroadcaster
 
 __all__ = ["WebsocketBroadcaster"]
@@ -6242,6 +6232,7 @@ from sagittarius_engine.infrastructure.container.std_container import StdLibCont
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 from sagittarius_engine.kernel import App
 
+
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -6251,6 +6242,7 @@ def main():
     print(
         "Clean Architecture App '{{project_name}}' booted successfully by {{author}}!"
     )
+
 
 if __name__ == "__main__":
     main()
@@ -6299,6 +6291,7 @@ from sagittarius_engine.infrastructure.container.std_container import StdLibCont
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 from sagittarius_engine.kernel import App
 
+
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -6306,6 +6299,7 @@ def main():
 
     app.boot()
     print("DDD App '{{project_name}}' booted successfully by {{author}}!")
+
 
 if __name__ == "__main__":
     main()
@@ -6318,6 +6312,7 @@ from sagittarius_engine.infrastructure.container.std_container import StdLibCont
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 from sagittarius_engine.kernel import App
 
+
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -6325,6 +6320,7 @@ def main():
 
     app.boot()
     print("Minimal App '{{project_name}}' booted successfully by {{author}}!")
+
 
 if __name__ == "__main__":
     main()
@@ -6343,6 +6339,7 @@ from sagittarius_engine.infrastructure.container.std_container import StdLibCont
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 from sagittarius_engine.kernel import App
 
+
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -6350,6 +6347,7 @@ def main():
 
     app.boot()
     print("MVC App '{{project_name}}' booted successfully by {{author}}!")
+
 
 if __name__ == "__main__":
     main()

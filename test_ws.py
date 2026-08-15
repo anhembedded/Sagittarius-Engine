@@ -1,10 +1,11 @@
 import asyncio
 from binance import AsyncClient, BinanceSocketManager
 
+
 async def main():
     client = await AsyncClient.create()
     bsm = BinanceSocketManager(client)
-    streams = ['btcusdt@kline_1m', 'ethusdt@kline_1m']
+    streams = ["btcusdt@kline_1m", "ethusdt@kline_1m"]
     socket = bsm.multiplex_socket(streams)
     print("Connecting...")
     async with socket as tscm:
@@ -14,5 +15,6 @@ async def main():
             print(f"Tick {i}: {res}")
     await client.close_connection()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     asyncio.run(main())

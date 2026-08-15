@@ -20,6 +20,7 @@ except ImportError:
 
 from typing import Optional
 
+
 def fetch_telemetry(port: int, path: str = "/") -> Optional[dict]:
     try:
         req = urllib.request.Request(f"http://localhost:{port}{path}")
@@ -89,7 +90,7 @@ def generate_ui(port: int):
     overview_parts = [
         f"[b]Uptime:[/b] {uptime:.1f}s | [b]Status:[/b] [{health_color}][b]{health_status}[/b][/{health_color}]\n",
         f"[b]OS:[/b] {env.get('os')} {env.get('os_release')} | [b]Python:[/b] {env.get('python_version')}\n",
-        f"[b]CPU:[/b] {env.get('cpu_percent')} | [b]RAM:[/b] {env.get('ram_mb')}\n\n"
+        f"[b]CPU:[/b] {env.get('cpu_percent')} | [b]RAM:[/b] {env.get('ram_mb')}\n\n",
     ]
     for comp, stat in health.get("components", {}).items():
         icon = "✅" if stat == "ok" else "❌"

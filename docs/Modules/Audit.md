@@ -60,15 +60,18 @@ If you are inside a Use Case or another Module and need to access the system met
 ```python
 from sagittarius_engine.extensions.audit.audit_service import AuditService
 
+
 def my_diagnostic_command(context: IEngineContext):
     # Resolve the service
     audit = context.container.resolve(AuditService)
-    
+
     # Get direct metrics
     uptime = audit.get_uptime_seconds()
     tasks = audit.get_active_tasks()
-    
-    print(f"Engine has been running for {uptime} seconds with {len(tasks)} active tasks.")
+
+    print(
+        f"Engine has been running for {uptime} seconds with {len(tasks)} active tasks."
+    )
 ```
 
 ---

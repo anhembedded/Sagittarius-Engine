@@ -43,7 +43,10 @@ The absolute best practice inside your Application or Domain layers is to rely e
 
 ```python
 from sagittarius_engine.interfaces import ILogger
-from Sagittarius_Elite_Warrior.src.application.ports.i_market_data_repository import IMarketDataRepository
+from Sagittarius_Elite_Warrior.src.application.ports.i_market_data_repository import (
+    IMarketDataRepository,
+)
+
 
 class SyncMarketDataCommandHandler:
     def __init__(self, repository: IMarketDataRepository, logger: ILogger) -> None:
@@ -59,6 +62,7 @@ Because `StdLogger` configures the global logger named `"App"`, you can securely
 
 ```python
 import logging
+
 
 class GetHistoricalKlinesQueryHandler:
     def __init__(self, repository: IMarketDataRepository) -> None:

@@ -98,6 +98,7 @@ import queue
 from sagittarius_engine import App
 from sagittarius_engine.runtime import IHostedService, CancellationToken
 
+
 class QueueWorkerService(IHostedService):
     def __init__(self, app: App) -> None:
         self.app = app

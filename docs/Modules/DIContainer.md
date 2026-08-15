@@ -90,7 +90,7 @@ container.singleton(IEventBus, MemoryEventBus)
 # Every time you resolve IEventBus, you get the EXACT same object in memory
 bus1 = container.resolve(IEventBus)
 bus2 = container.resolve(IEventBus)
-assert bus1 is bus2 # True
+assert bus1 is bus2  # True
 ```
 
 ### Use Case 2: Decoupling Business Logic (Transient Binding)
@@ -101,7 +101,7 @@ When you want a new instance for every request, and want to hide the concrete im
 # Register a transient binding (Created new every time)
 container.bind(IUserRepository, PostgresUserRepository)
 
-# If your UserController's __init__ requires IUserRepository, 
+# If your UserController's __init__ requires IUserRepository,
 # it is automatically injected here:
 controller = container.resolve(UserController)
 ```
@@ -113,10 +113,8 @@ If an object requires complex setup that the container can't guess (like databas
 ```python
 def make_database(c: IContainer) -> DatabaseConnection:
     config = c.resolve(IConfig)
-    return DatabaseConnection(
-        host=config.get("DB_HOST"), 
-        port=config.get("DB_PORT")
-    )
+    return DatabaseConnection(host=config.get("DB_HOST"), port=config.get("DB_PORT"))
+
 
 container.singleton(DatabaseConnection, make_database)
 ```

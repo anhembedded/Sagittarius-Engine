@@ -56,27 +56,31 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 class UserCreatedEvent:
     def __init__(self, username: str):
         self.username = username
 
+
 def on_user_created(event: UserCreatedEvent):
     print(f"Side effect: sending email to {event.username}")
+
 
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
-    
+
     # Register a subscriber
     app.context.event_bus.on("user.created", on_user_created)
-    
+
     app.boot()
-    
+
     # Emit the event
     app.context.event_bus.emit("user.created", UserCreatedEvent("alice"))
-    
+
     app.stop()
+
 
 if __name__ == "__main__":
     main()

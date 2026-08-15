@@ -66,7 +66,9 @@ If you are in the middle of a large migration, you can temporarily suppress depr
 import warnings
 
 # Suppress Sagittarius deprecations temporarily
-warnings.filterwarnings("ignore", category=DeprecationWarning, module="sagittarius_engine.*")
+warnings.filterwarnings(
+    "ignore", category=DeprecationWarning, module="sagittarius_engine.*"
+)
 ```
 
 > [!WARNING]

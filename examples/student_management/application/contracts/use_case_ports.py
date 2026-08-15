@@ -2,18 +2,18 @@
 # These interfaces define the contract for each use case.
 # Presentation and Infrastructure layers depend ONLY on these, never on concrete classes.
 from abc import abstractmethod
-from typing import Sequence
+from collections.abc import Sequence
 
 from examples.student_management.application.dtos.commands import (
     AddStudentCommand,
-    UpdateStudentCommand,
     DeleteStudentCommand,
     GenerateReportCommand,
+    UpdateStudentCommand,
 )
 from examples.student_management.application.dtos.queries import (
+    GetStudentQuery,
     ListStudentsQuery,
     SearchStudentsQuery,
-    GetStudentQuery,
 )
 from examples.student_management.domain.student import Student
 from sagittarius_engine.extensions.cqrs import ICommand, IQuery

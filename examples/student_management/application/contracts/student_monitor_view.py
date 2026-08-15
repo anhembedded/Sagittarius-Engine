@@ -1,5 +1,6 @@
 # Clean Architecture - MVP Pattern View Interface
-from typing import Sequence, Any
+from collections.abc import Sequence
+from typing import Any
 
 from examples.student_management.domain.student import Student
 

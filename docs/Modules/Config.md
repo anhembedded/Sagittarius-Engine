@@ -68,12 +68,10 @@ config = ConfigManager()
 # Add JSON file (lowest priority)
 config.load_json("default_config.json")
 # Add environment variables (higher priority, overrides JSON)
-config.load_env(prefix="MYAPP_") 
+config.load_env(prefix="MYAPP_")
 
 # Method 2: Use Factory Chain
-config = (ConfigManager()
-          .load_json("config.json")
-          .load_env())
+config = ConfigManager().load_json("config.json").load_env()
 
 # Get value with type casting (cast)
 port = config.get("PORT", default=8080, cast=int)
@@ -86,10 +84,7 @@ db_host = config.get("DB_HOST", default="localhost")
 from sagittarius_engine.infrastructure.config.dict_config import DictConfig
 
 # "Mock" configuration for unit tests
-test_config = DictConfig({
-    "database": "sqlite:///:memory:",
-    "debug": True
-})
+test_config = DictConfig({"database": "sqlite:///:memory:", "debug": True})
 
 # Register into the DI Container
 container.singleton(IConfig, test_config)

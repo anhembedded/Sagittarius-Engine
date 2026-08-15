@@ -69,6 +69,7 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 def background_work(token):
     print("Background work started.")
     # Periodically check the cancellation token
@@ -76,15 +77,16 @@ def background_work(token):
         time.sleep(0.05)
     print("Cancellation requested! Cleaning up...")
 
+
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
     app.boot()
-    
+
     # The engine injects the cancellation token automatically
     app.context.tasks.spawn(background_work)
-    
+
     time.sleep(0.1)
     app.stop()
 ```
@@ -97,28 +99,30 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 def batched_database_update(token):
     records = [1, 2, 3, 4, 5]
     for idx, record in enumerate(records):
         if token.is_cancellation_requested:
             print(f"Aborting batch update at record {idx}. Rolling back...")
             return
-        
+
         # Simulate processing a record
         time.sleep(0.05)
-        
+
     print("Batch update completed successfully.")
+
 
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
     app.boot()
-    
+
     app.context.tasks.spawn(batched_database_update)
-    
+
     time.sleep(0.1)
-    app.stop() # Triggers cancellation before all records are processed
+    app.stop()  # Triggers cancellation before all records are processed
 ```
 
 ## Best Practices

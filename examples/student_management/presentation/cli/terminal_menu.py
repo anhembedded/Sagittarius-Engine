@@ -97,6 +97,7 @@ class TerminalMenu(IHostedService):
                 self.task.future.result()
             except Exception as e:
                 import logging
+
                 logging.getLogger(__name__).error(f"Error waiting for CLI task: {e}")
 
     def _run_loop(self, token: CancellationToken) -> None:

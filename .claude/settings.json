@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(PYTHONPATH=\"c:/Users/hoang/Documents/Sagittarius-Engine\" \"Sagittarius_Elite_Warrior/.venv/Scripts/python.exe\" \"C:/Users/hoang/AppData/Local/Temp/claude/c--Users-hoang-Documents-Sagittarius-Engine/6f4c121b-6f5f-4783-8be1-e66fbb2c36e8/scratchpad/compute_golden.py\")",
+      "Bash(QT_QPA_PLATFORM=offscreen ./.venv/Scripts/python.exe -c ' *)"
+    ]
+  }
+}

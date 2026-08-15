@@ -1,9 +1,12 @@
 from enum import Enum
+
+
 class UIMode(str, Enum):
     IDLE = "IDLE"
     LIVE = "LIVE"
     LOCKED = "LOCKED"
     ERROR = "ERROR"
+
 
 mode = UIMode.IDLE
 print("type mode:", type(mode))

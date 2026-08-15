@@ -41,8 +41,10 @@ Best practices are not enforced by the compiler; they are architectural rules ap
 
 ```python
 from sagittarius_engine import IExtension, ExtensionDescriptor, EngineContext
+
 # Use clean, separate domain logic rather than inline implementation
 from my_app.domain.services import MyDomainService
+
 
 class CleanExtension(IExtension):
     @property
@@ -141,6 +143,7 @@ Sagittarius Engine relies heavily on conventions (e.g., standard lifecycle hooks
 ```python
 # ❌ Never do this
 global_context = None
+
 
 class BadExtension(IExtension):
     def boot(self, context):

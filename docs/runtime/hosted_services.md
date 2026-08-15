@@ -74,18 +74,20 @@ from sagittarius_engine.runtime.hosted import IHostedService
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 class WorkerService(IHostedService):
     def start(self, context, token):
         print("WorkerService starting...")
-        
+
     def stop(self, context):
         print("WorkerService stopping...")
+
 
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
-    
+
     app.context.hosted_services.add(WorkerService())
     app.boot()
     app.stop()
@@ -101,6 +103,7 @@ from sagittarius_engine.runtime.hosted import IHostedService
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 class QueueConsumerService(IHostedService):
     def start(self, context, token):
         self.thread = threading.Thread(target=self._run, args=(token,))
@@ -114,6 +117,7 @@ class QueueConsumerService(IHostedService):
 
     def stop(self, context):
         self.thread.join(timeout=1.0)
+
 
 def main():
     container = StdLibContainer()

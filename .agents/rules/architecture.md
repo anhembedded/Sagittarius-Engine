@@ -32,9 +32,11 @@ class MyExtension(IExtension):
     def register(self, context: IEngineContext) -> None:
         context.container.singleton(IMyRepo, ConcreteRepo)
 
+
 class MyUseCase:  # Gets IMyRepo injected by container — NOT IEngineContext
     def __init__(self, repo: IMyRepo) -> None:
         self._repo = repo
+
 
 # ❌ Wrong
 class MyUseCase:

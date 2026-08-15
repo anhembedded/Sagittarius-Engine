@@ -7,10 +7,16 @@ import os
 import sys
 
 config_manager = ConfigManager()
-config_manager.load_json(PathUtils.get_relative_path("Sagittarius_Elite_Warrior/src/main.py", "config", "ui_matrix.json"))
+config_manager.load_json(
+    PathUtils.get_relative_path(
+        "Sagittarius_Elite_Warrior/src/main.py", "config", "ui_matrix.json"
+    )
+)
+
 
 class MockView(UIMatrixMixin):
     pass
+
 
 view = MockView()
 view.set_ui_matrix(config_manager.get_all())

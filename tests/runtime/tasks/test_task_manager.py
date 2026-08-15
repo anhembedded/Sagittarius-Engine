@@ -56,8 +56,13 @@ def test_task_manager_progress_event_emission():
     assert event_obj.progress == 75.5
     assert event_obj.message == "Almost there"
 
+
 def test_task_manager_cleanup():
-    from sagittarius_engine.runtime.tasks.background_task import BackgroundTask, TaskState
+    from sagittarius_engine.runtime.tasks.background_task import (
+        BackgroundTask,
+        TaskState,
+    )
+
     context = MockContext()
     manager = TaskManager(context)
 

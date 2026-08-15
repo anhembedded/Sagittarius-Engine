@@ -133,7 +133,11 @@ class AuditService:
         except Exception as e:
             # SECURITY: Do not expose raw exception strings to prevent information disclosure.
             self._logger.error(f"Failed to get system health: {e}")
-            return {"status": "error", "message": "An internal error occurred", "components": {}}
+            return {
+                "status": "error",
+                "message": "An internal error occurred",
+                "components": {},
+            }
 
         return {"status": "unknown"}
 

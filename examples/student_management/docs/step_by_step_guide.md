@@ -63,9 +63,15 @@ The Domain layer contains pure business rules and entities using **Python STDLIB
 ```python
 from dataclasses import dataclass
 
+
 class StudentException(Exception): ...
+
+
 class EmptyNameError(StudentException): ...
+
+
 class InvalidGPAError(StudentException): ...
+
 
 @dataclass
 class Student:
@@ -209,8 +215,11 @@ Infrastructure implements the repository interfaces defined in the Application l
 ```python
 import sqlite3
 from sagittarius_engine.interfaces import IConfig
-from examples.student_management.application.contracts.student_repository import IStudentRepository
+from examples.student_management.application.contracts.student_repository import (
+    IStudentRepository,
+)
 from examples.student_management.domain.student import Student
+
 
 class SqliteStudentRepository(IStudentRepository):
     def __init__(self, config: IConfig) -> None:
@@ -227,8 +236,13 @@ The `StudentMonitorPresenter` mediates between `IStudentMonitorView` (Passive Vi
 
 ```python
 from sagittarius_engine import App
-from examples.student_management.application.contracts.student_monitor_view import IStudentMonitorView
-from examples.student_management.application.contracts.student_repository import IStudentRepository
+from examples.student_management.application.contracts.student_monitor_view import (
+    IStudentMonitorView,
+)
+from examples.student_management.application.contracts.student_repository import (
+    IStudentRepository,
+)
+
 
 class StudentMonitorPresenter:
     def __init__(self, view: IStudentMonitorView, app: App) -> None:
@@ -250,12 +264,17 @@ class StudentMonitorPresenter:
 
 ```python
 from PySide6.QtWidgets import QMainWindow
-from examples.student_management.application.contracts.student_monitor_view import IStudentMonitorView
+from examples.student_management.application.contracts.student_monitor_view import (
+    IStudentMonitorView,
+)
+
 
 class QtStudentMonitorViewAdapter(IStudentMonitorView):
     def __init__(self, window: "MainWindow") -> None:
         self.window = window
+
     # Delegates all contract calls to self.window
+
 
 class MainWindow(QMainWindow):
     def __init__(self, app, bridge) -> None:
@@ -277,10 +296,19 @@ Module classes inherit from `BaseModule` to configure Dependency Injection bindi
 ```python
 from sagittarius_engine import App
 from sagittarius_engine.base import BaseModule
-from examples.student_management.application.contracts.student_repository import IStudentRepository
-from examples.student_management.infrastructure.sqlite_student_repo import SqliteStudentRepository
-from examples.student_management.application.contracts.use_case_ports import IAddStudentUseCase
-from examples.student_management.application.use_cases.add_student_use_case import AddStudentUseCase
+from examples.student_management.application.contracts.student_repository import (
+    IStudentRepository,
+)
+from examples.student_management.infrastructure.sqlite_student_repo import (
+    SqliteStudentRepository,
+)
+from examples.student_management.application.contracts.use_case_ports import (
+    IAddStudentUseCase,
+)
+from examples.student_management.application.use_cases.add_student_use_case import (
+    AddStudentUseCase,
+)
+
 
 class StudentModule(BaseModule):
     def register(self, app: App) -> None:
@@ -309,7 +337,11 @@ from sagittarius_engine.infrastructure.config.dict_config import DictConfig
 from sagittarius_engine.interfaces import IConfig, IEventBus, IContainer
 
 from examples.student_management.student_module import StudentModule
-from examples.student_management.presentation.ui.desktop_window import MainWindow, EventBridge
+from examples.student_management.presentation.ui.desktop_window import (
+    MainWindow,
+    EventBridge,
+)
+
 
 def main() -> None:
     # 1. Composition Root Setup
@@ -330,6 +362,7 @@ def main() -> None:
     app.boot()
     window = MainWindow(app, EventBridge())
     window.show()
+
 
 if __name__ == "__main__":
     main()

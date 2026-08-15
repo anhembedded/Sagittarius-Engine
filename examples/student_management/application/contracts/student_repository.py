@@ -1,6 +1,6 @@
 # Clean Architecture - Application Port (Repository Interface)
 from abc import ABC, abstractmethod
-from typing import Sequence
+from collections.abc import Sequence
 
 from examples.student_management.domain.student import Student
 

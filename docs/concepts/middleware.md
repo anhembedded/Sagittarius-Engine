@@ -62,18 +62,21 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 class TimingMiddleware:
     def handle(self, request: Any, next_call: Callable) -> Any:
         import time
+
         start = time.time()
-        
+
         # Pass control to the next middleware or the handler
         result = next_call(request)
-        
+
         duration = time.time() - start
         print(f"Request took {duration:.4f} seconds")
-        
+
         return result
+
 
 def main():
     container = StdLibContainer()
@@ -83,6 +86,7 @@ def main():
     app.use_middleware(TimingMiddleware())
     app.boot()
     app.stop()
+
 
 if __name__ == "__main__":
     main()

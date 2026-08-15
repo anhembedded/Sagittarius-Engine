@@ -16,7 +16,7 @@ Without DI, components are tightly coupled to specific implementations:
 # Bad: Tightly coupled
 class UserService:
     def __init__(self):
-        self.db = SqlDatabase() # Hardcoded dependency
+        self.db = SqlDatabase()  # Hardcoded dependency
 ```
 
 By using the EngineContext to manage DI, the Engine achieves:
@@ -64,27 +64,31 @@ flowchart TB
 ```python
 from sagittarius_engine import App
 
+
 class IUserRepository:
     pass
 
+
 class UserRepository(IUserRepository):
     pass
+
 
 class UserService:
     # Dependencies are declared via type hints
     def __init__(self, repo: IUserRepository):
         self.repo = repo
 
+
 def main():
     app = App()
-    
+
     # In a real app, this is typically done inside an Extension
     # Registration binds the interface to the implementation
     app.context.container.bind(IUserRepository, UserRepository)
     app.context.container.bind(UserService, UserService)
-    
+
     app.boot()
-    
+
     # The container injects the IUserRepository automatically
     service = app.context.container.resolve(UserService)
 ```

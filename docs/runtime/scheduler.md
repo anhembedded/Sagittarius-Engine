@@ -58,17 +58,19 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 def my_scheduled_job():
     print("Executing scheduled job...")
+
 
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
-    
+
     # Schedule a job to run every 1 second
     app.context.scheduler.schedule_interval(my_scheduled_job, interval_seconds=1)
-    
+
     app.boot()
     time.sleep(1.5)  # Let it run a few times
     app.stop()
@@ -82,18 +84,20 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 def risky_job():
     print("Executing risky job...")
     raise ValueError("Something went wrong!")
+
 
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
-    
+
     # The Scheduler will catch the exception and keep running
     app.context.scheduler.schedule_interval(risky_job, interval_seconds=1)
-    
+
     app.boot()
     time.sleep(1.5)  # The scheduler will survive the ValueError
     app.stop()

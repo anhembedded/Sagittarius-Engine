@@ -82,6 +82,7 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
@@ -90,6 +91,7 @@ def main():
     app.boot()
     print("Engine has booted.")
     app.stop()
+
 
 if __name__ == "__main__":
     main()

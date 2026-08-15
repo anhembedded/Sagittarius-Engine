@@ -89,14 +89,15 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
-    
+
     # Trigger the Boot Sequence
     app.boot()
-    
+
     try:
         # Simulate application running
         time.sleep(0.1)
@@ -113,12 +114,13 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
     app.boot()
-    
+
     try:
         print("Application is running...")
         # Simulate waiting for an interrupt

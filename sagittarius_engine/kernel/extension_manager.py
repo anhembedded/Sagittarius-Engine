@@ -54,7 +54,7 @@ class ModuleExtensionAdapter(IExtension[Any]):
 
     def shutdown(self, context: "IEngineContext") -> None:
         from typing import cast
-        
+
         kernel_ctx = cast("IKernelContext", context)
         # Check for backwards compatibility with modules written before IModule had shutdown
         if hasattr(self.legacy_module, "shutdown"):

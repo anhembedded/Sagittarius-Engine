@@ -112,7 +112,9 @@ class LogListModel(QAbstractListModel):
         plain text ("[HH:MM:SS] message", one per line, oldest first —
         matching render order) rather than requiring the user to select text
         across every ListView delegate by hand."""
-        text = "\n".join(f"[{entry.timestamp}] {entry.message}" for entry in self._entries)
+        text = "\n".join(
+            f"[{entry.timestamp}] {entry.message}" for entry in self._entries
+        )
         QGuiApplication.clipboard().setText(text)
 
     @property

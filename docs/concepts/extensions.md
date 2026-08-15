@@ -67,19 +67,20 @@ from sagittarius_engine import App, IExtension
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 class DatabaseExtension(IExtension):
-    
     def register(self, context):
         # Bind database repositories to the DI container
         pass
-        
+
     def boot(self, context):
         # Open database connection pool
         print("Database connected.")
-        
+
     def shutdown(self, context):
         # Stop accepting new queries and close connection pool
         print("Database disconnected.")
+
 
 def main():
     container = StdLibContainer()
@@ -88,6 +89,7 @@ def main():
     app.use(DatabaseExtension())
     app.boot()
     app.stop()
+
 
 if __name__ == "__main__":
     main()

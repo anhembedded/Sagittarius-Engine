@@ -67,25 +67,27 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
-    
+
     try:
         # Executes the entire Boot Sequence
         app.boot()
-        
+
         # Block the main thread to keep the application alive
         # (Usually done via a wait mechanism provided by the Runtime)
         input("Press Enter to shutdown...\n")
-        
+
     except KeyboardInterrupt:
         pass
     finally:
         # Executes the entire Shutdown Sequence
         app.stop()
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

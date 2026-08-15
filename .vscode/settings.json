@@ -10,5 +10,6 @@
             "approve": true,
             "matchCommandLine": true
         }
-    }
+    },
+    "claudeCodeChat.permissions.yoloMode": true
 }

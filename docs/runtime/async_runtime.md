@@ -58,20 +58,22 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 async def perform_async_work():
     print("Async work started.")
     await asyncio.sleep(0.1)
     print("Async work finished.")
+
 
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
     app.boot()
-    
+
     # Coroutines can be scheduled on the engine's async runtime
     # (Using the appropriate public API exposed by the TaskManager)
-    
+
     app.stop()
 ```
 
@@ -83,19 +85,21 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 async def fetch_data_async():
     await asyncio.sleep(0.1)
     return {"status": "success"}
+
 
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
     app.boot()
-    
+
     # Synchronous code can await async results using the engine's utilities
     # result = app.context.tasks.run_sync(fetch_data_async())
-    
+
     app.stop()
 ```
 

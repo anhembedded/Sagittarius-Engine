@@ -81,22 +81,24 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 # 1. Application Host Layer
 def run_app():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
-    
+
     # 2. App Instance Layer
     app = App(container, event_bus)
-    
+
     # 3. Kernel Layer (Extensions Registration)
     # app.use(MyExtension())
-    
+
     # 4. Runtime Layer (Boot Sequence)
     app.boot()
-    
+
     # Graceful exit
     app.stop()
+
 
 if __name__ == "__main__":
     run_app()
@@ -120,6 +122,7 @@ Do not instantiate `Kernel` or `Runtime` directly.
 ```python
 # ❌ Never do this
 from sagittarius_engine.kernel.kernel import Kernel
+
 k = Kernel()
 k.start()
 ```

@@ -56,22 +56,24 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 def process_batch(items):
     for item in items:
         # Process item
         pass
     print("Batch processed.")
 
+
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
     app.boot()
-    
+
     # Efficient: Spawn one task for a batch
     batch = list(range(1000))
     app.context.tasks.spawn(process_batch, items=batch)
-    
+
     app.stop()
 ```
 
@@ -93,6 +95,8 @@ Sagittarius uses a thread pool for its `TaskManager` to optimize for IO-bound wo
 Running CPU-heavy synchronous code inside an `async def` function.
 ```python
 import time
+
+
 # ❌ Never do this
 async def heavy_computation():
     time.sleep(5)  # Freezes the entire AsyncRuntime Event Loop!

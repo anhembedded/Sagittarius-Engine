@@ -69,17 +69,19 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
-    
+
     # The runtime manages the lifecycle of this service automatically
     # app.use(MyBackgroundServiceExtension())
-    
+
     app.boot()
     # The runtime is now executing background tasks
     app.stop()
+
 
 if __name__ == "__main__":
     main()

@@ -106,6 +106,7 @@ import time
 import random
 from sagittarius_engine.runtime import IHostedService
 
+
 class MockExchange(IHostedService):
     def __init__(self) -> None:
         self.price = 100.0
@@ -115,7 +116,7 @@ class MockExchange(IHostedService):
 
     def stop(self, context) -> None:
         context.logger.info("MockExchange disconnected.")
-        
+
     def get_latest_price(self) -> float:
         self.price += random.uniform(-1.0, 1.0)
         return self.price

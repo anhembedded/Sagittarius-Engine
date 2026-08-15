@@ -47,7 +47,6 @@ from sagittarius_engine import IExtension, EngineContext
 
 
 class LoggerExtension(IExtension):
-
     def register(self, context: EngineContext) -> None:
         # Bind dependencies to the DI container
         pass
@@ -74,7 +73,6 @@ from sagittarius_engine.infra.memory_event_bus import MemoryEventBus
 
 
 class LoggerExtension(IExtension):
-
     def register(self, context: EngineContext) -> None:
         pass
 

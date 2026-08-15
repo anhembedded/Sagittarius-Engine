@@ -1,12 +1,13 @@
-from typing import Sequence
+from collections.abc import Sequence
+
 from examples.student_management.application.contracts.student_repository import (
     IStudentRepository,
 )
-from examples.student_management.application.dtos.queries import SearchStudentsQuery
-from examples.student_management.domain.student import Student
 from examples.student_management.application.contracts.use_case_ports import (
     ISearchStudentsUseCase,
 )
+from examples.student_management.application.dtos.queries import SearchStudentsQuery
+from examples.student_management.domain.student import Student
 
 
 class SearchStudentsUseCase(ISearchStudentsUseCase):

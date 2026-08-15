@@ -62,20 +62,22 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 def send_welcome_email(username: str):
     print(f"Sending email to {username}...")
     time.sleep(0.1)
     print(f"Email sent to {username}.")
+
 
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
     app.boot()
-    
+
     # Spawn a background task
     app.context.tasks.spawn(send_welcome_email, username="alice")
-    
+
     time.sleep(0.2)
     app.stop()
 ```
@@ -88,20 +90,22 @@ from sagittarius_engine import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
+
 def heavy_calculation():
     print("Starting calculation...")
     for i in range(5):
         time.sleep(0.05)
     print("Calculation finished.")
 
+
 def main():
     container = StdLibContainer()
     event_bus = MemoryEventBus()
     app = App(container, event_bus)
     app.boot()
-    
+
     app.context.tasks.spawn(heavy_calculation)
-    
+
     time.sleep(0.1)
     app.stop()
 ```

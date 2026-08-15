@@ -55,6 +55,7 @@ flowchart LR
 ```python
 from sagittarius_engine import App
 
+
 # Assume MyCommand is a defined message type
 def handle_request(app: App, command_data: dict):
     # Instead of instantiating the handler directly, we dispatch the command.

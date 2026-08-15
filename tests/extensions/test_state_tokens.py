@@ -20,7 +20,9 @@ def test_with_state_token_defaults_lets_app_values_override_matching_keys():
     assert merged["stateIdleBg"] == "#17181d"
     assert merged["stateHoverBg"] == "#1f2127"
     # Keys the app didn't override still fall back to the engine default.
-    assert merged["stateDisabledOpacity"] == DEFAULT_STATE_TOKENS["stateDisabledOpacity"]
+    assert (
+        merged["stateDisabledOpacity"] == DEFAULT_STATE_TOKENS["stateDisabledOpacity"]
+    )
     assert merged["stateActiveTint"] == DEFAULT_STATE_TOKENS["stateActiveTint"]
     assert merged["stateNavBorder"] == DEFAULT_STATE_TOKENS["stateNavBorder"]
 

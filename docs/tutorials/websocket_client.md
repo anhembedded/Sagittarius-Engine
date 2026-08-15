@@ -106,6 +106,7 @@ We wrap the entire client inside an `IHostedService`. The `start` method spawns 
 import asyncio
 from sagittarius_engine.runtime import IHostedService, CancellationToken
 
+
 class MockWebSocketClient(IHostedService):
     def __init__(self, app: App) -> None:
         self.app = app
@@ -153,7 +154,7 @@ class Snippet:
         while not token.is_cancelled():
             try:
                 self.logger.info("[WebSocket] Attempting connection...")
-                await asyncio.sleep(0.01) # Simulate network connect
+                await asyncio.sleep(0.01)  # Simulate network connect
                 self.logger.info("[WebSocket] Connected! Starting heartbeat...")
                 backoff = 0.01  # Reset backoff on success
 
@@ -162,12 +163,12 @@ class Snippet:
 
                 # Listen to incoming messages
                 while not token.is_cancelled():
-                    await asyncio.sleep(0.05) # Simulate receiving packets
+                    await asyncio.sleep(0.05)  # Simulate receiving packets
                     self.logger.info("[WebSocket] Received price tick update.")
-                    
+
                     # Simulate unexpected connection drop
                     self.logger.warning("[WebSocket] Connection dropped by peer!")
-                    break # Break inner loop to trigger reconnect
+                    break  # Break inner loop to trigger reconnect
 
                 # Cleanup heartbeat
                 heartbeat.cancel()
@@ -178,7 +179,7 @@ class Snippet:
             if not token.is_cancelled():
                 self.logger.info(f"[WebSocket] Reconnecting in {backoff}s...")
                 await asyncio.sleep(backoff)
-                backoff = min(backoff * 2, 0.5) # Exponential backoff
+                backoff = min(backoff * 2, 0.5)  # Exponential backoff
 ```
 
 > **Why**: We use `asyncio.sleep(backoff)` instead of `time.sleep()`. Using `time.sleep()` would completely block the Sagittarius Engine's single `AsyncRuntime` event loop, starving all other async tasks.
