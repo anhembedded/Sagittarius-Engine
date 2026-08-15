@@ -11,6 +11,7 @@ piece every app must wire up before constructing any QmlHostView.
 from .base_view_model import BaseQmlViewModel
 from .icon_image_provider import ICON_PROVIDER_ID, IconImageProvider, IIconLoader
 from .log_list_model import LogListModel
+from .overlay_host import OverlayHost
 from .qml_host_view import (
     AppQmlConfig,
     QmlHostView,
@@ -30,6 +31,7 @@ __all__ = [
     "IIconLoader",
     "IconImageProvider",
     "LogListModel",
+    "OverlayHost",
     "QmlHostView",
     "configure_app_qml",
     "create_quick_widget",
