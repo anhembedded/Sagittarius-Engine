@@ -1,9 +1,9 @@
 import unittest
 
-from sagittarius_engine.kernel import App
-from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
+from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 from sagittarius_engine.interfaces import IEventBus
+from sagittarius_engine.kernel import App
 
 
 class AppTestCase(unittest.TestCase):

@@ -1,20 +1,21 @@
+import json
 import os
 import sys
 import tempfile
 from io import StringIO
 from unittest.mock import MagicMock, patch
-import json
+
 import pytest
 
-from sagittarius_engine.kernel.app_runner import (
-    ApplicationRunner,
-    COMMAND_KEY,
-    EXIT_COMMAND,
-)
-from sagittarius_engine.adapters.cli import CLIInputPort, CLIOutputPort
 from sagittarius_engine.adapters.batch import BatchInputPort, BatchOutputPort
 from sagittarius_engine.adapters.batch.const import FILE_TYPE_CSV, FILE_TYPE_JSON
+from sagittarius_engine.adapters.cli import CLIInputPort, CLIOutputPort
 from sagittarius_engine.exceptions import PathTraversalError
+from sagittarius_engine.kernel.app_runner import (
+    COMMAND_KEY,
+    EXIT_COMMAND,
+    ApplicationRunner,
+)
 
 
 def test_cli_input_port_normal():
@@ -28,17 +29,15 @@ def test_cli_input_port_normal():
 def test_cli_input_port_missing_command():
     port = CLIInputPort()
     test_args = ["prog"]
-    with patch.object(sys, "argv", test_args):
-        with pytest.raises(SystemExit):
-            port.receive()
+    with patch.object(sys, "argv", test_args), pytest.raises(SystemExit):
+        port.receive()
 
 
 def test_cli_input_port_extra_unknown():
     port = CLIInputPort()
     test_args = ["prog", "add", "unknown_arg"]
-    with patch.object(sys, "argv", test_args):
-        with pytest.raises(SystemExit):
-            port.receive()
+    with patch.object(sys, "argv", test_args), pytest.raises(SystemExit):
+        port.receive()
 
 
 def test_cli_output_port_present():

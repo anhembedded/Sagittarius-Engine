@@ -2,16 +2,16 @@ from unittest.mock import Mock
 
 import pytest
 
-from sagittarius_engine.kernel import App
 from sagittarius_engine.base import BaseModule
 from sagittarius_engine.exceptions import ModuleRegistrationError
-from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+from sagittarius_engine.extensions.cqrs import ICommand, IQuery
 from sagittarius_engine.infrastructure.container.std_container import (
     DependencyResolutionError,
     StdLibContainer,
 )
-from sagittarius_engine.extensions.cqrs import ICommand, IQuery
+from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 from sagittarius_engine.interfaces import IEventBus
+from sagittarius_engine.kernel import App
 
 
 def test_event_bus_emit_on_off():
@@ -166,10 +166,10 @@ def test_app_execute_query():
 def test_kernel_facade_and_components():
     from sagittarius_engine.kernel import (
         Bootstrap,
-        ModuleLoader,
-        EngineLifecycle,
         Dispatcher,
         EngineContext,
+        EngineLifecycle,
+        ModuleLoader,
     )
     from sagittarius_engine.utils.null_logger import NullLogger
 

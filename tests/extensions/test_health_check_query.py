@@ -1,7 +1,8 @@
 from unittest.mock import MagicMock, patch
+
 from sagittarius_engine.extensions.health.health_check_query import HealthCheckQuery
-from sagittarius_engine.interfaces import IContainer, IEventBus
 from sagittarius_engine.extensions.persistence import ISession
+from sagittarius_engine.interfaces import IContainer, IEventBus
 
 
 def test_health_check_query_healthy():

@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock, patch
+
 from sagittarius_engine.extensions.persistence.database_module import DatabaseExtension
 
 

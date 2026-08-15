@@ -2,6 +2,7 @@ import json
 import socket
 import threading
 import time
+
 from sagittarius_engine.infrastructure.config.dict_config import DictConfig
 from sagittarius_engine.infrastructure.logging.std_logger import StdLogger
 from sagittarius_engine.infrastructure.logging.tcp_log_viewer_handler import (
@@ -32,7 +33,7 @@ class MockTcpLogServer:
                 threading.Thread(
                     target=self._handle_client, args=(client_sock,), daemon=True
                 ).start()
-            except socket.timeout:
+            except TimeoutError:
                 continue
             except Exception:
                 break

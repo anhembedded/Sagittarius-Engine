@@ -1,6 +1,8 @@
 import threading
-import pytest
 from enum import Enum
+
+import pytest
+
 from sagittarius_engine.extensions.fsm import (
     BaseStateMachine,
     InvalidStateTransitionError,

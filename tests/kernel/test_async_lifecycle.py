@@ -3,8 +3,9 @@
 import asyncio
 import threading
 from unittest.mock import MagicMock
-from sagittarius_engine.interfaces.i_extension import IExtension
+
 from sagittarius_engine.interfaces.i_engine_context import IEngineContext
+from sagittarius_engine.interfaces.i_extension import IExtension
 
 
 class AsyncBootExtension(IExtension):

@@ -1,6 +1,7 @@
 """Integration tests for TASK-012: DI Container Scoped Lifecycle."""
 
 import threading
+
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 
 

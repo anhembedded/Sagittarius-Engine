@@ -1,16 +1,17 @@
 import pytest
-from sagittarius_engine.kernel.app import App
-from sagittarius_engine.interfaces.i_extension import IExtension, ExtensionDescriptor
+
 from sagittarius_engine.exceptions import (
-    ExtensionDependencyError,
     ExtensionCircularDependencyError,
+    ExtensionDependencyError,
 )
+from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
+from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+from sagittarius_engine.interfaces.i_extension import ExtensionDescriptor, IExtension
+from sagittarius_engine.kernel.app import App
 from sagittarius_engine.kernel.events import (
     ExtensionInitializing,
     ExtensionStarted,
 )
-from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
-from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 
 
 class MockExtension(IExtension):

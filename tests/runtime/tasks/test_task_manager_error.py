@@ -1,5 +1,7 @@
-import pytest
 from unittest.mock import Mock
+
+import pytest
+
 from sagittarius_engine.runtime.tasks.task_manager import TaskManager
 
 

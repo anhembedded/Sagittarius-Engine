@@ -7,23 +7,24 @@ from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
-from sagittarius_engine.extensions.persistence import ISession
 
-from sagittarius_engine.kernel import App, MiddlewarePipeline
 from sagittarius_engine.exceptions import DependencyResolutionError
+from sagittarius_engine.extensions.cqrs import ICommand
+from sagittarius_engine.extensions.health.health_check_query import HealthCheckQuery
+from sagittarius_engine.extensions.health.health_module import HealthExtension
+from sagittarius_engine.extensions.persistence import ISession
+from sagittarius_engine.infrastructure.config import ConfigManager, JsonSource
+from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.asyncio_event_bus import (
     AsyncioEventBus,
 )
-from sagittarius_engine.infrastructure.config import ConfigManager, JsonSource
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 from sagittarius_engine.infrastructure.event_bus.resilient_event_bus import (
     ResilientEventBus,
 )
-from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.thread_pool_event_bus import (
     ThreadPoolEventBus,
 )
-from sagittarius_engine.extensions.cqrs import ICommand
 from sagittarius_engine.interfaces import (
     IContainer,
     IEventBus,
@@ -31,8 +32,7 @@ from sagittarius_engine.interfaces import (
     IMiddleware,
     IModule,
 )
-from sagittarius_engine.extensions.health.health_check_query import HealthCheckQuery
-from sagittarius_engine.extensions.health.health_module import HealthExtension
+from sagittarius_engine.kernel import App, MiddlewarePipeline
 
 
 # --- Fixtures ---
@@ -280,7 +280,7 @@ def test_app__boot_with_nonexistent_package__does_not_crash_but_logs_warning(
     app, logger, capsys
 ):
     app.boot(auto_discover="non_existent_package_12345")
-    pass  # the mock resolves slightly differently due to factory/singleton caching but warning is called
+    # the mock resolves slightly differently due to factory/singleton caching but warning is called
     assert any(
         "Could not discover package non_existent_package_12345" in str(call)
         for call in logger.mock_calls
@@ -707,10 +707,10 @@ def test_session_context_manager():
     True,
 )
 def test_database_module_production_failure(app, monkeypatch):
-    from sagittarius_engine.interfaces import IConfig
     from sagittarius_engine.extensions.persistence.database_module import (
         DatabaseExtension,
     )
+    from sagittarius_engine.interfaces import IConfig
 
     monkeypatch.setenv("ENV", "production")
 
@@ -776,10 +776,10 @@ def test_pydantic_validation_middleware_v2():
 
 
 def test_container__circular_dependency__raises_error():
+    from sagittarius_engine.exceptions import DependencyResolutionError
     from sagittarius_engine.infrastructure.container.std_container import (
         StdLibContainer,
     )
-    from sagittarius_engine.exceptions import DependencyResolutionError
 
     class ClassB:
         pass

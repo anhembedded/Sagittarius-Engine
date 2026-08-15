@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock
+
 from sagittarius_engine.infrastructure.event_bus.ipc_broker import IPCBroker
 
 

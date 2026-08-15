@@ -1,8 +1,9 @@
 import time
 from unittest.mock import Mock
-from sagittarius_engine.runtime.tasks.task_manager import TaskManager
+
 from sagittarius_engine.runtime.tasks.background_task import TaskState
 from sagittarius_engine.runtime.tasks.events import TaskProgressUpdated
+from sagittarius_engine.runtime.tasks.task_manager import TaskManager
 
 
 class MockContext:

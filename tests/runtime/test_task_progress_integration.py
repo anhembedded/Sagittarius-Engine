@@ -1,7 +1,7 @@
-from sagittarius_engine.kernel.app import App
+from sagittarius_engine.extensions.audit.audit_service import AuditService
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
-from sagittarius_engine.extensions.audit.audit_service import AuditService
+from sagittarius_engine.kernel.app import App
 
 
 def test_integration_task_progress_and_audit():

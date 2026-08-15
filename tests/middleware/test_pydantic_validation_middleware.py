@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
 from pydantic import BaseModel
 
 from sagittarius_engine.middleware.pydantic_validation_middleware import (
@@ -23,11 +24,14 @@ class DummyCommand:
 
 
 def test_init_raises_import_error_when_pydantic_missing():
-    with patch(
-        "sagittarius_engine.middleware.pydantic_validation_middleware.BaseModel", None
+    with (
+        patch(
+            "sagittarius_engine.middleware.pydantic_validation_middleware.BaseModel",
+            None,
+        ),
+        pytest.raises(ImportError, match="pydantic is not installed"),
     ):
-        with pytest.raises(ImportError, match="pydantic is not installed"):
-            PydanticValidationMiddleware(container=None)
+        PydanticValidationMiddleware(container=None)
 
 
 def test_successful_validation_with_dict():

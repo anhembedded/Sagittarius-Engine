@@ -1,6 +1,7 @@
-import pytest
 import unittest.mock
 from unittest.mock import MagicMock
+
+import pytest
 
 from sagittarius_engine.extensions.persistence import BaseRepository
 

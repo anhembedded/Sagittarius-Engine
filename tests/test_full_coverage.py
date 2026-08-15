@@ -1,5 +1,3 @@
-from sagittarius_engine.extensions.persistence import ISession
-
 import asyncio
 import os
 import sys
@@ -10,15 +8,15 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from sagittarius_engine.kernel import App, MiddlewarePipeline
 from sagittarius_engine.domain import BaseEvent
 from sagittarius_engine.exceptions import (
     DependencyResolutionError,
     ModuleRegistrationError,
 )
-from sagittarius_engine.infrastructure.event_bus.asyncio_event_bus import (
-    AsyncioEventBus,
-)
+from sagittarius_engine.extensions.cqrs import ICommand, IQuery
+from sagittarius_engine.extensions.health.health_check_query import HealthCheckQuery
+from sagittarius_engine.extensions.health.health_module import HealthExtension
+from sagittarius_engine.extensions.persistence import ISession
 from sagittarius_engine.infrastructure.config import (
     ConfigManager,
     DictSource,
@@ -29,16 +27,18 @@ from sagittarius_engine.infrastructure.config.config_sources.dotenv_source impor
     DotenvSource,
 )
 from sagittarius_engine.infrastructure.config.dict_config import DictConfig
+from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
+from sagittarius_engine.infrastructure.event_bus.asyncio_event_bus import (
+    AsyncioEventBus,
+)
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 from sagittarius_engine.infrastructure.event_bus.resilient_event_bus import (
     ResilientEventBus,
 )
-from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
-from sagittarius_engine.infrastructure.logging.std_logger import StdLogger
 from sagittarius_engine.infrastructure.event_bus.thread_pool_event_bus import (
     ThreadPoolEventBus,
 )
-from sagittarius_engine.extensions.cqrs import ICommand, IQuery
+from sagittarius_engine.infrastructure.logging.std_logger import StdLogger
 from sagittarius_engine.interfaces import (
     IContainer,
     IEventBus,
@@ -46,8 +46,7 @@ from sagittarius_engine.interfaces import (
     IMiddleware,
     IModule,
 )
-from sagittarius_engine.extensions.health.health_check_query import HealthCheckQuery
-from sagittarius_engine.extensions.health.health_module import HealthExtension
+from sagittarius_engine.kernel import App, MiddlewarePipeline
 from tests.helpers import assert_event_emitted
 
 try:

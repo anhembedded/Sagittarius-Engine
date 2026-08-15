@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-
 from unittest.mock import patch
+
 import pytest
+
 from sagittarius_engine.exceptions import DependencyResolutionError
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.interfaces import IContainer

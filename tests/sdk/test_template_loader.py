@@ -1,6 +1,7 @@
 import pytest
-from sagittarius_engine.sdk.template_loader import TemplateLoader
+
 from sagittarius_engine.exceptions import PathTraversalError
+from sagittarius_engine.sdk.template_loader import TemplateLoader
 
 
 def test_template_loader__get_template_path__path_traversal_raises_error():

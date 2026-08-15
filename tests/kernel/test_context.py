@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock
+
 from sagittarius_engine.interfaces import IContainer, IEventBus
 
 

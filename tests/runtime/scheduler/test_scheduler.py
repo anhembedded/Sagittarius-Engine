@@ -1,8 +1,9 @@
 import unittest
-from unittest.mock import MagicMock
 from datetime import datetime, timedelta
+from unittest.mock import MagicMock
+
 from sagittarius_engine.interfaces import IEngineContext
-from sagittarius_engine.runtime.scheduler.scheduler import Scheduler, ScheduledJob
+from sagittarius_engine.runtime.scheduler.scheduler import ScheduledJob, Scheduler
 from sagittarius_engine.runtime.scheduler.triggers import IntervalTrigger
 
 

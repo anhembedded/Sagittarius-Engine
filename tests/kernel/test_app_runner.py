@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 try:
     from sagittarius_engine.kernel.app_runner import AppRunner  # type: ignore

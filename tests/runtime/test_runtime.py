@@ -1,11 +1,13 @@
 import time
+
 import pytest
-from sagittarius_engine.kernel.app import App
-from sagittarius_engine.runtime.hosted.hosted_service import IHostedService
-from sagittarius_engine.runtime.tasks.cancellation_token import CancellationToken
-from sagittarius_engine.runtime.tasks.background_task import TaskState
+
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+from sagittarius_engine.kernel.app import App
+from sagittarius_engine.runtime.hosted.hosted_service import IHostedService
+from sagittarius_engine.runtime.tasks.background_task import TaskState
+from sagittarius_engine.runtime.tasks.cancellation_token import CancellationToken
 
 
 class DummyHostedService(IHostedService):
@@ -274,8 +276,8 @@ def test_engine_context_and_task_handle_interfaces():
     """
     from sagittarius_engine.interfaces import (
         IEngineContext,
-        ITaskManager,
         ITaskHandle,
+        ITaskManager,
     )
 
     container = StdLibContainer()

@@ -1,11 +1,12 @@
 from dataclasses import dataclass
-from sagittarius_engine.kernel.app import App
-from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
-from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+
 from sagittarius_engine.domain.base_event import BaseEvent
 from sagittarius_engine.extensions.cqrs.interfaces.commands import ICommand
 from sagittarius_engine.extensions.cqrs.interfaces.queries import IQuery
 from sagittarius_engine.infrastructure.config.dict_config import DictConfig
+from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
+from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+from sagittarius_engine.kernel.app import App
 
 
 # 1. Typed Domain Models & Events

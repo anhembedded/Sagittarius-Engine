@@ -1,8 +1,8 @@
 import os
-import sys
-import time
 import subprocess
+import sys
 import threading
+import time
 
 
 def run_example_script(script_path: str) -> None:

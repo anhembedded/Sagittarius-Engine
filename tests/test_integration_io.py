@@ -4,18 +4,16 @@ import tempfile
 from io import StringIO
 from unittest.mock import patch
 
-from sagittarius_engine.kernel import App
-from sagittarius_engine.kernel.app_runner import ApplicationRunner
-from sagittarius_engine.adapters.cli import CLIInputPort, CLIOutputPort
 from sagittarius_engine.adapters.batch import BatchInputPort, BatchOutputPort
 from sagittarius_engine.adapters.batch.const import FILE_TYPE_CSV
-from sagittarius_engine.extensions.cqrs import ICommand, IQuery
-from sagittarius_engine.interfaces import IModule, IContainer, IEventBus
+from sagittarius_engine.adapters.cli import CLIInputPort, CLIOutputPort
 
 # Dummy implementations of required interfaces for the in-memory app
-
 from sagittarius_engine.exceptions import DependencyResolutionError
-from sagittarius_engine.interfaces import ILogger
+from sagittarius_engine.extensions.cqrs import ICommand, IQuery
+from sagittarius_engine.interfaces import IContainer, IEventBus, ILogger, IModule
+from sagittarius_engine.kernel import App
+from sagittarius_engine.kernel.app_runner import ApplicationRunner
 
 
 class DummyContainer(IContainer):

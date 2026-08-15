@@ -1,10 +1,11 @@
 import os
+
 import pytest
 
+from sagittarius_engine.exceptions import PathTraversalError
 from sagittarius_engine.infrastructure.storage.local_file_storage import (
     LocalFileStorage,
 )
-from sagittarius_engine.exceptions import PathTraversalError
 
 
 @pytest.fixture

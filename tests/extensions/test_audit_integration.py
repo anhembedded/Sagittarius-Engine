@@ -1,7 +1,8 @@
 import asyncio
 import json
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 
 # Attempt to import websockets for client testing
 try:
@@ -12,9 +13,9 @@ except ImportError:
     WEBSOCKETS_AVAILABLE = False
 
 from sagittarius_engine import App
-from sagittarius_engine.infrastructure import StdLibContainer, MemoryEventBus
 from sagittarius_engine.extensions.audit.audit_service import AuditService
 from sagittarius_engine.extensions.audit.events import SystemStateChangedEvent
+from sagittarius_engine.infrastructure import MemoryEventBus, StdLibContainer
 
 
 @pytest.mark.asyncio

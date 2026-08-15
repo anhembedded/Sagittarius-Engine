@@ -1,16 +1,17 @@
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import time
 import logging
+import time
+
 from sagittarius_engine import App
-from sagittarius_engine.runtime import IHostedService
+from sagittarius_engine.extensions.cqrs import ICommand
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
 from sagittarius_engine.interfaces import IMiddleware
-from sagittarius_engine.extensions.cqrs import ICommand
+from sagittarius_engine.runtime import IHostedService
 
 
 class DummyHostedService(IHostedService):
@@ -114,7 +115,6 @@ def run_middleware_overhead_benchmark():
     class DummyMiddleware(IMiddleware):
         def process(self, cmd_or_query, data_transfer_obj, next_handler):
             # simulate a tiny bit of processing
-            pass
             return next_handler()
 
     # Add 10 middlewares

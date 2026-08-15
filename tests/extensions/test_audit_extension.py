@@ -1,6 +1,8 @@
+from datetime import UTC
 from unittest.mock import MagicMock
-from sagittarius_engine.extensions.audit.audit_service import AuditService
+
 from sagittarius_engine.extensions.audit.audit_extension import AuditExtension
+from sagittarius_engine.extensions.audit.audit_service import AuditService
 from sagittarius_engine.interfaces import IEngineContext
 
 
@@ -51,12 +53,12 @@ def test_audit_service_active_tasks_and_config():
     mock_context = MagicMock(spec=IEngineContext)
 
     # Mock Task Manager
-    from datetime import datetime, timezone, timedelta
+    from datetime import datetime, timedelta
 
     mock_task = MagicMock()
     mock_task.name = "MyTestTask"
     mock_task.status = "running"
-    mock_task.start_time = datetime.now(timezone.utc) - timedelta(seconds=5)
+    mock_task.start_time = datetime.now(UTC) - timedelta(seconds=5)
     mock_task.end_time = None
 
     mock_tasks = MagicMock()

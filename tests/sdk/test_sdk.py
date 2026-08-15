@@ -1,10 +1,12 @@
 import os
 import subprocess
 import sys
+
 import pytest
+
+from sagittarius_engine.sdk.project_generator import ProjectGenerator
 from sagittarius_engine.sdk.template_loader import TemplateLoader
 from sagittarius_engine.sdk.template_renderer import TemplateRenderer
-from sagittarius_engine.sdk.project_generator import ProjectGenerator
 
 
 def test_template_loader_discovery(tmp_path):

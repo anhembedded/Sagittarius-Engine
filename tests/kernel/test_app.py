@@ -1,7 +1,8 @@
 import inspect
-import pytest
 import unittest.mock
 from unittest.mock import MagicMock
+
+import pytest
 
 from sagittarius_engine.exceptions import ModuleRegistrationError
 from sagittarius_engine.interfaces import (

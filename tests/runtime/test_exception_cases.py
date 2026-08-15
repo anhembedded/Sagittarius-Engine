@@ -1,25 +1,25 @@
 import time
-import pytest
 from unittest.mock import MagicMock
 
-from sagittarius_engine.kernel.app import App
+import pytest
+
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
-from sagittarius_engine.infrastructure.event_bus.thread_pool_event_bus import (
-    ThreadPoolEventBus,
-)
 from sagittarius_engine.infrastructure.event_bus.resilient_event_bus import (
     ResilientEventBus,
 )
+from sagittarius_engine.infrastructure.event_bus.thread_pool_event_bus import (
+    ThreadPoolEventBus,
+)
+from sagittarius_engine.interfaces.i_extension import ExtensionDescriptor, IExtension
+from sagittarius_engine.kernel.app import App
+from sagittarius_engine.runtime.hosted.hosted_service import IHostedService
 from sagittarius_engine.runtime.hosted.hosted_service_manager import (
     HostedServiceManager,
 )
-from sagittarius_engine.runtime.hosted.hosted_service import IHostedService
 from sagittarius_engine.runtime.scheduler.scheduler import JobBuilder
 from sagittarius_engine.runtime.scheduler.triggers import IntervalTrigger
-from sagittarius_engine.interfaces.i_extension import IExtension, ExtensionDescriptor
 from sagittarius_engine.runtime.tasks.background_task import TaskState
-
 
 # ==========================================================
 # 1. KERNEL / App.stop() Exception Cases

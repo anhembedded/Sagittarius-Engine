@@ -1,8 +1,10 @@
 import json
-import pytest
 from unittest.mock import Mock
-from sagittarius_engine.interfaces import ILogger
+
+import pytest
+
 from sagittarius_engine.infrastructure.logging.log_metrics import LogMetrics
+from sagittarius_engine.interfaces import ILogger
 
 
 @pytest.fixture

@@ -1,17 +1,18 @@
 import threading
+
 import pytest
 
-from sagittarius_engine.kernel.app import App
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
-from sagittarius_engine.infrastructure.event_bus.thread_pool_event_bus import (
-    ThreadPoolEventBus,
-)
 from sagittarius_engine.infrastructure.event_bus.resilient_event_bus import (
     ResilientEventBus,
 )
+from sagittarius_engine.infrastructure.event_bus.thread_pool_event_bus import (
+    ThreadPoolEventBus,
+)
+from sagittarius_engine.interfaces.i_extension import ExtensionDescriptor, IExtension
+from sagittarius_engine.kernel.app import App
 from sagittarius_engine.runtime.tasks.task_manager import DaemonThreadPoolExecutor
-from sagittarius_engine.interfaces.i_extension import IExtension, ExtensionDescriptor
 
 
 def test_issue_001_daemon_executor_no_global_monkey_patch():

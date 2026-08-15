@@ -1,10 +1,12 @@
 import ast
 import glob
 import os
+
 import pytest
-from sagittarius_engine.kernel.app import App
+
 from sagittarius_engine.infrastructure.container.std_container import StdLibContainer
 from sagittarius_engine.infrastructure.event_bus.memory_event_bus import MemoryEventBus
+from sagittarius_engine.kernel.app import App
 
 
 def get_imports_in_file(filepath: str) -> list[str]:

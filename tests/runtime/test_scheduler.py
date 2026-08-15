@@ -1,12 +1,13 @@
 import time
-from unittest.mock import MagicMock, patch
 from datetime import datetime, timedelta
-from sagittarius_engine.runtime.scheduler.scheduler import Scheduler
-from sagittarius_engine.runtime.scheduler.triggers import CronTrigger
+from unittest.mock import MagicMock, patch
+
 from sagittarius_engine.runtime.scheduler.events import (
     SchedulerStarted,
     SchedulerStopped,
 )
+from sagittarius_engine.runtime.scheduler.scheduler import Scheduler
+from sagittarius_engine.runtime.scheduler.triggers import CronTrigger
 
 
 def test_scheduler_start_stop():

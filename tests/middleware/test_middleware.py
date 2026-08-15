@@ -1,5 +1,5 @@
-from sagittarius_engine.kernel import MiddlewarePipeline
 from sagittarius_engine.interfaces import IMiddleware
+from sagittarius_engine.kernel import MiddlewarePipeline
 
 
 class DummyMiddleware(IMiddleware):
@@ -36,12 +36,13 @@ def test_middleware_pipeline_execution_order():
 
 
 def test_transaction_middleware_commits_on_success():
+    from unittest.mock import MagicMock
+
+    from sagittarius_engine.extensions.persistence import ISession
     from sagittarius_engine.extensions.persistence.transaction_middleware import (
         TransactionMiddleware,
     )
     from sagittarius_engine.interfaces import IContainer
-    from sagittarius_engine.extensions.persistence import ISession
-    from unittest.mock import MagicMock
 
     mock_container = MagicMock(spec=IContainer)
     mock_session = MagicMock(spec=ISession)
@@ -60,13 +61,15 @@ def test_transaction_middleware_commits_on_success():
 
 
 def test_transaction_middleware_rollbacks_on_exception():
+    from unittest.mock import MagicMock
+
+    import pytest
+
+    from sagittarius_engine.extensions.persistence import ISession
     from sagittarius_engine.extensions.persistence.transaction_middleware import (
         TransactionMiddleware,
     )
     from sagittarius_engine.interfaces import IContainer
-    from sagittarius_engine.extensions.persistence import ISession
-    from unittest.mock import MagicMock
-    import pytest
 
     mock_container = MagicMock(spec=IContainer)
     mock_session = MagicMock(spec=ISession)
@@ -86,11 +89,12 @@ def test_transaction_middleware_rollbacks_on_exception():
 
 def test_middleware_pipeline_concurrent_execution():
     import concurrent.futures
-    import uuid
-    import time
     import random
-    from sagittarius_engine.kernel import MiddlewarePipeline
+    import time
+    import uuid
+
     from sagittarius_engine.interfaces import IMiddleware
+    from sagittarius_engine.kernel import MiddlewarePipeline
 
     class DummyConcurrentMiddleware(IMiddleware):
         def process(self, cmd_or_query, data_transfer_obj, next_handler):
@@ -162,9 +166,10 @@ def test_timing_middleware_process(capsys):
 
 
 def test_logging_middleware_fallback_on_missing_logger(capsys):
-    from sagittarius_engine.middleware.logging_middleware import LoggingMiddleware
-    from sagittarius_engine.interfaces import IContainer
     from unittest.mock import MagicMock
+
+    from sagittarius_engine.interfaces import IContainer
+    from sagittarius_engine.middleware.logging_middleware import LoggingMiddleware
 
     mock_container = MagicMock(spec=IContainer)
     mock_container.resolve.side_effect = Exception("Logger not found")

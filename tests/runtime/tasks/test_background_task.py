@@ -1,4 +1,5 @@
 import pytest
+
 from sagittarius_engine.runtime.tasks.background_task import BackgroundTask, TaskState
 
 
