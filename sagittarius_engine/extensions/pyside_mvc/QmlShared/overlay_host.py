@@ -118,10 +118,16 @@ class OverlayHost(QObject):
 
     def eventFilter(self, watched: QObject, event: QEvent) -> bool:
         """Keeps the overlay aligned with its parent without consuming events."""
-        if watched is self._parent_widget and event.type() in {
-            QEvent.Type.Resize,
-            QEvent.Type.Show,
-        }:
+        parent_widget = getattr(self, "_parent_widget", None)
+        if (
+            parent_widget is not None
+            and not getattr(self, "_is_disposed", False)
+            and watched is parent_widget
+            and event.type() in {
+                QEvent.Type.Resize,
+                QEvent.Type.Show,
+            }
+        ):
             self._sync_geometry()
         return False
 
