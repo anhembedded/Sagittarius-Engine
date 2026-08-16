@@ -1,5 +1,23 @@
 from PySide6.QtCore import QObject
-from sagittarius_engine.interfaces.i_container import IContainer
+
+from sagittarius_engine.extensions.fsm import (
+    BaseStateMachine,
+    DeclarativeStateMachine,
+)
+from sagittarius_engine.extensions.pyside_mvc.base_view import (
+    DEV_MODE_CONFIG_KEY,
+    BaseView,
+)
+from sagittarius_engine.extensions.pyside_mvc.thread_affinity import (
+    set_thread_affinity_dev_mode,
+)
+from sagittarius_engine.interfaces import (
+    IConfig,
+    IContainer,
+    IDispatcher,
+    IEventBus,
+    ILogger,
+)
 
 
 class BasePresenter(QObject):
@@ -18,6 +36,10 @@ class BasePresenter(QObject):
     # Override this in child classes (e.g. INITIAL_STATE = UIMode.IDLE).
     INITIAL_STATE = None
 
+    # Optional class-level declarative transition matrix for DeclarativeStateMachine.
+    # Override this in child classes with dict mapping `(State, Event) -> NextState`.
+    UI_TRANSITION_MATRIX = None
+
     # Defines the section key inside ui_matrix.json for this view (default: "main")
     UI_MATRIX_SECTION_KEY = "main"
 
@@ -31,14 +53,6 @@ class BasePresenter(QObject):
         self.view = view
         self.container = container
 
-        # Commonly used Engine dependencies for UI Presenters
-        from sagittarius_engine.interfaces import (
-            IEventBus,
-            ILogger,
-            IDispatcher,
-            IConfig,
-        )
-
         self.event_bus = container.resolve(IEventBus)
         self.logger = container.resolve(ILogger)
         self.dispatcher = container.resolve(IDispatcher)
@@ -47,9 +61,6 @@ class BasePresenter(QObject):
         # Auto-activate dev-mode View instrumentation (e.g. click logging)
         # for any View that opts in by subclassing BaseView — a no-op for
         # views that don't, so this is safe for every other framework consumer.
-        from .base_view import DEV_MODE_CONFIG_KEY, BaseView
-        from .thread_affinity import set_thread_affinity_dev_mode
-
         dev_mode = self.config.get(DEV_MODE_CONFIG_KEY, False)
         if isinstance(view, BaseView) and dev_mode:
             view.enable_dev_click_logging()
@@ -62,10 +73,15 @@ class BasePresenter(QObject):
         set_thread_affinity_dev_mode(dev_mode)
 
         # State Machine for UI
-        from sagittarius_engine.extensions.fsm.state_machine import BaseStateMachine
-
         if self.INITIAL_STATE is not None:
-            self.fsm = BaseStateMachine(self.INITIAL_STATE)
+            if (
+                hasattr(self, "UI_TRANSITION_MATRIX")
+                and self.UI_TRANSITION_MATRIX is not None
+            ):
+                self.fsm = DeclarativeStateMachine(self.INITIAL_STATE)
+                self.fsm.load_matrix(self.UI_TRANSITION_MATRIX)
+            else:
+                self.fsm = BaseStateMachine(self.INITIAL_STATE)
             self._bind_fsm_to_ui()
         else:
             self.fsm = None

@@ -1,7 +1,9 @@
-import threading
 import logging
-from typing import Generic, TypeVar, Callable, Dict, List, Set
+import threading
+from collections.abc import Callable
 from enum import Enum
+from typing import Generic, TypeVar
+
 from sagittarius_engine.extensions.fsm.exceptions import InvalidStateTransitionError
 
 T = TypeVar("T", bound=Enum)
@@ -28,15 +30,15 @@ class BaseStateMachine(Generic[T]):
         self._lock = threading.RLock()
 
         # Transition Matrix (Rules Engine)
-        self._allowed_transitions: Dict[T, Set[T]] = {}
+        self._allowed_transitions: dict[T, set[T]] = {}
 
         # Lifecycle Callbacks
-        self._on_enter: Dict[T, List[Callable[[], None]]] = {}
-        self._on_exit: Dict[T, List[Callable[[], None]]] = {}
+        self._on_enter: dict[T, list[Callable[[], None]]] = {}
+        self._on_exit: dict[T, list[Callable[[], None]]] = {}
 
         # Global Callbacks triggered on ANY transition
         # Signature: Callable[[old_state, new_state], None]
-        self._global_callbacks: List[Callable[[T, T], None]] = []
+        self._global_callbacks: list[Callable[[T, T], None]] = []
 
     @property
     def current_state(self) -> T:
@@ -105,9 +107,10 @@ class BaseStateMachine(Generic[T]):
             for cb in self._on_exit.get(old_state, []):
                 try:
                     cb()
-                except Exception as e:
+                except Exception:
                     logger.exception(
-                        f"Error in on_exit callback for state {old_state.name}: {e}"
+                        "Error in on_exit callback for state %s",
+                        old_state.name,
                     )
 
             # 3. Change state
@@ -117,16 +120,17 @@ class BaseStateMachine(Generic[T]):
             for g_cb in self._global_callbacks:
                 try:
                     g_cb(old_state, new_state)
-                except Exception as e:
-                    logger.exception(f"Error in global transition callback: {e}")
+                except Exception:
+                    logger.exception("Error in global transition callback")
 
             # 5. Execute on_enter callbacks for the new state
             for cb in self._on_enter.get(new_state, []):
                 try:
                     cb()
-                except Exception as e:
+                except Exception:
                     logger.exception(
-                        f"Error in on_enter callback for state {new_state.name}: {e}"
+                        "Error in on_enter callback for state %s",
+                        new_state.name,
                     )
 
             return True
