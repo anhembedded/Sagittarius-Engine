@@ -1,7 +1,10 @@
 from collections.abc import Callable
+
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QStackedWidget
+
 from sagittarius_engine.interfaces.i_container import IContainer
+from sagittarius_engine.interfaces.i_logger import ILogger
 
 
 class PresenterManager(QObject):
@@ -29,8 +32,7 @@ class PresenterManager(QObject):
 
         self._registry: dict[str, dict] = {}
         self._current_screen_name: str | None = None
-        from sagittarius_engine.interfaces.i_logger import ILogger
-
+        self._is_shutdown = False
         self.logger = self.container.resolve(ILogger)
 
     def register(
@@ -57,6 +59,8 @@ class PresenterManager(QObject):
         @param name The registered route name.
         """
 
+        if self._is_shutdown:
+            raise RuntimeError("PresenterManager is already shut down")
         if name not in self._registry:
             self.logger.error(f"[PresenterManager] Route '{name}' is not registered!")
             raise ValueError(f"[PresenterManager] Route '{name}' is not registered!")
@@ -96,3 +100,20 @@ class PresenterManager(QObject):
         if not self._current_screen_name:
             return None
         return self._registry[self._current_screen_name]["presenter_instance"]
+
+    def shutdown(self) -> None:
+        """Requests cooperative shutdown from every instantiated presenter."""
+        if self._is_shutdown:
+            return
+        self._is_shutdown = True
+        for config in reversed(tuple(self._registry.values())):
+            presenter = config["presenter_instance"]
+            shutdown = getattr(presenter, "shutdown", None)
+            if callable(shutdown):
+                try:
+                    shutdown()
+                except Exception:
+                    self.logger.exception(
+                        "[PresenterManager] Presenter shutdown failed: %s",
+                        type(presenter).__name__,
+                    )

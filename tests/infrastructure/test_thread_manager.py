@@ -117,3 +117,23 @@ def test_thread_manager_shutdown_wait_false():
     # Wait a bit for the thread pool to actually finish the task in the background
     time.sleep(0.05)
     assert task_completed is True
+
+
+def test_thread_manager_shutdown_cancels_tasks_that_have_not_started():
+    manager = ThreadManager(max_workers=1)
+    running_task_started = threading.Event()
+    running_task_release = threading.Event()
+
+    def running_task() -> bool:
+        running_task_started.set()
+        return running_task_release.wait()
+
+    running_future = manager.submit(running_task)
+    assert running_task_started.wait(timeout=2) is True
+    queued_future = manager.submit(lambda: "must not run")
+
+    manager.shutdown(wait=False)
+
+    assert queued_future.cancelled() is True
+    running_task_release.set()
+    assert running_future.result(timeout=2) is True

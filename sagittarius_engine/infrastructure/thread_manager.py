@@ -49,4 +49,4 @@ class ThreadManager(IThreadManager):
         @param wait If True, blocks until all pending tasks are completed.
         """
         with self._lock:
-            self._executor.shutdown(wait=wait)
+            self._executor.shutdown(wait=wait, cancel_futures=True)
