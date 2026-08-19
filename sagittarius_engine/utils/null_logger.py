@@ -1,4 +1,5 @@
 from typing import Any
+
 from sagittarius_engine.interfaces.i_logger import ILogger
 
 
@@ -15,4 +16,10 @@ class NullLogger(ILogger):
         pass
 
     def debug(self, message: str, extra: dict[str, Any] | None = None) -> None:
+        pass
+
+    def critical(self, message: str, extra: dict[str, Any] | None = None) -> None:
+        pass
+
+    def trace(self, message: str, extra: dict[str, Any] | None = None) -> None:
         pass

@@ -2,7 +2,7 @@ import logging
 import sys
 from typing import Any
 
-from sagittarius_engine.infrastructure.logging.logger_config import LoggerConfig
+from sagittarius_engine.infrastructure.logging.logger_config import TRACE, LoggerConfig
 from sagittarius_engine.infrastructure.logging.tcp_log_viewer_handler import (
     TcpLogViewerHandler,
 )
@@ -91,3 +91,18 @@ class StdLogger(ILogger):
         @brief Logs a debug message with optional structured metadata.
         """
         self._logger.debug(message, extra=self._format_extra(extra))
+
+    def critical(self, message: str, extra: dict[str, Any] | None = None) -> None:
+        """
+        @brief Logs a critical message with optional structured metadata.
+        """
+        self._logger.critical(message, extra=self._format_extra(extra))
+
+    def trace(self, message: str, extra: dict[str, Any] | None = None) -> None:
+        """
+        @brief Logs a trace message with optional structured metadata.
+        @details `Logger` has no built-in `.trace()` method (TRACE isn't a
+        standard level) — routed through `.log(TRACE, ...)` instead, same
+        as `.debug()` is really `.log(DEBUG, ...)` under the hood.
+        """
+        self._logger.log(TRACE, message, extra=self._format_extra(extra))

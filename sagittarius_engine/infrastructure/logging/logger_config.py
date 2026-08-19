@@ -5,6 +5,19 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from sagittarius_engine.interfaces import IConfig
 
+#: One level below DEBUG(10) — not a standard Python `logging` level, so it
+#: must be registered explicitly. `logging.addLevelName()` only controls how
+#: `%(levelname)s` renders a record; setting the `logging.TRACE` module
+#: attribute is what lets `from_iconfig()`'s `getattr(logging, level_str)`
+#: resolve `"log.level": "TRACE"` the same way it already resolves the five
+#: standard names. Registered here, at this module's import time, rather
+#: than in `std_logger.py`, so it exists the moment `LoggerConfig` itself is
+#: imported — independent of whether `StdLogger` is ever constructed (e.g. a
+#: `NullLogger`-only test that still sets `log.level=TRACE`).
+TRACE = 5
+logging.addLevelName(TRACE, "TRACE")
+logging.TRACE = TRACE  # type: ignore[attr-defined]
+
 
 @dataclass(frozen=True)
 class LoggerConfig:
@@ -14,9 +27,9 @@ class LoggerConfig:
     @details All fields have sensible defaults so StdLogger can work
     without any IConfig present (e.g. in tests or minimal setups).
 
-    Severity order: DEBUG(10) < INFO(20) < WARNING(30) < ERROR(40) < CRITICAL(50)
+    Severity order: TRACE(5) < DEBUG(10) < INFO(20) < WARNING(30) < ERROR(40) < CRITICAL(50)
     log_level acts as a MINIMUM threshold: records below this level are silently dropped,
-    regardless of which method (info/debug/error) was called.
+    regardless of which method (trace/debug/info/warning/error/critical) was called.
     """
 
     # Minimum severity threshold for the logger.
