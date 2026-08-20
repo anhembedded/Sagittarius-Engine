@@ -4,11 +4,11 @@
 
 This document defines **how to work in this repository**, not **how the project is implemented**.
 
-Project-specific knowledge lives under `.ai/context/`.
+Project-specific knowledge lives under `.agents/context/`.
 
-Engineering policies live under `.ai/rules/`.
+Engineering policies live under `.agents/rules/`.
 
-Task workflows live under `.ai/skills/`.
+Task workflows live under `.agents/skills/`.
 
 ---
 
@@ -29,7 +29,7 @@ Never skip a step.
 
 # Repository Layout
 
-.ai/
+.agents/
 
     context/        Project knowledge
 
@@ -37,9 +37,11 @@ Never skip a step.
 
     skills/         Engineering workflows
 
-    tracking/       Complex task plans and status files
-
     prompts/        Optional prompt templates
+
+    workflows/      Long-form process write-ups
+
+    anti-patterns/  Documented failure modes to avoid
 
 ---
 
@@ -56,9 +58,9 @@ Additionally load:
 
 | Task | Context |
 |-------|---------|
-| Feature Development | architecture.md, modules.md |
+| Feature Development | architectures/architecture.md, modules.md |
 | Bug Fix | runtime.md, testing.md |
-| Refactoring | architecture.md |
+| Refactoring | architectures/architecture.md |
 | Documentation | documentation.md |
 | Deployment | deployment.md |
 | Performance | runtime.md |
@@ -100,14 +102,8 @@ Every task must use one primary engineering skill.
 
 | User Request | Primary Skill |
 |--------------|---------------|
-| Implement Module | implement-module.md |
-| Fix Bug | investigate-fix-bug.md |
-| Refactor | refactor.md |
-| Review PR | review-pr.md |
-| Review System | review_system.md |
-| Improve Performance | optimize.md |
-| Write Documentation | write-doc.md |
-| Design Architecture | architecture.md |
+| Work a tracked task end to end | process_a_task.md |
+| Locate/understand a module before changing it | module_discover.md |
 
 If multiple skills are required:
 
