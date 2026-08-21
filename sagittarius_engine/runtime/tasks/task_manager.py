@@ -241,6 +241,18 @@ class TaskManager(ITaskManager):
 
         return bg_task
 
+    def get_active_tasks(self) -> list[ITaskHandle]:
+        """
+        @brief Returns a list of currently active (running or pending) background tasks.
+        @return List of active ITaskHandle objects.
+        """
+        with self._lock:
+            return [
+                task
+                for task in self.tasks.values()
+                if task.status in (TaskState.RUNNING, TaskState.PENDING)
+            ]
+
     def cancel_all(self) -> None:
         """
         @brief Cancels all currently running tasks.
@@ -256,6 +268,16 @@ class TaskManager(ITaskManager):
         @details Critical tasks are given up to `timeout` seconds to complete gracefully.
                  Background daemon tasks are non-blockingly cancelled and shut down.
         """
+        active_tasks = self.get_active_tasks()
+        if active_tasks:
+            task_descriptions = [
+                f"'{t.name}' (id: {t.id}, status: {t.status.value if hasattr(t.status, 'value') else t.status})"
+                for t in active_tasks
+            ]
+            self._logger.warning(
+                f"TaskManager shutting down with {len(active_tasks)} active tasks still running: {', '.join(task_descriptions)}"
+            )
+
         self.cancel_all()
 
         with self._lock:

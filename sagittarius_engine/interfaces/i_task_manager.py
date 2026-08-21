@@ -100,6 +100,14 @@ class ITaskManager(ABC):
         ...
 
     @abstractmethod
+    def get_active_tasks(self) -> list[ITaskHandle]:
+        """
+        @brief Returns a list of currently active (running or pending) background tasks.
+        @return List of active ITaskHandle objects.
+        """
+        ...
+
+    @abstractmethod
     def shutdown(self, timeout: float = 5.0) -> None:
         """
         @brief Gracefully shuts down all background tasks.

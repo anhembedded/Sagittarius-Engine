@@ -84,3 +84,51 @@ def test_task_manager_cleanup():
 
     assert len(manager._finished_task_ids) == 50
     assert len(manager.tasks) == 55
+
+
+def test_task_manager_get_active_tasks():
+    from sagittarius_engine.runtime.tasks.background_task import (
+        BackgroundTask,
+        TaskState,
+    )
+
+    context = MockContext()
+    manager = TaskManager(context)
+
+    t1 = BackgroundTask("running_task")
+    t1.status = TaskState.RUNNING
+    manager.tasks[t1.id] = t1
+
+    t2 = BackgroundTask("pending_task")
+    t2.status = TaskState.PENDING
+    manager.tasks[t2.id] = t2
+
+    t3 = BackgroundTask("completed_task")
+    t3.status = TaskState.COMPLETED
+    manager.tasks[t3.id] = t3
+
+    active = manager.get_active_tasks()
+    assert len(active) == 2
+    active_ids = {t.id for t in active}
+    assert active_ids == {t1.id, t2.id}
+
+
+def test_task_manager_shutdown_logs_warning_when_active_tasks(caplog):
+    import logging
+    from sagittarius_engine.runtime.tasks.background_task import (
+        BackgroundTask,
+        TaskState,
+    )
+
+    context = MockContext()
+    manager = TaskManager(context)
+
+    t1 = BackgroundTask("active_task_1")
+    t1.status = TaskState.RUNNING
+    manager.tasks[t1.id] = t1
+
+    with caplog.at_level(logging.WARNING):
+        manager.shutdown(timeout=0.1)
+
+    assert "TaskManager shutting down with 1 active tasks still running" in caplog.text
+    assert "active_task_1" in caplog.text
