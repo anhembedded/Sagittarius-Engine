@@ -19,6 +19,7 @@ except ImportError:
 else:
     from .base_presenter import BasePresenter
     from .base_view import BaseView
+    from .kit import RawPrimitiveFinding, find_raw_primitives
     from .presenter_manager import PresenterManager
     from .QmlShared import (
         DEFAULT_STATE_TOKENS,
@@ -85,6 +86,7 @@ else:
         "OverlayHost",
         "PresenterManager",
         "QmlHostView",
+        "RawPrimitiveFinding",
         "TokenSpec",
         "UIMatrixMixin",
         "UIWatchdog",
@@ -92,6 +94,7 @@ else:
         "create_quick_widget",
         "ensure_qml_style",
         "find_literal_colors",
+        "find_raw_primitives",
         "from_qml",
         "get_theme_bridge",
         "missing_required_tokens",

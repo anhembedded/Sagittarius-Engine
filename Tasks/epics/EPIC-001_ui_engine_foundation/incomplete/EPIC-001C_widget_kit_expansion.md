@@ -1,8 +1,9 @@
 # EPIC-001C — Widget Kit Expansion
 
 **Epic:** [EPIC-001 — UI Engine Foundation](../README.md)
-**Status:** 🟡 **In Progress — data table + gallery delivered (2026-08-22); anti-raw-primitive
-test and Field/Modal coverage not yet done.** See §4 below before treating this as closed.
+**Status:** 🟡 **In Progress — data table + gallery + anti-raw-primitive test delivered
+(2026-08-22); AppModal/dialog-shell coverage and a kit-internal cleanup (§4) still open.**
+See §4 below before treating this as closed.
 **Category:** UI Engine / Component Library
 **Priority:** P1
 **Depends on:** EPIC-001B ✅ (the kit renders tokens; the vocabulary must exist first)
@@ -55,11 +56,16 @@ not concept.
       width from the identical `root.columns` array and `_weightSum()` formula, not two
       independently maintained copies; `test_app_data_table_renders_every_row_from_its_model`
       covers the data-wiring half, visual alignment confirmed in the rendered snapshot.
-- [ ] **Not done.** Static test flags raw visual primitives (`Rectangle`, bare `Button`)
-      authored outside the kit. `find_literal_colors` (EPIC-001B) only catches colour
-      literals, not primitive authorship — a screen could still hand-roll a styled
-      `Rectangle` using correct tokens and this wouldn't catch it. Needed before this epic
-      can claim screens are structurally prevented from bypassing the kit.
+- [x] Static test flags raw visual primitives authored outside the kit —
+      `find_raw_primitives()` (new `extensions/pyside_mvc/kit/` package), scoped to `Button`/
+      `CheckBox` (the two controls the kit already has a direct replacement for; `Rectangle`
+      is deliberately not covered — see Implementation Notes). 8 tests, all passing.
+      **Scope note carried forward, not closed by this test:** this guard checks
+      *authorship* (no raw controls), not layout/geometry — a screen could still hand-roll a
+      correctly-token-coloured `Rectangle` standing in for a card, which neither this guard
+      nor the colour guard would catch. Full "screens structurally cannot bypass the kit" is
+      not yet true; "screens cannot instantiate the two most common bypassed controls
+      directly" is.
 - [x] Kit components resolve all visual values through tokens; none carry literals except
       the sanctioned compatibility fallbacks — **and this was not already true**: running
       the EPIC-001B guard against `QmlShared/` on first use found **8 real pre-existing
@@ -99,11 +105,41 @@ not concept.
   per the escape-hatch policy `EPIC-001A` recorded. `FieldBackground.qml`'s `radius: 6` was
   also switched to `Theme.radiusMd` (exact value match, zero visual change) while already in
   the file.
-- **3 new tests**, `484 passed, 7 skipped` total (up from 481), `mypy`/`ruff` clean.
+- **`extensions/pyside_mvc/kit/raw_primitive_guard.py`** — `find_raw_primitives()`, scoped
+  to `Button`/`CheckBox` only (the two controls with a direct kit replacement today).
+  `Rectangle` is deliberately not covered: it has too many legitimate non-widget uses
+  (dividers, spacers, the corner-squaring trick `BaseCard`-derived components already use)
+  to flag lexically without a real QML parser — the same precision-over-completeness call
+  `qml_literal_guard.py` made shipping colour-only. No exemption marker exists for this
+  guard (unlike the colour one): under the escape-hatch policy, there is no legitimate
+  reason to write a bare `Button {`/`CheckBox {` outside the kit at all, so nothing needs
+  marking as sanctioned.
+- **Ran the new guard against `QmlShared/` itself — found 8 hits, all inside the kit,
+  none fixed (recorded honestly, not silently left out):**
+  - 2 are the kit's own construction sites (`StatefulButton.qml`, `StyledCheck.qml` —
+    exactly where a `Button`/`CheckBox` is *supposed* to be instantiated raw; this is the
+    guard correctly not exempting a file just because of what it's named).
+  - 6 are real, pre-existing internal inconsistency: `LogPanel.qml`'s Copy/Clear buttons and
+    4 buttons inside `DateTimePicker.qml` hand-roll their own hover/background styling
+    instead of using `StatefulButton`, predating this epic. **Not fixed here** — migrating
+    them changes each button's visual behaviour (hover timing, disabled opacity constant),
+    which is a real design decision, not a mechanical token swap like the colour fixes were.
+    Left as a named follow-up rather than force-fixed under this task's scope.
+  - **Practical scope of the guard right now**: exempting the kit's own directory
+    (`exempt_dirs=[QmlShared]`) and running it against a *consuming app's* screens is where
+    it earns its keep — there are currently no consuming screens in this repo to run it
+    against yet (that's the app-repo migration epic, not started).
+- **3 new tests** for `raw_primitive_guard`, **11 new tests total this session**,
+  `492 passed, 7 skipped` total (up from 481), `mypy`/`ruff` clean (same 26 pre-existing
+  `mypy` errors as a clean baseline, verified via `git stash`).
 
 **Not delivered — remaining scope for a follow-up pass:**
 
-- Anti-raw-primitive static test (§ above).
+- The `Rectangle`-as-styled-card gap the new guard's scope note above names — no automated
+  check yet catches a screen re-implementing card/panel visuals from a raw `Rectangle` while
+  still using correct tokens.
+- `LogPanel.qml`/`DateTimePicker.qml`'s internal buttons migrating to `StatefulButton` (found
+  above, deliberately not fixed).
 - Broader coverage: no `AppModal`/dialog-shell component yet (screens still build modals
   from `Popup`/`ModalDialogCard`-equivalent by hand outside this kit); `StatefulButton` is
   the only button primitive — no distinct icon-only/toolbar-button variant if one turns out
