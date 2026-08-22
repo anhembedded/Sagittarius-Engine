@@ -4,11 +4,11 @@ from sagittarius_engine.extensions.fsm import (
     BaseStateMachine,
     DeclarativeStateMachine,
 )
-from sagittarius_engine.extensions.pyside_mvc.base_view import (
+from sagittarius_engine.extensions.pyside_mvc.mvc.base_view import (
     DEV_MODE_CONFIG_KEY,
     BaseView,
 )
-from sagittarius_engine.extensions.pyside_mvc.thread_affinity import (
+from sagittarius_engine.extensions.pyside_mvc.safety.thread_affinity import (
     set_thread_affinity_dev_mode,
 )
 from sagittarius_engine.interfaces import (

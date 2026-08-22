@@ -16,7 +16,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtCore import QObject, QUrl, Slot
 from PySide6.QtQml import QQmlComponent, QQmlEngine
 
-from sagittarius_engine.extensions.pyside_mvc.QmlShared.qml_value_normalizer import (
+from sagittarius_engine.extensions.pyside_mvc.runtime.qml_value_normalizer import (
     from_qml,
 )
 

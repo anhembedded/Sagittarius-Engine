@@ -7,7 +7,8 @@ from PySide6.QtCore import QUrl
 from PySide6.QtQuickWidgets import QQuickWidget
 from PySide6.QtWidgets import QVBoxLayout
 
-from sagittarius_engine.extensions.pyside_mvc.base_view import BaseView
+from sagittarius_engine.extensions.pyside_mvc.mvc.base_view import BaseView
+from sagittarius_engine.extensions.pyside_mvc.tokens.theme_bridge import register_theme
 from sagittarius_engine.extensions.pyside_mvc.tokens.vocabulary import (
     MissingRequiredTokensError,
     missing_required_tokens,
@@ -15,13 +16,18 @@ from sagittarius_engine.extensions.pyside_mvc.tokens.vocabulary import (
 
 from .icon_image_provider import ICON_PROVIDER_ID, IconImageProvider, IIconLoader
 from .qml_style import ensure_qml_style
-from .theme_bridge import register_theme
 
-#: The `qmldir` for LogPanel.qml lives in this same directory. Consumer .qml
-#: files import it as `import QmlShared 1.0` once this directory's *parent*
-#: has been added to the QQmlEngine's import path (see create_quick_widget) —
-#: Qt resolves a dotless module name "QmlShared" against
-#: `<import path>/QmlShared/qmldir`, which is exactly this layout.
+#: `QmlShared/` (containing every kit component's `.qml` + `qmldir`) is a
+#: sibling of this file's own directory, not this same directory — moved
+#: apart during the EPIC-001C reorg so QML-only content and Python
+#: bootstrap glue stop sharing one folder. Consumer .qml files still import
+#: it as `import QmlShared 1.0` once this directory's *parent* has been
+#: added to the QQmlEngine's import path (see create_quick_widget) — Qt
+#: resolves a dotless module name "QmlShared" against
+#: `<import path>/QmlShared/qmldir`. `runtime/` sits exactly one level
+#: under `pyside_mvc/`, the same depth `QmlShared/` itself is at, so this
+#: still correctly resolves to `pyside_mvc/` without needing to know
+#: `QmlShared/`'s exact sibling name.
 _QML_IMPORT_PATH = str(Path(__file__).resolve().parent.parent)
 
 

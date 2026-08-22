@@ -19,9 +19,7 @@ call, no separate registration path per category.
 
 from __future__ import annotations
 
-from sagittarius_engine.extensions.pyside_mvc.QmlShared.state_tokens import (
-    with_state_token_defaults,
-)
+from .state_tokens import with_state_token_defaults
 
 #: 4/8/12/16/24 scale — the smallest unit is named, the rest are named
 #: multiples rather than a bare numeric progression, so QML reads intent

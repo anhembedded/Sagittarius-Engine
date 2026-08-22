@@ -123,7 +123,8 @@ class OverlayHost(QObject):
             parent_widget is not None
             and not getattr(self, "_is_disposed", False)
             and watched is parent_widget
-            and event.type() in {
+            and event.type()
+            in {
                 QEvent.Type.Resize,
                 QEvent.Type.Show,
             }

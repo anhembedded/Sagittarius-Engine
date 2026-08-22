@@ -2,7 +2,9 @@ from unittest.mock import Mock
 
 import pytest
 
-from sagittarius_engine.extensions.pyside_mvc.presenter_manager import PresenterManager
+from sagittarius_engine.extensions.pyside_mvc.mvc.presenter_manager import (
+    PresenterManager,
+)
 
 
 class _ShutdownPresenter:

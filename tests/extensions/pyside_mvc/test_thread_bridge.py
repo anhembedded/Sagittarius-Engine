@@ -13,9 +13,11 @@ from unittest.mock import Mock
 
 import pytest
 
-from sagittarius_engine.extensions.pyside_mvc.base_view import DEV_MODE_CONFIG_KEY
-from sagittarius_engine.extensions.pyside_mvc.thread_bridge import safe_ui_action
-from sagittarius_engine.extensions.pyside_mvc.ui_action_events import (
+from sagittarius_engine.extensions.pyside_mvc.mvc.base_view import DEV_MODE_CONFIG_KEY
+from sagittarius_engine.extensions.pyside_mvc.safety.thread_bridge import (
+    safe_ui_action,
+)
+from sagittarius_engine.extensions.pyside_mvc.safety.ui_action_events import (
     UiActionFailedEvent,
 )
 

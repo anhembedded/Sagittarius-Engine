@@ -14,7 +14,7 @@ import pytest
 from PySide6.QtCore import QObject, QUrl
 from PySide6.QtGui import QIcon
 
-from sagittarius_engine.extensions.pyside_mvc.QmlShared import (
+from sagittarius_engine.extensions.pyside_mvc.runtime import (
     configure_app_qml,
     create_quick_widget,
 )
@@ -30,6 +30,13 @@ _QML_SHARED_DIR = (
     / "pyside_mvc"
     / "QmlShared"
 )
+#: The kit's QML surface spans two directories after the EPIC-001C reorg:
+#: the widget kit proper (`QmlShared/`) and the runtime's own
+#: `OverlayHost.qml` (`runtime/`, paired with `overlay_host.py` since it's
+#: bootstrap plumbing, not a reusable kit component). Scanning the whole
+#: extension root — not just `QmlShared/` — keeps the anti-literal-colour
+#: guard covering both without hardcoding a second path here.
+_PYSIDE_MVC_DIR = _QML_SHARED_DIR.parent
 _FIXTURES_DIR = Path(__file__).parent / "fixtures"
 _PLACEHOLDER_PALETTE = {name: "#000000" for name in REQUIRED_COLOUR_TOKEN_NAMES}
 
@@ -101,6 +108,6 @@ def test_widget_kit_source_has_zero_literal_colours():
     reason), and three genuine drift bugs (fixed to use the matching
     existing token). This test is what keeps the kit at zero going
     forward."""
-    findings = find_literal_colors(_QML_SHARED_DIR)
+    findings = find_literal_colors(_PYSIDE_MVC_DIR)
 
     assert findings == []

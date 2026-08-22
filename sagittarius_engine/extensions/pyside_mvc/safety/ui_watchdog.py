@@ -131,7 +131,9 @@ class UIWatchdog(QtCore.QObject):
             self._last_heartbeat_time = time.monotonic()
             if self._is_frozen:
                 self._is_frozen = False
-                self._logger.info("UI Thread recovered from freeze. Event loop responsive.")
+                self._logger.info(
+                    "UI Thread recovered from freeze. Event loop responsive."
+                )
 
     def _monitor_loop(self) -> None:
         """Background loop inspecting main thread responsiveness."""

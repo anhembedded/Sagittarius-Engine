@@ -1,6 +1,3 @@
-from PySide6.QtWidgets import QWidget
-
-
 class UIMatrixMixin:
     """
     @brief Mixin that provides Data-Driven UI Matrix capabilities to any QWidget.

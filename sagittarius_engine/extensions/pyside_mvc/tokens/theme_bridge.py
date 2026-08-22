@@ -1,6 +1,6 @@
 from PySide6.QtQml import QQmlPropertyMap
 
-from sagittarius_engine.extensions.pyside_mvc.tokens.defaults import with_token_defaults
+from .defaults import with_token_defaults
 
 _THEME_CONTEXT_NAME = "Theme"
 

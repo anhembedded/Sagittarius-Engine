@@ -1,5 +1,7 @@
 """
-@brief PySide6 MVC Extension for Sagittarius Engine.
+@brief PySide6 MVC Extension for Sagittarius Engine — the Sagittarius UI
+Engine. See `README.md` for the ownership boundary (tokens/kit/runtime)
+and directory layout.
 @details Provides true lazy-loaded UI routing, base presenters, and data-driven matrix UI.
 """
 
@@ -17,12 +19,9 @@ except ImportError:
     # Expose dummies or just let subsequent imports fail explicitly when consumer code runs.
     # We don't raise an error here because simply scanning the extensions folder shouldn't crash the engine.
 else:
-    from .base_presenter import BasePresenter
-    from .base_view import BaseView
     from .kit import RawPrimitiveFinding, find_raw_primitives
-    from .presenter_manager import PresenterManager
-    from .QmlShared import (
-        DEFAULT_STATE_TOKENS,
+    from .mvc import BasePresenter, BaseView, PresenterManager
+    from .runtime import (
         ICON_PROVIDER_ID,
         AppQmlConfig,
         BaseQmlViewModel,
@@ -35,22 +34,23 @@ else:
         create_quick_widget,
         ensure_qml_style,
         from_qml,
-        get_theme_bridge,
-        register_theme,
-        with_state_token_defaults,
     )
-    from .thread_affinity import (
+    from .safety import (
         CrossThreadUiMutationError,
+        UIMatrixMixin,
+        UIWatchdog,
         not_a_ui_mutator,
+        safe_ui_action,
         set_thread_affinity_dev_mode,
+        setup_qt_signal_handling,
         ui_mutator,
         unprotected_mutators,
     )
-    from .thread_bridge import safe_ui_action
     from .tokens import (
         DEFAULT_MOTION_TOKENS,
         DEFAULT_RADIUS_TOKENS,
         DEFAULT_SPACING_TOKENS,
+        DEFAULT_STATE_TOKENS,
         DEFAULT_TYPOGRAPHY_TOKENS,
         REQUIRED_COLOUR_TOKEN_NAMES,
         REQUIRED_COLOUR_TOKENS,
@@ -58,11 +58,12 @@ else:
         MissingRequiredTokensError,
         TokenSpec,
         find_literal_colors,
+        get_theme_bridge,
         missing_required_tokens,
+        register_theme,
+        with_state_token_defaults,
         with_token_defaults,
     )
-    from .ui_matrix_mixin import UIMatrixMixin
-    from .ui_watchdog import UIWatchdog, setup_qt_signal_handling
 
     __all__ = [
         "DEFAULT_MOTION_TOKENS",

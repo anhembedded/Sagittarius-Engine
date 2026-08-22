@@ -1,4 +1,4 @@
-from sagittarius_engine.extensions.pyside_mvc.QmlShared.state_tokens import (
+from sagittarius_engine.extensions.pyside_mvc.tokens.state_tokens import (
     DEFAULT_STATE_TOKENS,
     with_state_token_defaults,
 )

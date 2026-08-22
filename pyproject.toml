@@ -37,7 +37,11 @@ sagittarius-audit = "tools.audit_dashboard:main"
 include = ["sagittarius_engine*", "tools*"]
 
 [tool.setuptools.package-data]
-sagittarius_engine = ["extensions/pyside_mvc/QmlShared/*.qml", "extensions/pyside_mvc/QmlShared/qmldir"]
+sagittarius_engine = [
+    "extensions/pyside_mvc/QmlShared/*.qml",
+    "extensions/pyside_mvc/QmlShared/qmldir",
+    "extensions/pyside_mvc/runtime/*.qml",
+]
 
 [project.optional-dependencies]
 audit = ["rich>=13.0.0"]

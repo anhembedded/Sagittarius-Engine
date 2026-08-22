@@ -21,7 +21,7 @@ from PySide6.QtCore import QUrl
 from PySide6.QtGui import QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import QApplication
 
-from sagittarius_engine.extensions.pyside_mvc.QmlShared import (
+from sagittarius_engine.extensions.pyside_mvc.runtime import (
     configure_app_qml,
     create_quick_widget,
 )

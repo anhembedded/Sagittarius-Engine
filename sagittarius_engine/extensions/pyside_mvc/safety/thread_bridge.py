@@ -3,7 +3,7 @@ import traceback
 from collections.abc import Callable
 from typing import Any
 
-from .base_view import DEV_MODE_CONFIG_KEY
+from ..mvc.base_view import DEV_MODE_CONFIG_KEY
 from .ui_action_events import UiActionFailedEvent
 
 

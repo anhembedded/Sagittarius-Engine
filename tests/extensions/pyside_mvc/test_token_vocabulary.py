@@ -11,16 +11,14 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 import pytest
 from PySide6.QtGui import QIcon
 
-from sagittarius_engine.extensions.pyside_mvc.QmlShared.qml_host_view import (
+from sagittarius_engine.extensions.pyside_mvc.runtime.qml_host_view import (
     configure_app_qml,
-)
-from sagittarius_engine.extensions.pyside_mvc.QmlShared.state_tokens import (
-    DEFAULT_STATE_TOKENS,
 )
 from sagittarius_engine.extensions.pyside_mvc.tokens import (
     DEFAULT_MOTION_TOKENS,
     DEFAULT_RADIUS_TOKENS,
     DEFAULT_SPACING_TOKENS,
+    DEFAULT_STATE_TOKENS,
     DEFAULT_TYPOGRAPHY_TOKENS,
     REQUIRED_COLOUR_TOKEN_NAMES,
     MissingRequiredTokensError,

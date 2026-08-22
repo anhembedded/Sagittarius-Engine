@@ -12,7 +12,7 @@ from PySide6.QtCore import QUrl
 from PySide6.QtGui import QColor, QIcon
 from PySide6.QtWidgets import QWidget
 
-from sagittarius_engine.extensions.pyside_mvc.QmlShared import (
+from sagittarius_engine.extensions.pyside_mvc.runtime import (
     OverlayHost,
     configure_app_qml,
 )

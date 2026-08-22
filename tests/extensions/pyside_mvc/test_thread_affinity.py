@@ -27,7 +27,7 @@ import time
 
 from PySide6.QtCore import QObject, Signal, Slot
 
-from sagittarius_engine.extensions.pyside_mvc.thread_affinity import (
+from sagittarius_engine.extensions.pyside_mvc.safety.thread_affinity import (
     CrossThreadUiMutationError,
     not_a_ui_mutator,
     set_thread_affinity_dev_mode,

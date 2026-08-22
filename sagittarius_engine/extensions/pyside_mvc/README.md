@@ -13,20 +13,11 @@ screen composition, and nothing else.
 | --- | --- | --- | --- |
 | **Tokens** | `tokens/` | Every visual value: colour, spacing, radius, typography, motion | Supply a palette dict once, at bootstrap, filling the engine's fixed vocabulary |
 | **Widget Kit** | `kit/` + `QmlShared/*.qml` | The components that render those tokens | Compose them; derive from a base primitive only through the escape hatch |
-| **Runtime** | *(not yet built — `EPIC-001D`)* | Shell, regions, navigation, screen lifecycle | Declare contributions; never hand-build layout geometry |
+| **Runtime** | `runtime/` | Bootstrap/hosting *(built)*: `configure_app_qml()`, `create_quick_widget()`, `QmlHostView`, `OverlayHost`. Regions/slot registry/screen lifecycle *(not yet — `EPIC-001D`)* | Call the bootstrap once; never hand-build layout geometry |
 
 The test for whether this boundary holds: change one token — accent colour, corner radius —
 and count how many consumer files must change to stay visually correct. The answer must be
 zero.
-
-## Status
-
-| Subtask | Delivers | State |
-| --- | --- | --- |
-| `EPIC-001A` | This governance doc | ✅ Done |
-| `EPIC-001B` | `tokens/` — fixed vocabulary, bootstrap validation, anti-literal-colour guard | ✅ Done |
-| `EPIC-001C` | `kit/` + `AppDataTable`/`AppModal` — anti-raw-primitive guard, gallery | 🟡 Substantially done — see task file for the exact remainder |
-| `EPIC-001D` | Runtime shell, slot registry, screen lifecycle contract | 🔴 Not started |
 
 ## Class diagram
 
@@ -70,11 +61,11 @@ classDiagram
       +find_raw_primitives(root, exempt_dirs) list
       +format_findings(findings) str
     }
-    class state_tokens["QmlShared.state_tokens"] {
+    class state_tokens["tokens.state_tokens"] {
       +DEFAULT_STATE_TOKENS: dict
       +with_state_token_defaults(palette) dict
     }
-    class theme_bridge["QmlShared.theme_bridge"] {
+    class theme_bridge["tokens.theme_bridge"] {
       -_shared_theme_bridge: QQmlPropertyMap
       +get_theme_bridge(palette) QQmlPropertyMap
       +register_theme(quick_widget, palette)
@@ -84,7 +75,7 @@ classDiagram
       +IIconLoader icon_loader
       +dict icon_palette
     }
-    class qml_host_view["QmlShared.qml_host_view"] {
+    class qml_host_view["runtime.qml_host_view"] {
       -_app_qml_config: AppQmlConfig
       +configure_app_qml(ui_palette, icon_loader, icon_palette)
       +create_quick_widget() QQuickWidget
@@ -179,8 +170,8 @@ theoretical, this reflects the real install/import path a consuming app goes thr
 ```mermaid
 flowchart TB
     subgraph BUILD["Sagittarius_Engine repo — build"]
-        SRC["extensions/pyside_mvc/<br/>tokens/ · kit/ · QmlShared/*.py+*.qml"]
-        PKG["setuptools package-data:<br/>QmlShared/*.qml, qmldir bundled into the wheel"]
+        SRC["extensions/pyside_mvc/<br/>tokens/ · kit/ · runtime/ · mvc/ · safety/ · QmlShared/*.qml"]
+        PKG["setuptools package-data:<br/>QmlShared/*.qml, qmldir, runtime/*.qml bundled into the wheel"]
         SRC --> PKG
     end
 
@@ -218,34 +209,49 @@ flowchart TB
     class THEME,BOOT runtime
 ```
 
-**Operational note carried over from `EPIC-001A`**: the reference consumer currently installs
-this engine **non-editable, pinned to a commit** (`install-rule.md` Option 1). Every commit
-merged here needs a push-and-reinstall cycle before the app sees it; switching to Option 2
-(editable local install) during active UI Engine development removes that lag.
 
 ## Directory layout
 
+Reorganized 2026-08-22 (post-`EPIC-001C`): every file now sits at the abstraction level it
+actually belongs to — `QmlShared/` had accumulated pure-QML widgets *and* Python bootstrap
+plumbing side by side, and the top-level directory mixed MVC lifecycle, thread safety, and
+QML hosting flat together. Two files (`base_view.py`, `QmlShared/log_list_model.py`) keep a
+thin backward-compatibility shim at their old path — the reference consumer imports them
+directly at those exact locations, past this extension's top-level re-exports.
+
 ```text
 extensions/pyside_mvc/
-├── tokens/                      Design-token vocabulary + guards (EPIC-001B)
-│   ├── vocabulary.py            Required colour tokens, MissingRequiredTokensError
-│   ├── defaults.py              Spacing/radius/typography/motion defaults + merge
-│   └── qml_literal_guard.py     Anti-literal-colour static check
-├── kit/                         Widget Kit Python tooling (EPIC-001C)
-│   └── raw_primitive_guard.py   Anti-raw-primitive static check
-├── QmlShared/                   The widget kit itself — QML components + bootstrap glue
-│   ├── BaseCard.qml             The one base primitive escapes may derive from
+├── tokens/                        Values — EPIC-001B
+│   ├── vocabulary.py              Required colour tokens, MissingRequiredTokensError
+│   ├── defaults.py                Spacing/radius/typography/motion defaults + merge
+│   ├── state_tokens.py            Hover/active/disabled state-token defaults
+│   ├── theme_bridge.py            The `Theme` singleton exposed to QML
+│   └── qml_literal_guard.py       Anti-literal-colour static check
+├── kit/                           Widget Kit — EPIC-001C
+│   └── raw_primitive_guard.py     Anti-raw-primitive static check
+├── QmlShared/                     The widget kit's QML — components only, no Python
+│   ├── qmldir
+│   ├── BaseCard.qml               The one base primitive escapes may derive from
 │   ├── StatefulButton.qml · FieldBackground.qml · StyledCheck.qml
 │   ├── TimeRangeCard.qml · LogPanel.qml · DateTimePicker.qml
-│   ├── AppDataTable.qml         Schema-driven table
-│   ├── AppModal.qml             Dialog shell (Popup-based)
-│   ├── Gallery.qml              Runnable catalog — every component, one page
-│   ├── theme_bridge.py          Theme singleton exposed to QML
-│   ├── qml_host_view.py         configure_app_qml() / QmlHostView / create_quick_widget()
-│   └── overlay_host.py          Full-window modal host (BOT-087)
-├── base_presenter.py · base_view.py · presenter_manager.py
-├── thread_affinity.py · thread_bridge.py · ui_watchdog.py
-└── ui_matrix_mixin.py
+│   ├── AppDataTable.qml           Schema-driven table
+│   ├── AppModal.qml               Dialog shell (Popup-based)
+│   ├── Gallery.qml                Runnable catalog — every component, one page
+│   └── log_list_model.py          Compat shim only — real impl moved to runtime/
+├── runtime/                       Screen-hosting / bootstrap — seeds EPIC-001D
+│   ├── qml_host_view.py           configure_app_qml() / QmlHostView / create_quick_widget()
+│   ├── overlay_host.py + OverlayHost.qml   Full-window modal host (BOT-087)
+│   ├── icon_image_provider.py     `image://icons/<name>/<tint>` provider
+│   ├── qml_style.py               Pins Qt Quick Controls to the customizable style
+│   ├── qml_value_normalizer.py    QML → Python value bridge
+│   ├── base_view_model.py         `BaseQmlViewModel`
+│   └── log_list_model.py          `LogListModel` (real implementation)
+├── mvc/                           Presenter/View lifecycle
+│   ├── base_presenter.py · base_view.py · presenter_manager.py
+├── safety/                        Thread-safety + crash-visibility guardrails
+│   ├── thread_affinity.py · thread_bridge.py · ui_action_events.py
+│   └── ui_watchdog.py · ui_matrix_mixin.py (legacy, superseded by QmlHostView)
+└── base_view.py                   Compat shim only — real impl moved to mvc/
 ```
 
 ## Seeing it: the Gallery
