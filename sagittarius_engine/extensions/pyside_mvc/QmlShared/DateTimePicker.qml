@@ -127,7 +127,10 @@ Item {
             }
 
             background: Rectangle {
-                color: calendarButton.hovered && calendarButton.enabled ? "#1f2127" : "#131418"
+                // Bespoke idle shade, distinct from every existing state/bg
+                // token — tokenizing it would silently change the look;
+                // needs a real design decision, not a drive-by remap.
+                color: calendarButton.hovered && calendarButton.enabled ? Theme.stateHoverBg : "#131418"  // token-exempt
                 border.width: 1
                 border.color: Theme.border
                 radius: 4
@@ -188,7 +191,7 @@ Item {
                         horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter;
                         font.pixelSize: 14
                     }
-                    background: Rectangle { color: parent.hovered ? "#1f2127" : "transparent"; radius: 4 }
+                    background: Rectangle { color: parent.hovered ? Theme.stateHoverBg : "transparent"; radius: 4 }
                     onClicked: {
                         if (monthGrid.month === 0) {
                             monthGrid.month = 11;
@@ -215,7 +218,7 @@ Item {
                         horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter;
                         font.pixelSize: 14
                     }
-                    background: Rectangle { color: parent.hovered ? "#1f2127" : "transparent"; radius: 4 }
+                    background: Rectangle { color: parent.hovered ? Theme.stateHoverBg : "transparent"; radius: 4 }
                     onClicked: {
                         if (monthGrid.month === 11) {
                             monthGrid.month = 0;
@@ -256,12 +259,16 @@ Item {
                                               model.day === control.selectedDate.getDate() && 
                                               monthGrid.year === control.selectedDate.getFullYear()
 
-                    color: isSelected ? Theme.accent : (hoverHandler.hovered ? "#1f2127" : "transparent")
+                    color: isSelected ? Theme.accent : (hoverHandler.hovered ? Theme.stateHoverBg : "transparent")
 
                     Text {
                         anchors.centerIn: parent
                         text: model.day
-                        color: parent.isSelected ? "#ffffff" : (model.month === monthGrid.month ? Theme.textPrimary : "#4b5162")
+                        // Selected-day white and other-month grey are
+                        // bespoke contrast shades with no matching semantic
+                        // token today — same reasoning as the idle-bg
+                        // exemption above.
+                        color: parent.isSelected ? "#ffffff" : (model.month === monthGrid.month ? Theme.textPrimary : "#4b5162")  // token-exempt
                         font.pixelSize: 11
                     }
 

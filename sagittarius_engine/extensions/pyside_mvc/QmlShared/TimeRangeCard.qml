@@ -64,7 +64,7 @@ BaseCard {
                 implicitHeight: 20
                 y: (customTimeSwitch.height - height) / 2
                 radius: 10
-                color: customTimeSwitch.checked ? Theme.accent : "#17181d"
+                color: customTimeSwitch.checked ? Theme.accent : Theme.stateIdleBg
                 border.color: customTimeSwitch.checked ? Theme.accent : Theme.border
                 
                 Rectangle {
