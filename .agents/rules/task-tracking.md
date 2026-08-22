@@ -17,6 +17,7 @@ The `Tasks/` directory is structured as follows:
 * `Tasks/in_progress/`: Actively Worked On Specifications
 * `Tasks/completed/`: Finished Tasks & Historical Docs
 * `Tasks/issue-report/`: High-impact Architecture Issue Reports
+* `Tasks/epics/`: Multi-task programs — see below
 
 ## Task Lifecycle & Agent Responsibilities
 
@@ -54,6 +55,29 @@ When you finish implementing and verifying the task:
 - **Move the Task File**: Move the task file from `Tasks/in_progress/` to `Tasks/completed/`.
 - **Update Task File Metadata**: Inside the file, change the `Status` to `✅ Completed` and add `Completed Date: YYYY-MM-DD`.
 - **Update the Kanban Board**: Edit `Tasks/README.md` to move the task from the `In Progress` table to the `Completed` table. Update the relative link to point to `completed/TASK-XXX_...md`.
+
+---
+
+## Epics — Multi-Task Programs
+
+Adopted 2026-08-22 (ported from `Sagittarius_Elite_Warrior`'s `Tasks/epics/` convention).
+When a body of work has **several subtasks and several rounds of status updates**, it does
+not belong as a single flat file in `Tasks/backlog/`, and it does not belong inline in
+`Tasks/README.md` either — both become hard to read once a program has real internal
+structure.
+
+Instead it gets its own directory: `Tasks/epics/EPIC-XXX_slug/`, containing the epic's own
+`README.md` (objective, context, subtask table) plus `incomplete/`/`completed/` subtask
+files (`EPIC-XXXA_name.md`, `EPIC-XXXB_name.md`, …). Full convention:
+[`Tasks/epics/README.md`](../../Tasks/epics/README.md).
+
+`Tasks/README.md` keeps only a **one-line link** to each epic's `README.md` — never a copy
+of its content. `EPIC-XXX` is its own ID pool, independent of `TASK-XXX`.
+
+Use this structure when a task would otherwise need `## Subtask 1`, `## Subtask 2`, …
+headings inside one file, or when the work is expected to span multiple sessions with
+distinct completion points. A single-session, single-deliverable task stays a plain
+`TASK-XXX` file — do not create an epic directory for it.
 
 ---
 

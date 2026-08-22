@@ -89,6 +89,7 @@ Additionally apply:
 | Commit | commit-rule.md |
 | Deployment | deployment.md |
 | Complex Multi-Phase Task | task-tracking.md |
+| UI / QML (`pyside_mvc`) | ui-architecture.md |
 
 Rules are mandatory.
 
