@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QTableWidget,
+    QPushButton,
     QTableWidgetItem,
     QLabel,
     QProgressBar,
@@ -184,12 +185,26 @@ class MainWindow(QMainWindow):
         right_layout.setSpacing(12)
 
         # Log Header
+        log_header_layout = QHBoxLayout()
         log_title = QLabel("⚡ UNIVERSAL EVENT BUS LOGS")
         log_title.setFont(QFont("Segoe UI", 12, QFont.Weight.Bold))
         log_title.setStyleSheet("color: #61afef;")
-        right_layout.addWidget(log_title)
+        log_header_layout.addWidget(log_title)
+
+        log_header_layout.addStretch()
 
         self.log_list = QListWidget()
+
+        self.clear_btn = QPushButton("&Clear Logs")
+        self.clear_btn.setToolTip("Clear event logs (Alt+C)")
+        self.clear_btn.setAccessibleName("Clear Logs")
+        self.clear_btn.setAccessibleDescription("Clears the event log list. Shortcut: Alt+C.")
+        self.clear_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.clear_btn.setStyleSheet("QPushButton { padding: 4px 12px; background-color: #282c34; border: 1px solid #3e4451; border-radius: 4px; } QPushButton:hover { background-color: #3e4451; }")
+        self.clear_btn.clicked.connect(self.log_list.clear)
+        log_header_layout.addWidget(self.clear_btn)
+
+        right_layout.addLayout(log_header_layout)
         right_layout.addWidget(self.log_list)
 
         # Progress Header
