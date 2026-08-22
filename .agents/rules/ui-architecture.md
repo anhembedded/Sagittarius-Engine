@@ -57,6 +57,70 @@ What this does **not** permit: deriving from `Rectangle`/`Item` directly, hardco
 visual value inside a derived component, or building a component that does not go through
 any engine base primitive at all. The escape hatch frees behaviour, never pixels.
 
+### 1.2 Component boundary — what may live inside a single component
+
+§1 draws the boundary between *layers*. This draws the same boundary one scale down, between
+*a component and its consumer*, and is the rule that settles every "where does this belong?"
+argument about an individual widget.
+
+**The law:**
+
+> **A component owns what is the same on every use.**
+> **The consumer owns what differs between uses.**
+
+Three tiers follow from it, and the third is the one most often missed:
+
+| Tier | Kind of knowledge | Where it lives |
+| :---: | :--- | :--- |
+| **1** | True for *every* use of the component | **Inside** the component |
+| **2** | Varies *per use* | A **parameter** passed in |
+| **3** | Belongs to a different world entirely | **Never enters** — not even as a parameter |
+
+Tier 3 exists because "pass it in" is not always a sufficient defence. A numeric bound is
+tier 2 and may be a property. A reference to the consuming application's engine, dispatcher,
+or domain services is **tier 3**: any component requiring one forces every context that uses
+it — including the gallery, a unit test, and a standalone preview — to construct one. Stated
+generally:
+
+> **Dependency direction runs from specific to general, never the reverse.**
+
+**The operational test.** For any piece of knowledge, ask:
+
+> *When this fact changes, how many files should have to change?*
+> The answer must be **1**. Put the knowledge in that one file.
+
+If the answer is greater than 1, the knowledge is currently in the wrong place. Worked
+examples, deliberately spanning different component types to show the law generalizes rather
+than being fitted to one case:
+
+| Question | Resolution |
+| :--- | :--- |
+| Should a field know how to display invalidity? | **Yes** — identical across every field in the app (tier 1) |
+| Should a field know its own min/max? | **No** — differs per field (tier 2, a property) |
+| Should a field enforce that bound? | **No** — UI validation is a courtesy, never the guarantee; the real invariant lives in the consumer's domain and must hold with the UI absent entirely |
+| Should a table know how to sort? | The **mechanism** yes (tier 1); *which column, which comparator* is tier 2 |
+| Should a modal know whether closing needs confirmation? | **No** — policy, differs per modal (tier 2) |
+| Should a button know a background task is running? | It knows **`busy`** (tier 1). It does not know what a "task" is (tier 3) |
+| Should a card decide its own width? | **No** — the region decides; the card expresses intent only |
+| Should a log panel know `error`/`warn`/`info`? | **Yes** — universal vocabulary (tier 1). *Which events are errors* is the consumer's (tier 2) |
+
+**Why this is the shape:** a design system's product is **consistency, not capability**. A
+field component promises *"whatever is invalid will look invalid, the same way, everywhere."*
+It does not promise *"I know what is invalid."* Knowledge that produces sameness across the
+application belongs inside; knowledge that expresses one case's meaning stays outside.
+
+**Corollary — no per-component runtime object.** It follows directly that a component must
+not be paired with its own per-instance Python controller holding application wiring. Such an
+object adds capability while weakening the promise: the component then requires assembly
+before it renders, can exist in a half-constructed state, and behaves differently between
+instances — which is the same violation as hardcoding a bound, merely at a different level.
+Python belongs on the other side of the boundary when, and only when, the work genuinely
+requires something QML cannot do — I/O, threads, or domain services. A comparison, a derived
+boolean, or a state-to-style mapping is not that, and is expressed better as a declarative
+binding. When a check *does* require I/O or domain services, that is the signal it was never
+component logic in the first place: it belongs to the screen's presenter, which passes the
+resulting state in (tier 2).
+
 ---
 
 ## 2. 🎨 Design Tokens
