@@ -119,27 +119,39 @@ not concept.
   - 2 are the kit's own construction sites (`StatefulButton.qml`, `StyledCheck.qml` —
     exactly where a `Button`/`CheckBox` is *supposed* to be instantiated raw; this is the
     guard correctly not exempting a file just because of what it's named).
-  - 6 are real, pre-existing internal inconsistency: `LogPanel.qml`'s Copy/Clear buttons and
-    4 buttons inside `DateTimePicker.qml` hand-roll their own hover/background styling
-    instead of using `StatefulButton`, predating this epic. **Not fixed here** — migrating
-    them changes each button's visual behaviour (hover timing, disabled opacity constant),
-    which is a real design decision, not a mechanical token swap like the colour fixes were.
-    Left as a named follow-up rather than force-fixed under this task's scope.
+  - 6 were real, pre-existing internal inconsistency, predating this epic. **Resolved
+    differently per case, not blanket-migrated** — each was actually inspected rather than
+    assumed equivalent:
+    - **`LogPanel.qml`'s Copy/Clear (2) — migrated to `StatefulButton`.** Genuine 1:1 match:
+      icon + text, idle/hover background swap, bordered — exactly the shape `StatefulButton`
+      already covers. Only visible change is corner radius (legacy `4px` → `StatefulButton`'s
+      real `Theme.radiusMd` default, `6px`) — the old value was never token-backed to begin
+      with, so this is a correction, not a regression. Confirmed against the re-rendered
+      gallery snapshot; both guards now report zero findings for this file.
+    - **`DateTimePicker.qml`'s 4 buttons — deliberately left alone**, after reading each one
+      in full rather than assuming they'd migrate like `LogPanel`'s did: the calendar-toggle
+      button has a bespoke merged-corner shape to fuse visually with the adjoining text field
+      (`StatefulButton` only ever renders a fully-rounded rect); the two month-nav arrows are
+      24×24 icon-only glyph buttons (`StatefulButton` is sized/laid out for labelled
+      icon+text buttons, `implicitHeight: 32`); the "Apply" button is a solid accent-filled
+      primary CTA (`StatefulButton` has no filled variant — only bordered idle/hover/active).
+      Forcing any of these through `StatefulButton` would be a real visual regression, not an
+      inconsistency fix — left as hand-rolled, correctly still flagged by the guard as a
+      reminder, not silently exempted.
   - **Practical scope of the guard right now**: exempting the kit's own directory
     (`exempt_dirs=[QmlShared]`) and running it against a *consuming app's* screens is where
     it earns its keep — there are currently no consuming screens in this repo to run it
     against yet (that's the app-repo migration epic, not started).
 - **3 new tests** for `raw_primitive_guard`, **11 new tests total this session**,
-  `492 passed, 7 skipped` total (up from 481), `mypy`/`ruff` clean (same 26 pre-existing
-  `mypy` errors as a clean baseline, verified via `git stash`).
+  `492 passed, 7 skipped` total (up from 481), `mypy` clean (same 26 pre-existing errors as a
+  clean baseline, verified via `git stash`); no Python changed in the `LogPanel.qml` fix, so
+  no new `ruff`/`mypy` surface there.
 
 **Not delivered — remaining scope for a follow-up pass:**
 
 - The `Rectangle`-as-styled-card gap the new guard's scope note above names — no automated
   check yet catches a screen re-implementing card/panel visuals from a raw `Rectangle` while
   still using correct tokens.
-- `LogPanel.qml`/`DateTimePicker.qml`'s internal buttons migrating to `StatefulButton` (found
-  above, deliberately not fixed).
 - Broader coverage: no `AppModal`/dialog-shell component yet (screens still build modals
   from `Popup`/`ModalDialogCard`-equivalent by hand outside this kit); `StatefulButton` is
   the only button primitive — no distinct icon-only/toolbar-button variant if one turns out

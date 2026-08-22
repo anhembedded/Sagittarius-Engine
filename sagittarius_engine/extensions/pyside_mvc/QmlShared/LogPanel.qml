@@ -78,74 +78,39 @@ BaseCard {
 
                 Item { Layout.fillWidth: true }
 
-                Button {
+                // EPIC-001C: migrated from a hand-rolled Button to the
+                // kit's own StatefulButton — same icon+text+idle/hover/
+                // border shape this button already had, just no longer a
+                // second independent copy of that recipe. Corner radius
+                // moves from a legacy 4px to StatefulButton's real
+                // Theme.radiusMd default (6px) rather than being preserved
+                // as an override — the old value was never token-backed.
+                StatefulButton {
                     id: copyButton
                     objectName: "btnCopyLog"
                     text: "Copy"
+                    iconSource: "copy"
+                    iconSize: 12
+                    fontSize: 11
                     implicitHeight: 24
                     // Whole-log copy, independent of any text selection —
                     // the per-line message Text below is individually
                     // selectable/copyable too (see delegate), this is the
                     // "grab everything" shortcut.
                     onClicked: logList.model.copyAllToClipboard()
-
-                    contentItem: RowLayout {
-                        spacing: 4
-                        Image {
-                            source: "image://icons/copy/muted"
-                            sourceSize.width: 12
-                            sourceSize.height: 12
-                            Layout.preferredWidth: 12
-                            Layout.preferredHeight: 12
-                        }
-                        Text {
-                            text: copyButton.text
-                            color: Theme.textPrimary
-                            font.pixelSize: 11
-                        }
-                    }
-
-                    background: Rectangle {
-                        implicitWidth: 64
-                        radius: 4
-                        color: copyButton.hovered ? Theme.stateHoverBg : Theme.stateIdleBg
-                        border.color: Theme.border
-                        border.width: 1
-                    }
                 }
 
-                Button {
+                StatefulButton {
                     id: clearButton
                     objectName: "btnClearLog"
                     text: "Clear"
+                    iconSource: "trash-2"
+                    iconSize: 12
+                    fontSize: 11
                     implicitHeight: 24
                     // Clearing the on-screen log is a pure UI concern — no
                     // Presenter round-trip, same as MonitorCard did.
                     onClicked: logList.model.clear()
-
-                    contentItem: RowLayout {
-                        spacing: 4
-                        Image {
-                            source: "image://icons/trash-2/muted"
-                            sourceSize.width: 12
-                            sourceSize.height: 12
-                            Layout.preferredWidth: 12
-                            Layout.preferredHeight: 12
-                        }
-                        Text {
-                            text: clearButton.text
-                            color: Theme.textPrimary
-                            font.pixelSize: 11
-                        }
-                    }
-
-                    background: Rectangle {
-                        implicitWidth: 64
-                        radius: 4
-                        color: clearButton.hovered ? Theme.stateHoverBg : Theme.stateIdleBg
-                        border.color: Theme.border
-                        border.width: 1
-                    }
                 }
             }
         }
