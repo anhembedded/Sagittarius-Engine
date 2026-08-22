@@ -1,0 +1,3 @@
+## 2025-02-13 - Established baseline accessibility pattern for PySide6 icon-only buttons
+**Learning:** PySide6/Qt mnemonic keyboard shortcuts created using an ampersand (e.g., `&Clear Logs` for `Alt+C`) and icon-only buttons are undiscoverable to screen readers and visual users without proper ARIA-equivalent attributes.
+**Action:** When adding utility or icon-only buttons in PySide6/Qt projects, establish a standard UX and accessibility baseline by applying `setToolTip`, `setAccessibleName`, `setAccessibleDescription`, and setting a pointing hand cursor (`setCursor(Qt.CursorShape.PointingHandCursor)`).
