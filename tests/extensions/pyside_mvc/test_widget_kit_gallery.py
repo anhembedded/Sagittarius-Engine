@@ -71,6 +71,28 @@ def test_app_data_table_renders_every_row_from_its_model(qtbot):
     assert rows_view.property("count") == 2
 
 
+def test_app_modal_opens_dynamically_sized_with_its_action_buttons(qtbot):
+    widget = create_quick_widget()
+    qtbot.addWidget(widget)
+
+    widget.setSource(QUrl.fromLocalFile(str(_FIXTURES_DIR / "app_modal_probe.qml")))
+
+    assert widget.errors() == []
+    root = widget.rootObject()
+    assert root is not None
+
+    modal = root.findChild(QObject, "probeModal")
+    assert modal is not None
+    assert modal.property("opened") is True
+    assert modal.property("title") == "Probe Modal"
+    # Dynamic sizing (qml-rule.md §2.2): width must never exceed the
+    # component's own declared cap, never a bare fixed number asserted here.
+    assert modal.property("width") <= modal.property("maxWidth")
+
+    assert root.findChild(QObject, "btnCancel") is not None
+    assert root.findChild(QObject, "btnConfirm") is not None
+
+
 def test_widget_kit_source_has_zero_literal_colours():
     """The permanent regression test: this exact check already caught 8
     real pre-existing violations in QmlShared when first run (2026-08-22) —

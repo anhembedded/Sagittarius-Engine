@@ -7,3 +7,4 @@ StatefulButton 1.0 StatefulButton.qml
 DateTimePicker 1.0 DateTimePicker.qml
 TimeRangeCard 1.0 TimeRangeCard.qml
 AppDataTable 1.0 AppDataTable.qml
+AppModal 1.0 AppModal.qml

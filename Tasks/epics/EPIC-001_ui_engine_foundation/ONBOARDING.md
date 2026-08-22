@@ -65,9 +65,13 @@ these, it almost certainly doesn't — re-read `ui-architecture.md` first.
 
 ## 4. Current state (check this is still accurate before trusting it)
 
-As of 2026-08-22: **`EPIC-001A` (governance/rule rewrite) and `EPIC-001B` (Design Token
-Layer) are both done.** `EPIC-001C` (Widget Kit Expansion — data table first) is next,
-unblocked, not yet started. Verify this is still true rather than
+As of 2026-08-22: **`EPIC-001A`/`EPIC-001B` are done; `EPIC-001C` (Widget Kit Expansion) is
+substantially delivered** — `AppDataTable`, `Gallery`, the anti-literal-colour guard, the
+anti-raw-primitive guard, and `AppModal` all exist and are tested. What's left in `C`: a
+`Rectangle`-as-styled-card detection gap (needs a real QML parser, not a regex — deliberately
+not attempted), and `DateTimePicker.qml`'s own calendar popup was not retrofitted onto
+`AppModal`. `EPIC-001D` (Runtime/Registry) has not been started. Verify this is still true
+rather than
 trusting this document indefinitely:
 
 ```bash

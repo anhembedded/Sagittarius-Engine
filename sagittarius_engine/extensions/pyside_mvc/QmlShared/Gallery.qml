@@ -162,6 +162,43 @@ Rectangle {
                     model: root.sampleTrades
                 }
             }
+
+            // ---- Modal caption (the modal itself is a sibling below —
+            // a Popup does not participate in inline layout, same
+            // precedent as DateTimePicker.qml's calendarPopup) -----------
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.leftMargin: Theme.spaceXl
+                Layout.rightMargin: Theme.spaceXl
+                Layout.bottomMargin: Theme.spaceXl
+                spacing: Theme.spaceXs
+
+                SectionLabel { text: "MODAL — AppModal (Popup shell, dynamic sizing, centers on Overlay.overlay)" }
+                Caption { text: "Opened automatically below for this screenshot — real usage opens on demand." }
+            }
         }
     }
+
+    AppModal {
+        id: demoModal
+        title: "Confirm Backtest Run"
+        actions: [
+            StatefulButton { text: "Cancel"; onClicked: demoModal.close() },
+            StatefulButton {
+                text: "Run Backtest"
+                accentBorder: Theme.success
+                onClicked: demoModal.close()
+            }
+        ]
+
+        Text {
+            Layout.fillWidth: true
+            text: "This will execute the strategy against 90 days of ETHUSDT 1m data. Continue?"
+            color: Theme.textPrimary
+            wrapMode: Text.WordWrap
+            textFormat: Text.PlainText
+        }
+    }
+
+    Component.onCompleted: demoModal.open()
 }

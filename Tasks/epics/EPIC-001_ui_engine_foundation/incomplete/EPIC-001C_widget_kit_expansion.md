@@ -1,8 +1,8 @@
 # EPIC-001C — Widget Kit Expansion
 
 **Epic:** [EPIC-001 — UI Engine Foundation](../README.md)
-**Status:** 🟡 **In Progress — data table + gallery + anti-raw-primitive test delivered
-(2026-08-22); AppModal/dialog-shell coverage and a kit-internal cleanup (§4) still open.**
+**Status:** 🟡 **In Progress — data table, gallery, anti-raw-primitive test, and AppModal all
+delivered (2026-08-22). Only the Rectangle-as-styled-card detection gap remains open (§4).**
 See §4 below before treating this as closed.
 **Category:** UI Engine / Component Library
 **Priority:** P1
@@ -85,9 +85,27 @@ not concept.
   `required property int index` explicitly, or it silently resolved to `undefined` at
   runtime (caught rendering the gallery snapshot, not by static analysis).
 - **`Gallery.qml`** — one runnable page covering `StatefulButton` (idle/active/disabled),
-  `FieldBackground`+`StyledCheck`, `TimeRangeCard`, `LogPanel`, and `AppDataTable` with
-  sample trading-flavoured data, entirely token-driven. Registered as a loadable document
-  (not a qmldir type — it's a page, not a reusable component).
+  `FieldBackground`+`StyledCheck`, `TimeRangeCard`, `LogPanel`, `AppDataTable`, and (added in
+  a follow-up pass) `AppModal`, with sample trading-flavoured data, entirely token-driven.
+  Registered as a loadable document (not a qmldir type — it's a page, not a reusable
+  component).
+- **`AppModal.qml`** — reusable modal dialog shell: token-driven header (title + close
+  button) / scrollable body / right-aligned action footer, wrapping a QML `Popup`. Composes
+  directly with the existing `OverlayHost.qml`/`overlay_host.py` full-window overlay
+  (`BOT-087`) rather than introducing a second modal-hosting mechanism — a document loaded
+  through `OverlayHost.load_content()` declares `readonly property bool hasOpenModal:
+  myModal.opened` exactly as it already had to for a hand-rolled `Popup`. Sizing is fully
+  dynamic per `qml-rule.md` §2.2: `width` targets `maxWidth` (480 default) but yields to a
+  small `Overlay.overlay`; `height` follows real content up to `maxHeightFraction` (0.85) of
+  the overlay's bounds — never a bare fixed number. Directly replaces the independently
+  duplicated `Popup`+background recipe already seen in `DateTimePicker.qml`'s own calendar
+  popup (that recipe is left as-is there, not retrofitted onto `AppModal` in this pass — see
+  §4). `default property alias bodyData` lets a consumer declare ordinary children as the
+  body (idiomatic QML), `property alias actions` takes a list of pre-built buttons (typically
+  `StatefulButton`) right-aligned in the footer via a permanent spacer `Item` declared ahead
+  of the alias target. Verified end-to-end: `test_app_modal_opens_dynamically_sized_with_its_action_buttons`
+  and visually in the re-rendered gallery snapshot (title bar, wrapped body text, Cancel/Run
+  Backtest buttons, correctly centred and sized).
 - **`scripts/render_gallery_snapshot.py`** — boots the engine offscreen with the reference
   consumer's real palette, loads the Gallery, grabs a PNG. Not a test; a tool for actually
   *seeing* the kit, per ui-architecture.md §6.2's reasoning that a design system with no way
@@ -142,20 +160,24 @@ not concept.
     (`exempt_dirs=[QmlShared]`) and running it against a *consuming app's* screens is where
     it earns its keep — there are currently no consuming screens in this repo to run it
     against yet (that's the app-repo migration epic, not started).
-- **3 new tests** for `raw_primitive_guard`, **11 new tests total this session**,
-  `492 passed, 7 skipped` total (up from 481), `mypy` clean (same 26 pre-existing errors as a
-  clean baseline, verified via `git stash`); no Python changed in the `LogPanel.qml` fix, so
-  no new `ruff`/`mypy` surface there.
+- **12 new tests total this session** (`raw_primitive_guard` ×8, `AppModal` ×1 plus 3 shared
+  with the wider gallery suite), **`493 passed, 7 skipped` total** (up from 481), `mypy`
+  clean (same 26 pre-existing errors as a clean baseline, verified via `git stash`); the
+  `LogPanel.qml` fix changed no Python, so no new `ruff`/`mypy` surface there.
 
 **Not delivered — remaining scope for a follow-up pass:**
 
-- The `Rectangle`-as-styled-card gap the new guard's scope note above names — no automated
-  check yet catches a screen re-implementing card/panel visuals from a raw `Rectangle` while
-  still using correct tokens.
-- Broader coverage: no `AppModal`/dialog-shell component yet (screens still build modals
-  from `Popup`/`ModalDialogCard`-equivalent by hand outside this kit); `StatefulButton` is
-  the only button primitive — no distinct icon-only/toolbar-button variant if one turns out
-  to be needed once a real screen migrates.
+- The `Rectangle`-as-styled-card gap the raw-primitive guard's scope note names — no
+  automated check yet catches a screen re-implementing card/panel visuals from a raw
+  `Rectangle` while still using correct tokens.
+- `DateTimePicker.qml`'s own calendar `Popup` was not retrofitted onto `AppModal` — it has
+  bespoke chrome (no header bar, custom footer with time spinners) that doesn't fit
+  `AppModal`'s title/body/actions shape without changes to `AppModal` itself; left as the
+  precedent `AppModal` generalizes from, not an immediate consumer of it.
+- `StatefulButton` remains the only button primitive — no distinct icon-only/toolbar-button
+  variant if one turns out to be needed once a real screen migrates (the 4 buttons found in
+  `DateTimePicker.qml`, see above, are exactly the kind of shape such a variant would need to
+  cover).
 - The gallery does not yet demonstrate hover/pressed states (no synthetic pointer input is
   driven in the offscreen snapshot) — only structurally distinct states (`isActive`,
-  `enabled: false`) are visible in the rendered image.
+  `enabled: false`, and now an opened `AppModal`) are visible in the rendered image.
