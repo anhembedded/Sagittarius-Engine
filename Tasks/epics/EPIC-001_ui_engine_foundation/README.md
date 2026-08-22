@@ -5,7 +5,7 @@
 > to be relitigated, current state, and the cross-repo trap that catches new sessions most
 > often.
 
-**Status:** 🟡 In Progress — 1/4 subtasks done (2026-08-22). `EPIC-001A` complete; `B`/`C`/`D` unblocked, `B` first.
+**Status:** 🟡 In Progress — 2/4 subtasks done (2026-08-22). `EPIC-001A`/`B` complete; `C` unblocked, next.
 **Source:** Direct user decision (2026-08-22) — `Sagittarius_Elite_Warrior`'s presentation
 layer has no unified design philosophy across its 4 screens; each was built independently
 with its own hosting, styling and component choices. Decision: build a proper **UI Engine**
@@ -75,8 +75,8 @@ condition this epic exists to end.
 | ID | Name | Risk | Status |
 | :--- | :--- | :---: | :---: |
 | **[EPIC-001A](completed/EPIC-001A_architecture_rule_rewrite.md)** | Architecture Rule Rewrite & Ownership Boundary | 🟢 | ✅ Done (22/08) — no code, governance only |
-| **[EPIC-001B](incomplete/EPIC-001B_design_token_layer.md)** | Design Token Layer — fixed vocabulary, bootstrap validation, anti-literal test | 🟢 | 🔴 Not started — unblocked |
-| **[EPIC-001C](incomplete/EPIC-001C_widget_kit_expansion.md)** | Widget Kit Expansion — data table first, gallery, anti-raw-primitive test | 🟡 | 🔴 Blocked by `B` |
+| **[EPIC-001B](completed/EPIC-001B_design_token_layer.md)** | Design Token Layer — fixed colour vocabulary, bootstrap validation, anti-literal-colour test | 🟢 | ✅ Done (22/08) — 19 new tests, 481 passed total, 0 new mypy errors |
+| **[EPIC-001C](incomplete/EPIC-001C_widget_kit_expansion.md)** | Widget Kit Expansion — data table first, gallery, anti-raw-primitive test | 🟡 | 🔴 Not started — unblocked |
 | **[EPIC-001D](incomplete/EPIC-001D_runtime_slot_registry.md)** | Runtime, Regions & Slot Registry — shell, contribution model, lifecycle conformance suite | 🔴 | 🔴 Blocked by `B`+`C` |
 
 **Dependency order:** strictly `A → B → C → D`. `A` is governance-only and unblocks

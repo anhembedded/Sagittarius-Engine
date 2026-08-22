@@ -4,7 +4,7 @@
 **Status:** 🔵 Backlog
 **Category:** UI Engine / Component Library
 **Priority:** P1
-**Depends on:** EPIC-001B (the kit renders tokens; the vocabulary must exist first)
+**Depends on:** EPIC-001B ✅ (the kit renders tokens; the vocabulary must exist first) — unblocked, ready to start
 
 ---
 

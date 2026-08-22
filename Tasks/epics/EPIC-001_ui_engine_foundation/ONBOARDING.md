@@ -65,8 +65,9 @@ these, it almost certainly doesn't — re-read `ui-architecture.md` first.
 
 ## 4. Current state (check this is still accurate before trusting it)
 
-As of 2026-08-22: **`EPIC-001A` (governance/rule rewrite) is done.** `EPIC-001B` (Design
-Token Layer) is next, unblocked, not yet started. Verify this is still true rather than
+As of 2026-08-22: **`EPIC-001A` (governance/rule rewrite) and `EPIC-001B` (Design Token
+Layer) are both done.** `EPIC-001C` (Widget Kit Expansion — data table first) is next,
+unblocked, not yet started. Verify this is still true rather than
 trusting this document indefinitely:
 
 ```bash

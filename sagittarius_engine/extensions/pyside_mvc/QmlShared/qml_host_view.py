@@ -8,6 +8,10 @@ from PySide6.QtQuickWidgets import QQuickWidget
 from PySide6.QtWidgets import QVBoxLayout
 
 from sagittarius_engine.extensions.pyside_mvc.base_view import BaseView
+from sagittarius_engine.extensions.pyside_mvc.tokens.vocabulary import (
+    MissingRequiredTokensError,
+    missing_required_tokens,
+)
 
 from .icon_image_provider import ICON_PROVIDER_ID, IconImageProvider, IIconLoader
 from .qml_style import ensure_qml_style
@@ -50,12 +54,22 @@ def configure_app_qml(
     pattern already used for the theme bridge itself.
 
     @param ui_palette Maps QML property name (e.g. "accent", "bgSidebar") to
-    a color value — exposed to QML as `Theme.<name>`.
+    a color value — exposed to QML as `Theme.<name>`. Must supply every
+    token in `tokens.vocabulary.REQUIRED_COLOUR_TOKENS`.
     @param icon_loader The app's own icon loader, satisfying IIconLoader.
     @param icon_palette Maps icon-color token (used in
     `image://icons/<name>/<token>` URLs) to a color value. Kept distinct
     from `ui_palette` since the two vocabularies evolved independently.
+
+    @raise MissingRequiredTokensError If `ui_palette` omits any required
+    colour token. Fails here, at the one place an app declares its palette,
+    rather than deferring to an undefined `Theme.<name>` surfacing later as
+    a silent rendering bug somewhere in QML — see `ui-architecture.md` §2.1.
     """
+    missing = missing_required_tokens(ui_palette)
+    if missing:
+        raise MissingRequiredTokensError(missing)
+
     global _app_qml_config
     _app_qml_config = AppQmlConfig(
         ui_palette=ui_palette, icon_loader=icon_loader, icon_palette=icon_palette

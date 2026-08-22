@@ -45,7 +45,7 @@ link is kept here; content is not duplicated.
 
 | ID | Name | Status |
 | :--- | :--- | :---: |
-| **[EPIC-001](epics/EPIC-001_ui_engine_foundation/README.md)** | UI Engine Foundation — tokens, widget kit, composition runtime for `pyside_mvc` | 🟡 In Progress (1/4 subtasks done) |
+| **[EPIC-001](epics/EPIC-001_ui_engine_foundation/README.md)** | UI Engine Foundation — tokens, widget kit, composition runtime for `pyside_mvc` | 🟡 In Progress (2/4 subtasks done) |
 
 ---
 

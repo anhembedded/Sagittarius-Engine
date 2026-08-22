@@ -1,6 +1,6 @@
 from PySide6.QtQml import QQmlPropertyMap
 
-from .state_tokens import with_state_token_defaults
+from sagittarius_engine.extensions.pyside_mvc.tokens.defaults import with_token_defaults
 
 _THEME_CONTEXT_NAME = "Theme"
 
@@ -15,9 +15,12 @@ def get_theme_bridge(palette: dict[str, str] | None = None) -> QQmlPropertyMap:
 
     @details
     A QQmlPropertyMap rather than a fixed set of named @Property members:
-    the color-slot vocabulary ("bgSidebar", "bgCardHeader", ...) is entirely
-    the consuming app's own naming — this engine has no opinion on what
-    theme slots exist, only on how to expose whatever dict the app supplies.
+    a property map's keys can be populated from a dict at construction time
+    without hand-writing one @Property per token. The vocabulary itself is
+    no longer an open question the map is neutral about — required colour
+    tokens are engine-owned and validated at `configure_app_qml()` (see
+    `tokens.vocabulary`); this function's job is exposure to QML, not
+    naming policy.
 
     One instance app-wide: it holds no per-screen state, and every QML
     context property must point at an object Python keeps alive — a
@@ -27,9 +30,11 @@ def get_theme_bridge(palette: dict[str, str] | None = None) -> QQmlPropertyMap:
 
     @param palette Maps QML property name -> color value (typically a hex
     string). Required on the first call; ignored afterwards. Merged with
-    `state_tokens.DEFAULT_STATE_TOKENS` (app keys win on collision) so
-    `Theme.stateDisabledOpacity`/`stateHoverBg`/etc. always resolve to
-    something, even for an app that hasn't opted into overriding them yet.
+    every default-backed token category — state, spacing, radius,
+    typography, motion (`tokens.defaults.with_token_defaults`, app keys win
+    on collision) — so `Theme.stateDisabledOpacity`/`Theme.spaceMd`/etc.
+    always resolve to something, even for an app that hasn't opted into
+    overriding them yet.
     @raise ValueError If called before any palette has been supplied.
     """
     global _shared_theme_bridge
@@ -40,7 +45,7 @@ def get_theme_bridge(palette: dict[str, str] | None = None) -> QQmlPropertyMap:
                 "(typically from create_quick_widget()) must supply one."
             )
         _shared_theme_bridge = QQmlPropertyMap()
-        for key, value in with_state_token_defaults(palette).items():
+        for key, value in with_token_defaults(palette).items():
             _shared_theme_bridge.insert(key, value)
     return _shared_theme_bridge
 
